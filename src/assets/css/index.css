@@ -1,0 +1,50 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  input {
+    @apply focus:outline-0 focus:ring-0 focus-visible:outline-0 focus-visible:ring-0;
+  }
+
+  button {
+    @apply focus:outline-0 focus:ring-0 focus-visible:outline-0 focus-visible:ring-0;
+  }
+
+  a {
+    @apply focus:outline-0 focus:ring-0 focus-visible:outline-0 focus-visible:ring-0;
+  }
+
+  textarea {
+    @apply focus:outline-0 focus:ring-0 focus-visible:outline-0 focus-visible:ring-0;
+  }
+
+  select {
+    @apply focus:outline-0 focus:ring-0 focus-visible:outline-0 focus-visible:ring-0;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  font-family: "Montserrat", sans-serif;
+}
+
+.rdp-day_selected {
+  background-color: #116fac;
+}
