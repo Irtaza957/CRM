@@ -57,12 +57,12 @@ const CustomDatePicker = ({
     dispatch(setDate(date));
   };
 
-  useEffect(() => {
-    if (date) {
-      setCurrentMonth(new Date(date).getMonth());
-      setCurrentYear(new Date(date).getFullYear());
-    }
-  }, [date]);
+  // useEffect(() => {
+  //   if (date) {
+  //     setCurrentMonth(new Date(date).getMonth());
+  //     setCurrentYear(new Date(date).getFullYear());
+  //   }
+  // }, [date]);
 
   return (
     <div

@@ -138,6 +138,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const [createBooking, { isLoading: creating }] = useCreateBookingMutation();
   const [selectedUser, setSelectedUser] = useState<CustomerProps | null>(null);
   const [attachments, setAttachments] = useState<AttachmentProps[] | null>([]);
+  const [selectedFamily, setSelectedFamily]=useState<number | null>(null)
 
   const getAddresses = async (id: string) => {
     const { data } = await fetchAddresses(id);
@@ -295,6 +296,14 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
       ));
     }
   };
+
+  const handleSelectFamily=(id: number)=>{
+    if(id===selectedFamily){
+      setSelectedFamily(null)
+    }else{
+      setSelectedFamily(id)
+    }
+  }
 
   useEffect(() => {
     if (data) {
@@ -571,8 +580,8 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                           <button className="rounded-md bg-primary px-1 py-0.5 text-[10px] text-white">
                             Edit
                           </button>
-                          <button className="rounded-md bg-primary px-1 py-0.5 text-[10px] text-white">
-                            Book
+                          <button onClick={()=>handleSelectFamily(member?.family_member_id)} className={`rounded-md px-1 py-0.5 text-[10px] text-white ${selectedFamily === member?.family_member_id ? 'bg-red-500' : 'bg-primary'}`}>
+                            {selectedFamily === member?.family_member_id ? 'Remove' : 'Book'}
                           </button>
                         </div>
                       </div>
@@ -632,120 +641,125 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                   setSelectedServices={setSelectedServices}
                 />
               </div>
-              <div className="grid w-full grid-cols-9 gap-2.5 p-2.5 text-xs text-primary">
-                <div className="col-span-1 w-full" />
-                <div className="col-span-1 w-full">Code</div>
-                <div className="col-span-3 w-full">Service</div>
-                <div className="col-span-2 w-full">Amount</div>
-                <div className="col-span-1 w-full text-center">Qty.</div>
-                <div className="col-span-1 w-full text-right">Total</div>
-              </div>
-              {selectedServices?.map((service, idx) => (
-                <div
-                  key={service.service_id}
-                  className={cn(
-                    "grid w-full grid-cols-9 gap-2.5 p-2.5 text-xs text-gray-500",
-                    {
-                      "bg-white": idx % 2 !== 0,
-                      "bg-gray-100": idx % 2 === 0,
-                    }
-                  )}
-                >
-                  <button
-                    type="button"
-                    onClick={() => removeSelectedService(service.service_id)}
-                  >
-                    <IoClose className="h-5 w-5" />
-                  </button>
-                  <div className="col-span-1 flex w-full items-center justify-start">
-                    {service.category_code}
-                  </div>
-                  <div className="col-span-3 flex w-full items-center justify-start">
-                    <p className="w-full overflow-hidden truncate text-left">
-                      {service.service_name}
-                    </p>
-                  </div>
-                  <div className="col-span-2 flex w-full items-center justify-start">
-                    AED&nbsp;
-                    {service.price_without_vat}
-                  </div>
-                  <input
-                    type="text"
-                    placeholder={`${service.qty}`}
-                    onChange={(e) =>
-                      modifyQuantity(
-                        service.service_id,
-                        parseInt(e.target.value)
-                      )
-                    }
-                    className="col-span-1 w-full bg-transparent text-center"
-                  />
-                  <div className="col-span-1 flex w-full items-center justify-end">
-                    {service?.qty
-                      ? parseFloat(service.price_without_vat) * service!.qty
-                      : service.price_without_vat}
-                  </div>
+              {selectedServices?.length ?
+                <>
+                <div className="grid w-full grid-cols-9 gap-2.5 p-2.5 text-xs text-primary">
+                  <div className="col-span-1 w-full" />
+                  <div className="col-span-1 w-full">Code</div>
+                  <div className="col-span-3 w-full">Service</div>
+                  <div className="col-span-2 w-full">Amount</div>
+                  <div className="col-span-1 w-full text-center">Qty.</div>
+                  <div className="col-span-1 w-full text-right">Total</div>
                 </div>
-              ))}
-              <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5">
-                <div className="flex w-full items-center justify-end space-x-40 pr-2.5 text-xs text-gray-500">
-                  <p>Subtotal</p>
-                  <p>{calculateBookingCost(selectedServices!).subtotal}</p>
-                </div>
-                <div className="flex w-full items-center justify-end space-x-7 text-xs text-gray-500">
-                  <p>Discount</p>
-                  <div className="flex h-[38px] items-center justify-center space-x-2.5 overflow-hidden rounded-lg border p-2.5">
-                    <div
-                      onClick={() => setDiscount({ ...discount, type: "aed" })}
-                      className="size-3 cursor-pointer rounded-full border border-gray-400 p-px"
-                    >
-                      <div
-                        className={cn("size-full rounded-full", {
-                          "bg-gray-500": discount.type === "aed",
-                        })}
-                      />
-                    </div>
-                    <span>AED</span>
-                    <div
-                      onClick={() =>
-                        setDiscount({ ...discount, type: "percent" })
+                {selectedServices?.map((service, idx) => (
+                  <div
+                    key={service.service_id}
+                    className={cn(
+                      "grid w-full grid-cols-9 gap-2.5 p-2.5 text-xs text-gray-500",
+                      {
+                        "bg-white": idx % 2 !== 0,
+                        "bg-gray-100": idx % 2 === 0,
                       }
-                      className="size-3 cursor-pointer rounded-full border border-gray-400 p-px"
+                    )}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => removeSelectedService(service.service_id)}
                     >
-                      <div
-                        className={cn("size-full rounded-full", {
-                          "bg-gray-500": discount.type === "percent",
-                        })}
-                      />
+                      <IoClose className="h-5 w-5" />
+                    </button>
+                    <div className="col-span-1 flex w-full items-center justify-start">
+                      {service.category_code}
                     </div>
-                    <span>%</span>
+                    <div className="col-span-3 flex w-full items-center justify-start">
+                      <p className="w-full overflow-hidden truncate text-left">
+                        {service.service_name}
+                      </p>
+                    </div>
+                    <div className="col-span-2 flex w-full items-center justify-start">
+                      AED&nbsp;
+                      {service.price_without_vat}
+                    </div>
                     <input
                       type="text"
-                      placeholder="0.00"
+                      placeholder={`${service.qty}`}
                       onChange={(e) =>
-                        setDiscount({
-                          ...discount,
-                          value: parseInt(e.target.value),
-                        })
+                        modifyQuantity(
+                          service.service_id,
+                          parseInt(e.target.value)
+                        )
                       }
-                      className="w-10 border-l-2 pl-2.5"
+                      className="col-span-1 w-full bg-transparent text-center"
                     />
+                    <div className="col-span-1 flex w-full items-center justify-end">
+                      {service?.qty
+                        ? parseFloat(service.price_without_vat) * service!.qty
+                        : service.price_without_vat}
+                    </div>
+                  </div>
+                ))}
+                <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5">
+                  <div className="flex w-full items-center justify-end space-x-40 pr-2.5 text-xs text-gray-500">
+                    <p>Subtotal</p>
+                    <p>{calculateBookingCost(selectedServices!).subtotal}</p>
+                  </div>
+                  <div className="flex w-full items-center justify-end space-x-7 text-xs text-gray-500">
+                    <p>Discount</p>
+                    <div className="flex h-[38px] items-center justify-center space-x-2.5 overflow-hidden rounded-lg border p-2.5">
+                      <div
+                        onClick={() => setDiscount({ ...discount, type: "aed" })}
+                        className="size-3 cursor-pointer rounded-full border border-gray-400 p-px"
+                      >
+                        <div
+                          className={cn("size-full rounded-full", {
+                            "bg-gray-500": discount.type === "aed",
+                          })}
+                        />
+                      </div>
+                      <span>AED</span>
+                      <div
+                        onClick={() =>
+                          setDiscount({ ...discount, type: "percent" })
+                        }
+                        className="size-3 cursor-pointer rounded-full border border-gray-400 p-px"
+                      >
+                        <div
+                          className={cn("size-full rounded-full", {
+                            "bg-gray-500": discount.type === "percent",
+                          })}
+                        />
+                      </div>
+                      <span>%</span>
+                      <input
+                        type="text"
+                        placeholder="0.00"
+                        onChange={(e) =>
+                          setDiscount({
+                            ...discount,
+                            value: parseInt(e.target.value),
+                          })
+                        }
+                        className="w-10 border-l-2 pl-2.5"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex w-full items-center justify-end space-x-36 pr-2.5 text-xs text-gray-500">
+                    <p>VAT</p>
+                    <p>{calculateBookingCost(selectedServices!).total_vat}</p>
+                  </div>
+                  <div className="w-72 place-self-end border border-gray-300" />
+                  <div className="flex w-full items-center justify-end space-x-[105px] pr-2.5 font-bold text-gray-500">
+                    <p>Grand Total</p>
+                    <p>
+                      AED&nbsp;
+                      {Math.round(calculateDiscount())}
+                    </p>
                   </div>
                 </div>
-                <div className="flex w-full items-center justify-end space-x-36 pr-2.5 text-xs text-gray-500">
-                  <p>VAT</p>
-                  <p>{calculateBookingCost(selectedServices!).total_vat}</p>
-                </div>
-                <div className="w-72 place-self-end border border-gray-300" />
-                <div className="flex w-full items-center justify-end space-x-[105px] pr-2.5 font-bold text-gray-500">
-                  <p>Grand Total</p>
-                  <p>
-                    AED&nbsp;
-                    {Math.round(calculateDiscount())}
-                  </p>
-                </div>
-              </div>
+                </>:null
+              }
             </div>
+            {selectedServices?.length ?
             <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
               <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
                 <h1 className="w-full text-left font-semibold text-primary">
@@ -886,7 +900,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                   "Confirm Booking"
                 )}
               </button>
-            </div>
+            </div> : null}
           </div>
         </div>
       </div>

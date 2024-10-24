@@ -2,7 +2,6 @@ import { RootState } from "../store";
 import Logo from "../assets/img/logo.svg";
 import CustomDatePicker from "./ui/CustomDatePicker";
 
-import dayjs from "dayjs";
 import { useState } from "react";
 import { GoBell } from "react-icons/go";
 import { BsGear } from "react-icons/bs";
@@ -24,7 +23,7 @@ const Navbar = () => {
             toggleButton={
               <div className="flex items-center justify-center gap-5">
                 <FaChevronLeft />
-                <span>{dayjs(date).format("DD MMM YYYY")}</span>
+                <span>{date}</span>
                 <FaChevronRight />
               </div>
             }
