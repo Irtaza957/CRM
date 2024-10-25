@@ -307,6 +307,10 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     }
   }
 
+  const handleAddAddress=()=>{
+    setOpenAddressModal(!openAddressModal)
+  }
+
   useEffect(() => {
     if (data) {
       const view = createTimelineView(data!);
@@ -457,7 +461,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                     <h1 className="text-left font-semibold text-primary">
                       Address Details
                     </h1>
-                    <FiPlus className="h-5 w-5 text-gray-500 cursor-pointer" />
+                    <FiPlus onClick={handleAddAddress} className="h-5 w-5 text-gray-500 cursor-pointer" />
                   </div>
                   <div className="mt-2.5 grid w-full grid-cols-2 gap-2.5 text-gray-500">
                     {addresses?.length !== 0 &&

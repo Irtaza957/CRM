@@ -3,6 +3,7 @@ import Modal from '../../ui/Modal'
 import CustomInput from '../../ui/CustomInput'
 import Combobox from '../../ui/Combobox'
 import { RiArrowDownSLine } from "react-icons/ri";
+import CustomButton from '../../ui/CustomButton';
 
 interface AddAddressModalProps {
     open: boolean,
@@ -16,10 +17,18 @@ const emiratesOption = [
 ]
 const AddAddressModal = ({ open, setOpen }: AddAddressModalProps) => {
     const [emirate, setEmirate] = useState<ListOptionProps | null>(null);
+    const [villa, setVilla] = useState<ListOptionProps | null>(null);
 
     const handleSelect = (value: ListOptionProps) => {
-        console.log(value, 'value')
         setEmirate(value)
+    }
+
+    const handleSubmit=()=>{
+        closeModal()
+    }
+
+    const closeModal=()=>{
+        setOpen(false)
     }
     return (
         <Modal
@@ -31,7 +40,7 @@ const AddAddressModal = ({ open, setOpen }: AddAddressModalProps) => {
         >
             <div className='w-full px-6 py-7'>
                 <p className='text-left text-[18px] text-primary font-bold'>Address Details</p>
-                <div className='my-4 w-full'>
+                <div className='mt-4 w-full'>
                     <div className='w-full flex gap-5 items-center justify-center'>
                         <CustomInput
                             type="text"
@@ -54,9 +63,9 @@ const AddAddressModal = ({ open, setOpen }: AddAddressModalProps) => {
                             isSearch={false}
                         />
                         <Combobox
-                            value={emirate}
+                            value={villa}
                             options={emiratesOption}
-                            handleSelect={handleSelect}
+                            handleSelect={(value)=>setVilla(value)}
                             label='Area'
                             placeholder="Select Area"
                             mainClassName="w-full"
@@ -109,6 +118,10 @@ const AddAddressModal = ({ open, setOpen }: AddAddressModalProps) => {
                                 setter={() => { }}
                             />
                         </div>
+                    </div>
+                    <div className='flex justify-end gap-3 w-full mt-7'>
+                        <CustomButton name='Cancel' handleClick={closeModal} style="bg-danger"/>
+                        <CustomButton name='Save' handleClick={handleSubmit}/>
                     </div>
                 </div>
             </div>
