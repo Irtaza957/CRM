@@ -20,7 +20,7 @@ import {
 import { RootState } from "../../../store";
 import CustomToast from "../../ui/CustomToast";
 import AutoComplete from "../../ui/AutoComplete";
-import { options } from "../../../utils/constants";
+import { options, timeSlots } from "../../../utils/constants";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 import ServiceAutoComplete from "../../ui/ServiceAutoComplete";
 
@@ -49,6 +49,8 @@ import { FiPlus, FiDownload } from "react-icons/fi";
 import { LuLoader2, LuUser2 } from "react-icons/lu";
 import { TiArrowSortedDown, TiDocumentText } from "react-icons/ti";
 import AddAddressModal from "./AddAddressModal";
+import CustomButton from "../../ui/CustomButton";
+import CustomInput from "../../ui/CustomInput";
 
 const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   return (
@@ -120,7 +122,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     value: 0,
   });
   const [payment, setPayment] = useState("cod");
-  const [scheduleTime, setScheduleTime] = useState("");
+  const [scheduleTime, setScheduleTime] = useState<ListOptionProps | null>(null);
   const [scheduleDate, setScheduleDate] = useState("");
   const [deliveryNotes, setDeliveryNotes] = useState("");
   const [fetchFamily] = useFetchCustomerFamilyMutation();
@@ -140,7 +142,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const [selectedUser, setSelectedUser] = useState<CustomerProps | null>(null);
   const [attachments, setAttachments] = useState<AttachmentProps[] | null>([]);
   const [selectedFamily, setSelectedFamily]=useState<number | null>(null)
-  const [openAddressModal, setOpenAddressModal]=useState(true)
+  const [openAddressModal, setOpenAddressModal]=useState(false)
 
   const getAddresses = async (id: string) => {
     const { data } = await fetchAddresses(id);
@@ -406,13 +408,17 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
               <IoClose className="size-8" />
             </button>
           </div>
-          <div className="no-scrollbar col-span-1 flex h-[892px] w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pl-2.5">
+          <div className={`no-scrollbar col-span-1 flex w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pl-2.5 ${selectedUser ? 'max-h-[calc(100vh-100px)]' : 'h-screen'}`}>
             <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
               <div className="mb-2.5 flex w-full items-center justify-between border-b pb-2.5">
                 <h1 className="text-left font-semibold text-primary">
                   Client Details
                 </h1>
-                <FaRegEdit className="h-5 w-5 text-gray-500" />
+                {!selectedUser ?
+                  <CustomButton name='Add New' handleClick={()=>{}} />
+
+                  :
+                  <FaRegEdit className="h-5 w-5 text-gray-500" />}
               </div>
               <AutoComplete setSelectedUser={setSelectedUser} />
             </div>
@@ -631,7 +637,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
               </>
             )}
           </div>
-          <div className="no-scrollbar col-span-1 flex h-[892px] w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pr-2.5">
+          <div className="no-scrollbar col-span-1 flex max-h-[calc(100vh-100px)]  w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pr-2.5">
             <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
               <div className="flex w-full items-center justify-between border-b pb-2.5">
                 <h1 className="text-left font-semibold text-primary">
@@ -784,26 +790,44 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                   Select Time & Date
                 </h1>
                 <div className="grid w-full grid-cols-2 gap-2.5">
-                  <div className="flex w-full items-center justify-center space-x-2.5 rounded-lg bg-gray-100 p-2.5">
+                  {/* <div className="flex w-full items-center justify-center space-x-2.5 rounded-lg bg-gray-100 p-2.5">
                     <input
                       type="text"
                       value={scheduleDate}
                       placeholder="04 Oct 2023"
-                      className="w-full bg-transparent text-xs"
+                      className="w-full max-h-52 bg-transparent text-xs"
                       onChange={(e) => setScheduleDate(e.target.value)}
                     />
                     <IoCalendarOutline className="h-5 w-5" />
+                  </div> */}
+                  <div className="-mt-1">
+                  <label className="w-full text-left text-xs text-grey100 font-medium mb-0.5">
+                    Select Date
+                  </label>
+                  <CustomDatePicker
+                    // date={date}
+                    // setDate={setDate}
+                    toggleButton={
+                      <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-2 text-xs font-medium">
+                        <p>{dayjs(date).format("DD MMM YYYY")}</p>
+                        <div><IoCalendarOutline className="h-5 w-5 text-grey100" /></div>
+                      </div>
+                    }
+                  />
                   </div>
-                  <div className="flex w-full items-center justify-center space-x-2.5 rounded-lg bg-gray-100 p-2.5">
-                    <input
-                      type="text"
+                  <Combobox
                       value={scheduleTime}
-                      placeholder="08:00 - 09:00"
-                      className="w-full bg-transparent text-xs"
-                      onChange={(e) => setScheduleTime(e.target.value)}
+                      options={timeSlots}
+                      handleSelect={(value)=>setScheduleTime(value)}
+                      label='Select Time'
+                      placeholder="Select Time"
+                      mainClassName="w-full"
+                      toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey"
+                      listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                      listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                      icon={<FaRegClock className="h-5 w-5 text-grey100" />}
+                      isSearch={false}
                     />
-                    <FaRegClock className="h-5 w-5" />
-                  </div>
                 </div>
               </div>
               <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
@@ -811,7 +835,6 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                   <h1 className="text-left font-semibold text-primary">
                     Select Address
                   </h1>
-                  <FiPlus className="h-5 w-5 text-gray-500" />
                 </div>
                 <div className="mt-2.5 grid w-full grid-cols-2 gap-2.5 text-gray-500">
                   {addresses?.length !== 0 &&
@@ -831,23 +854,6 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                           <span className="font-bold capitalize text-primary">
                             {a.address_type}
                           </span>
-                          <div className="flex items-center justify-end space-x-2.5">
-                            {a.map_link && (
-                              <Link target="_blank" to={a.map_link}>
-                                <IoLocationOutline />
-                              </Link>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() =>
-                                copyToClipboard(`${a.apartment}, ${a.building_no}
-                            , ${a.street}, ${a.extra_direction}`)
-                              }
-                            >
-                              <GoShareAndroid />
-                            </button>
-                            <FaRegEdit />
-                          </div>
                         </div>
                         <span className="w-full overflow-hidden truncate text-left text-xs">
                           {a.apartment},&nbsp;{a.building_no}

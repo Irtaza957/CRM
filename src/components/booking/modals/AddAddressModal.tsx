@@ -56,8 +56,8 @@ const AddAddressModal = ({ open, setOpen }: AddAddressModalProps) => {
                             label='Emirate'
                             placeholder="Select Emirate"
                             mainClassName="w-full"
-                            toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-[#F5F6FA]"
-                            listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-grey"
+                            toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+                            listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
                             listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                             icon={<RiArrowDownSLine className="size-5 text-grey100" />}
                             isSearch={false}
@@ -69,8 +69,8 @@ const AddAddressModal = ({ open, setOpen }: AddAddressModalProps) => {
                             label='Area'
                             placeholder="Select Area"
                             mainClassName="w-full"
-                            toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-[#F5F6FA]"
-                            listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-grey"
+                            toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+                            listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
                             listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                             icon={<RiArrowDownSLine className="size-5 text-grey100" />}
                             isSearch={false}
