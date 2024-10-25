@@ -260,7 +260,9 @@ const Table = () => {
                                   <RiErrorWarningFill className="text-yellow-500" />
                                 )}
                                 &nbsp;
-                                <span className="flex-1 overflow-hidden truncate">{team.name}</span>
+                                <span className="flex-1 overflow-hidden truncate">
+                                  {team.name}
+                                </span>
                               </div>
                             ))}
                           </div>
@@ -312,10 +314,10 @@ const Table = () => {
                           }}
                         >
                           <div className="flex flex-col items-center justify-center">
-                            <p className="w-full text-xs overflow-hidden truncate">
+                            <p className="w-full overflow-hidden truncate text-xs">
                               {booking.created_by}
                             </p>
-                            <p className="w-full text-xs overflow-hidden truncate">
+                            <p className="w-full overflow-hidden truncate text-xs">
                               {dayjs(booking.created_at).format(
                                 "DD MMM YYYY - HH:mm A"
                               )}
@@ -323,11 +325,27 @@ const Table = () => {
                           </div>
                         </td>
                         <td className="px-3">
-                          <div className="flex gap-1 flex-wrap">
-                            <img src={PhoneColored} alt="icon" className="size-[18px]" />
-                            <img src={WhatsappColored} alt="icon" className="size-[18px]" />
-                            <img src={ReAssign} alt="icon" className="size-[18px]" />
-                            <img src={Edit} alt="icon" className="size-[18px]" />
+                          <div className="flex flex-wrap gap-1">
+                            <img
+                              src={PhoneColored}
+                              alt="icon"
+                              className="size-[18px]"
+                            />
+                            <img
+                              src={WhatsappColored}
+                              alt="icon"
+                              className="size-[18px]"
+                            />
+                            <img
+                              src={ReAssign}
+                              alt="icon"
+                              className="size-[18px]"
+                            />
+                            <img
+                              src={Edit}
+                              alt="icon"
+                              className="size-[18px]"
+                            />
                           </div>
                         </td>
                       </tr>

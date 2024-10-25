@@ -1,5 +1,6 @@
 import Modal from "../../ui/Modal";
 import { cn } from "../../../utils/helpers";
+import BookingLogsModal from "./BookingLogsModal";
 import CancelBookingModal from "./CancelBookingModal";
 import BasicEdit from "../../../assets/icons/edit-basic.svg";
 import Attachments from "../../../assets/icons/attachments.svg";
@@ -19,10 +20,15 @@ import { IoClose } from "react-icons/io5";
 import { LuLoader2 } from "react-icons/lu";
 import { RiVisaLine } from "react-icons/ri";
 import { FaRegClock } from "react-icons/fa6";
+import UploadDocumentsModal from "./UploadDocumentsModal";
+import BookingHistoryModal from "./BookingHistoryModal";
 
 const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
+  const [logs, setLogs] = useState(false);
   const [cancel, setCancel] = useState(false);
+  const [upload, setUpload] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [history, setHistory] = useState(false);
   const [deliveryNotes, setDeliveryNotes] = useState("");
   const { data, isLoading } = useFetchBookingDetailsQuery(id, {
     skip: !id,
@@ -31,6 +37,9 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
 
   return (
     <>
+      <BookingLogsModal open={logs} setOpen={setLogs} />
+      <UploadDocumentsModal open={upload} setOpen={setUpload} />
+      <BookingHistoryModal open={history} setOpen={setHistory} />
       <CancelBookingModal id={id} open={cancel} setOpen={setCancel} />
       <Modal open={open} setOpen={setOpen} className="w-[95%] max-w-7xl">
         <div className="flex w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-gray-100">
@@ -54,7 +63,11 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                         <h1 className="text-left font-semibold text-primary">
                           Client Details
                         </h1>
-                        <button className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
+                        <button
+                          type="button"
+                          onClick={() => setHistory(true)}
+                          className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
+                        >
                           Booking History
                         </button>
                       </div>
@@ -202,7 +215,11 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                         <h1 className="flex-1 text-left font-semibold text-primary">
                           Customer Attachments
                         </h1>
-                        {editing && <img src={BasicEdit} alt="icon" />}
+                        {editing && (
+                          <button type="button" onClick={() => setUpload(true)}>
+                            <img src={BasicEdit} alt="icon" />
+                          </button>
+                        )}
                       </div>
                       {data?.customer.attachments?.map((attachment) => (
                         <div
@@ -357,7 +374,11 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                             <button className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
                               Re-assign
                             </button>
-                            <button className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
+                            <button
+                              type="button"
+                              onClick={() => setLogs(true)}
+                              className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
+                            >
                               Booking Log
                             </button>
                           </div>
