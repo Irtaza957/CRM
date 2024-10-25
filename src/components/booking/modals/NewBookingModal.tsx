@@ -48,6 +48,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { FiPlus, FiDownload } from "react-icons/fi";
 import { LuLoader2, LuUser2 } from "react-icons/lu";
 import { TiArrowSortedDown, TiDocumentText } from "react-icons/ti";
+import AddAddressModal from "./AddAddressModal";
 
 const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   return (
@@ -139,6 +140,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const [selectedUser, setSelectedUser] = useState<CustomerProps | null>(null);
   const [attachments, setAttachments] = useState<AttachmentProps[] | null>([]);
   const [selectedFamily, setSelectedFamily]=useState<number | null>(null)
+  const [openAddressModal, setOpenAddressModal]=useState(true)
 
   const getAddresses = async (id: string) => {
     const { data } = await fetchAddresses(id);
@@ -455,7 +457,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                     <h1 className="text-left font-semibold text-primary">
                       Address Details
                     </h1>
-                    <FiPlus className="h-5 w-5 text-gray-500" />
+                    <FiPlus className="h-5 w-5 text-gray-500 cursor-pointer" />
                   </div>
                   <div className="mt-2.5 grid w-full grid-cols-2 gap-2.5 text-gray-500">
                     {addresses?.length !== 0 &&
@@ -904,6 +906,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
           </div>
         </div>
       </div>
+      <AddAddressModal open={openAddressModal} setOpen={setOpenAddressModal} />
     </Modal>
   );
 };
