@@ -17,9 +17,12 @@ interface ComboboxProps {
   value: ListOptionProps | null;
   defaultIconClassName?: string;
   searchInputClassName?: string;
-  searchInputPlaceholder: string;
+  searchInputPlaceholder?: string;
   defaultSelectedIconClassName?: string;
-  setValue: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
+  label?: string;
+  isSearch?: boolean;
+  setValue?: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
+  handleSelect?: (arg0: ListOptionProps)=>void
 }
 
 const Combobox = ({
@@ -37,11 +40,19 @@ const Combobox = ({
   searchInputClassName,
   searchInputPlaceholder,
   defaultSelectedIconClassName,
+  label,
+  isSearch=true,
+  handleSelect
 }: ComboboxProps) => {
   const [toggle, setToggle] = useState(false);
   const [query, setQuery] = useState<string>("");
   const ComboboxRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(ComboboxRef, () => setToggle(false));
+
+  const handleToggle=(value: ListOptionProps)=>{
+    setToggle(!toggle)
+    handleSelect && handleSelect(value)
+  }
 
   return (
     <div
@@ -51,6 +62,9 @@ const Combobox = ({
         mainClassName
       )}
     >
+      {label && <label className="w-full text-left text-xs text-grey100 font-medium mb-0.5">
+        {label}
+      </label>}
       <button
         type="button"
         onClick={() => setToggle(!toggle)}
@@ -76,6 +90,7 @@ const Combobox = ({
           }
         )}
       >
+        {isSearch &&
         <input
           type="text"
           value={query}
@@ -85,7 +100,7 @@ const Combobox = ({
             "sticky left-0 top-0 w-full border-b",
             searchInputClassName
           )}
-        />
+        />}
         {query ? (
           options.filter((item) =>
             item.name.toLowerCase().includes(query.toLowerCase())
@@ -101,7 +116,7 @@ const Combobox = ({
               .map((item) => (
                 <p
                   key={item.id}
-                  onClick={() => setValue(item)}
+                  onClick={handleSelect ? ()=>handleToggle(item) : () => setValue?.(item)}
                   className={cn(
                     "flex cursor-pointer items-center justify-start",
                     listItemClassName
@@ -122,7 +137,7 @@ const Combobox = ({
           options.map((item) => (
             <p
               key={item.id}
-              onClick={() => setValue(item)}
+              onClick={handleSelect ? ()=>handleToggle(item) : () => setValue?.(item)}
               className={cn(
                 "flex cursor-pointer items-center justify-start",
                 listItemClassName

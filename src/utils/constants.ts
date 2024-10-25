@@ -608,3 +608,14 @@ export const options = [
     name: "Option 10",
   },
 ];
+
+export const timeSlots = [
+  { id: 1, name: '08:00 - 08:30' },
+  { id: 2, name: '09:00 - 09:30' },
+  { id: 3, name: '10:00 - 10:30' },
+  { id: 4, name: '11:00 - 11:30' },
+  { id: 5, name: '12:00 - 12:30' },
+  { id: 6, name: '13:00 - 13:30' },
+  { id: 7, name: '14:00 - 14:30' },
+  { id: 8, name: '15:00 - 15:30' },
+]
