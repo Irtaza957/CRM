@@ -50,7 +50,6 @@ import { LuLoader2, LuUser2 } from "react-icons/lu";
 import { TiArrowSortedDown, TiDocumentText } from "react-icons/ti";
 import AddAddressModal from "./AddAddressModal";
 import CustomButton from "../../ui/CustomButton";
-import CustomInput from "../../ui/CustomInput";
 
 const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   return (
@@ -123,7 +122,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   });
   const [payment, setPayment] = useState("cod");
   const [scheduleTime, setScheduleTime] = useState<ListOptionProps | null>(null);
-  const [scheduleDate, setScheduleDate] = useState("");
+  const [scheduleDate, setScheduleDate] = useState(new Date());
   const [deliveryNotes, setDeliveryNotes] = useState("");
   const [fetchFamily] = useFetchCustomerFamilyMutation();
   const [selectedServices, setSelectedServices] = useState<
@@ -790,23 +789,13 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                   Select Time & Date
                 </h1>
                 <div className="grid w-full grid-cols-2 gap-2.5">
-                  {/* <div className="flex w-full items-center justify-center space-x-2.5 rounded-lg bg-gray-100 p-2.5">
-                    <input
-                      type="text"
-                      value={scheduleDate}
-                      placeholder="04 Oct 2023"
-                      className="w-full max-h-52 bg-transparent text-xs"
-                      onChange={(e) => setScheduleDate(e.target.value)}
-                    />
-                    <IoCalendarOutline className="h-5 w-5" />
-                  </div> */}
                   <div className="-mt-1">
                   <label className="w-full text-left text-xs text-grey100 font-medium mb-0.5">
                     Select Date
                   </label>
                   <CustomDatePicker
-                    // date={date}
-                    // setDate={setDate}
+                    date={scheduleDate}
+                    setDate={setScheduleDate}
                     toggleButton={
                       <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-2 text-xs font-medium">
                         <p>{dayjs(date).format("DD MMM YYYY")}</p>
