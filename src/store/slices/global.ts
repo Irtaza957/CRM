@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 const initialState: GlobalStateProps = {
   user: null,
   sidebar: false,
-  date: dayjs(Date.now()).format("DD-MM-YYYY"),
+  date: new Date(),
 };
 
 const globalSlice = createSlice({

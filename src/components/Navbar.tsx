@@ -33,7 +33,9 @@ const Navbar = () => {
             toggleButton={
               <div className="flex items-center justify-center gap-5">
                 <FaChevronLeft />
-                <span>{dayjs(date).format("DD MMM YYYY")}</span>
+                <span>
+                  {dayjs(date || new Date()).format("DD MMM YYYY")}
+                </span>
                 <FaChevronRight />
               </div>
             }
