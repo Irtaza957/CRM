@@ -67,6 +67,13 @@ export const bookingApi = api.injectEndpoints({
         return finalized;
       },
     }),
+    addAddress: build.mutation({
+      query: (data) => ({
+        url: "/address",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -76,4 +83,5 @@ export const {
   useCancelBookingMutation,
   useFetchBookingDetailsQuery,
   useFetchCancellationReasonsQuery,
+  useAddAddressMutation
 } = bookingApi;

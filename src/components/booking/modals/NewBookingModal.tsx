@@ -913,7 +913,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
           </div>
         </div>
       </div>
-      <AddAddressModal open={openAddressModal} setOpen={setOpenAddressModal} />
+      <AddAddressModal customerId={selectedUser?.customer_id} open={openAddressModal} setOpen={setOpenAddressModal} />
     </Modal>
   );
 };

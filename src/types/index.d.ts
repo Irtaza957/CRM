@@ -45,12 +45,14 @@ declare type BookingListProps = {
 };
 
 declare type CustomInputProps = {
-  type: string;
+  type?: string;
   placeholder: string;
-  value: string;
-  setter: React.Dispatch<React.SetStateAction<string>>;
+  value?: string;
+  setter?: React.Dispatch<React.SetStateAction<string>>;
   className?: string;
   label: string;
+  register?: UseFormRegister<FormDataProps>;
+  name?: string
 };
 
 declare type FormDataProps = {

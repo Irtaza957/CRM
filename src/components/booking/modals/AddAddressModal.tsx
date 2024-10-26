@@ -4,9 +4,12 @@ import CustomInput from '../../ui/CustomInput'
 import Combobox from '../../ui/Combobox'
 import { RiArrowDownSLine } from "react-icons/ri";
 import CustomButton from '../../ui/CustomButton';
+import { useAddAddressMutation } from '../../../store/services/booking';
+import { useForm } from 'react-hook-form';
 
 interface AddAddressModalProps {
     open: boolean,
+    customerId?: string,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -15,16 +18,49 @@ const emiratesOption = [
     { id: 2, name: 'xyz' },
     { id: 3, name: 'asd' },
 ]
-const AddAddressModal = ({ open, setOpen }: AddAddressModalProps) => {
+const AddAddressModal = ({ open, customerId, setOpen }: AddAddressModalProps) => {
     const [emirate, setEmirate] = useState<ListOptionProps | null>(null);
     const [villa, setVilla] = useState<ListOptionProps | null>(null);
 
-    const handleSelect = (value: ListOptionProps) => {
+    const [addAddress, { isLoading }] = useAddAddressMutation();
+
+    const {
+        register,
+        setValue,
+        reset,
+        handleSubmit,
+      } = useForm();
+
+    const handleSelectEmirate = (value: ListOptionProps) => {
         setEmirate(value)
+        setValue("emirate_id", value.id); 
     }
 
-    const handleSubmit=()=>{
-        closeModal()
+    const handleSelectArea = (value: ListOptionProps) => {
+        setVilla(value)
+        setValue("area_id", value.id); 
+    }
+
+    const handleSave = async (data) => {
+        try {
+            if(customerId){
+            const payload = {
+                customer_id: customerId,
+                address_type: data?.address_type,
+                area_id: data?.area_id,
+                building_no: data?.building_no,
+                apartment: data?.apartment,
+                street: data?.street,
+                map_link: data?.map_link,
+                extra_direction: data?.extra_direction
+            }
+                await addAddress(payload)
+                reset()
+                closeModal()
+            }
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const closeModal=()=>{
@@ -43,16 +79,15 @@ const AddAddressModal = ({ open, setOpen }: AddAddressModalProps) => {
                 <div className='mt-4 w-full'>
                     <div className='w-full flex gap-5 items-center justify-center'>
                         <CustomInput
-                            type="text"
-                            value={''}
-                            setter={() => { }}
+                            name='address_type'
                             placeholder="Address Type"
                             label="Address Type"
+                            register={register}
                         />
                         <Combobox
                             value={emirate}
                             options={emiratesOption}
-                            handleSelect={handleSelect}
+                            handleSelect={handleSelectEmirate}
                             label='Emirate'
                             placeholder="Select Emirate"
                             mainClassName="w-full"
@@ -65,7 +100,7 @@ const AddAddressModal = ({ open, setOpen }: AddAddressModalProps) => {
                         <Combobox
                             value={villa}
                             options={emiratesOption}
-                            handleSelect={(value)=>setVilla(value)}
+                            handleSelect={handleSelectArea}
                             label='Area'
                             placeholder="Select Area"
                             mainClassName="w-full"
@@ -78,50 +113,58 @@ const AddAddressModal = ({ open, setOpen }: AddAddressModalProps) => {
                     </div>
                     <div className='w-full flex gap-5 items-center justify-center my-4'>
                         <CustomInput
+                            name='street'
                             label="Steet"
                             placeholder="Steet"
-                            type="text"
-                            value={''}
-                            setter={() => { }}
+                            register={register}
                         />
                         <CustomInput
+                            name='building_no'
                             label="Building"
                             placeholder="Building Name"
                             type="text"
-                            value={''}
-                            setter={() => { }}
+                            register={register}
                         />
                         <CustomInput
                             label="Villa / Apartment No."
                             placeholder="Villa / Apartment No."
+                            name='apartment'
                             type="text"
-                            value={''}
-                            setter={() => { }}
+                            register={register}
                         />
                     </div>
                     <div className='w-full flex gap-5 items-center justify-center'>
                         <div className='w-[50%]'>
                         <CustomInput
-                            label="Steet"
-                            placeholder="Steet"
+                            label="Extra Direction"
+                            placeholder="Type..."
+                            name='extra_direction'
                             type="text"
-                            value={''}
-                            setter={() => { }}
+                            register={register}
                         />
                         </div>
                         <div className='w-full'>
                             <CustomInput
                                 label="Map Link"
                                 placeholder="Map Link"
+                                name='map_link'
                                 type="text"
-                                value={''}
-                                setter={() => { }}
+                                register={register}
                             />
                         </div>
                     </div>
                     <div className='flex justify-end gap-3 w-full mt-7'>
-                        <CustomButton name='Cancel' handleClick={closeModal} style="bg-danger"/>
-                        <CustomButton name='Save' handleClick={handleSubmit}/>
+                        <CustomButton 
+                            name='Cancel' 
+                            handleClick={closeModal} 
+                            style="bg-danger"
+                        />
+                        <CustomButton
+                            name='Save'
+                            handleClick={handleSubmit(handleSave)}
+                            loading={isLoading}
+                            disabled={isLoading}
+                        />
                     </div>
                 </div>
             </div>

@@ -1,12 +1,14 @@
 import { cn } from "../../utils/helpers";
 
 const CustomInput = ({
-  type,
+  type = 'text',
   label,
   value,
   setter,
   className,
   placeholder,
+  register, 
+  name
 }: CustomInputProps) => {
   return (
     <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
@@ -17,7 +19,8 @@ const CustomInput = ({
         type={type}
         value={value}
         placeholder={placeholder}
-        onChange={(e) => setter(e.target.value)}
+        {...register(name)}
+        onChange={(e) => setter && setter(e.target.value)}
         className={cn(
           "flex w-full items-center justify-between rounded-lg bg-grey p-3.5 text-xs text-gray-500 placeholder:capitalize",
           className

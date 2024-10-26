@@ -1,24 +1,37 @@
+import { LuLoader2 } from "react-icons/lu";
 import { cn } from "../../utils/helpers";
 
-interface CustomButton{
+interface CustomButton {
     name: string;
     style?: string;
-    handleClick: ()=>void
+    loading?: boolean;
+    disabled?: boolean;
+    handleClick: () => void
 }
 const CustomButton = ({
     name,
     style,
+    loading,
+    disabled,
     handleClick
 }: CustomButton) => {
     return (
-        <button 
+        <button
             onClick={handleClick}
             className={cn(
                 "rounded-md bg-primary px-6 py-2 text-xs text-white",
                 style
-              )}
+            )}
+            disabled={disabled}
         >
-            {name}
+            {loading ?
+                <div className="flex w-full items-center justify-center gap-3">
+                    <LuLoader2 className="animate-spin" />
+                    <span>Please Wait...</span>
+                </div>
+                :
+                name
+            }
         </button>
     )
 }
