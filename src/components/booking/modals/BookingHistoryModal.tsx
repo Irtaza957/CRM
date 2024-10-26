@@ -10,7 +10,7 @@ const BookingHistoryModal = ({ open, setOpen }: ModalProps) => {
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="w-full max-w-4xl"
+      className="w-full max-w-4xl h-[90%]"
     >
       <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
         <div className="flex w-full items-center justify-between overflow-hidden rounded-t-lg bg-primary px-5 py-2.5 text-white">

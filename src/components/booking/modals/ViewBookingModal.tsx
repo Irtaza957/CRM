@@ -41,8 +41,8 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
       <UploadDocumentsModal open={upload} setOpen={setUpload} />
       <BookingHistoryModal open={history} setOpen={setHistory} />
       <CancelBookingModal id={id} open={cancel} setOpen={setCancel} />
-      <Modal open={open} setOpen={setOpen} className="w-[95%] max-w-7xl">
-        <div className="flex w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-gray-100">
+      <Modal open={open} setOpen={setOpen} className="h-[95%] w-full max-w-[95%] lg:max-w-[85%]">
+        <div className="w-full items-center justify-center overflow-hidden rounded-lg bg-gray-100">
           <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white">
             <h1 className="text-xl font-medium">Booking Ref: {id}</h1>
             <IoClose
@@ -54,9 +54,9 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
             {isLoading ? (
               <LuLoader2 className="h-14 w-14 animate-spin text-secondary" />
             ) : (
-              <>
-                <div className="grid w-full grid-cols-2 rounded-lg bg-white">
-                  <div className="col-span-1 flex h-full max-h-[400px] w-full flex-col items-start justify-start space-y-2.5 overflow-auto">
+              <div className="flex w-full h-full">
+                <div className="rounded-lg w-full bg-white max-h-[calc(100vh-100px)] overflow-auto">
+                  <div className="flex w-full flex-col items-start justify-start space-y-2.5 ">
                     {/* Client Details */}
                     <div className="flex w-full flex-col items-center justify-center rounded-lg p-2.5">
                       <div className="flex w-full items-center justify-between border-b pb-2.5">
@@ -208,80 +208,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                       )}
                     </div>
                   </div>
-                  <div className="col-span-1 flex w-full flex-col items-start justify-start space-y-2.5">
-                    {/* Customer Attachments */}
-                    <div className="flex h-fit max-h-[200px] w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 pt-2.5">
-                      <div className="flex w-full items-center justify-center border-b pb-2.5">
-                        <h1 className="flex-1 text-left font-semibold text-primary">
-                          Customer Attachments
-                        </h1>
-                        {editing && (
-                          <button type="button" onClick={() => setUpload(true)}>
-                            <img src={BasicEdit} alt="icon" />
-                          </button>
-                        )}
-                      </div>
-                      {data?.customer.attachments?.map((attachment) => (
-                        <div
-                          key={attachment.attachment_id}
-                          className="flex w-full items-center justify-between pt-2.5"
-                        >
-                          <div className="flex items-center justify-center space-x-3">
-                            <img
-                              src={Attachments}
-                              alt="attachments"
-                              className="size-7"
-                            />
-                            <div className="flex w-full flex-col items-center justify-center">
-                              <span className="w-full text-left text-sm text-gray-500">
-                                {attachment.file_type}
-                              </span>
-                              <span className="w-full text-left text-xs text-gray-400">
-                                {attachment.user}
-                              </span>
-                            </div>
-                          </div>
-                          <span className="text-xs text-gray-400">
-                            {dayjs(attachment.created_at).format("DD MMM YYYY")}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    {/* Booking Attachments */}
-                    <div className="flex h-fit max-h-[200px] w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 pb-2.5">
-                      <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
-                        Booking Attachments
-                      </h1>
-                      {data?.booking_attachments?.map((attachment) => (
-                        <div
-                          key={attachment.attachment_id}
-                          className="flex w-full items-center justify-between pt-2.5"
-                        >
-                          <div className="flex items-center justify-center space-x-3">
-                            <img
-                              src={Attachments}
-                              alt="attachments"
-                              className="size-7"
-                            />
-                            <div className="flex w-full flex-col items-center justify-center">
-                              <span className="w-full text-left text-sm text-gray-500">
-                                {attachment.file_type}
-                              </span>
-                              <span className="w-full text-left text-xs text-gray-400">
-                                {attachment.user}
-                              </span>
-                            </div>
-                          </div>
-                          <span className="text-xs text-gray-400">
-                            {dayjs(attachment.created_at).format("DD MMM YYYY")}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <div className="grid w-full grid-cols-2 rounded-lg bg-white">
-                  <div className="col-span-1 flex h-full max-h-[390px] w-full flex-col items-start justify-start space-y-2.5 overflow-auto p-2.5">
+                  <div className="flex w-full flex-col items-start justify-start space-y-2.5 p-2.5">
                     {/* Booking Details */}
                     <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
                       <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
@@ -467,7 +394,80 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                       Cancel Booking
                     </button>
                   </div>
-                  <div className="no-scrollbar col-span-1 flex h-full max-h-[390px] w-full flex-col items-start justify-start space-y-2.5 overflow-auto p-2.5">
+                </div>
+                <div className="rounded-lg w-full bg-white max-h-[calc(100vh-100px)] overflow-auto">
+                <div className="flex w-full flex-col items-start justify-start space-y-2.5">
+                    {/* Customer Attachments */}
+                    <div className="flex h-fit max-h-[200px] w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 pt-2.5">
+                      <div className="flex w-full items-center justify-center border-b pb-2.5">
+                        <h1 className="flex-1 text-left font-semibold text-primary">
+                          Customer Attachments
+                        </h1>
+                        {editing && (
+                          <button type="button" onClick={() => setUpload(true)}>
+                            <img src={BasicEdit} alt="icon" />
+                          </button>
+                        )}
+                      </div>
+                      {data?.customer.attachments?.map((attachment) => (
+                        <div
+                          key={attachment.attachment_id}
+                          className="flex w-full items-center justify-between pt-2.5"
+                        >
+                          <div className="flex items-center justify-center space-x-3">
+                            <img
+                              src={Attachments}
+                              alt="attachments"
+                              className="size-7"
+                            />
+                            <div className="flex w-full flex-col items-center justify-center">
+                              <span className="w-full text-left text-sm text-gray-500">
+                                {attachment.file_type}
+                              </span>
+                              <span className="w-full text-left text-xs text-gray-400">
+                                {attachment.user}
+                              </span>
+                            </div>
+                          </div>
+                          <span className="text-xs text-gray-400">
+                            {dayjs(attachment.created_at).format("DD MMM YYYY")}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Booking Attachments */}
+                    <div className="flex h-fit max-h-[200px] w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 pb-2.5">
+                      <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
+                        Booking Attachments
+                      </h1>
+                      {data?.booking_attachments?.map((attachment) => (
+                        <div
+                          key={attachment.attachment_id}
+                          className="flex w-full items-center justify-between pt-2.5"
+                        >
+                          <div className="flex items-center justify-center space-x-3">
+                            <img
+                              src={Attachments}
+                              alt="attachments"
+                              className="size-7"
+                            />
+                            <div className="flex w-full flex-col items-center justify-center">
+                              <span className="w-full text-left text-sm text-gray-500">
+                                {attachment.file_type}
+                              </span>
+                              <span className="w-full text-left text-xs text-gray-400">
+                                {attachment.user}
+                              </span>
+                            </div>
+                          </div>
+                          <span className="text-xs text-gray-400">
+                            {dayjs(attachment.created_at).format("DD MMM YYYY")}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="flex w-full flex-col items-start justify-start space-y-2.5 p-2.5">
                     {/* Service Details */}
                     <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
                       <div className="flex w-full items-center justify-center border-b pb-2.5">
@@ -629,7 +629,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                     </button>
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>
