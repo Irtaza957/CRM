@@ -7,9 +7,10 @@ export default {
         primary: "#116FAC",
         darkprimary: "#044570",
         secondary: "#38B1A2",
+        danger: "#e62626",
         grey: "#F5F6FA",
-        grey100: "#858688",
-        danger: "#e62626"
+        grey50: "#D9D9D9",
+        grey100: "#858688"
       },
       animation: {
         fadeDots: "fadeDots .8s infinite",

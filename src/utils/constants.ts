@@ -619,3 +619,5 @@ export const timeSlots = [
   { id: 7, name: '14:00 - 14:30' },
   { id: 8, name: '15:00 - 15:30' },
 ]
+
+export const dayNames = ["Sun", "Mon", "Tues", "Wed", "Thur", "Fri", "Sat"];

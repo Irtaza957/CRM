@@ -20,7 +20,7 @@ import {
 import { RootState } from "../../../store";
 import CustomToast from "../../ui/CustomToast";
 import AutoComplete from "../../ui/AutoComplete";
-import { options, timeSlots } from "../../../utils/constants";
+import { dayNames, options, timeSlots } from "../../../utils/constants";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 import ServiceAutoComplete from "../../ui/ServiceAutoComplete";
 
@@ -332,7 +332,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
       getAttachments(selectedUser?.customer_id);
     }
   }, [selectedUser]);
-
+  
   return (
     <Modal
       open={open}
@@ -341,18 +341,20 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     >
       <div className="grid w-full grid-cols-3 divide-x overflow-hidden rounded-lg bg-gray-100">
         <div className="col-span-1 flex h-full flex-col overflow-auto border-r">
-          <div className="h-12 w-full border-b">
+          <div className="h-12 w-full border-b bg-white flex items-center justify-between px-2.5">
+            <p className="bg-primary text-white rounded-md py-1 px-2.5 mr-3">{dayNames[new Date(date).getDay()]}</p>
             <CustomDatePicker
               date={date}
               setDate={handleSetDate}
               toggleButton={
-                <div className="flex h-12 w-full items-center justify-between bg-white px-2.5 text-gray-500">
+                <div className="flex h-12 w-full items-center gap-4 text-gray-500">
                   <FaChevronLeft />
                     {dayjs(date).format("DD MMM YYYY")}
                   <FaChevronRight />
                 </div>
               }
             />
+            <CustomButton name="Today" handleClick={()=>handleSetDate(new Date())} style="bg-white border border-grey50 text-black"/>
           </div>
           <div className="grid w-full grid-cols-2 items-center justify-center gap-2.5 border-b px-2.5 py-2.5">
             <Combobox
