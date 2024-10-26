@@ -41,7 +41,7 @@ import dayjs from "dayjs";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { FreeMode } from "swiper/modules";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { GoShareAndroid } from "react-icons/go";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -50,6 +50,7 @@ import { LuLoader2, LuUser2 } from "react-icons/lu";
 import { TiArrowSortedDown, TiDocumentText } from "react-icons/ti";
 import AddAddressModal from "./AddAddressModal";
 import CustomButton from "../../ui/CustomButton";
+import { setDate } from "../../../store/slices/global";
 
 const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   return (
@@ -130,8 +131,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   >([]);
   const [fetchAddresses] = useFetchCustomerAddressesMutation();
   const [family, setFamily] = useState<FamilyProps[] | null>([]);
-  const [date, setDate] = useState<Date | undefined>(new Date());
-  const { user } = useSelector((state: RootState) => state.global);
+  const { user, date } = useSelector((state: RootState) => state.global);
   const [fetchAttachments] = useFetchCustomerAttachmentsMutation();
   const [addresses, setAddresses] = useState<AddressProps[] | null>([]);
   const [category, setCategory] = useState<ListOptionProps | null>(null);
@@ -142,6 +142,8 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const [attachments, setAttachments] = useState<AttachmentProps[] | null>([]);
   const [selectedFamily, setSelectedFamily]=useState<number | null>(null)
   const [openAddressModal, setOpenAddressModal]=useState(false)
+
+  const dispatch=useDispatch()
 
   const getAddresses = async (id: string) => {
     const { data } = await fetchAddresses(id);
@@ -312,6 +314,10 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     setOpenAddressModal(!openAddressModal)
   }
 
+  const handleSetDate = (date: string) => {
+    dispatch(setDate(date));
+  };
+
   useEffect(() => {
     if (data) {
       const view = createTimelineView(data!);
@@ -338,11 +344,11 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
           <div className="h-12 w-full border-b">
             <CustomDatePicker
               date={date}
-              setDate={setDate}
+              setDate={handleSetDate}
               toggleButton={
                 <div className="flex h-12 w-full items-center justify-between bg-white px-2.5 text-gray-500">
                   <FaChevronLeft />
-                  {dayjs(date).format("DD MMM YYYY")}
+                    {dayjs(date).format("DD MMM YYYY")}
                   <FaChevronRight />
                 </div>
               }

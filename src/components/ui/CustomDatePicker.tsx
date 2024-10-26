@@ -1,16 +1,18 @@
-import { RootState } from "../../store";
+
 import { cn } from "../../utils/helpers";
-import { setDate } from "../../store/slices/global";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 
 import { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const CustomDatePicker = ({
   toggleButton,
+  date,
+  setDate
 }: {
   toggleButton: React.ReactNode;
+  date: string,
+  setDate: (arg0: string)=>void
 }) => {
   const months = [
     "January",
@@ -30,10 +32,8 @@ const CustomDatePicker = ({
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const dateRef = useRef(null);
-  const dispatch = useDispatch();
   const [toggle, setToggle] = useState(false);
   useOnClickOutside(dateRef, () => setToggle(false));
-  const { date } = useSelector((state: RootState) => state.global);
   const [currentMonth, setCurrentMonth] = useState(currentDate.getMonth());
   const [currentYear, setCurrentYear] = useState(currentDate.getFullYear());
   const daysInMonths = new Date(currentYear, currentMonth + 1, 0).getDate();
@@ -53,16 +53,12 @@ const CustomDatePicker = ({
     );
   };
 
-  const changeDate = (date: string) => {
-    dispatch(setDate(date));
-  };
-
-  // useEffect(() => {
-  //   if (date) {
-  //     setCurrentMonth(new Date(date).getMonth());
-  //     setCurrentYear(new Date(date).getFullYear());
-  //   }
-  // }, [date]);
+  useEffect(() => {
+    if (date) {
+      setCurrentMonth(new Date(date).getMonth());
+      setCurrentYear(new Date(date).getFullYear());
+    }
+  }, [date]);
 
   return (
     <div
@@ -140,7 +136,7 @@ const CustomDatePicker = ({
               <span
                 key={day}
                 onClick={() =>
-                  changeDate(`${currentYear}-${currentMonth + 1}-${day + 1}`)
+                  setDate(`${currentYear}-${currentMonth + 1}-${day + 1}`)
                 }
                 className={cn(
                   "flex h-8 w-full cursor-pointer items-center justify-center rounded-full text-center text-xs font-medium hover:bg-primary/20",

@@ -5,14 +5,22 @@ import CustomDatePicker from "./ui/CustomDatePicker";
 import { useState } from "react";
 import { GoBell } from "react-icons/go";
 import { BsGear } from "react-icons/bs";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { MdOutlineMessage } from "react-icons/md";
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { setDate } from "../store/slices/global";
+import dayjs from "dayjs";
 
 const Navbar = () => {
   const [search, setSearch] = useState("");
+
   const { user, date } = useSelector((state: RootState) => state.global);
+  const dispatch = useDispatch();
+
+  const handleSetDate = (date: string) => {
+    dispatch(setDate(date));
+  };
 
   return (
     <nav className="relative z-30 h-16 min-h-16 w-full px-5 text-gray-500 shadow-md">
@@ -20,10 +28,12 @@ const Navbar = () => {
         <div className="flex items-center justify-center gap-7">
           <img src={Logo} alt="logo" className="w-36" />
           <CustomDatePicker
+            date={date}
+            setDate={handleSetDate}
             toggleButton={
               <div className="flex items-center justify-center gap-5">
                 <FaChevronLeft />
-                <span>{date}</span>
+                <span>{dayjs(date).format("DD MMM YYYY")}</span>
                 <FaChevronRight />
               </div>
             }
