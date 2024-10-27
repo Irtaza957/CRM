@@ -51,6 +51,7 @@ import { TiArrowSortedDown, TiDocumentText } from "react-icons/ti";
 import AddAddressModal from "./AddAddressModal";
 import CustomButton from "../../ui/CustomButton";
 import { setDate } from "../../../store/slices/global";
+import BookingHistoryModal from "./BookingHistoryModal";
 
 const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   return (
@@ -75,10 +76,10 @@ const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
                 <p className="w-full overflow-hidden truncate text-left">
                   {booking.consultation_team.length !== 0
                     ? booking.consultation_team
-                        .map((member) => {
-                          return member.name;
-                        })
-                        .join(" - ")
+                      .map((member) => {
+                        return member.name;
+                      })
+                      .join(" - ")
                     : "N/A"}
                 </p>
               </div>
@@ -93,10 +94,10 @@ const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
                 <span className="w-full overflow-hidden truncate text-left">
                   {booking.consultation_team.length !== 0
                     ? booking.consultation_team
-                        .map((member) => {
-                          return member.name;
-                        })
-                        .join(" - ")
+                      .map((member) => {
+                        return member.name;
+                      })
+                      .join(" - ")
                     : "N/A"}
                 </span>
               </div>
@@ -140,10 +141,11 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const [createBooking, { isLoading: creating }] = useCreateBookingMutation();
   const [selectedUser, setSelectedUser] = useState<CustomerProps | null>(null);
   const [attachments, setAttachments] = useState<AttachmentProps[] | null>([]);
-  const [selectedFamily, setSelectedFamily]=useState<number | null>(null)
-  const [openAddressModal, setOpenAddressModal]=useState(false)
+  const [selectedFamily, setSelectedFamily] = useState<number | null>(null)
+  const [openAddressModal, setOpenAddressModal] = useState(false)
+  const [history, setHistory] = useState(false);
 
-  const dispatch=useDispatch()
+  const dispatch = useDispatch()
 
   const getAddresses = async (id: string) => {
     const { data } = await fetchAddresses(id);
@@ -231,8 +233,8 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     urlencoded.append("firstname", selectedUser!.firstname);
     urlencoded.append("lastname", selectedUser!.lastname);
     urlencoded.append("phone", selectedUser!.phone);
-    urlencoded.append("schedule_date", scheduleDate);
-    urlencoded.append("schedule_slot", scheduleTime);
+    urlencoded.append("schedule_date", dayjs(scheduleDate).format("DD MMM YYYY"));
+    urlencoded.append("schedule_slot", scheduleTime?.name || '');
     urlencoded.append("delivery_notes", deliveryNotes);
     urlencoded.append(
       "payment_method",
@@ -302,15 +304,15 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     }
   };
 
-  const handleSelectFamily=(id: number)=>{
-    if(id===selectedFamily){
+  const handleSelectFamily = (id: number) => {
+    if (id === selectedFamily) {
       setSelectedFamily(null)
-    }else{
+    } else {
       setSelectedFamily(id)
     }
   }
 
-  const handleAddAddress=()=>{
+  const handleAddAddress = () => {
     setOpenAddressModal(!openAddressModal)
   }
 
@@ -332,589 +334,593 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
       getAttachments(selectedUser?.customer_id);
     }
   }, [selectedUser]);
-  
-  return (
-    <Modal
-      open={open}
-      setOpen={setOpen}
-      className="h-[95%] w-full max-w-[95%] lg:max-w-[85%]"
-    >
-      <div className="grid w-full grid-cols-3 divide-x overflow-hidden rounded-lg bg-gray-100">
-        <div className="col-span-1 flex h-full flex-col overflow-auto border-r">
-          <div className="h-12 w-full border-b bg-white flex items-center justify-between px-2.5">
-            <p className="bg-primary text-white rounded-md py-1 px-2.5 mr-3">{dayNames[new Date(date).getDay()]}</p>
-            <CustomDatePicker
-              date={date}
-              setDate={handleSetDate}
-              toggleButton={
-                <div className="flex h-12 w-full items-center gap-4 text-gray-500">
-                  <FaChevronLeft />
-                    {dayjs(date).format("DD MMM YYYY")}
-                  <FaChevronRight />
-                </div>
-              }
-            />
-            <CustomButton name="Today" handleClick={()=>handleSetDate(new Date())} style="bg-white border border-grey50 text-black"/>
-          </div>
-          <div className="grid w-full grid-cols-2 items-center justify-center gap-2.5 border-b px-2.5 py-2.5">
-            <Combobox
-              value={category}
-              options={options}
-              placeholder="Category"
-              setValue={setCategory}
-              searchInputPlaceholder="Search..."
-              searchInputClassName="p-1.5 text-xs"
-              defaultSelectedIconClassName="size-4"
-              icon={<TiArrowSortedDown className="size-5" />}
-              toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-              listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
-              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-            />
-            <Combobox
-              options={options}
-              value={profession}
-              placeholder="Profession"
-              setValue={setProfession}
-              searchInputPlaceholder="Search..."
-              searchInputClassName="p-1.5 text-xs"
-              defaultSelectedIconClassName="size-4"
-              icon={<TiArrowSortedDown className="size-5" />}
-              toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-              listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
-              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-            />
-          </div>
-          {timeline ? (
-            <div className="no-scrollbar flex h-full w-full flex-col items-start justify-start overflow-auto">
-              {Object.entries(timeline).map(([hour, bookings], idx) => (
-                <div
-                  key={idx}
-                  className="grid h-[85px] w-full grid-cols-12 gap-1.5 border-y p-1.5 text-gray-500"
-                >
-                  <div className="col-span-2 flex w-full items-start justify-start border-r-2">
-                    <p className="w-full text-center">{hour}</p>
-                  </div>
-                  <div className="col-span-10 w-full text-gray-500">
-                    <Bookings bookings={bookings} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="flex h-[827px] w-full items-center justify-center">
-              <LuLoader2 className="size-10 animate-spin text-secondary" />
-            </div>
-          )}
-        </div>
-        <div className="col-span-2 grid h-full w-full grid-cols-2 gap-x-2.5">
-          <div className="col-span-2 flex h-12 w-full items-center justify-between bg-primary px-2.5 text-white">
-            <p className="w-full text-left text-lg font-semibold">
-              New Booking
-            </p>
-            <button type="button" onClick={() => setOpen(false)}>
-              <IoClose className="size-8" />
-            </button>
-          </div>
-          <div className={`no-scrollbar col-span-1 flex w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pl-2.5 ${selectedUser ? 'max-h-[calc(100vh-100px)]' : 'h-screen'}`}>
-            <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
-              <div className="mb-2.5 flex w-full items-center justify-between border-b pb-2.5">
-                <h1 className="text-left font-semibold text-primary">
-                  Client Details
-                </h1>
-                {!selectedUser ?
-                  <CustomButton name='Add New' handleClick={()=>{}} />
 
-                  :
-                  <FaRegEdit className="h-5 w-5 text-gray-500" />}
-              </div>
-              <AutoComplete setSelectedUser={setSelectedUser} />
+  return (
+    <>
+      <BookingHistoryModal open={history} setOpen={setHistory} />
+      <Modal
+        open={open}
+        setOpen={setOpen}
+        className="h-[95%] w-full max-w-[95%] lg:max-w-[85%]"
+      >
+        <div className="grid w-full grid-cols-3 divide-x overflow-hidden rounded-lg bg-gray-100">
+          <div className="col-span-1 flex h-full flex-col overflow-auto border-r">
+            <div className="h-12 w-full border-b bg-white flex items-center justify-between px-2.5">
+              <p className="bg-primary text-white rounded-md py-1 px-2.5 mr-3">{dayNames[new Date(date).getDay()]}</p>
+              <CustomDatePicker
+                date={date}
+                setDate={handleSetDate}
+                toggleButton={
+                  <div className="flex h-12 w-full items-center gap-4 text-gray-500">
+                    <FaChevronLeft />
+                    {dayjs(date).format("DD MMM YYYY")}
+                    <FaChevronRight />
+                  </div>
+                }
+              />
+              <CustomButton name="Today" handleClick={() => handleSetDate(new Date())} style="bg-white border border-grey50 text-black" />
             </div>
-            {selectedUser && (
-              <>
-                <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
-                  <div className="grid w-full grid-cols-12">
-                    <div className="col-span-7 flex w-full items-center justify-between">
-                      <img
-                        alt="profile"
-                        className="size-14 rounded-full"
-                        src={
-                          selectedUser.image ||
-                          "https://ui.shadcn.com/avatars/04.png"
-                        }
-                      />
-                      <div className="flex flex-col items-center justify-center space-y-1">
-                        <span className="w-full text-left text-xs text-gray-500">
-                          {selectedUser.firstname}&nbsp;{selectedUser.lastname}
-                        </span>
-                        <span className="w-full text-left text-xs text-gray-500">
-                          {selectedUser.phone}
-                        </span>
-                        <span className="w-full text-left text-xs text-gray-500">
-                          {selectedUser.email}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="col-span-5 flex w-full flex-col items-center justify-between pl-2.5">
-                      <span className="w-full text-left text-xs text-gray-500">
-                        {dayjs(selectedUser.date_of_birth).format(
-                          "DD MMM, YYYY"
-                        )}
-                      </span>
-                      <span className="w-full text-left text-xs text-gray-500">
-                        {selectedUser.gender}
-                      </span>
-                      <span className="w-full text-left text-xs text-gray-500">
-                        {selectedUser.nationality
-                          ? selectedUser.nationality
-                          : "N/A"}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex w-full items-center justify-between border-b py-2.5">
-                    <h1 className="text-left font-semibold text-primary">
-                      Address Details
-                    </h1>
-                    <FiPlus onClick={handleAddAddress} className="h-5 w-5 text-gray-500 cursor-pointer" />
-                  </div>
-                  <div className="mt-2.5 grid w-full grid-cols-2 gap-2.5 text-gray-500">
-                    {addresses?.length !== 0 &&
-                      addresses?.map((address) => (
-                        <div
-                          key={address.address_id}
-                          className="col-span-1 flex w-full flex-col items-center justify-between space-y-1.5 rounded-lg border border-gray-200 bg-gray-100 p-2.5"
-                        >
-                          <div className="flex w-full items-center justify-between">
-                            <span className="font-bold capitalize text-primary">
-                              {address.address_type}
-                            </span>
-                            <div className="flex items-center justify-end space-x-2.5">
-                              {address.map_link && (
-                                <Link target="_blank" to={address.map_link}>
-                                  <IoLocationOutline />
-                                </Link>
-                              )}
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  copyToClipboard(`${address.apartment}, ${address.building_no}
-                            , ${address.street}, ${address.extra_direction}`)
-                                }
-                              >
-                                <GoShareAndroid />
-                              </button>
-                              <FaRegEdit />
-                            </div>
-                          </div>
-                          <span className="w-full overflow-hidden truncate text-left text-xs">
-                            {address.apartment},&nbsp;{address.building_no}
-                            ,&nbsp;
-                            {address.street},&nbsp;{address.extra_direction}
-                          </span>
-                        </div>
-                      ))}
-                  </div>
-                </div>
-                <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
-                  <div className="flex w-full items-center justify-between border-b pb-2.5">
-                    <h1 className="text-left font-semibold text-primary">
-                      Medical Details
-                    </h1>
-                    <FiPlus className="h-5 w-5 text-gray-500" />
-                  </div>
-                  {selectedUser.is_allergy !== "0" && (
-                    <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
-                      <span className="text-xs text-primary">Allergies:</span>
-                      {selectedUser.allergy_description
-                        .split(",")
-                        .map((allergy, idx) => (
-                          <span
-                            key={idx}
-                            className="rounded-full bg-red-200 px-2 text-xs text-red-500"
-                          >
-                            {allergy}
-                          </span>
-                        ))}
-                    </div>
-                  )}
-                  {selectedUser.is_medication !== "0" && (
-                    <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5 text-xs text-gray-500">
-                      <span className="text-primary">Medications:</span>
-                      <span>
-                        {selectedUser?.medication_description
-                          .split(",")
-                          .join(", ")}
-                      </span>
-                    </div>
-                  )}
-                  {selectedUser.is_medical_conition !== "0" && (
-                    <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5 text-xs text-gray-500">
-                      <span className="text-primary">Medical Conditions:</span>
-                      <span>
-                        {selectedUser.medical_condition_description
-                          .split(",")
-                          .join(", ")}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
-                  <div className="flex w-full items-center justify-between border-b pb-2.5">
-                    <h1 className="text-left font-semibold text-primary">
-                      Family Members
-                    </h1>
-                    <FiPlus className="h-5 w-5 text-gray-500" />
-                  </div>
-                  <div className="grid w-full grid-cols-5 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
-                    <div className="col-span-1 w-full">Name</div>
-                    <div className="col-span-1 w-full">DOB</div>
-                    <div className="col-span-1 w-full">Gender</div>
-                    <div className="col-span-1 w-full">Relation</div>
-                    <div className="col-span-1 w-full">Actions</div>
-                  </div>
-                  {family?.length !== 0 &&
-                    family?.map((member, idx) => (
-                      <div
-                        key={member.family_member_id}
-                        className={cn(
-                          "grid w-full grid-cols-5 gap-2.5 bg-gray-100 p-2.5 text-xs text-gray-500",
-                          {
-                            "bg-white": member.family_member_id % 2 !== 0,
-                            "border-b": idx === family.length - 1,
-                          }
-                        )}
-                      >
-                        <div className="col-span-1 w-full overflow-hidden truncate">
-                          {member.firstname}&nbsp;{member.lastname}
-                        </div>
-                        <div className="col-span-1 w-full overflow-hidden truncate">
-                          {dayjs(member.date_of_birth).format("DD-MM-YYYY")}
-                        </div>
-                        <div className="col-span-1 w-full capitalize">
-                          {member.gender}
-                        </div>
-                        <div className="col-span-1 w-full">
-                          {member.relationship}
-                        </div>
-                        <div className="col-span-1 flex w-full items-center justify-between">
-                          <button className="rounded-md bg-primary px-1 py-0.5 text-[10px] text-white">
-                            Edit
-                          </button>
-                          <button onClick={()=>handleSelectFamily(member?.family_member_id)} className={`rounded-md px-1 py-0.5 text-[10px] text-white ${selectedFamily === member?.family_member_id ? 'bg-red-500' : 'bg-primary'}`}>
-                            {selectedFamily === member?.family_member_id ? 'Remove' : 'Book'}
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                </div>
-                <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
-                  <div className="flex w-full items-center justify-between border-b pb-2.5">
-                    <h1 className="text-left font-semibold text-primary">
-                      Attachments
-                    </h1>
-                    <FiPlus className="h-5 w-5 text-gray-500" />
-                  </div>
-                  {attachments?.length !== 0 &&
-                    attachments?.map((attachment) => (
-                      <div
-                        key={attachment.attachment_id}
-                        className="flex w-full items-center justify-between pt-2.5"
-                      >
-                        <div className="flex items-center justify-center space-x-3">
-                          <IoDocumentOutline className="h-12 w-12 text-primary" />
-                          <div className="flex w-full flex-col items-center justify-center">
-                            <span className="w-full text-left text-sm text-gray-500">
-                              {attachment.file_type}
-                            </span>
-                            <span className="w-full text-left text-xs text-gray-400">
-                              {selectedUser.firstname}&nbsp;
-                              {selectedUser.lastname}
-                            </span>
-                          </div>
-                        </div>
-                        <span className="text-xs text-gray-400">
-                          {dayjs(attachment.created_at).format("DD MMM YYYY")}
-                        </span>
-                        <div className="flex items-center justify-end space-x-3 text-gray-500">
-                          <FiDownload className="h-6 w-6" />
-                          <FaRegTrashAlt className="h-6 w-6" />
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </>
-            )}
-          </div>
-          <div className="no-scrollbar col-span-1 flex max-h-[calc(100vh-100px)]  w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pr-2.5">
-            <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
-              <div className="flex w-full items-center justify-between border-b pb-2.5">
-                <h1 className="text-left font-semibold text-primary">
-                  Booking Details
-                </h1>
-                <button className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
-                  Booking History
-                </button>
-              </div>
-              <div className="relative w-full">
-                <ServiceAutoComplete
-                  selectedServices={selectedServices}
-                  setSelectedServices={setSelectedServices}
-                />
-              </div>
-              {selectedServices?.length ?
-                <>
-                <div className="grid w-full grid-cols-9 gap-2.5 p-2.5 text-xs text-primary">
-                  <div className="col-span-1 w-full" />
-                  <div className="col-span-1 w-full">Code</div>
-                  <div className="col-span-3 w-full">Service</div>
-                  <div className="col-span-2 w-full">Amount</div>
-                  <div className="col-span-1 w-full text-center">Qty.</div>
-                  <div className="col-span-1 w-full text-right">Total</div>
-                </div>
-                {selectedServices?.map((service, idx) => (
+            <div className="grid w-full grid-cols-2 items-center justify-center gap-2.5 border-b px-2.5 py-2.5">
+              <Combobox
+                value={category}
+                options={options}
+                placeholder="Category"
+                setValue={setCategory}
+                searchInputPlaceholder="Search..."
+                searchInputClassName="p-1.5 text-xs"
+                defaultSelectedIconClassName="size-4"
+                icon={<TiArrowSortedDown className="size-5" />}
+                toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
+                listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
+                listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+              />
+              <Combobox
+                options={options}
+                value={profession}
+                placeholder="Profession"
+                setValue={setProfession}
+                searchInputPlaceholder="Search..."
+                searchInputClassName="p-1.5 text-xs"
+                defaultSelectedIconClassName="size-4"
+                icon={<TiArrowSortedDown className="size-5" />}
+                toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
+                listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
+                listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+              />
+            </div>
+            {timeline ? (
+              <div className="no-scrollbar flex h-full w-full flex-col items-start justify-start overflow-auto">
+                {Object.entries(timeline).map(([hour, bookings], idx) => (
                   <div
-                    key={service.service_id}
-                    className={cn(
-                      "grid w-full grid-cols-9 gap-2.5 p-2.5 text-xs text-gray-500",
-                      {
-                        "bg-white": idx % 2 !== 0,
-                        "bg-gray-100": idx % 2 === 0,
-                      }
-                    )}
+                    key={idx}
+                    className="grid h-[85px] w-full grid-cols-12 gap-1.5 border-y p-1.5 text-gray-500"
                   >
-                    <button
-                      type="button"
-                      onClick={() => removeSelectedService(service.service_id)}
-                    >
-                      <IoClose className="h-5 w-5" />
-                    </button>
-                    <div className="col-span-1 flex w-full items-center justify-start">
-                      {service.category_code}
+                    <div className="col-span-2 flex w-full items-start justify-start border-r-2">
+                      <p className="w-full text-center">{hour}</p>
                     </div>
-                    <div className="col-span-3 flex w-full items-center justify-start">
-                      <p className="w-full overflow-hidden truncate text-left">
-                        {service.service_name}
-                      </p>
-                    </div>
-                    <div className="col-span-2 flex w-full items-center justify-start">
-                      AED&nbsp;
-                      {service.price_without_vat}
-                    </div>
-                    <input
-                      type="text"
-                      placeholder={`${service.qty}`}
-                      onChange={(e) =>
-                        modifyQuantity(
-                          service.service_id,
-                          parseInt(e.target.value)
-                        )
-                      }
-                      className="col-span-1 w-full bg-transparent text-center"
-                    />
-                    <div className="col-span-1 flex w-full items-center justify-end">
-                      {service?.qty
-                        ? parseFloat(service.price_without_vat) * service!.qty
-                        : service.price_without_vat}
+                    <div className="col-span-10 w-full text-gray-500">
+                      <Bookings bookings={bookings} />
                     </div>
                   </div>
                 ))}
-                <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5">
-                  <div className="flex w-full items-center justify-end space-x-40 pr-2.5 text-xs text-gray-500">
-                    <p>Subtotal</p>
-                    <p>{calculateBookingCost(selectedServices!).subtotal}</p>
-                  </div>
-                  <div className="flex w-full items-center justify-end space-x-7 text-xs text-gray-500">
-                    <p>Discount</p>
-                    <div className="flex h-[38px] items-center justify-center space-x-2.5 overflow-hidden rounded-lg border p-2.5">
-                      <div
-                        onClick={() => setDiscount({ ...discount, type: "aed" })}
-                        className="size-3 cursor-pointer rounded-full border border-gray-400 p-px"
-                      >
-                        <div
-                          className={cn("size-full rounded-full", {
-                            "bg-gray-500": discount.type === "aed",
-                          })}
+              </div>
+            ) : (
+              <div className="flex h-[827px] w-full items-center justify-center">
+                <LuLoader2 className="size-10 animate-spin text-secondary" />
+              </div>
+            )}
+          </div>
+          <div className="col-span-2 grid h-full w-full grid-cols-2 gap-x-2.5">
+            <div className="col-span-2 flex h-12 w-full items-center justify-between bg-primary px-2.5 text-white">
+              <p className="w-full text-left text-lg font-semibold">
+                New Booking
+              </p>
+              <button type="button" onClick={() => setOpen(false)}>
+                <IoClose className="size-8" />
+              </button>
+            </div>
+            <div className={`no-scrollbar col-span-1 flex w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pl-2.5 ${selectedUser ? 'max-h-[calc(100vh-100px)]' : 'h-screen'}`}>
+              <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
+                <div className="mb-2.5 flex w-full items-center justify-between border-b pb-2.5">
+                  <h1 className="text-left font-semibold text-primary">
+                    Client Details
+                  </h1>
+                  {!selectedUser ?
+                    <CustomButton name='Add New' handleClick={() => { }} />
+
+                    :
+                    <FaRegEdit className="h-5 w-5 text-gray-500" />}
+                </div>
+                <AutoComplete setSelectedUser={setSelectedUser} />
+              </div>
+              {selectedUser && (
+                <>
+                  <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
+                    <div className="grid w-full grid-cols-12">
+                      <div className="col-span-7 flex w-full items-center justify-between">
+                        <img
+                          alt="profile"
+                          className="size-14 rounded-full"
+                          src={
+                            selectedUser.image ||
+                            "https://ui.shadcn.com/avatars/04.png"
+                          }
                         />
+                        <div className="flex flex-col items-center justify-center space-y-1">
+                          <span className="w-full text-left text-xs text-gray-500">
+                            {selectedUser.firstname}&nbsp;{selectedUser.lastname}
+                          </span>
+                          <span className="w-full text-left text-xs text-gray-500">
+                            {selectedUser.phone}
+                          </span>
+                          <span className="w-full text-left text-xs text-gray-500">
+                            {selectedUser.email}
+                          </span>
+                        </div>
                       </div>
-                      <span>AED</span>
-                      <div
-                        onClick={() =>
-                          setDiscount({ ...discount, type: "percent" })
-                        }
-                        className="size-3 cursor-pointer rounded-full border border-gray-400 p-px"
-                      >
-                        <div
-                          className={cn("size-full rounded-full", {
-                            "bg-gray-500": discount.type === "percent",
-                          })}
-                        />
+                      <div className="col-span-5 flex w-full flex-col items-center justify-between pl-2.5">
+                        <span className="w-full text-left text-xs text-gray-500">
+                          {dayjs(selectedUser.date_of_birth).format(
+                            "DD MMM, YYYY"
+                          )}
+                        </span>
+                        <span className="w-full text-left text-xs text-gray-500">
+                          {selectedUser.gender}
+                        </span>
+                        <span className="w-full text-left text-xs text-gray-500">
+                          {selectedUser.nationality
+                            ? selectedUser.nationality
+                            : "N/A"}
+                        </span>
                       </div>
-                      <span>%</span>
-                      <input
-                        type="text"
-                        placeholder="0.00"
-                        onChange={(e) =>
-                          setDiscount({
-                            ...discount,
-                            value: parseInt(e.target.value),
-                          })
-                        }
-                        className="w-10 border-l-2 pl-2.5"
-                      />
+                    </div>
+                    <div className="flex w-full items-center justify-between border-b py-2.5">
+                      <h1 className="text-left font-semibold text-primary">
+                        Address Details
+                      </h1>
+                      <FiPlus onClick={handleAddAddress} className="h-5 w-5 text-gray-500 cursor-pointer" />
+                    </div>
+                    <div className="mt-2.5 grid w-full grid-cols-2 gap-2.5 text-gray-500">
+                      {addresses?.length !== 0 &&
+                        addresses?.map((address) => (
+                          <div
+                            key={address.address_id}
+                            className="col-span-1 flex w-full flex-col items-center justify-between space-y-1.5 rounded-lg border border-gray-200 bg-gray-100 p-2.5"
+                          >
+                            <div className="flex w-full items-center justify-between">
+                              <span className="font-bold capitalize text-primary">
+                                {address.address_type}
+                              </span>
+                              <div className="flex items-center justify-end space-x-2.5">
+                                {address.map_link && (
+                                  <Link target="_blank" to={address.map_link}>
+                                    <IoLocationOutline />
+                                  </Link>
+                                )}
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    copyToClipboard(`${address.apartment}, ${address.building_no}
+                            , ${address.street}, ${address.extra_direction}`)
+                                  }
+                                >
+                                  <GoShareAndroid />
+                                </button>
+                                <FaRegEdit />
+                              </div>
+                            </div>
+                            <span className="w-full overflow-hidden truncate text-left text-xs">
+                              {address.apartment},&nbsp;{address.building_no}
+                              ,&nbsp;
+                              {address.street},&nbsp;{address.extra_direction}
+                            </span>
+                          </div>
+                        ))}
                     </div>
                   </div>
-                  <div className="flex w-full items-center justify-end space-x-36 pr-2.5 text-xs text-gray-500">
-                    <p>VAT</p>
-                    <p>{calculateBookingCost(selectedServices!).total_vat}</p>
-                  </div>
-                  <div className="w-72 place-self-end border border-gray-300" />
-                  <div className="flex w-full items-center justify-end space-x-[105px] pr-2.5 font-bold text-gray-500">
-                    <p>Grand Total</p>
-                    <p>
-                      AED&nbsp;
-                      {Math.round(calculateDiscount())}
-                    </p>
-                  </div>
-                </div>
-                </>:null
-              }
-            </div>
-            {selectedServices?.length ?
-            <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
-              <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
-                <h1 className="w-full text-left font-semibold text-primary">
-                  Booking Instructions
-                </h1>
-                <textarea
-                  rows={3}
-                  value={deliveryNotes}
-                  placeholder="Notes..."
-                  onChange={(e) => setDeliveryNotes(e.target.value)}
-                  className="w-full rounded-lg bg-gray-100 p-3 text-xs placeholder:italic"
-                />
-              </div>
-              <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
-                <h1 className="w-full text-left font-semibold text-primary">
-                  Select Time & Date
-                </h1>
-                <div className="grid w-full grid-cols-2 gap-2.5">
-                  <div className="-mt-1">
-                  <label className="w-full text-left text-xs text-grey100 font-medium mb-0.5">
-                    Select Date
-                  </label>
-                  <CustomDatePicker
-                    date={scheduleDate}
-                    setDate={setScheduleDate}
-                    toggleButton={
-                      <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-2 text-xs font-medium">
-                        <p>{dayjs(date).format("DD MMM YYYY")}</p>
-                        <div><IoCalendarOutline className="h-5 w-5 text-grey100" /></div>
+                  <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
+                    <div className="flex w-full items-center justify-between border-b pb-2.5">
+                      <h1 className="text-left font-semibold text-primary">
+                        Medical Details
+                      </h1>
+                      <FiPlus className="h-5 w-5 text-gray-500" />
+                    </div>
+                    {selectedUser.is_allergy !== "0" && (
+                      <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
+                        <span className="text-xs text-primary">Allergies:</span>
+                        {selectedUser.allergy_description
+                          .split(",")
+                          .map((allergy, idx) => (
+                            <span
+                              key={idx}
+                              className="rounded-full bg-red-200 px-2 text-xs text-red-500"
+                            >
+                              {allergy}
+                            </span>
+                          ))}
                       </div>
-                    }
-                  />
+                    )}
+                    {selectedUser.is_medication !== "0" && (
+                      <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5 text-xs text-gray-500">
+                        <span className="text-primary">Medications:</span>
+                        <span>
+                          {selectedUser?.medication_description
+                            .split(",")
+                            .join(", ")}
+                        </span>
+                      </div>
+                    )}
+                    {selectedUser.is_medical_conition !== "0" && (
+                      <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5 text-xs text-gray-500">
+                        <span className="text-primary">Medical Conditions:</span>
+                        <span>
+                          {selectedUser.medical_condition_description
+                            .split(",")
+                            .join(", ")}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                  <Combobox
-                      value={scheduleTime}
-                      options={timeSlots}
-                      handleSelect={(value)=>setScheduleTime(value)}
-                      label='Select Time'
-                      placeholder="Select Time"
-                      mainClassName="w-full"
-                      toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey"
-                      listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
-                      listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                      icon={<FaRegClock className="h-5 w-5 text-grey100" />}
-                      isSearch={false}
-                    />
-                </div>
-              </div>
-              <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
-                <div className="flex w-full items-center justify-between">
+                  <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
+                    <div className="flex w-full items-center justify-between border-b pb-2.5">
+                      <h1 className="text-left font-semibold text-primary">
+                        Family Members
+                      </h1>
+                      <FiPlus className="h-5 w-5 text-gray-500" />
+                    </div>
+                    <div className="grid w-full grid-cols-5 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
+                      <div className="col-span-1 w-full">Name</div>
+                      <div className="col-span-1 w-full">DOB</div>
+                      <div className="col-span-1 w-full">Gender</div>
+                      <div className="col-span-1 w-full">Relation</div>
+                      <div className="col-span-1 w-full">Actions</div>
+                    </div>
+                    {family?.length !== 0 &&
+                      family?.map((member, idx) => (
+                        <div
+                          key={member.family_member_id}
+                          className={cn(
+                            "grid w-full grid-cols-5 gap-2.5 bg-gray-100 p-2.5 text-xs text-gray-500",
+                            {
+                              "bg-white": member.family_member_id % 2 !== 0,
+                              "border-b": idx === family.length - 1,
+                            }
+                          )}
+                        >
+                          <div className="col-span-1 w-full overflow-hidden truncate">
+                            {member.firstname}&nbsp;{member.lastname}
+                          </div>
+                          <div className="col-span-1 w-full overflow-hidden truncate">
+                            {dayjs(member.date_of_birth).format("DD-MM-YYYY")}
+                          </div>
+                          <div className="col-span-1 w-full capitalize">
+                            {member.gender}
+                          </div>
+                          <div className="col-span-1 w-full">
+                            {member.relationship}
+                          </div>
+                          <div className="col-span-1 flex w-full items-center justify-between">
+                            <button className="rounded-md bg-primary px-1 py-0.5 text-[10px] text-white">
+                              Edit
+                            </button>
+                            <button onClick={() => handleSelectFamily(member?.family_member_id)} className={`rounded-md px-1 py-0.5 text-[10px] text-white ${selectedFamily === member?.family_member_id ? 'bg-red-500' : 'bg-primary'}`}>
+                              {selectedFamily === member?.family_member_id ? 'Remove' : 'Book'}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                  <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
+                    <div className="flex w-full items-center justify-between border-b pb-2.5">
+                      <h1 className="text-left font-semibold text-primary">
+                        Attachments
+                      </h1>
+                      <FiPlus className="h-5 w-5 text-gray-500" />
+                    </div>
+                    {attachments?.length !== 0 &&
+                      attachments?.map((attachment) => (
+                        <div
+                          key={attachment.attachment_id}
+                          className="flex w-full items-center justify-between pt-2.5"
+                        >
+                          <div className="flex items-center justify-center space-x-3">
+                            <IoDocumentOutline className="h-12 w-12 text-primary" />
+                            <div className="flex w-full flex-col items-center justify-center">
+                              <span className="w-full text-left text-sm text-gray-500">
+                                {attachment.file_type}
+                              </span>
+                              <span className="w-full text-left text-xs text-gray-400">
+                                {selectedUser.firstname}&nbsp;
+                                {selectedUser.lastname}
+                              </span>
+                            </div>
+                          </div>
+                          <span className="text-xs text-gray-400">
+                            {dayjs(attachment.created_at).format("DD MMM YYYY")}
+                          </span>
+                          <div className="flex items-center justify-end space-x-3 text-gray-500">
+                            <FiDownload className="h-6 w-6" />
+                            <FaRegTrashAlt className="h-6 w-6" />
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </>
+              )}
+            </div>
+            <div className="no-scrollbar col-span-1 flex max-h-[calc(100vh-100px)]  w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pr-2.5">
+              <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
+                <div className="flex w-full items-center justify-between border-b pb-2.5">
                   <h1 className="text-left font-semibold text-primary">
-                    Select Address
+                    Booking Details
                   </h1>
+                  <button onClick={()=>setHistory(true)} className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
+                    Booking History
+                  </button>
                 </div>
-                <div className="mt-2.5 grid w-full grid-cols-2 gap-2.5 text-gray-500">
-                  {addresses?.length !== 0 &&
-                    addresses?.map((a) => (
+                <div className="relative w-full">
+                  <ServiceAutoComplete
+                    selectedServices={selectedServices}
+                    setSelectedServices={setSelectedServices}
+                    isCustomerSelected={!!selectedUser?.customer_id}
+                  />
+                </div>
+                {selectedServices?.length ?
+                  <>
+                    <div className="grid w-full grid-cols-9 gap-2.5 p-2.5 text-xs text-primary">
+                      <div className="col-span-1 w-full" />
+                      <div className="col-span-1 w-full">Code</div>
+                      <div className="col-span-3 w-full">Service</div>
+                      <div className="col-span-2 w-full">Amount</div>
+                      <div className="col-span-1 w-full text-center">Qty.</div>
+                      <div className="col-span-1 w-full text-right">Total</div>
+                    </div>
+                    {selectedServices?.map((service, idx) => (
                       <div
-                        key={a.address_id}
-                        onClick={() => setAddress(parseInt(a.address_id))}
+                        key={service.service_id}
                         className={cn(
-                          "col-span-1 flex w-full cursor-pointer flex-col items-center justify-between space-y-1.5 rounded-lg border border-gray-200 bg-gray-100 p-2.5",
+                          "grid w-full grid-cols-9 gap-2.5 p-2.5 text-xs text-gray-500",
                           {
-                            "border-primary":
-                              address === parseInt(a.address_id),
+                            "bg-white": idx % 2 !== 0,
+                            "bg-gray-100": idx % 2 === 0,
                           }
                         )}
                       >
-                        <div className="flex w-full items-center justify-between">
-                          <span className="font-bold capitalize text-primary">
-                            {a.address_type}
-                          </span>
+                        <button
+                          type="button"
+                          onClick={() => removeSelectedService(service.service_id)}
+                        >
+                          <IoClose className="h-5 w-5" />
+                        </button>
+                        <div className="col-span-1 flex w-full items-center justify-start">
+                          {service.category_code}
                         </div>
-                        <span className="w-full overflow-hidden truncate text-left text-xs">
-                          {a.apartment},&nbsp;{a.building_no}
-                          ,&nbsp;
-                          {a.street},&nbsp;{a.extra_direction}
-                        </span>
+                        <div className="col-span-3 flex w-full items-center justify-start">
+                          <p className="w-full overflow-hidden truncate text-left">
+                            {service.service_name}
+                          </p>
+                        </div>
+                        <div className="col-span-2 flex w-full items-center justify-start">
+                          AED&nbsp;
+                          {service.price_without_vat}
+                        </div>
+                        <input
+                          type="text"
+                          placeholder={`${service.qty}`}
+                          onChange={(e) =>
+                            modifyQuantity(
+                              service.service_id,
+                              parseInt(e.target.value)
+                            )
+                          }
+                          className="col-span-1 w-full bg-transparent text-center"
+                        />
+                        <div className="col-span-1 flex w-full items-center justify-end">
+                          {service?.qty
+                            ? parseFloat(service.price_without_vat) * service!.qty
+                            : service.price_without_vat}
+                        </div>
                       </div>
                     ))}
-                </div>
+                    <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5">
+                      <div className="flex w-full items-center justify-end space-x-40 pr-2.5 text-xs text-gray-500">
+                        <p>Subtotal</p>
+                        <p>{calculateBookingCost(selectedServices!).subtotal}</p>
+                      </div>
+                      <div className="flex w-full items-center justify-end space-x-7 text-xs text-gray-500">
+                        <p>Discount</p>
+                        <div className="flex h-[38px] items-center justify-center space-x-2.5 overflow-hidden rounded-lg border p-2.5">
+                          <div
+                            onClick={() => setDiscount({ ...discount, type: "aed" })}
+                            className="size-3 cursor-pointer rounded-full border border-gray-400 p-px"
+                          >
+                            <div
+                              className={cn("size-full rounded-full", {
+                                "bg-gray-500": discount.type === "aed",
+                              })}
+                            />
+                          </div>
+                          <span>AED</span>
+                          <div
+                            onClick={() =>
+                              setDiscount({ ...discount, type: "percent" })
+                            }
+                            className="size-3 cursor-pointer rounded-full border border-gray-400 p-px"
+                          >
+                            <div
+                              className={cn("size-full rounded-full", {
+                                "bg-gray-500": discount.type === "percent",
+                              })}
+                            />
+                          </div>
+                          <span>%</span>
+                          <input
+                            type="text"
+                            placeholder="0.00"
+                            onChange={(e) =>
+                              setDiscount({
+                                ...discount,
+                                value: parseInt(e.target.value),
+                              })
+                            }
+                            className="w-10 border-l-2 pl-2.5"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex w-full items-center justify-end space-x-36 pr-2.5 text-xs text-gray-500">
+                        <p>VAT</p>
+                        <p>{calculateBookingCost(selectedServices!).total_vat}</p>
+                      </div>
+                      <div className="w-72 place-self-end border border-gray-300" />
+                      <div className="flex w-full items-center justify-end space-x-[105px] pr-2.5 font-bold text-gray-500">
+                        <p>Grand Total</p>
+                        <p>
+                          AED&nbsp;
+                          {Math.round(calculateDiscount())}
+                        </p>
+                      </div>
+                    </div>
+                  </> : null
+                }
               </div>
-              <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
-                <h1 className="w-full text-left font-semibold text-primary">
-                  Select Payment
-                </h1>
-                <div className="mt-2.5 grid w-full grid-cols-2 gap-2.5 text-gray-500">
-                  <div
-                    onClick={() => setPayment("cod")}
-                    className={cn(
-                      "col-span-1 w-full cursor-pointer rounded-md border bg-gray-100 p-2.5 shadow-md",
-                      {
-                        "border-primary text-primary": payment === "cod",
-                      }
-                    )}
+              {selectedServices?.length ?
+                <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
+                  <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
+                    <h1 className="w-full text-left font-semibold text-primary">
+                      Booking Instructions
+                    </h1>
+                    <textarea
+                      rows={3}
+                      value={deliveryNotes}
+                      placeholder="Notes..."
+                      onChange={(e) => setDeliveryNotes(e.target.value)}
+                      className="w-full rounded-lg bg-gray-100 p-3 text-xs placeholder:italic"
+                    />
+                  </div>
+                  <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
+                    <h1 className="w-full text-left font-semibold text-primary">
+                      Select Time & Date
+                    </h1>
+                    <div className="grid w-full grid-cols-2 gap-2.5">
+                      <div className="-mt-1">
+                        <label className="w-full text-left text-xs text-grey100 font-medium mb-0.5">
+                          Select Date
+                        </label>
+                        <CustomDatePicker
+                          date={scheduleDate}
+                          setDate={setScheduleDate}
+                          toggleButton={
+                            <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-2 text-xs font-medium">
+                              <p>{dayjs(date).format("DD MMM YYYY")}</p>
+                              <div><IoCalendarOutline className="h-5 w-5 text-grey100" /></div>
+                            </div>
+                          }
+                        />
+                      </div>
+                      <Combobox
+                        value={scheduleTime}
+                        options={timeSlots}
+                        handleSelect={(value) => setScheduleTime(value)}
+                        label='Select Time'
+                        placeholder="Select Time"
+                        mainClassName="w-full"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                        icon={<FaRegClock className="h-5 w-5 text-grey100" />}
+                        isSearch={false}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
+                    <div className="flex w-full items-center justify-between">
+                      <h1 className="text-left font-semibold text-primary">
+                        Select Address
+                      </h1>
+                    </div>
+                    <div className="mt-2.5 grid w-full grid-cols-2 gap-2.5 text-gray-500">
+                      {addresses?.length !== 0 &&
+                        addresses?.map((a) => (
+                          <div
+                            key={a.address_id}
+                            onClick={() => setAddress(parseInt(a.address_id))}
+                            className={cn(
+                              "col-span-1 flex w-full cursor-pointer flex-col items-center justify-between space-y-1.5 rounded-lg border border-gray-200 bg-gray-100 p-2.5",
+                              {
+                                "border-primary":
+                                  address === parseInt(a.address_id),
+                              }
+                            )}
+                          >
+                            <div className="flex w-full items-center justify-between">
+                              <span className="font-bold capitalize text-primary">
+                                {a.address_type}
+                              </span>
+                            </div>
+                            <span className="w-full overflow-hidden truncate text-left text-xs">
+                              {a.apartment},&nbsp;{a.building_no}
+                              ,&nbsp;
+                              {a.street},&nbsp;{a.extra_direction}
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                  <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
+                    <h1 className="w-full text-left font-semibold text-primary">
+                      Select Payment
+                    </h1>
+                    <div className="mt-2.5 grid w-full grid-cols-2 gap-2.5 text-gray-500">
+                      <div
+                        onClick={() => setPayment("cod")}
+                        className={cn(
+                          "col-span-1 w-full cursor-pointer rounded-md border bg-gray-100 p-2.5 shadow-md",
+                          {
+                            "border-primary text-primary": payment === "cod",
+                          }
+                        )}
+                      >
+                        <p className="w-full text-center text-xs">
+                          Cash on Delivery
+                        </p>
+                      </div>
+                      <div
+                        onClick={() => setPayment("cdd")}
+                        className={cn(
+                          "col-span-1 w-full cursor-pointer rounded-md border bg-gray-100 p-2.5 shadow-md",
+                          {
+                            "border-primary text-primary": payment === "cdd",
+                          }
+                        )}
+                      >
+                        <p className="w-full text-center text-xs">
+                          Card on Delivery
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={creating}
+                    onClick={() => postBooking()}
+                    className="w-full rounded-lg bg-primary py-3 text-white"
                   >
-                    <p className="w-full text-center text-xs">
-                      Cash on Delivery
-                    </p>
-                  </div>
-                  <div
-                    onClick={() => setPayment("cdd")}
-                    className={cn(
-                      "col-span-1 w-full cursor-pointer rounded-md border bg-gray-100 p-2.5 shadow-md",
-                      {
-                        "border-primary text-primary": payment === "cdd",
-                      }
+                    {creating ? (
+                      <div className="flex w-full items-center justify-center gap-3">
+                        <LuLoader2 className="animate-spin" />
+                        <span>Please Wait...</span>
+                      </div>
+                    ) : (
+                      "Confirm Booking"
                     )}
-                  >
-                    <p className="w-full text-center text-xs">
-                      Card on Delivery
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <button
-                type="button"
-                disabled={creating}
-                onClick={() => postBooking()}
-                className="w-full rounded-lg bg-primary py-3 text-white"
-              >
-                {creating ? (
-                  <div className="flex w-full items-center justify-center gap-3">
-                    <LuLoader2 className="animate-spin" />
-                    <span>Please Wait...</span>
-                  </div>
-                ) : (
-                  "Confirm Booking"
-                )}
-              </button>
-            </div> : null}
+                  </button>
+                </div> : null}
+            </div>
           </div>
         </div>
-      </div>
-      <AddAddressModal customerId={selectedUser?.customer_id} open={openAddressModal} setOpen={setOpenAddressModal} />
-    </Modal>
+        <AddAddressModal customerId={selectedUser?.customer_id} userId={user!.id} open={openAddressModal} setOpen={setOpenAddressModal} />
+      </Modal>
+    </>
   );
 };
 

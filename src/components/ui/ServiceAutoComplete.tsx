@@ -5,16 +5,18 @@ import debounce from "lodash.debounce";
 import { LuLoader2 } from "react-icons/lu";
 import { HiMagnifyingGlass } from "react-icons/hi2";
 import { useCallback, useEffect, useState } from "react";
+import CustomToast from "./CustomToast";
+import { toast } from "sonner";
 
 interface AutoCompleteProps {
   selectedServices: ServiceProps[] | null;
-  setSelectedServices: React.Dispatch<
-    React.SetStateAction<ServiceProps[] | null>
-  >;
+  isCustomerSelected?: boolean;
+  setSelectedServices: (arg0: ServiceProps[])=>void;
 }
 
 const ServiceAutoComplete = ({
   selectedServices,
+  isCustomerSelected,
   setSelectedServices,
 }: AutoCompleteProps) => {
   const [query, setQuery] = useState("");
@@ -22,6 +24,18 @@ const ServiceAutoComplete = ({
   const [results, setResults] = useState<ServiceProps[] | undefined>([]);
 
   const handleServiceSelection = (service: ServiceProps) => {
+    if(!isCustomerSelected){
+      toast.custom((t) => (
+        <CustomToast
+          t={t}
+          type="error"
+          title="Error"
+          message="Please Select Customer!"
+        />
+      ));
+      return
+    }
+    setQuery("");
     if (selectedServices?.length === 0) {
       setSelectedServices([{ ...service, qty: 1 }]);
     } else {
@@ -79,7 +93,6 @@ const ServiceAutoComplete = ({
             <div
               key={result.service_id}
               onClick={() => {
-                setQuery("");
                 handleServiceSelection(result);
               }}
               className={cn(

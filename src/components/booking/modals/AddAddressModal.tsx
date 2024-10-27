@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form';
 interface AddAddressModalProps {
     open: boolean,
     customerId?: string,
+    userId?: string,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -18,7 +19,7 @@ const emiratesOption = [
     { id: 2, name: 'xyz' },
     { id: 3, name: 'asd' },
 ]
-const AddAddressModal = ({ open, customerId, setOpen }: AddAddressModalProps) => {
+const AddAddressModal = ({ open, customerId, userId, setOpen }: AddAddressModalProps) => {
     const [emirate, setEmirate] = useState<ListOptionProps | null>(null);
     const [villa, setVilla] = useState<ListOptionProps | null>(null);
 
@@ -43,8 +44,9 @@ const AddAddressModal = ({ open, customerId, setOpen }: AddAddressModalProps) =>
 
     const handleSave = async (data) => {
         try {
-            if(customerId){
+            if(customerId && userId){
             const payload = {
+                user_id: userId,
                 customer_id: customerId,
                 address_type: data?.address_type,
                 area_id: data?.area_id,
@@ -52,7 +54,10 @@ const AddAddressModal = ({ open, customerId, setOpen }: AddAddressModalProps) =>
                 apartment: data?.apartment,
                 street: data?.street,
                 map_link: data?.map_link,
-                extra_direction: data?.extra_direction
+                extra_direction: data?.extra_direction,
+                lat: 0,
+                lang: 0,
+                is_default: 0
             }
                 await addAddress(payload)
                 reset()
