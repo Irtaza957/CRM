@@ -6,13 +6,13 @@ import { IoClose } from "react-icons/io5";
 
 const BookingHistoryModal = ({ open, setOpen }: ModalProps) => {
   return (
-    <Modal
+    <Modal 
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="w-full max-w-4xl h-[90%]"
+      className="h-[90%] w-full max-w-[60%]"
     >
-      <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
+        <div className="w-full h-full items-center justify-center overflow-hidden rounded-lg">
         <div className="flex w-full items-center justify-between overflow-hidden rounded-t-lg bg-primary px-5 py-2.5 text-white">
           <h1 className="text-xl font-medium">Booking History</h1>
           <IoClose

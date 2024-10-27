@@ -55,8 +55,8 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
               <LuLoader2 className="h-14 w-14 animate-spin text-secondary" />
             ) : (
               <div className="flex w-full h-full">
-                <div className="rounded-lg w-full bg-white max-h-[calc(100vh-100px)] overflow-auto">
-                  <div className="flex w-full flex-col items-start justify-start space-y-2.5 ">
+                <div className="w-full max-h-[calc(100vh-100px)] overflow-auto">
+                  <div className="flex w-full bg-white rounded-lg flex-col items-start justify-start space-y-2.5 ">
                     {/* Client Details */}
                     <div className="flex w-full flex-col items-center justify-center rounded-lg p-2.5">
                       <div className="flex w-full items-center justify-between border-b pb-2.5">
@@ -208,7 +208,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                       )}
                     </div>
                   </div>
-                  <div className="flex w-full flex-col items-start justify-start space-y-2.5 p-2.5">
+                  <div className="flex w-full bg-white rounded-lg flex-col items-start justify-start space-y-2.5 p-2.5 mt-3">
                     {/* Booking Details */}
                     <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
                       <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
@@ -395,8 +395,8 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                     </button>
                   </div>
                 </div>
-                <div className="rounded-lg w-full bg-white max-h-[calc(100vh-100px)] overflow-auto">
-                <div className="flex w-full flex-col items-start justify-start space-y-2.5">
+                <div className="w-full max-h-[calc(100vh-100px)] overflow-auto">
+                <div className="flex w-full flex-col rounded-lg bg-white items-start justify-start space-y-2.5">
                     {/* Customer Attachments */}
                     <div className="flex h-fit max-h-[200px] w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 pt-2.5">
                       <div className="flex w-full items-center justify-center border-b pb-2.5">
@@ -467,7 +467,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                       ))}
                     </div>
                   </div>
-                  <div className="flex w-full flex-col items-start justify-start space-y-2.5 p-2.5">
+                  <div className="flex w-full flex-col rounded-lg bg-white items-start justify-start space-y-2.5 p-2.5 mt-3">
                     {/* Service Details */}
                     <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
                       <div className="flex w-full items-center justify-center border-b pb-2.5">
