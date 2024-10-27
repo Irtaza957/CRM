@@ -8,11 +8,13 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 const CustomDatePicker = ({
   toggleButton,
   date,
+  toggleClassName,
   setDate
 }: {
   toggleButton: React.ReactNode;
-  date: string,
-  setDate: (arg0: string)=>void
+  date: string | Date,
+  toggleClassName?: string,
+  setDate: (arg0: string | Date)=>void
 }) => {
   const months = [
     "January",
@@ -69,7 +71,10 @@ const CustomDatePicker = ({
         {toggleButton}
       </div>
       {toggle && (
-        <div className="absolute right-0 top-[50px] z-20 flex flex-col items-center justify-center gap-2.5 rounded-lg border bg-white p-2.5">
+        <div className={cn(
+          "absolute right-0 top-[40px] z-[20] flex flex-col items-center justify-center gap-2.5 rounded-lg border bg-white p-2.5",
+          toggleClassName
+          )}>
           <div className="flex w-full items-center justify-between gap-5">
             <select
               value={months[currentMonth]}

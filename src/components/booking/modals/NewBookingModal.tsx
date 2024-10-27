@@ -52,6 +52,7 @@ import AddAddressModal from "./AddAddressModal";
 import CustomButton from "../../ui/CustomButton";
 import { setDate } from "../../../store/slices/global";
 import BookingHistoryModal from "./BookingHistoryModal";
+import AddCustomerModal from "./AddCustomerModal";
 
 const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   return (
@@ -124,7 +125,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   });
   const [payment, setPayment] = useState("cod");
   const [scheduleTime, setScheduleTime] = useState<ListOptionProps | null>(null);
-  const [scheduleDate, setScheduleDate] = useState(new Date());
+  const [scheduleDate, setScheduleDate] = useState<Date | string>(new Date());
   const [deliveryNotes, setDeliveryNotes] = useState("");
   const [fetchFamily] = useFetchCustomerFamilyMutation();
   const [selectedServices, setSelectedServices] = useState<
@@ -143,6 +144,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const [attachments, setAttachments] = useState<AttachmentProps[] | null>([]);
   const [selectedFamily, setSelectedFamily] = useState<number | null>(null)
   const [openAddressModal, setOpenAddressModal] = useState(false)
+  const [openCustomerModal, setOpenCustomerModal] = useState(false)
   const [history, setHistory] = useState(false);
 
   const dispatch = useDispatch()
@@ -224,9 +226,42 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   };
 
   const postBooking = async () => {
+    const servicesData=JSON.stringify(
+      selectedServices?.map((item) => {
+        return {
+          service_id: item.service_id,
+          qty: item.qty,
+          price: item.price_without_vat,
+        };
+      })
+    )
+    const payload={
+      user_id: user!.id,
+      services: servicesData,
+      total: calculateBookingCost(selectedServices!).grand_total,
+      vat_value: calculateBookingCost(selectedServices!).total_vat,
+      discount_value: discount.value,
+      subtotal: calculateBookingCost(selectedServices!).subtotal,
+      split_payment_method_code: 0,
+      split_payment_method: 0,
+      payment_status: "pending",
+      payment_method_code: payment,
+      payment_method: payment === "cod" ? "Cash on Delivery" : "Card on Delivery",
+      delivery_notes: deliveryNotes,
+      customer_id: selectedUser?.customer_id,
+      family_member_id: selectedFamily || 0,
+      address_id: address,
+      booking_source_id: 1,
+      partner_id: 1,
+      firstname: selectedUser!.firstname,
+      lastname: selectedUser!.lastname,
+      phone: selectedUser!.phone,
+      schedule_date: dayjs(scheduleDate).format("DD MMM YYYY"),
+      schedule_slot: scheduleTime?.name || ''
+    }
     const urlencoded = new URLSearchParams();
     urlencoded.append("customer_id", selectedUser!.customer_id);
-    urlencoded.append("family_member_id", "0");
+    urlencoded.append("family_member_id", String(selectedFamily));
     urlencoded.append("address_id", address.toString());
     urlencoded.append("booking_source_id", "1");
     urlencoded.append("partner_id", "1");
@@ -270,9 +305,8 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
       )
     );
     urlencoded.append("user_id", `${user!.id}`);
-
     try {
-      const data = await createBooking(urlencoded);
+      const data = await createBooking(payload);
       if (data.error) {
         toast.custom((t) => (
           <CustomToast
@@ -316,7 +350,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     setOpenAddressModal(!openAddressModal)
   }
 
-  const handleSetDate = (date: string) => {
+  const handleSetDate = (date: string | Date) => {
     dispatch(setDate(date));
   };
 
@@ -426,7 +460,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                     Client Details
                   </h1>
                   {!selectedUser ?
-                    <CustomButton name='Add New' handleClick={() => { }} />
+                    <CustomButton name='Add New' handleClick={() => setOpenCustomerModal(true)} />
 
                     :
                     <FaRegEdit className="h-5 w-5 text-gray-500" />}
@@ -809,9 +843,10 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                         <CustomDatePicker
                           date={scheduleDate}
                           setDate={setScheduleDate}
+                          toggleClassName='-right-20'
                           toggleButton={
                             <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-2 text-xs font-medium">
-                              <p>{dayjs(date).format("DD MMM YYYY")}</p>
+                              <p>{dayjs(scheduleDate).format("DD MMM YYYY")}</p>
                               <div><IoCalendarOutline className="h-5 w-5 text-grey100" /></div>
                             </div>
                           }
@@ -919,6 +954,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
           </div>
         </div>
         <AddAddressModal customerId={selectedUser?.customer_id} userId={user!.id} open={openAddressModal} setOpen={setOpenAddressModal} />
+        <AddCustomerModal customerId={selectedUser?.customer_id} userId={user!.id} open={openCustomerModal} setOpen={setOpenCustomerModal} />
       </Modal>
     </>
   );

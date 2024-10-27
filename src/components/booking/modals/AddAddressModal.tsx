@@ -10,7 +10,7 @@ import { useForm } from 'react-hook-form';
 interface AddAddressModalProps {
     open: boolean,
     customerId?: string,
-    userId?: string,
+    userId?: number,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }
 
@@ -30,35 +30,35 @@ const AddAddressModal = ({ open, customerId, userId, setOpen }: AddAddressModalP
         setValue,
         reset,
         handleSubmit,
-      } = useForm();
+    } = useForm();
 
     const handleSelectEmirate = (value: ListOptionProps) => {
         setEmirate(value)
-        setValue("emirate_id", value.id); 
+        setValue("emirate_id", value.id);
     }
 
     const handleSelectArea = (value: ListOptionProps) => {
         setVilla(value)
-        setValue("area_id", value.id); 
+        setValue("area_id", value.id);
     }
 
-    const handleSave = async (data) => {
+    const handleSave = async (data: AddAddress) => {
         try {
-            if(customerId && userId){
-            const payload = {
-                user_id: userId,
-                customer_id: customerId,
-                address_type: data?.address_type,
-                area_id: data?.area_id,
-                building_no: data?.building_no,
-                apartment: data?.apartment,
-                street: data?.street,
-                map_link: data?.map_link,
-                extra_direction: data?.extra_direction,
-                lat: 0,
-                lang: 0,
-                is_default: 0
-            }
+            if (customerId && userId) {
+                const payload = {
+                    user_id: userId,
+                    customer_id: customerId,
+                    address_type: data?.address_type,
+                    area_id: data?.area_id,
+                    building_no: data?.building_no,
+                    apartment: data?.apartment,
+                    street: data?.street,
+                    map_link: data?.map_link,
+                    extra_direction: data?.extra_direction,
+                    lat: 0,
+                    lang: 0,
+                    is_default: 0
+                }
                 await addAddress(payload)
                 reset()
                 closeModal()
@@ -68,7 +68,7 @@ const AddAddressModal = ({ open, customerId, userId, setOpen }: AddAddressModalP
         }
     }
 
-    const closeModal=()=>{
+    const closeModal = () => {
         setOpen(false)
     }
     return (
@@ -140,13 +140,13 @@ const AddAddressModal = ({ open, customerId, userId, setOpen }: AddAddressModalP
                     </div>
                     <div className='w-full flex gap-5 items-center justify-center'>
                         <div className='w-[50%]'>
-                        <CustomInput
-                            label="Extra Direction"
-                            placeholder="Type..."
-                            name='extra_direction'
-                            type="text"
-                            register={register}
-                        />
+                            <CustomInput
+                                label="Extra Direction"
+                                placeholder="Type..."
+                                name='extra_direction'
+                                type="text"
+                                register={register}
+                            />
                         </div>
                         <div className='w-full'>
                             <CustomInput
@@ -159,9 +159,9 @@ const AddAddressModal = ({ open, customerId, userId, setOpen }: AddAddressModalP
                         </div>
                     </div>
                     <div className='flex justify-end gap-3 w-full mt-7'>
-                        <CustomButton 
-                            name='Cancel' 
-                            handleClick={closeModal} 
+                        <CustomButton
+                            name='Cancel'
+                            handleClick={closeModal}
                             style="bg-danger"
                         />
                         <CustomButton
