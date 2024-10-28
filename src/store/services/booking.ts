@@ -19,6 +19,9 @@ export const bookingApi = api.injectEndpoints({
         url: "/booking",
         method: "POST",
         body: data,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded', // Set the Content-Type header
+        },
       }),
     }),
     cancelBooking: build.mutation({
@@ -72,6 +75,9 @@ export const bookingApi = api.injectEndpoints({
         url: "/customer/address",
         method: "POST",
         body: data,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded', // Set the Content-Type header
+        },
       }),
     }),
   }),

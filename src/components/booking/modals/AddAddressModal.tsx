@@ -6,6 +6,7 @@ import { RiArrowDownSLine } from "react-icons/ri";
 import CustomButton from '../../ui/CustomButton';
 import { useAddAddressMutation } from '../../../store/services/booking';
 import { useForm } from 'react-hook-form';
+import { useFetchCustomerAddressesMutation } from '../../../store/services/customer';
 
 interface AddAddressModalProps {
     open: boolean,
@@ -24,6 +25,7 @@ const AddAddressModal = ({ open, customerId, userId, setOpen }: AddAddressModalP
     const [villa, setVilla] = useState<ListOptionProps | null>(null);
 
     const [addAddress, { isLoading }] = useAddAddressMutation();
+    const [fetchAddresses] = useFetchCustomerAddressesMutation();
 
     const {
         register,
@@ -42,25 +44,26 @@ const AddAddressModal = ({ open, customerId, userId, setOpen }: AddAddressModalP
         setValue("area_id", value.id);
     }
 
-    const handleSave = async (data: AddAddress) => {
+    const handleSave = async (data) => {
         try {
+            
             if (customerId && userId) {
-                const payload = {
-                    user_id: userId,
-                    customer_id: customerId,
-                    address_type: data?.address_type,
-                    area_id: data?.area_id,
-                    building_no: data?.building_no,
-                    apartment: data?.apartment,
-                    street: data?.street,
-                    map_link: data?.map_link,
-                    extra_direction: data?.extra_direction,
-                    lat: 0,
-                    lang: 0,
-                    is_default: 0
-                }
-                await addAddress(payload)
+                const urlencoded = new URLSearchParams();
+                urlencoded.append("user_id", String(userId));
+                urlencoded.append("customer_id", customerId);
+                urlencoded.append("address_type", data?.address_type);
+                urlencoded.append("area_id", data?.area_id);
+                urlencoded.append("building_no", data?.building_no);
+                urlencoded.append("apartment", data?.apartment);
+                urlencoded.append("street", data?.street);
+                urlencoded.append("map_link", data?.map_link);
+                urlencoded.append("extra_direction", data?.extra_direction);
+                urlencoded.append("lat", '0');
+                urlencoded.append("lng", '0');
+                urlencoded.append("is_default", '0');
+                await addAddress(urlencoded)
                 reset()
+                await fetchAddresses(customerId)
                 closeModal()
             }
         } catch (error) {

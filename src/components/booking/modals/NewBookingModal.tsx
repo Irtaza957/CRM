@@ -226,39 +226,39 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   };
 
   const postBooking = async () => {
-    const servicesData=JSON.stringify(
-      selectedServices?.map((item) => {
-        return {
-          service_id: item.service_id,
-          qty: item.qty,
-          price: item.price_without_vat,
-        };
-      })
-    )
-    const payload={
-      user_id: user!.id,
-      services: servicesData,
-      total: calculateBookingCost(selectedServices!).grand_total,
-      vat_value: calculateBookingCost(selectedServices!).total_vat,
-      discount_value: discount.value,
-      subtotal: calculateBookingCost(selectedServices!).subtotal,
-      split_payment_method_code: 0,
-      split_payment_method: 0,
-      payment_status: "pending",
-      payment_method_code: payment,
-      payment_method: payment === "cod" ? "Cash on Delivery" : "Card on Delivery",
-      delivery_notes: deliveryNotes,
-      customer_id: selectedUser?.customer_id,
-      family_member_id: selectedFamily || 0,
-      address_id: address,
-      booking_source_id: 1,
-      partner_id: 1,
-      firstname: selectedUser!.firstname,
-      lastname: selectedUser!.lastname,
-      phone: selectedUser!.phone,
-      schedule_date: dayjs(scheduleDate).format("DD MMM YYYY"),
-      schedule_slot: scheduleTime?.name || ''
-    }
+    // const servicesData=JSON.stringify(
+    //   selectedServices?.map((item) => {
+    //     return {
+    //       service_id: item.service_id,
+    //       qty: item.qty,
+    //       price: item.price_without_vat,
+    //     };
+    //   })
+    // )
+    // const payload={
+    //   user_id: user!.id,
+    //   services: servicesData,
+    //   total: calculateBookingCost(selectedServices!).grand_total,
+    //   vat_value: calculateBookingCost(selectedServices!).total_vat,
+    //   discount_value: discount.value,
+    //   subtotal: calculateBookingCost(selectedServices!).subtotal,
+    //   split_payment_method_code: 0,
+    //   split_payment_method: 0,
+    //   payment_status: "pending",
+    //   payment_method_code: payment,
+    //   payment_method: payment === "cod" ? "Cash on Delivery" : "Card on Delivery",
+    //   delivery_notes: deliveryNotes,
+    //   customer_id: selectedUser?.customer_id,
+    //   family_member_id: selectedFamily || 0,
+    //   address_id: address,
+    //   booking_source_id: 1,
+    //   partner_id: 1,
+    //   firstname: selectedUser!.firstname,
+    //   lastname: selectedUser!.lastname,
+    //   phone: selectedUser!.phone,
+    //   schedule_date: dayjs(scheduleDate).format("DD MMM YYYY"),
+    //   schedule_slot: scheduleTime?.name || ''
+    // }
     const urlencoded = new URLSearchParams();
     urlencoded.append("customer_id", selectedUser!.customer_id);
     urlencoded.append("family_member_id", String(selectedFamily));
@@ -268,7 +268,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     urlencoded.append("firstname", selectedUser!.firstname);
     urlencoded.append("lastname", selectedUser!.lastname);
     urlencoded.append("phone", selectedUser!.phone);
-    urlencoded.append("schedule_date", dayjs(scheduleDate).format("DD MMM YYYY"));
+    urlencoded.append("schedule_date", dayjs(scheduleDate).format("DD-MM-YYYY"));
     urlencoded.append("schedule_slot", scheduleTime?.name || '');
     urlencoded.append("delivery_notes", deliveryNotes);
     urlencoded.append(
@@ -280,7 +280,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     urlencoded.append("split_payment_method", "0");
     urlencoded.append("split_payment_method_code", "0");
     urlencoded.append(
-      "subtotal",
+      "sub_total",
       `${calculateBookingCost(selectedServices!).subtotal}`
     );
     urlencoded.append("discount_value", `${discount.value}`);
@@ -300,13 +300,18 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
             service_id: item.service_id,
             qty: item.qty,
             price: item.price_without_vat,
+            discount: 0,
+            discount_value: 0,
+            discount_type: '',
+            total: 0
+
           };
         })
       )
     );
     urlencoded.append("user_id", `${user!.id}`);
     try {
-      const data = await createBooking(payload);
+      const data = await createBooking(urlencoded);
       if (data.error) {
         toast.custom((t) => (
           <CustomToast
