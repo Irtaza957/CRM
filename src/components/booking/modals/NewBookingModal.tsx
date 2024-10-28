@@ -53,6 +53,8 @@ import CustomButton from "../../ui/CustomButton";
 import { setDate } from "../../../store/slices/global";
 import BookingHistoryModal from "./BookingHistoryModal";
 import AddCustomerModal from "./AddCustomerModal";
+import AddFamilyMemberModal from "./AddFamilyMemberModal";
+import AddMedicalDetailModal from "./AddMedicalDetailModal";
 
 const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   return (
@@ -144,6 +146,8 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const [attachments, setAttachments] = useState<AttachmentProps[] | null>([]);
   const [selectedFamily, setSelectedFamily] = useState<number | null>(null)
   const [openAddressModal, setOpenAddressModal] = useState(false)
+  const [openFamilyMemberModal, setOpenFamilyMemberModal] = useState(false)
+  const [openMedicalDetailsModal, setOpenMedicalDetailsModal] = useState(false)
   const [openCustomerModal, setOpenCustomerModal] = useState(false)
   const [history, setHistory] = useState(false);
 
@@ -355,6 +359,14 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     setOpenAddressModal(!openAddressModal)
   }
 
+  const handleFamilymembers = () => {
+    setOpenFamilyMemberModal(!openFamilyMemberModal)
+  }
+
+  const handleMedicalDetails = () => {
+    setOpenMedicalDetailsModal(!openMedicalDetailsModal)
+  }
+
   const handleSetDate = (date: string | Date) => {
     dispatch(setDate(date));
   };
@@ -562,7 +574,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                       <h1 className="text-left font-semibold text-primary">
                         Medical Details
                       </h1>
-                      <FiPlus className="h-5 w-5 text-gray-500" />
+                      <FiPlus onClick={handleMedicalDetails} className="h-5 w-5 text-gray-500 cursor-pointer" />
                     </div>
                     {selectedUser.is_allergy !== "0" && (
                       <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
@@ -605,7 +617,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                       <h1 className="text-left font-semibold text-primary">
                         Family Members
                       </h1>
-                      <FiPlus className="h-5 w-5 text-gray-500" />
+                      <FiPlus className="h-5 w-5 text-gray-500 cursor-pointer" onClick={handleFamilymembers} />
                     </div>
                     <div className="grid w-full grid-cols-5 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
                       <div className="col-span-1 w-full">Name</div>
@@ -960,6 +972,9 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
         </div>
         <AddAddressModal customerId={selectedUser?.customer_id} userId={user!.id} open={openAddressModal} setOpen={setOpenAddressModal} />
         <AddCustomerModal customerId={selectedUser?.customer_id} userId={user!.id} open={openCustomerModal} setOpen={setOpenCustomerModal} />
+        <AddFamilyMemberModal customerId={selectedUser?.customer_id} userId={user!.id} open={openFamilyMemberModal} setOpen={setOpenFamilyMemberModal} />
+        <AddMedicalDetailModal customerId={selectedUser?.customer_id} userId={user!.id} open={openMedicalDetailsModal} setOpen={setOpenMedicalDetailsModal} />
+
       </Modal>
     </>
   );
