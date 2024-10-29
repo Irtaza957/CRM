@@ -6,13 +6,13 @@ import { RiArrowDownSLine } from "react-icons/ri";
 import CustomButton from '../../ui/CustomButton';
 import { useAddAddressMutation } from '../../../store/services/booking';
 import { useForm } from 'react-hook-form';
-import { useFetchCustomerAddressesMutation } from '../../../store/services/customer';
 
 interface AddAddressModalProps {
     open: boolean,
     customerId?: string,
     userId?: number,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
+    getAddresses: (agr0: string)=>void
 }
 
 const emiratesOption = [
@@ -20,12 +20,11 @@ const emiratesOption = [
     { id: 2, name: 'xyz' },
     { id: 3, name: 'asd' },
 ]
-const AddAddressModal = ({ open, customerId, userId, setOpen }: AddAddressModalProps) => {
+const AddAddressModal = ({ open, customerId, userId, setOpen, getAddresses}: AddAddressModalProps) => {
     const [emirate, setEmirate] = useState<ListOptionProps | null>(null);
     const [villa, setVilla] = useState<ListOptionProps | null>(null);
 
     const [addAddress, { isLoading }] = useAddAddressMutation();
-    const [fetchAddresses] = useFetchCustomerAddressesMutation();
 
     const {
         register,
@@ -63,7 +62,7 @@ const AddAddressModal = ({ open, customerId, userId, setOpen }: AddAddressModalP
                 urlencoded.append("is_default", '0');
                 await addAddress(urlencoded)
                 reset()
-                await fetchAddresses(customerId)
+                getAddresses(customerId)
                 closeModal()
             }
         } catch (error) {

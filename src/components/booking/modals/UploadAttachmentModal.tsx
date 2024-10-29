@@ -12,7 +12,6 @@ import CustomButton from "../../ui/CustomButton";
 import Combobox from "../../ui/Combobox";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { useUploadAttachmentMutation } from "../../../store/services/booking";
-import { useFetchCustomerAttachmentsMutation } from "../../../store/services/customer";
 
 interface Attachment {
     id: number;
@@ -25,6 +24,7 @@ interface AddAddressModalProps {
     customerId?: string,
     userId?: number,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
+    getAttachments: (agr0: string)=>void
 }
 
 const fileTypes = [
@@ -46,12 +46,11 @@ const fileTypes = [
     }
 ];
 
-const UploadAttachmentModal = ({ open, customerId, userId, setOpen }: AddAddressModalProps) => {
+const UploadAttachmentModal = ({ open, customerId, userId, setOpen, getAttachments }: AddAddressModalProps) => {
     const [files, setFiles] = useState<Attachment[]>([]);
     const [isDragOver, setIsDragOver] = useState<boolean>(false);
 
     const [uploadAttachment, { isLoading }] = useUploadAttachmentMutation();
-    const [fetchAttachments] = useFetchCustomerAttachmentsMutation();
 
     const onDropRejected = (rejectedFiles: FileRejection[]) => {
         const [file] = rejectedFiles;
@@ -79,9 +78,9 @@ const UploadAttachmentModal = ({ open, customerId, userId, setOpen }: AddAddress
 
     const onDropAccepted = async (acceptedFiles: File[]) => {
         setIsDragOver(false);
-        const final = acceptedFiles.map((file, id) => {
+        const final = acceptedFiles.map((file) => {
             return {
-                id,
+                id: Date.now(),
                 file,
                 name: '',
             };
@@ -115,7 +114,7 @@ const UploadAttachmentModal = ({ open, customerId, userId, setOpen }: AddAddress
                 });
     
                 await Promise.all(uploadPromises);
-                await fetchAttachments(customerId);
+                getAttachments(customerId)
                 setOpen(false);
             }
         } catch (error) {

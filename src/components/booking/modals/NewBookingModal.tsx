@@ -151,9 +151,9 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const [openFamilyMemberModal, setOpenFamilyMemberModal] = useState(false)
   const [openMedicalDetailsModal, setOpenMedicalDetailsModal] = useState(false)
   const [openCustomerModal, setOpenCustomerModal] = useState(false)
-  const [openEditServiceModal,setOpenEditServiceModal]=useState(false)
-  const [openUploadAttachment, setOpenUploadAttachment]=useState(false)
-  const [selectedService, setSelectedServiceModal]=useState<string | null>(null)
+  const [openEditServiceModal, setOpenEditServiceModal] = useState(false)
+  const [openUploadAttachment, setOpenUploadAttachment] = useState(false)
+  const [selectedService, setSelectedServiceModal] = useState<string | null>(null)
   const [history, setHistory] = useState(false);
 
   const dispatch = useDispatch()
@@ -235,39 +235,6 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   };
 
   const postBooking = async () => {
-    // const servicesData=JSON.stringify(
-    //   selectedServices?.map((item) => {
-    //     return {
-    //       service_id: item.service_id,
-    //       qty: item.qty,
-    //       price: item.price_without_vat,
-    //     };
-    //   })
-    // )
-    // const payload={
-    //   user_id: user!.id,
-    //   services: servicesData,
-    //   total: calculateBookingCost(selectedServices!).grand_total,
-    //   vat_value: calculateBookingCost(selectedServices!).total_vat,
-    //   discount_value: discount.value,
-    //   subtotal: calculateBookingCost(selectedServices!).subtotal,
-    //   split_payment_method_code: 0,
-    //   split_payment_method: 0,
-    //   payment_status: "pending",
-    //   payment_method_code: payment,
-    //   payment_method: payment === "cod" ? "Cash on Delivery" : "Card on Delivery",
-    //   delivery_notes: deliveryNotes,
-    //   customer_id: selectedUser?.customer_id,
-    //   family_member_id: selectedFamily || 0,
-    //   address_id: address,
-    //   booking_source_id: 1,
-    //   partner_id: 1,
-    //   firstname: selectedUser!.firstname,
-    //   lastname: selectedUser!.lastname,
-    //   phone: selectedUser!.phone,
-    //   schedule_date: dayjs(scheduleDate).format("DD MMM YYYY"),
-    //   schedule_slot: scheduleTime?.name || ''
-    // }
     const urlencoded = new URLSearchParams();
     urlencoded.append("customer_id", selectedUser!.customer_id);
     urlencoded.append("family_member_id", String(selectedFamily));
@@ -376,16 +343,16 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     dispatch(setDate(date));
   };
 
-  const handleEditService=(id: string)=>{
+  const handleEditService = (id: string) => {
     setOpenEditServiceModal(true)
     setSelectedServiceModal(id)
   }
 
-  const handleSetSelectedService = (discount: DiscountType) => { 
-    if(selectedServices?.length){
-      const temp=selectedServices?.map(service=>service.service_id === selectedService ? 
+  const handleSetSelectedService = (discount: DiscountType) => {
+    if (selectedServices?.length) {
+      const temp = selectedServices?.map(service => service.service_id === selectedService ?
         {
-          ...service, 
+          ...service,
           discount: String(discount.total),
           total: String(discount.total),
           discount_value: String(discount.value),
@@ -691,7 +658,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                       <h1 className="text-left font-semibold text-primary">
                         Attachments
                       </h1>
-                      <FiPlus onClick={()=>setOpenUploadAttachment(true)} className="h-5 w-5 text-gray-500" />
+                      <FiPlus onClick={() => setOpenUploadAttachment(true)} className="h-5 w-5 text-gray-500 cursor-pointer" />
                     </div>
                     {attachments?.length !== 0 &&
                       attachments?.map((attachment) => (
@@ -715,7 +682,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                             {dayjs(attachment.created_at).format("DD MMM YYYY")}
                           </span>
                           <div className="flex items-center justify-end space-x-3 text-gray-500">
-                            <FiDownload className="h-6 w-6" />
+                            <FiDownload className="h-6 w-6 cursor-pointer" />
                             <FaRegTrashAlt className="h-6 w-6" />
                           </div>
                         </div>
@@ -730,7 +697,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                   <h1 className="text-left font-semibold text-primary">
                     Booking Details
                   </h1>
-                  <button onClick={()=>setHistory(true)} className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
+                  <button onClick={() => setHistory(true)} className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
                     Booking History
                   </button>
                 </div>
@@ -797,7 +764,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                             ? Math.round(parseFloat(service.total || service.price_without_vat) * service!.qty)
                             : Math.round(parseFloat(service.total || service.price_without_vat))}
                         </div>
-                        <div onClick={()=>handleEditService(service?.service_id)} className="col-span-1 flex w-full items-center justify-end cursor-pointer"><FaRegEdit /></div>
+                        <div onClick={() => handleEditService(service?.service_id)} className="col-span-1 flex w-full items-center justify-end cursor-pointer"><FaRegEdit /></div>
                       </div>
                     ))}
                     <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5">
@@ -997,13 +964,13 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
             </div>
           </div>
         </div>
-        <AddAddressModal customerId={selectedUser?.customer_id} userId={user!.id} open={openAddressModal} setOpen={setOpenAddressModal} />
+        <AddAddressModal customerId={selectedUser?.customer_id} userId={user!.id} open={openAddressModal} setOpen={setOpenAddressModal} getAddresses={getAddresses} />
         <AddCustomerModal customerId={selectedUser?.customer_id} userId={user!.id} open={openCustomerModal} setOpen={setOpenCustomerModal} />
-        <AddFamilyMemberModal customerId={selectedUser?.customer_id} userId={user!.id} open={openFamilyMemberModal} setOpen={setOpenFamilyMemberModal} />
+        <AddFamilyMemberModal customerId={selectedUser?.customer_id} userId={user!.id} open={openFamilyMemberModal} setOpen={setOpenFamilyMemberModal} getFamily={getFamily} />
         <AddMedicalDetailModal customerId={selectedUser?.customer_id} userId={user!.id} open={openMedicalDetailsModal} setOpen={setOpenMedicalDetailsModal} />
         <EditServiceModal selectedService={selectedServices?.find(item => item.service_id === selectedService)} setSelectedService={handleSetSelectedService} open={openEditServiceModal} setOpen={setOpenEditServiceModal} />
-        <UploadAttachmentModal customerId={selectedUser?.customer_id} userId={user!.id} open={openUploadAttachment} setOpen={setOpenUploadAttachment} />
-        
+        <UploadAttachmentModal customerId={selectedUser?.customer_id} userId={user!.id} open={openUploadAttachment} setOpen={setOpenUploadAttachment} getAttachments={getAttachments} />
+
       </Modal>
     </>
   );

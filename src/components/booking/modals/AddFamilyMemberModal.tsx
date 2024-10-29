@@ -9,13 +9,13 @@ import { useForm } from "react-hook-form";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 import dayjs from "dayjs";
 import { IoCalendarOutline } from "react-icons/io5";
-import { useFetchCustomerFamilyMutation } from "../../../store/services/customer";
 
 interface AddAddressModalProps {
   open: boolean;
   customerId?: string;
   userId?: number;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  getFamily: (agr0: string)=>void
 }
 
 const options = [
@@ -29,12 +29,12 @@ const AddFamilyMemberModal = ({
   customerId,
   userId,
   setOpen,
+  getFamily
 }: AddAddressModalProps) => {
   const [date, setDate] = useState<string | Date>(dayjs().toDate());
   const [gender, setGender] = useState<ListOptionProps | null>(null);
 
   const [addFamily, { isLoading }] = useAddFamilyMutation();
-  const [fetchFamily] = useFetchCustomerFamilyMutation();
 
   const { register, setValue, reset, handleSubmit } = useForm();
 
@@ -79,7 +79,7 @@ const AddFamilyMemberModal = ({
         });
         setDate(dayjs().toDate());
         setGender(null);
-        await fetchFamily(customerId);
+        getFamily(customerId);
         closeModal();
       }
     } catch (error) {
