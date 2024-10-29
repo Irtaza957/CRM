@@ -73,7 +73,7 @@ const Combobox = ({
           toggleClassName
         )}
       >
-        <span>{value ? value.name : placeholder}</span>
+        <span>{value?.name ? value.name : placeholder}</span>
         {icon ? (
           icon
         ) : (

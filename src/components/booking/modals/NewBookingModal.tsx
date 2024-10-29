@@ -56,6 +56,7 @@ import AddCustomerModal from "./AddCustomerModal";
 import AddFamilyMemberModal from "./AddFamilyMemberModal";
 import AddMedicalDetailModal from "./AddMedicalDetailModal";
 import EditServiceModal from "./EditServiceModal";
+import UploadAttachmentModal from "./UploadAttachmentModal";
 
 const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   return (
@@ -151,6 +152,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const [openMedicalDetailsModal, setOpenMedicalDetailsModal] = useState(false)
   const [openCustomerModal, setOpenCustomerModal] = useState(false)
   const [openEditServiceModal,setOpenEditServiceModal]=useState(false)
+  const [openUploadAttachment, setOpenUploadAttachment]=useState(false)
   const [selectedService, setSelectedServiceModal]=useState<string | null>(null)
   const [history, setHistory] = useState(false);
 
@@ -689,7 +691,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                       <h1 className="text-left font-semibold text-primary">
                         Attachments
                       </h1>
-                      <FiPlus className="h-5 w-5 text-gray-500" />
+                      <FiPlus onClick={()=>setOpenUploadAttachment(true)} className="h-5 w-5 text-gray-500" />
                     </div>
                     {attachments?.length !== 0 &&
                       attachments?.map((attachment) => (
@@ -1000,7 +1002,8 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
         <AddFamilyMemberModal customerId={selectedUser?.customer_id} userId={user!.id} open={openFamilyMemberModal} setOpen={setOpenFamilyMemberModal} />
         <AddMedicalDetailModal customerId={selectedUser?.customer_id} userId={user!.id} open={openMedicalDetailsModal} setOpen={setOpenMedicalDetailsModal} />
         <EditServiceModal selectedService={selectedServices?.find(item => item.service_id === selectedService)} setSelectedService={handleSetSelectedService} open={openEditServiceModal} setOpen={setOpenEditServiceModal} />
-
+        <UploadAttachmentModal customerId={selectedUser?.customer_id} userId={user!.id} open={openUploadAttachment} setOpen={setOpenUploadAttachment} />
+        
       </Modal>
     </>
   );

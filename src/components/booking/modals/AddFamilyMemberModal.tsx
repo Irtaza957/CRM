@@ -45,7 +45,7 @@ const AddFamilyMemberModal = ({
     setValue('gender', value.name)
   };
 
-  const handleSave = async (data) => {
+  const handleSave = async (data: any) => {
     try {
       if (customerId && userId) {
         const urlencoded = new URLSearchParams();

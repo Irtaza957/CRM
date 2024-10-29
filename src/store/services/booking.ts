@@ -90,6 +90,13 @@ export const bookingApi = api.injectEndpoints({
         },
       }),
     }),
+    uploadAttachment: build.mutation({
+      query: (data) => ({
+        url: "/customer/upload_attachment",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -100,5 +107,6 @@ export const {
   useFetchBookingDetailsQuery,
   useFetchCancellationReasonsQuery,
   useAddAddressMutation,
-  useAddFamilyMutation
+  useAddFamilyMutation,
+  useUploadAttachmentMutation
 } = bookingApi;

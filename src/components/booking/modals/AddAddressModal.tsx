@@ -44,7 +44,7 @@ const AddAddressModal = ({ open, customerId, userId, setOpen }: AddAddressModalP
         setValue("area_id", value.id);
     }
 
-    const handleSave = async (data) => {
+    const handleSave = async (data: any) => {
         try {
             
             if (customerId && userId) {
