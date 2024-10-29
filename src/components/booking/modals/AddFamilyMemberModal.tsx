@@ -47,12 +47,11 @@ const AddFamilyMemberModal = ({
 
   const handleSave = async (data) => {
     try {
-      console.log(data, 'urlencoded')
       if (customerId && userId) {
         const urlencoded = new URLSearchParams();
         urlencoded.append("user_id", String(userId));
         urlencoded.append("customer_id", customerId);
-        urlencoded.append("relationship", data?.relationship);
+        urlencoded.append("relationship", data?.relation);
         urlencoded.append("firstname", data?.first_name);
         urlencoded.append("lastname", data?.last_name);
         urlencoded.append("date_of_birth", data?.date_of_birth);
@@ -63,11 +62,25 @@ const AddFamilyMemberModal = ({
         urlencoded.append("medication_description", data?.medicalConditionDesc);
         urlencoded.append("is_medical_condition", data?.medications);
         urlencoded.append("medical_condition_description", data?.medicationsDesc);
-        
-        // await addFamily(urlencoded);
-        // reset();
-        // await fetchFamily(customerId);
-        // closeModal();
+        console.log(urlencoded, 'urlencodedurlencoded')
+        await addFamily(urlencoded);
+        reset({
+          first_name: '',
+          last_name: '',
+          relation: '',
+          date_of_birth: '',
+          gender: '',
+          allergies: '',
+          allergiesDesc: '',
+          medications: '',
+          medicationsDesc: '',
+          medicalConditions: '',
+          medicalConditionDesc: ''
+        });
+        setDate(dayjs().toDate());
+        setGender(null);
+        await fetchFamily(customerId);
+        closeModal();
       }
     } catch (error) {
       console.log(error);
