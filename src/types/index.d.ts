@@ -47,8 +47,8 @@ declare type BookingListProps = {
 declare type CustomInputProps = {
   type?: string;
   placeholder: string;
-  value?: string;
-  setter?: React.Dispatch<React.SetStateAction<string>>;
+  value?: string | number | null;
+  setter?: React.Dispatch<React.SetStateAction<string | number | null>>;
   className?: string;
   label: string;
   register?: UseFormRegister<FormDataProps>;
@@ -146,6 +146,11 @@ declare type ServiceProps = {
   sort_order: string;
   active: string;
   qty?: number;
+  discount: string;
+  discount_value: string;
+  discount_type: string;
+  total: string;
+  new_price: string
 };
 
 declare type BookingDetailProps = {
@@ -579,4 +584,11 @@ declare type StatusProps = {
   status_id: string;
   name: string;
   color: string;
+};
+
+declare type DiscountType = {
+  type: string;
+  value: number;
+  total?: number;
+  newPrice?: number
 };

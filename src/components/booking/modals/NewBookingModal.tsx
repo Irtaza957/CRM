@@ -55,6 +55,7 @@ import BookingHistoryModal from "./BookingHistoryModal";
 import AddCustomerModal from "./AddCustomerModal";
 import AddFamilyMemberModal from "./AddFamilyMemberModal";
 import AddMedicalDetailModal from "./AddMedicalDetailModal";
+import EditServiceModal from "./EditServiceModal";
 
 const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   return (
@@ -149,6 +150,8 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const [openFamilyMemberModal, setOpenFamilyMemberModal] = useState(false)
   const [openMedicalDetailsModal, setOpenMedicalDetailsModal] = useState(false)
   const [openCustomerModal, setOpenCustomerModal] = useState(false)
+  const [openEditServiceModal,setOpenEditServiceModal]=useState(false)
+  const [selectedService, setSelectedServiceModal]=useState<string | null>(null)
   const [history, setHistory] = useState(false);
 
   const dispatch = useDispatch()
@@ -192,7 +195,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     const totals = services.reduce(
       (acc, service) => {
         const priceWithoutVAT =
-          parseFloat(service.price_without_vat) * service.qty!;
+          parseFloat(service.total || service.price_without_vat) * service.qty!;
         const vatValue = parseFloat(service.vat_value) * service.qty!;
 
         acc.subtotal += priceWithoutVAT;
@@ -304,11 +307,11 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
             service_id: item.service_id,
             qty: item.qty,
             price: item.price_without_vat,
-            discount: 0,
-            discount_value: 0,
-            discount_type: '',
-            total: 0
-
+            discount: item.discount || '',
+            discount_value: item.discount_value || '',
+            discount_type: item.discount_type || '',
+            total: item.discount || '',
+            new_price: item.new_price || ''
           };
         })
       )
@@ -371,6 +374,26 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     dispatch(setDate(date));
   };
 
+  const handleEditService=(id: string)=>{
+    setOpenEditServiceModal(true)
+    setSelectedServiceModal(id)
+  }
+
+  const handleSetSelectedService = (discount: DiscountType) => { 
+    if(selectedServices?.length){
+      const temp=selectedServices?.map(service=>service.service_id === selectedService ? 
+        {
+          ...service, 
+          discount: String(discount.total),
+          total: String(discount.total),
+          discount_value: String(discount.value),
+          new_price: String(discount.newPrice),
+          discount_type: discount.type,
+        } : service
+      )
+      setSelectedServices(temp);
+    }
+  };
   useEffect(() => {
     if (data) {
       const view = createTimelineView(data!);
@@ -721,10 +744,11 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                     <div className="grid w-full grid-cols-9 gap-2.5 p-2.5 text-xs text-primary">
                       <div className="col-span-1 w-full" />
                       <div className="col-span-1 w-full">Code</div>
-                      <div className="col-span-3 w-full">Service</div>
+                      <div className="col-span-2 w-full">Service</div>
                       <div className="col-span-2 w-full">Amount</div>
                       <div className="col-span-1 w-full text-center">Qty.</div>
                       <div className="col-span-1 w-full text-right">Total</div>
+                      <div className="col-span-1 w-full text-right"></div>
                     </div>
                     {selectedServices?.map((service, idx) => (
                       <div
@@ -746,7 +770,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                         <div className="col-span-1 flex w-full items-center justify-start">
                           {service.category_code}
                         </div>
-                        <div className="col-span-3 flex w-full items-center justify-start">
+                        <div className="col-span-2 flex w-full items-center justify-start">
                           <p className="w-full overflow-hidden truncate text-left">
                             {service.service_name}
                           </p>
@@ -768,9 +792,10 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                         />
                         <div className="col-span-1 flex w-full items-center justify-end">
                           {service?.qty
-                            ? parseFloat(service.price_without_vat) * service!.qty
-                            : service.price_without_vat}
+                            ? Math.round(parseFloat(service.total || service.price_without_vat) * service!.qty)
+                            : Math.round(parseFloat(service.total || service.price_without_vat))}
                         </div>
+                        <div onClick={()=>handleEditService(service?.service_id)} className="col-span-1 flex w-full items-center justify-end cursor-pointer"><FaRegEdit /></div>
                       </div>
                     ))}
                     <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5">
@@ -974,6 +999,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
         <AddCustomerModal customerId={selectedUser?.customer_id} userId={user!.id} open={openCustomerModal} setOpen={setOpenCustomerModal} />
         <AddFamilyMemberModal customerId={selectedUser?.customer_id} userId={user!.id} open={openFamilyMemberModal} setOpen={setOpenFamilyMemberModal} />
         <AddMedicalDetailModal customerId={selectedUser?.customer_id} userId={user!.id} open={openMedicalDetailsModal} setOpen={setOpenMedicalDetailsModal} />
+        <EditServiceModal selectedService={selectedServices?.find(item => item.service_id === selectedService)} setSelectedService={handleSetSelectedService} open={openEditServiceModal} setOpen={setOpenEditServiceModal} />
 
       </Modal>
     </>
