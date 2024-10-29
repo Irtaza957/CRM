@@ -4,11 +4,12 @@ import CustomInput from "../../ui/CustomInput";
 import Combobox from "../../ui/Combobox";
 import { RiArrowDownSLine } from "react-icons/ri";
 import CustomButton from "../../ui/CustomButton";
-import { useAddAddressMutation } from "../../../store/services/booking";
+import { useAddFamilyMutation } from "../../../store/services/booking";
 import { useForm } from "react-hook-form";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 import dayjs from "dayjs";
 import { IoCalendarOutline } from "react-icons/io5";
+import { useFetchCustomerFamilyMutation } from "../../../store/services/customer";
 
 interface AddAddressModalProps {
   open: boolean;
@@ -32,8 +33,8 @@ const AddFamilyMemberModal = ({
   const [date, setDate] = useState<string | Date>(dayjs().toDate());
   const [gender, setGender] = useState<ListOptionProps | null>(null);
 
-  const [addAddress, { isLoading }] = useAddAddressMutation();
-//   const [fetchAddresses] = useFetchCustomerAddressesMutation();
+  const [addFamily, { isLoading }] = useAddFamilyMutation();
+  const [fetchFamily] = useFetchCustomerFamilyMutation();
 
   const { register, setValue, reset, handleSubmit } = useForm();
 
@@ -41,23 +42,42 @@ const AddFamilyMemberModal = ({
 
   const handleSelectGender = (value: ListOptionProps) => {
     setGender(value);
+    setValue('gender', value.name)
   };
 
   const handleSave = async (data) => {
     try {
+      console.log(data, 'urlencoded')
       if (customerId && userId) {
         const urlencoded = new URLSearchParams();
         urlencoded.append("user_id", String(userId));
         urlencoded.append("customer_id", customerId);
-        await addAddress(urlencoded);
-        reset();
-        // await fetchAddresses(customerId);
-        closeModal();
+        urlencoded.append("relationship", data?.relationship);
+        urlencoded.append("firstname", data?.first_name);
+        urlencoded.append("lastname", data?.last_name);
+        urlencoded.append("date_of_birth", data?.date_of_birth);
+        urlencoded.append("gender", data?.gender);
+        urlencoded.append("is_allergy", data?.allergies);
+        urlencoded.append("allergy_description", data?.allergiesDesc);
+        urlencoded.append("is_medication", data?.medicalConditions);
+        urlencoded.append("medication_description", data?.medicalConditionDesc);
+        urlencoded.append("is_medical_condition", data?.medications);
+        urlencoded.append("medical_condition_description", data?.medicationsDesc);
+        
+        // await addFamily(urlencoded);
+        // reset();
+        // await fetchFamily(customerId);
+        // closeModal();
       }
     } catch (error) {
       console.log(error);
     }
   };
+
+  const handleDate=(newDate: string | Date)=>{
+    setDate(newDate)
+    setValue('date_of_birth', newDate)
+  }
 
   const closeModal = () => {
     setOpen(false);
@@ -67,7 +87,7 @@ const AddFamilyMemberModal = ({
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="w-[60%] max-w-[80%]"
+      className="w-[60%] max-w-[80%] max-h-[80%]"
       title="Family Member"
     >
       <div className="w-full px-6 py-7">
@@ -89,11 +109,11 @@ const AddFamilyMemberModal = ({
               register={register}
             />
             <div className="flex w-full flex-col">
-              <p className="pb-[2px] text-xs font-medium text-[#858688]">DOB</p>
+              <p className="w-full text-left text-xs text-grey100 font-medium mb-0.5">DOB</p>
               <div className="flex h-10 w-full rounded-[6px] bg-[#F5F6FA] px-2.5">
                 <CustomDatePicker
                   date={date}
-                  setDate={(newDate) => setDate(newDate)}
+                  setDate={(newDate) => handleDate(newDate)}
                   toggleButton={
                     <div className="flex h-10 w-full items-center justify-between gap-4 text-gray-500">
                       {dayjs(date).format("DD MMM YYYY")}
@@ -129,6 +149,7 @@ const AddFamilyMemberModal = ({
           <p className="pt-3 text-left text-[18px] font-bold text-primary">
             Medical Details
           </p>
+          {/* start */}
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
             <p className="text-left text-[14px] font-semibold text-[#656565] w-[40%]">
               Allergies:
@@ -153,7 +174,7 @@ const AddFamilyMemberModal = ({
             </label>
 
             <CustomInput
-              name="allergiesDetails"
+              name="allergiesDesc"
               label=""
               placeholder="Please Specify"
               register={register}
@@ -183,7 +204,7 @@ const AddFamilyMemberModal = ({
             </label>
 
             <CustomInput
-              name="medications"
+              name="medicationsDesc"
               label=""
               placeholder="Please Specify"
               register={register}
@@ -214,13 +235,13 @@ const AddFamilyMemberModal = ({
 
             {/* Text Input to Specify Allergies */}
             <CustomInput
-              name="medicalConditions"
+              name="medicalConditionDesc"
               label=""
               placeholder="Please Specify"
               register={register}
             />
           </div>
-
+{/* end */}
           <div className="mt-7 flex w-full justify-end gap-3">
             <CustomButton
               name="Cancel"

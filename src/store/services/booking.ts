@@ -80,6 +80,16 @@ export const bookingApi = api.injectEndpoints({
         },
       }),
     }),
+    addFamily: build.mutation({
+      query: (data) => ({
+        url: "/customer/family_member",
+        method: "POST",
+        body: data,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded', // Set the Content-Type header
+        },
+      }),
+    }),
   }),
 });
 
@@ -89,5 +99,6 @@ export const {
   useCancelBookingMutation,
   useFetchBookingDetailsQuery,
   useFetchCancellationReasonsQuery,
-  useAddAddressMutation
+  useAddAddressMutation,
+  useAddFamilyMutation
 } = bookingApi;
