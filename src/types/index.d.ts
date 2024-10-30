@@ -52,7 +52,8 @@ declare type CustomInputProps = {
   className?: string;
   label: string;
   register?: UseFormRegister<FormDataProps>;
-  name?: string
+  name?: string,
+  disabled?: boolean
 };
 
 declare type FormDataProps = {

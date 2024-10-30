@@ -9,7 +9,8 @@ const CustomInput = ({
   className,
   placeholder,
   register, 
-  name
+  name,
+  disabled
 }: CustomInputProps) => {
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
@@ -31,6 +32,7 @@ const CustomInput = ({
         type={type}
         value={value}
         placeholder={placeholder}
+        disabled={disabled}
         {...(register && name ? register(name) : {})}
         onChange={handleChange}
         className={cn(

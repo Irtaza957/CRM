@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "../../ui/Modal";
 import CustomInput from "../../ui/CustomInput";
 import Combobox from "../../ui/Combobox";
@@ -68,25 +68,31 @@ const AddCustomerModal = ({
         );
         urlencoded.append("gender", data?.gender);
         urlencoded.append("nationality", data?.nationality);
-        urlencoded.append("is_allergy", data?.is_allergy ? "1" : "0");
+        urlencoded.append("is_allergy", data?.is_allergy === 'yes' ? "1" : "0");
+        if(data?.is_allergy === 'yes'){
         urlencoded.append(
           "allergy_description",
           data?.allergy_description || ""
         );
-        urlencoded.append("is_medication", data?.is_medication ? "1" : "0");
-        urlencoded.append(
-          "medication_description",
-          data?.medication_description || ""
-        );
+      }
+        urlencoded.append("is_medication", data?.is_medication === 'yes' ? "1" : "0");
+        if(data?.is_medication === 'yes'){
+          urlencoded.append(
+            "medication_description",
+            data?.medication_description || ""
+          );
+        }
         urlencoded.append(
           "is_medical_condition",
-          data?.is_medical_condition ? "1" : "0"
+          data?.is_medical_condition === 'yes' ? "1" : "0"
         );
-        urlencoded.append(
-          "medical_condition_description",
-          data?.medical_condition_description || ""
-        );
-        urlencoded.append("special_notes", data?.special_notes || "");
+        if(data?.is_medical_condition === 'yes'){
+          urlencoded.append(
+            "medical_condition_description",
+            data?.medical_condition_description || ""
+          );
+        }
+        // urlencoded.append("special_notes", data?.special_notes || "");
 
         await addCustomer(urlencoded);
         reset();
@@ -101,6 +107,10 @@ const AddCustomerModal = ({
     setOpen(false);
   };
 
+  
+  const isAllergy = watch("is_allergy");
+  const isMedication = watch("is_medication");
+  const isMedicalCondition = watch("is_medical_condition");
   return (
     <Modal
       open={open}
@@ -219,20 +229,21 @@ const AddCustomerModal = ({
             </p>
 
             <label className="flex items-center gap-2">
-              <input type="radio" value="yes" {...register("allergies")} />
+              <input type="radio" value="yes" {...register("is_allergy")} />
               <span>Yes</span>
             </label>
 
             <label className="flex items-center gap-2">
-              <input type="radio" value="no" {...register("allergies")} />
+              <input type="radio" value="no" {...register("is_allergy")} />
               <span>No</span>
             </label>
 
             <CustomInput
-              name="allergiesDetails"
+              name="allergy_description"
               label=""
               placeholder="Please Specify"
               register={register}
+              disabled={!isAllergy || isAllergy==='no'}
             />
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
@@ -241,20 +252,21 @@ const AddCustomerModal = ({
             </p>
 
             <label className="flex items-center gap-2">
-              <input type="radio" value="yes" {...register("medications")} />
+              <input type="radio" value="yes" {...register("is_medication")} />
               <span>Yes</span>
             </label>
 
             <label className="flex items-center gap-2">
-              <input type="radio" value="no" {...register("medications")} />
+              <input type="radio" value="no" {...register("is_medication")} />
               <span>No</span>
             </label>
 
             <CustomInput
-              name="medications"
+              name="medication_description"
               label=""
               placeholder="Please Specify"
               register={register}
+              disabled={!isMedication || isMedication==='no'}
             />
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
@@ -266,7 +278,7 @@ const AddCustomerModal = ({
               <input
                 type="radio"
                 value="yes"
-                {...register("medicalConditions:")}
+                {...register("is_medical_condition")}
               />
               <span>Yes</span>
             </label>
@@ -275,16 +287,16 @@ const AddCustomerModal = ({
               <input
                 type="radio"
                 value="no"
-                {...register("medicalConditions")}
+                {...register("is_medical_condition")}
               />
               <span>No</span>
             </label>
-
             <CustomInput
-              name="medicalConditions"
+              name="medical_condition_description"
               label=""
               placeholder="Please Specify"
               register={register}
+              disabled={!isMedicalCondition || isMedicalCondition==='no'}
             />
           </div>
 
