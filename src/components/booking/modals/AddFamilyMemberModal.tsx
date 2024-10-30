@@ -9,6 +9,8 @@ import { useForm } from "react-hook-form";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 import dayjs from "dayjs";
 import { IoCalendarOutline } from "react-icons/io5";
+import CustomToast from "../../ui/CustomToast";
+import { toast } from "sonner";
 
 interface AddAddressModalProps {
   open: boolean;
@@ -80,6 +82,14 @@ const AddFamilyMemberModal = ({
         setDate(dayjs().toDate());
         setGender(null);
         getFamily(customerId);
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="success"
+            title="Success"
+            message="Successfully Added Family Member!"
+          />
+        ));
         closeModal();
       }
     } catch (error) {

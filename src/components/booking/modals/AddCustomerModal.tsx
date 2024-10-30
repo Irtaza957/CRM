@@ -9,6 +9,8 @@ import CustomDatePicker from "../../ui/CustomDatePicker";
 import { IoCalendarOutline } from "react-icons/io5";
 import dayjs from "dayjs";
 import { useAddCustomerMutation } from "../../../store/services/booking";
+import { toast } from "sonner";
+import CustomToast from "../../ui/CustomToast";
 
 interface AddCustomerModalProps {
   open: boolean;
@@ -115,6 +117,14 @@ const AddCustomerModal = ({
           date_of_birth: '',
 
         });
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="success"
+            title="Success"
+            message="Successfully Added Customer!"
+          />
+        ));
         closeModal();
       }
     } catch (error) {

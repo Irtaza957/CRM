@@ -6,6 +6,8 @@ import { RiArrowDownSLine } from "react-icons/ri";
 import CustomButton from '../../ui/CustomButton';
 import { useAddAddressMutation } from '../../../store/services/booking';
 import { useForm } from 'react-hook-form';
+import CustomToast from '../../ui/CustomToast';
+import { toast } from 'sonner';
 
 interface AddAddressModalProps {
     open: boolean,
@@ -63,6 +65,14 @@ const AddAddressModal = ({ open, customerId, userId, setOpen, getAddresses}: Add
                 await addAddress(urlencoded)
                 reset()
                 getAddresses(customerId)
+                toast.custom((t) => (
+                    <CustomToast
+                      t={t}
+                      type="success"
+                      title="Success"
+                      message="Successfully Added Address!"
+                    />
+                  ));
                 closeModal()
             }
         } catch (error) {
