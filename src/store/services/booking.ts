@@ -20,7 +20,7 @@ export const bookingApi = api.injectEndpoints({
         method: "POST",
         body: data,
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded', // Set the Content-Type header
+          "Content-Type": "application/x-www-form-urlencoded", // Set the Content-Type header
         },
       }),
     }),
@@ -76,7 +76,7 @@ export const bookingApi = api.injectEndpoints({
         method: "POST",
         body: data,
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded', // Set the Content-Type header
+          "Content-Type": "application/x-www-form-urlencoded", // Set the Content-Type header
         },
       }),
     }),
@@ -86,7 +86,7 @@ export const bookingApi = api.injectEndpoints({
         method: "POST",
         body: data,
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded', // Set the Content-Type header
+          "Content-Type": "application/x-www-form-urlencoded", // Set the Content-Type header
         },
       }),
     }),
@@ -95,6 +95,16 @@ export const bookingApi = api.injectEndpoints({
         url: "/customer/upload_attachment",
         method: "POST",
         body: data,
+      }),
+    }),
+    addCustomer: build.mutation({
+      query: (data) => ({
+        url: "/customer",
+        method: "POST",
+        body: data,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       }),
     }),
   }),
@@ -108,5 +118,6 @@ export const {
   useFetchCancellationReasonsQuery,
   useAddAddressMutation,
   useAddFamilyMutation,
-  useUploadAttachmentMutation
+  useUploadAttachmentMutation,
+  useAddCustomerMutation,
 } = bookingApi;
