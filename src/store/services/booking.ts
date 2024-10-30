@@ -107,11 +107,18 @@ export const bookingApi = api.injectEndpoints({
         },
       }),
     }),
+    fetchCategories: build.mutation({
+      query: () => ({
+        url: `/categories`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
 export const {
   useFetchBookingsQuery,
+  useFetchCategoriesMutation,
   useCreateBookingMutation,
   useCancelBookingMutation,
   useFetchBookingDetailsQuery,

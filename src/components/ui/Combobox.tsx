@@ -21,6 +21,7 @@ interface ComboboxProps {
   defaultSelectedIconClassName?: string;
   label?: string;
   isSearch?: boolean;
+  isFilter?: boolean;
   setValue?: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
   handleSelect?: (arg0: ListOptionProps)=>void
 }
@@ -42,6 +43,7 @@ const Combobox = ({
   defaultSelectedIconClassName,
   label,
   isSearch=true,
+  isFilter,
   handleSelect
 }: ComboboxProps) => {
   const [toggle, setToggle] = useState(false);
@@ -49,9 +51,15 @@ const Combobox = ({
   const ComboboxRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(ComboboxRef, () => setToggle(false));
 
-  const handleToggle=(value: ListOptionProps)=>{
-    setToggle(!toggle)
-    handleSelect && handleSelect(value)
+  const handleToggle=(dropdownValue: ListOptionProps)=>{
+    if(!isFilter){
+      setToggle(!toggle)
+    }
+    if(isFilter && value?.id===dropdownValue?.id){
+      handleSelect && handleSelect({id: 0, name: ''})
+    }else{
+      handleSelect && handleSelect(dropdownValue)
+    }
   }
 
   return (

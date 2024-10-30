@@ -18,18 +18,6 @@ export const filtersApi = api.injectEndpoints({
         url: "/account/users_by_role",
         method: "GET",
       }),
-      transformResponse: (response: {
-        success: number;
-        error: string;
-        data: UsersByRolesProps;
-      }) => {
-        const formatted = [
-          ...response.data.doctors,
-          ...response.data.nurses,
-          ...response.data.drivers,
-        ];
-        return formatted;
-      },
     }),
     fetchAreas: build.query({
       query: (id) => ({

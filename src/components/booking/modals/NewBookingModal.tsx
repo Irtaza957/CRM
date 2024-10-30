@@ -11,6 +11,7 @@ import Combobox from "../../ui/Combobox";
 import {
   useFetchBookingsQuery,
   useCreateBookingMutation,
+  useFetchCategoriesMutation,
 } from "../../../store/services/booking";
 import {
   useFetchCustomerFamilyMutation,
@@ -20,7 +21,7 @@ import {
 import { RootState } from "../../../store";
 import CustomToast from "../../ui/CustomToast";
 import AutoComplete from "../../ui/AutoComplete";
-import { dayNames, options, timeSlots } from "../../../utils/constants";
+import { dayNames, timeSlots } from "../../../utils/constants";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 import ServiceAutoComplete from "../../ui/ServiceAutoComplete";
 
@@ -57,6 +58,7 @@ import AddFamilyMemberModal from "./AddFamilyMemberModal";
 import AddMedicalDetailModal from "./AddMedicalDetailModal";
 import EditServiceModal from "./EditServiceModal";
 import UploadAttachmentModal from "./UploadAttachmentModal";
+import { useFetchUsersByRolesQuery } from "../../../store/services/filters";
 
 const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   return (
@@ -154,10 +156,21 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const [openEditServiceModal, setOpenEditServiceModal] = useState(false)
   const [openUploadAttachment, setOpenUploadAttachment] = useState(false)
   const [selectedService, setSelectedServiceModal] = useState<string | null>(null)
+  const [categories, setCategories]=useState<ListOptionProps[]>([])
+  const [profesionsData, setProfesionsData]=useState<ListOptionProps[]>([])
+  const [bookingsData, setBookingsData]=useState<BookingProps[]>([])
   const [history, setHistory] = useState(false);
+
+  const [fetchCategories] = useFetchCategoriesMutation();
+  const { data: professions } = useFetchUsersByRolesQuery({});
 
   const dispatch = useDispatch()
 
+  const getCategories = async () => {
+    const {data}  = await fetchCategories(null);
+    const temp=data?.data?.map((item: CategoryListProps)=> {return {id: item?.category_id, name: item?.category_name}})
+    setCategories(temp)
+  };
   const getAddresses = async (id: string) => {
     const { data } = await fetchAddresses(id);
     setAddresses(data!);
@@ -363,12 +376,37 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
       setSelectedServices(temp);
     }
   };
+
+  const handleSelectCategoty=(value: ListOptionProps)=>{
+    setCategory(value)
+    if(value?.name){
+      const filteredBookings = bookingsData.filter(booking =>
+        booking.categories.some(cat => cat.code === value.name)
+      )
+      setBookingsData(filteredBookings)
+    }else{
+      if(data){
+        setBookingsData(data)
+      }
+    }
+  }
+
+  const handleSelectProfession=(value: ListOptionProps)=>{
+    setProfession(value)
+  }
+
   useEffect(() => {
-    if (data) {
-      const view = createTimelineView(data!);
+    if (bookingsData) {
+      const view = createTimelineView(bookingsData!);
       setTimeline(view);
     }
-  }, [data]);
+  }, [bookingsData]);
+
+  useEffect(()=>{
+    if(data?.length){
+      setBookingsData(data)
+    }
+  },[data])
 
   useEffect(() => {
     if (selectedUser) {
@@ -377,6 +415,17 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
       getAttachments(selectedUser?.customer_id);
     }
   }, [selectedUser]);
+
+  useEffect(()=>{
+    getCategories()
+  },[])
+
+  useEffect(()=>{
+    if(professions?.data?.doctors?.length){
+      const data=professions?.data?.doctors?.map((item: EmployeeProps)=> {return {id: item?.user_id, name: item?.position}})
+      setProfesionsData(data)
+      }
+  },[professions])
 
   return (
     <>
@@ -406,9 +455,10 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
             <div className="grid w-full grid-cols-2 items-center justify-center gap-2.5 border-b px-2.5 py-2.5">
               <Combobox
                 value={category}
-                options={options}
+                options={categories}
+                isFilter={true}
                 placeholder="Category"
-                setValue={setCategory}
+                handleSelect={handleSelectCategoty}
                 searchInputPlaceholder="Search..."
                 searchInputClassName="p-1.5 text-xs"
                 defaultSelectedIconClassName="size-4"
@@ -418,10 +468,11 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               />
               <Combobox
-                options={options}
+                options={profesionsData}
                 value={profession}
+                isFilter={true}
                 placeholder="Profession"
-                setValue={setProfession}
+                handleSelect={handleSelectProfession}
                 searchInputPlaceholder="Search..."
                 searchInputClassName="p-1.5 text-xs"
                 defaultSelectedIconClassName="size-4"
