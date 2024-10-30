@@ -380,8 +380,8 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const handleSelectCategoty=(value: ListOptionProps)=>{
     setCategory(value)
     if(value?.name){
-      const filteredBookings = bookingsData.filter(booking =>
-        booking.categories.some(cat => cat.code === value.name)
+      const filteredBookings = bookingsData?.filter(booking =>
+        booking?.categories?.some(cat => cat.code === value.name)
       )
       setBookingsData(filteredBookings)
     }else{
