@@ -83,7 +83,7 @@ const AddCustomerModal = ({
           );
         }
         urlencoded.append(
-          "is_medical_condition",
+          "is_medical_conition",
           data?.is_medical_condition === 'yes' ? "1" : "0"
         );
         if(data?.is_medical_condition === 'yes'){
@@ -92,10 +92,29 @@ const AddCustomerModal = ({
             data?.medical_condition_description || ""
           );
         }
-        // urlencoded.append("special_notes", data?.special_notes || "");
+        urlencoded.append("special_notes", "abc");
 
         await addCustomer(urlencoded);
-        reset();
+        setNationality(null)
+        setDateOfBirth(new Date())
+        setSource(null)
+        setGender(null)
+        reset({
+          firstname: '',
+          lastname: '',
+          email: '',
+          phone:'',
+          medical_condition_description: '',
+          is_medical_condition: '',
+          medication_description: '',
+          allergy_description: '',
+          is_medication: '',
+          is_allergy: '',
+          nationality: '',
+          gender: '',
+          date_of_birth: '',
+
+        });
         closeModal();
       }
     } catch (error) {
