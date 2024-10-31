@@ -4,7 +4,10 @@ import CustomInput from "../../ui/CustomInput";
 import Combobox from "../../ui/Combobox";
 import { RiArrowDownSLine } from "react-icons/ri";
 import CustomButton from "../../ui/CustomButton";
-import { useAddFamilyMutation } from "../../../store/services/booking";
+import {
+  useAddFamilyMutation,
+  useUpdateFamilyMutation,
+} from "../../../store/services/booking";
 import { useForm } from "react-hook-form";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 import dayjs from "dayjs";
@@ -18,8 +21,8 @@ interface AddAddressModalProps {
   userId?: number;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   getFamily: (agr0: string) => void;
-  editMode: boolean;
-  editableFamilyMember: any;
+  editMode?: boolean;
+  editableFamilyMember?: any;
 }
 
 const options = [
@@ -41,6 +44,7 @@ const AddFamilyMemberModal = ({
   const [gender, setGender] = useState<ListOptionProps | null>(null);
   const [addFamily, { isLoading }] = useAddFamilyMutation();
   const { register, setValue, reset, handleSubmit } = useForm();
+  const [updateFamily] = useUpdateFamilyMutation();
 
   useEffect(() => {
     if (editMode && editableFamilyMember) {
@@ -120,7 +124,15 @@ const AddFamilyMemberModal = ({
           data?.medicationsDesc
         );
         console.log(urlencoded, "urlencodedurlencoded");
-        await addFamily(urlencoded);
+        if (editMode) {
+          urlencoded.append(
+            "family_member_id",
+            editableFamilyMember?.family_member_id
+          );
+          await updateFamily(urlencoded);
+        } else {
+          await addFamily(urlencoded);
+        }
         reset();
         setDate(dayjs().toDate());
         setGender(null);
@@ -149,15 +161,13 @@ const AddFamilyMemberModal = ({
     setOpen(false);
   };
 
-  console.log(".............", editMode, editableFamilyMember);
-
   return (
     <Modal
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
       className="max-h-[80%] w-[60%] max-w-[80%]"
-      title="Family Member"
+      title={editMode ? "Edit Family Member" : "Add Family Member"}
     >
       <div className="w-full px-6 py-7">
         <p className="text-left text-[18px] font-bold text-primary">
@@ -304,7 +314,7 @@ const AddFamilyMemberModal = ({
               style="bg-danger"
             />
             <CustomButton
-              name="Save"
+              name={editMode ? "Update" : "Save"}
               handleClick={handleSubmit(handleSave)}
               loading={isLoading}
               disabled={isLoading}

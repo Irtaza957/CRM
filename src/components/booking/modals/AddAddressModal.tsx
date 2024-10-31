@@ -4,7 +4,10 @@ import CustomInput from "../../ui/CustomInput";
 import Combobox from "../../ui/Combobox";
 import { RiArrowDownSLine } from "react-icons/ri";
 import CustomButton from "../../ui/CustomButton";
-import { useAddAddressMutation } from "../../../store/services/booking";
+import {
+  useAddAddressMutation,
+  useUpdateAddressMutation,
+} from "../../../store/services/booking";
 import { useForm } from "react-hook-form";
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
@@ -15,8 +18,8 @@ interface AddAddressModalProps {
   userId?: number;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   getAddresses: (agr0: string) => void;
-  editableAddressId: any;
-  editMode: boolean;
+  editableAddressId?: any;
+  editMode?: boolean;
 }
 
 const emiratesOption = [
@@ -38,18 +41,21 @@ const AddAddressModal = ({
   const [villa, setVilla] = useState<any | null>(null);
 
   const [addAddress, { isLoading }] = useAddAddressMutation();
+  const [updateAddress] = useUpdateAddressMutation();
+
+  const defaultValues = {
+    address_type: "",
+    emirate_id: null,
+    area_id: null,
+    building_no: "",
+    apartment: "",
+    street: "",
+    map_link: "",
+    extra_direction: "",
+  };
 
   const { register, setValue, reset, handleSubmit } = useForm({
-    defaultValues: {
-      address_type: "",
-      emirate_id: null,
-      area_id: null,
-      building_no: "",
-      apartment: "",
-      street: "",
-      map_link: "",
-      extra_direction: "",
-    },
+    defaultValues,
   });
 
   const handleSelectEmirate = (value: any) => {
@@ -62,26 +68,32 @@ const AddAddressModal = ({
     setValue("area_id", value.id);
   };
 
-  // Populate fields when edit mode is active and editableAddressId has data
   useEffect(() => {
-    if (editMode && editableAddressId) {
-      setValue("address_type", editableAddressId.address_type);
-      setValue("emirate_id", editableAddressId.emirate);
-      setValue("area_id", editableAddressId.area_id);
-      setValue("building_no", editableAddressId.building_no);
-      setValue("apartment", editableAddressId.apartment);
-      setValue("street", editableAddressId.street);
-      setValue("map_link", editableAddressId.map_link);
-      setValue("extra_direction", editableAddressId.extra_direction);
+    if (open) {
+      if (editMode && editableAddressId) {
+        setValue("address_type", editableAddressId.address_type);
+        setValue("emirate_id", editableAddressId.emirate);
+        setValue("area_id", editableAddressId.area_id);
+        setValue("building_no", editableAddressId.building_no);
+        setValue("apartment", editableAddressId.apartment);
+        setValue("street", editableAddressId.street);
+        setValue("map_link", editableAddressId.map_link);
+        setValue("extra_direction", editableAddressId.extra_direction);
 
-      // Set Emirate and Area Combobox values
-      setEmirate({
-        id: editableAddressId.emirate,
-        name: editableAddressId.emirate,
-      });
-      setVilla({ id: editableAddressId.area_id, name: editableAddressId.area });
-    } else {
-      reset(); // Clear form if not in edit mode
+        // Set Emirate and Area Combobox values
+        setEmirate({
+          id: editableAddressId.emirate,
+          name: editableAddressId.emirate,
+        });
+        setVilla({
+          id: editableAddressId.area_id,
+          name: editableAddressId.area,
+        });
+      } else {
+        reset(); // Clear form if not in edit mode
+        setEmirate(null); // Reset emirate dropdown value
+        setVilla(null); // Reset area dropdown value
+      }
     }
   }, [editMode, editableAddressId, open, setValue, reset]);
 
@@ -101,7 +113,13 @@ const AddAddressModal = ({
         urlencoded.append("lat", "0");
         urlencoded.append("lng", "0");
         urlencoded.append("is_default", "0");
-        await addAddress(urlencoded);
+
+        if (editMode) {
+          urlencoded.append("address_id", editableAddressId?.address_id);
+          await updateAddress(urlencoded);
+        } else {
+          await addAddress(urlencoded);
+        }
         reset();
         getAddresses(customerId);
         toast.custom((t) => (
@@ -121,7 +139,13 @@ const AddAddressModal = ({
 
   const closeModal = () => {
     setOpen(false);
-    reset(); // Reset form fields on modal close
+
+    // Reset the form fields to their initial default values
+    reset(defaultValues);
+
+    // Reset the dropdown values
+    setEmirate(null);
+    setVilla(null);
   };
 
   return (
@@ -130,7 +154,7 @@ const AddAddressModal = ({
       setOpen={setOpen}
       mainClassName="!z-[99999]"
       className="w-[60%] max-w-[80%]"
-      title="Address"
+      title={editMode ? "Edit Address" : "Add Address"}
     >
       <div className="w-full px-6 py-7">
         <p className="text-left text-[18px] font-bold text-primary">
@@ -220,7 +244,7 @@ const AddAddressModal = ({
               style="bg-danger"
             />
             <CustomButton
-              name="Save"
+              name={editMode ? "Update" : "Save"}
               handleClick={handleSubmit(handleSave)}
               loading={isLoading}
               disabled={isLoading}

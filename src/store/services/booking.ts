@@ -80,6 +80,16 @@ export const bookingApi = api.injectEndpoints({
         },
       }),
     }),
+    updateAddress: build.mutation({
+      query: (data) => ({
+        url: "customer/address/update",
+        method: "POST",
+        body: data,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }),
+    }),
     addFamily: build.mutation({
       query: (data) => ({
         url: "/customer/family_member",
@@ -87,6 +97,16 @@ export const bookingApi = api.injectEndpoints({
         body: data,
         headers: {
           "Content-Type": "application/x-www-form-urlencoded", // Set the Content-Type header
+        },
+      }),
+    }),
+    updateFamily: build.mutation({
+      query: (data) => ({
+        url: "/customer/update_family_member",
+        method: "POST",
+        body: data,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
         },
       }),
     }),
@@ -107,6 +127,16 @@ export const bookingApi = api.injectEndpoints({
     addCustomer: build.mutation({
       query: (data) => ({
         url: "/customer",
+        method: "POST",
+        body: data,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }),
+    }),
+    updateCustomer: build.mutation({
+      query: (data) => ({
+        url: "/customer/update",
         method: "POST",
         body: data,
         headers: {
@@ -141,5 +171,8 @@ export const {
   useUploadAttachmentMutation,
   useDeleteAttachmentMutation,
   useAddCustomerMutation,
-  useFetchBookingHistoryMutation
+  useFetchBookingHistoryMutation,
+  useUpdateAddressMutation,
+  useUpdateFamilyMutation,
+  useUpdateCustomerMutation,
 } = bookingApi;

@@ -62,7 +62,7 @@ import EditServiceModal from "./EditServiceModal";
 import UploadAttachmentModal from "./UploadAttachmentModal";
 import { useFetchUsersByRolesQuery } from "../../../store/services/filters";
 
-interface NewBookingModal{
+interface NewBookingModal {
   selectedBooking?: string | null;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -124,7 +124,11 @@ const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   );
 };
 
-const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) => {
+const NewBookingModal = ({
+  selectedBooking,
+  open,
+  setOpen,
+}: NewBookingModal) => {
   const [address, setAddress] = useState(1);
   const [timeline, setTimeline] = useState<Record<
     string,
@@ -139,8 +143,10 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
   });
   const [payment, setPayment] = useState("cod");
   const [editMode, setEditMode] = useState(false);
-  const [editableAddressId, setEditableAddressId] = useState<AddressProps | null>(null);
-  const [editableFamilyMember, setEditableFamilyMember] = useState<FamilyProps | null>(null);
+  const [editableAddressId, setEditableAddressId] =
+    useState<AddressProps | null>(null);
+  const [editableFamilyMember, setEditableFamilyMember] =
+    useState<FamilyProps | null>(null);
   const [scheduleTime, setScheduleTime] = useState<ListOptionProps | null>(
     null
   );
@@ -178,10 +184,13 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
 
   const [fetchCategories] = useFetchCategoriesMutation();
   const { data: professions } = useFetchUsersByRolesQuery({});
-  const { data: bookingDetailData } = useFetchBookingDetailsQuery(selectedBooking, {
-    skip: !selectedBooking,
-    refetchOnMountOrArgChange: true,
-  });
+  const { data: bookingDetailData } = useFetchBookingDetailsQuery(
+    selectedBooking,
+    {
+      skip: !selectedBooking,
+      refetchOnMountOrArgChange: true,
+    }
+  );
   const [deleteAttachment] = useDeleteAttachmentMutation();
 
   const dispatch = useDispatch();
@@ -232,7 +241,8 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
     const totals = services.reduce(
       (acc, service) => {
         const priceWithoutVAT =
-          parseFloat(service.total || service?.price_without_vat || "0") * service.qty!;
+          parseFloat(service.total || service?.price_without_vat || "0") *
+          service.qty!;
         const vatValue = parseFloat(service.vat_value || "0") * service.qty!;
 
         acc.subtotal += priceWithoutVAT;
@@ -434,18 +444,23 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
     setOpenFamilyMemberModal(true);
   };
 
+  const handleEditClientClick = () => {
+    setEditMode(true);
+    setOpenCustomerModal(true);
+  };
+
   const handleDeleteAttachment = async (attachment: AttachmentProps) => {
     try {
-      const formData=new FormData()
-      formData.append("file_name", attachment?.file_name)
-      formData.append("file_type", attachment?.file_type)
-      formData.append("attachment_id", attachment?.attachment_id)
-      await deleteAttachment(formData)
-      await getAttachments(attachment?.customer_id || '')
+      const formData = new FormData();
+      formData.append("file_name", attachment?.file_name);
+      formData.append("file_type", attachment?.file_type);
+      formData.append("attachment_id", attachment?.attachment_id);
+      await deleteAttachment(formData);
+      await getAttachments(attachment?.customer_id || "");
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-  }
+  };
 
   useEffect(() => {
     if (bookingsData) {
@@ -481,29 +496,33 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
     }
   }, [professions]);
 
-  useEffect(()=>{
-    if(bookingDetailData?.booking_id){
+  useEffect(() => {
+    if (bookingDetailData?.booking_id) {
       setSelectedUser({
-        customer_id: bookingDetailData?.customer?.id || '',
-        branch_id: bookingDetailData?.branch_id || '',
-        partner_id: bookingDetailData?.partner_id || '',
-        firstname: bookingDetailData?.customer?.firstname || '',
-        lastname: bookingDetailData?.customer?.lastname || '',
-        phone: bookingDetailData?.customer?.phone || '',
-        email: bookingDetailData?.customer?.email || '',
-        date_of_birth: bookingDetailData?.customer?.date_of_birth || '',
-        gender: bookingDetailData?.customer?.gender || '',
-        nationality: bookingDetailData?.customer?.nationality || '',
-        is_allergy: bookingDetailData?.customer?.is_allergy || '',
-        allergy_description: bookingDetailData?.customer?.allergy_description || '',
-        is_medication: bookingDetailData?.customer?.is_medication || '',
-        medication_description: bookingDetailData?.customer?.medication_description || '',
-        is_medical_conition: bookingDetailData?.customer?.is_medical_conition || '',
-        medical_condition_description: bookingDetailData?.customer?.medical_condition_description || '',
-        special_notes: bookingDetailData?.customer?.special_notes || '',
-        active: bookingDetailData?.status
-      })
-      const temp: ServiceProps[]=bookingDetailData?.services?.map(item=>{
+        customer_id: bookingDetailData?.customer?.id || "",
+        branch_id: bookingDetailData?.branch_id || "",
+        partner_id: bookingDetailData?.partner_id || "",
+        firstname: bookingDetailData?.customer?.firstname || "",
+        lastname: bookingDetailData?.customer?.lastname || "",
+        phone: bookingDetailData?.customer?.phone || "",
+        email: bookingDetailData?.customer?.email || "",
+        date_of_birth: bookingDetailData?.customer?.date_of_birth || "",
+        gender: bookingDetailData?.customer?.gender || "",
+        nationality: bookingDetailData?.customer?.nationality || "",
+        is_allergy: bookingDetailData?.customer?.is_allergy || "",
+        allergy_description:
+          bookingDetailData?.customer?.allergy_description || "",
+        is_medication: bookingDetailData?.customer?.is_medication || "",
+        medication_description:
+          bookingDetailData?.customer?.medication_description || "",
+        is_medical_conition:
+          bookingDetailData?.customer?.is_medical_conition || "",
+        medical_condition_description:
+          bookingDetailData?.customer?.medical_condition_description || "",
+        special_notes: bookingDetailData?.customer?.special_notes || "",
+        active: bookingDetailData?.status,
+      });
+      const temp: ServiceProps[] = bookingDetailData?.services?.map((item) => {
         return {
           service_id: item?.service_id,
           service_name: item?.service_name,
@@ -512,25 +531,33 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
           discount_value: item?.discount_value,
           discount_type: item?.discount_type,
           total: item?.total,
-          new_price: item?.new_price,        
-        }})
-      setSelectedServices(temp)
+          new_price: item?.new_price,
+        };
+      });
+      setSelectedServices(temp);
       setDiscount({
-        type: 'aed',
-        value: Number(bookingDetailData?.discount_value)
-      })
-      setDeliveryNotes(bookingDetailData?.delivery_notes)
-      setScheduleDate(bookingDetailData?.schedule_date)
-      setScheduleTime({id: bookingDetailData?.schedule_slot, name: bookingDetailData?.schedule_slot})
-      setPayment(bookingDetailData?.payment_method_code)
-      setAddress(Number(bookingDetailData?.address_id))
-      setAttachments(bookingDetailData?.attachments)
+        type: "aed",
+        value: Number(bookingDetailData?.discount_value),
+      });
+      setDeliveryNotes(bookingDetailData?.delivery_notes);
+      setScheduleDate(bookingDetailData?.schedule_date);
+      setScheduleTime({
+        id: bookingDetailData?.schedule_slot,
+        name: bookingDetailData?.schedule_slot,
+      });
+      setPayment(bookingDetailData?.payment_method_code);
+      setAddress(Number(bookingDetailData?.address_id));
+      setAttachments(bookingDetailData?.attachments);
     }
-  },[bookingDetailData])
+  }, [bookingDetailData]);
 
   return (
     <>
-      <BookingHistoryModal customerId={selectedUser?.customer_id} open={history} setOpen={setHistory} />
+      <BookingHistoryModal
+        customerId={selectedUser?.customer_id}
+        open={history}
+        setOpen={setHistory}
+      />
       <Modal
         open={open}
         setOpen={setOpen}
@@ -628,13 +655,16 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
                   <h1 className="text-left font-semibold text-primary">
                     Client Details
                   </h1>
-                  {!selectedUser ? (
+                  {!selectedUser && !editMode ? (
                     <CustomButton
                       name="Add New"
                       handleClick={() => setOpenCustomerModal(true)}
                     />
                   ) : (
-                    <FaRegEdit className="h-5 w-5 text-gray-500" />
+                    <FaRegEdit
+                      onClick={handleEditClientClick}
+                      className="h-5 w-5 cursor-pointer text-gray-500"
+                    />
                   )}
                 </div>
                 <AutoComplete setSelectedUser={setSelectedUser} />
@@ -878,7 +908,10 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
                           </span>
                           <div className="flex items-center justify-end space-x-3 text-gray-500">
                             <FiDownload className="h-6 w-6 cursor-pointer" />
-                            <FaRegTrashAlt onClick={()=>handleDeleteAttachment(attachment)}  className="h-6 w-6" />
+                            <FaRegTrashAlt
+                              onClick={() => handleDeleteAttachment(attachment)}
+                              className="h-6 w-6"
+                            />
                           </div>
                         </div>
                       ))}
@@ -963,12 +996,16 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
                           {service?.qty
                             ? Math.round(
                                 parseFloat(
-                                  service.total || service.price_without_vat || "0"
+                                  service.total ||
+                                    service.price_without_vat ||
+                                    "0"
                                 ) * service!.qty
                               )
                             : Math.round(
                                 parseFloat(
-                                  service.total || service.price_without_vat || "0"
+                                  service.total ||
+                                    service.price_without_vat ||
+                                    "0"
                                 )
                               )}
                         </div>
@@ -1200,6 +1237,8 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
           userId={user!.id}
           open={openCustomerModal}
           setOpen={setOpenCustomerModal}
+          editMode={editMode}
+          userData={selectedUser}
         />
         <AddFamilyMemberModal
           customerId={selectedUser?.customer_id}

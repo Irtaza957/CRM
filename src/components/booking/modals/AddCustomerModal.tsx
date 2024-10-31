@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Modal from "../../ui/Modal";
 import CustomInput from "../../ui/CustomInput";
 import Combobox from "../../ui/Combobox";
@@ -8,7 +8,10 @@ import { useForm } from "react-hook-form";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 import { IoCalendarOutline } from "react-icons/io5";
 import dayjs from "dayjs";
-import { useAddCustomerMutation } from "../../../store/services/booking";
+import {
+  useAddCustomerMutation,
+  useUpdateCustomerMutation,
+} from "../../../store/services/booking";
 import { toast } from "sonner";
 import CustomToast from "../../ui/CustomToast";
 
@@ -17,18 +20,28 @@ interface AddCustomerModalProps {
   customerId?: string;
   userId?: number;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  editMode?: boolean;
+  userData?: any;
 }
 
 const options = [
+  { id: 0, name: "Default Source" },
   { id: 1, name: "abc" },
   { id: 2, name: "xyz" },
   { id: 3, name: "asd" },
+];
+
+const genderOptions = [
+  { id: "Male", name: "Male" },
+  { id: "Female", name: "Female" },
 ];
 
 const AddCustomerModal = ({
   open,
   userId,
   setOpen,
+  editMode,
+  userData,
 }: AddCustomerModalProps) => {
   const [gender, setGender] = useState<ListOptionProps | null>(null);
   const [source, setSource] = useState<ListOptionProps | null>(null);
@@ -37,6 +50,49 @@ const AddCustomerModal = ({
   const { register, setValue, reset, handleSubmit, watch } = useForm();
 
   const [addCustomer, { isLoading }] = useAddCustomerMutation();
+  const [updateCustomer] = useUpdateCustomerMutation();
+
+  console.log("............UD", editMode, userData);
+  useEffect(() => {
+    if (editMode && userData) {
+      setValue("firstname", userData.firstname);
+      setValue("lastname", userData.lastname);
+      setValue("phone", userData.phone);
+      setValue("email", userData.email);
+      setValue("date_of_birth", dayjs(userData.date_of_birth).toDate());
+      setValue("is_allergy", userData.is_allergy === "1" ? "yes" : "no");
+      setValue("allergy_description", userData.allergy_description);
+      setValue("is_medication", userData.is_medication === "1" ? "yes" : "no");
+      setValue("medication_description", userData.medication_description);
+      setValue(
+        "is_medical_condition",
+        userData.is_medical_conition === "1" ? "yes" : "no"
+      );
+      setValue(
+        "medical_condition_description",
+        userData.medical_condition_description
+      );
+      setDateOfBirth(dayjs(userData.date_of_birth).toDate());
+
+      // Setting source and gender based on userData values
+      const matchedSource = options.find(
+        (opt) => opt.id === parseInt(userData.customer_source_id)
+      );
+      setSource(matchedSource || null);
+      setValue("customer_source_id", matchedSource ? matchedSource.id : "");
+
+      const matchedGender = genderOptions.find(
+        (opt) => opt.id === userData.gender
+      );
+      setGender(matchedGender || null);
+      setValue("gender", matchedGender ? matchedGender.id : "");
+
+      setNationality({
+        id: userData.nationality_id,
+        name: userData.nationality,
+      });
+    }
+  }, [editMode, userData, setValue]);
 
   const handleSelectGender = (value: ListOptionProps) => {
     setGender(value);
@@ -69,15 +125,18 @@ const AddCustomerModal = ({
         );
         urlencoded.append("gender", data?.gender);
         urlencoded.append("nationality", data?.nationality);
-        urlencoded.append("is_allergy", data?.is_allergy === 'yes' ? "1" : "0");
-        if(data?.is_allergy === 'yes'){
+        urlencoded.append("is_allergy", data?.is_allergy === "yes" ? "1" : "0");
+        if (data?.is_allergy === "yes") {
+          urlencoded.append(
+            "allergy_description",
+            data?.allergy_description || ""
+          );
+        }
         urlencoded.append(
-          "allergy_description",
-          data?.allergy_description || ""
+          "is_medication",
+          data?.is_medication === "yes" ? "1" : "0"
         );
-      }
-        urlencoded.append("is_medication", data?.is_medication === 'yes' ? "1" : "0");
-        if(data?.is_medication === 'yes'){
+        if (data?.is_medication === "yes") {
           urlencoded.append(
             "medication_description",
             data?.medication_description || ""
@@ -85,9 +144,9 @@ const AddCustomerModal = ({
         }
         urlencoded.append(
           "is_medical_conition",
-          data?.is_medical_condition === 'yes' ? "1" : "0"
+          data?.is_medical_condition === "yes" ? "1" : "0"
         );
-        if(data?.is_medical_condition === 'yes'){
+        if (data?.is_medical_condition === "yes") {
           urlencoded.append(
             "medical_condition_description",
             data?.medical_condition_description || ""
@@ -95,26 +154,30 @@ const AddCustomerModal = ({
         }
         urlencoded.append("special_notes", "abc");
 
-        await addCustomer(urlencoded);
-        setNationality(null)
-        setDateOfBirth(new Date())
-        setSource(null)
-        setGender(null)
+        if (editMode) {
+          urlencoded.append("user_id", userData?.user_id);
+          await updateCustomer(urlencoded);
+        } else {
+          await addCustomer(urlencoded);
+        }
+        setNationality(null);
+        setDateOfBirth(new Date());
+        setSource(null);
+        setGender(null);
         reset({
-          firstname: '',
-          lastname: '',
-          email: '',
-          phone:'',
-          medical_condition_description: '',
-          is_medical_condition: '',
-          medication_description: '',
-          allergy_description: '',
-          is_medication: '',
-          is_allergy: '',
-          nationality: '',
-          gender: '',
-          date_of_birth: '',
-
+          firstname: "",
+          lastname: "",
+          email: "",
+          phone: "",
+          medical_condition_description: "",
+          is_medical_condition: "",
+          medication_description: "",
+          allergy_description: "",
+          is_medication: "",
+          is_allergy: "",
+          nationality: "",
+          gender: "",
+          date_of_birth: "",
         });
         toast.custom((t) => (
           <CustomToast
@@ -135,7 +198,6 @@ const AddCustomerModal = ({
     setOpen(false);
   };
 
-  
   const isAllergy = watch("is_allergy");
   const isMedication = watch("is_medication");
   const isMedicalCondition = watch("is_medical_condition");
@@ -145,7 +207,7 @@ const AddCustomerModal = ({
       setOpen={setOpen}
       mainClassName="!z-[99999]"
       className="w-[70%] max-w-[80%]"
-      title="New Customer"
+      title={editMode ? "Edit Client" : "New Customer"}
     >
       <div className="w-full px-6 py-7">
         <p className="text-left text-[18px] font-bold text-primary">
@@ -271,7 +333,7 @@ const AddCustomerModal = ({
               label=""
               placeholder="Please Specify"
               register={register}
-              disabled={!isAllergy || isAllergy==='no'}
+              disabled={!isAllergy || isAllergy === "no"}
             />
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
@@ -294,7 +356,7 @@ const AddCustomerModal = ({
               label=""
               placeholder="Please Specify"
               register={register}
-              disabled={!isMedication || isMedication==='no'}
+              disabled={!isMedication || isMedication === "no"}
             />
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
@@ -324,7 +386,7 @@ const AddCustomerModal = ({
               label=""
               placeholder="Please Specify"
               register={register}
-              disabled={!isMedicalCondition || isMedicalCondition==='no'}
+              disabled={!isMedicalCondition || isMedicalCondition === "no"}
             />
           </div>
 
@@ -335,7 +397,7 @@ const AddCustomerModal = ({
               style="bg-danger"
             />
             <CustomButton
-              name="Save"
+              name={editMode ? "Update" : "Save"}
               handleClick={handleSubmit(handleSave)}
               loading={isLoading}
               disabled={isLoading}
