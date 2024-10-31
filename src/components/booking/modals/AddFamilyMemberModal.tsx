@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "../../ui/Modal";
 import CustomInput from "../../ui/CustomInput";
 import Combobox from "../../ui/Combobox";
@@ -17,34 +17,86 @@ interface AddAddressModalProps {
   customerId?: string;
   userId?: number;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  getFamily: (agr0: string)=>void
+  getFamily: (agr0: string) => void;
+  editMode: boolean;
+  editableFamilyMember: any;
 }
 
 const options = [
-    { id: 1, name: "Male" },
-    { id: 2, name: "Female" },
-    { id: 3, name: "Other" },
-  ];
+  { id: 1, name: "Male" },
+  { id: 2, name: "Female" },
+  { id: 3, name: "Other" },
+];
 
 const AddFamilyMemberModal = ({
   open,
   customerId,
   userId,
   setOpen,
-  getFamily
+  getFamily,
+  editMode,
+  editableFamilyMember,
 }: AddAddressModalProps) => {
   const [date, setDate] = useState<string | Date>(dayjs().toDate());
   const [gender, setGender] = useState<ListOptionProps | null>(null);
-
   const [addFamily, { isLoading }] = useAddFamilyMutation();
-
   const { register, setValue, reset, handleSubmit } = useForm();
 
+  useEffect(() => {
+    if (editMode && editableFamilyMember) {
+      // Ensure values are properly mapped
+      setValue("first_name", editableFamilyMember.firstname || "");
+      setValue("last_name", editableFamilyMember.lastname || "");
+      setValue("relation", editableFamilyMember.relationship || "");
 
+      // Set date if available
+      setDate(
+        editableFamilyMember.date_of_birth
+          ? editableFamilyMember.date_of_birth
+          : dayjs().toDate()
+      );
+
+      // Find the gender option matching the editable member's gender
+      setGender(
+        options.find((option) => option.name === editableFamilyMember.gender) ||
+          null
+      );
+
+      // Radio buttons - convert to "yes"/"no" for the UI if needed
+      setValue(
+        "allergies",
+        editableFamilyMember.is_allergy === "1" ? "yes" : "no"
+      );
+      setValue("allergiesDesc", editableFamilyMember.allergy_description || "");
+
+      setValue(
+        "medications",
+        editableFamilyMember.is_medication === "1" ? "yes" : "no"
+      );
+      setValue(
+        "medicationsDesc",
+        editableFamilyMember.medication_description || ""
+      );
+      ``;
+      setValue(
+        "medicalConditions",
+        editableFamilyMember.is_medical_condition === "1" ? "yes" : "no"
+      );
+      setValue(
+        "medicalConditionDesc",
+        editableFamilyMember.medical_condition_description || ""
+      );
+    } else {
+      // Reset values when not in edit mode
+      reset();
+      setDate(dayjs().toDate());
+      setGender(null);
+    }
+  }, [editMode, editableFamilyMember, reset, setValue]);
 
   const handleSelectGender = (value: ListOptionProps) => {
     setGender(value);
-    setValue('gender', value.name)
+    setValue("gender", value.name);
   };
 
   const handleSave = async (data: any) => {
@@ -63,22 +115,13 @@ const AddFamilyMemberModal = ({
         urlencoded.append("is_medication", data?.medicalConditions);
         urlencoded.append("medication_description", data?.medicalConditionDesc);
         urlencoded.append("is_medical_condition", data?.medications);
-        urlencoded.append("medical_condition_description", data?.medicationsDesc);
-        console.log(urlencoded, 'urlencodedurlencoded')
+        urlencoded.append(
+          "medical_condition_description",
+          data?.medicationsDesc
+        );
+        console.log(urlencoded, "urlencodedurlencoded");
         await addFamily(urlencoded);
-        reset({
-          first_name: '',
-          last_name: '',
-          relation: '',
-          date_of_birth: '',
-          gender: '',
-          allergies: '',
-          allergiesDesc: '',
-          medications: '',
-          medicationsDesc: '',
-          medicalConditions: '',
-          medicalConditionDesc: ''
-        });
+        reset();
         setDate(dayjs().toDate());
         setGender(null);
         getFamily(customerId);
@@ -97,20 +140,23 @@ const AddFamilyMemberModal = ({
     }
   };
 
-  const handleDate=(newDate: string | Date)=>{
-    setDate(newDate)
-    setValue('date_of_birth', newDate)
-  }
+  const handleDate = (newDate: string | Date) => {
+    setDate(newDate);
+    setValue("date_of_birth", newDate);
+  };
 
   const closeModal = () => {
     setOpen(false);
   };
+
+  console.log(".............", editMode, editableFamilyMember);
+
   return (
     <Modal
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="w-[60%] max-w-[80%] max-h-[80%]"
+      className="max-h-[80%] w-[60%] max-w-[80%]"
       title="Family Member"
     >
       <div className="w-full px-6 py-7">
@@ -132,7 +178,9 @@ const AddFamilyMemberModal = ({
               register={register}
             />
             <div className="flex w-full flex-col">
-              <p className="w-full text-left text-xs text-grey100 font-medium mb-0.5">DOB</p>
+              <p className="mb-0.5 w-full text-left text-xs font-medium text-grey100">
+                DOB
+              </p>
               <div className="flex h-10 w-full rounded-[6px] bg-[#F5F6FA] px-2.5">
                 <CustomDatePicker
                   date={date}
@@ -174,25 +222,17 @@ const AddFamilyMemberModal = ({
           </p>
           {/* start */}
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
-            <p className="text-left text-[14px] font-semibold text-[#656565] w-[40%]">
+            <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
               Allergies:
             </p>
 
             <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="yes"
-                {...register("allergies")}
-              />
+              <input type="radio" value="yes" {...register("allergies")} />
               <span>Yes</span>
             </label>
 
             <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="no"
-                {...register("allergies")}
-              />
+              <input type="radio" value="no" {...register("allergies")} />
               <span>No</span>
             </label>
 
@@ -204,25 +244,17 @@ const AddFamilyMemberModal = ({
             />
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
-            <p className="text-left text-[14px] font-semibold text-[#656565] w-[40%]">
-            Medications:
+            <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
+              Medications:
             </p>
 
             <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="yes"
-                {...register("medications")}
-              />
+              <input type="radio" value="yes" {...register("medications")} />
               <span>Yes</span>
             </label>
 
             <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="no"
-                {...register("medications")}
-              />
+              <input type="radio" value="no" {...register("medications")} />
               <span>No</span>
             </label>
 
@@ -234,8 +266,8 @@ const AddFamilyMemberModal = ({
             />
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
-            <p className="text-left text-[14px] font-semibold text-[#656565] w-[40%]">
-            Medical Conditions:
+            <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
+              Medical Conditions:
             </p>
 
             <label className="flex items-center gap-2">
@@ -264,7 +296,7 @@ const AddFamilyMemberModal = ({
               register={register}
             />
           </div>
-{/* end */}
+          {/* end */}
           <div className="mt-7 flex w-full justify-end gap-3">
             <CustomButton
               name="Cancel"

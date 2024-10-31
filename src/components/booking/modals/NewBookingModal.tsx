@@ -83,10 +83,10 @@ const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
                 <p className="w-full overflow-hidden truncate text-left">
                   {booking.consultation_team.length !== 0
                     ? booking.consultation_team
-                      .map((member) => {
-                        return member.name;
-                      })
-                      .join(" - ")
+                        .map((member) => {
+                          return member.name;
+                        })
+                        .join(" - ")
                     : "N/A"}
                 </p>
               </div>
@@ -101,10 +101,10 @@ const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
                 <span className="w-full overflow-hidden truncate text-left">
                   {booking.consultation_team.length !== 0
                     ? booking.consultation_team
-                      .map((member) => {
-                        return member.name;
-                      })
-                      .join(" - ")
+                        .map((member) => {
+                          return member.name;
+                        })
+                        .join(" - ")
                     : "N/A"}
                 </span>
               </div>
@@ -130,7 +130,12 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     value: 0,
   });
   const [payment, setPayment] = useState("cod");
-  const [scheduleTime, setScheduleTime] = useState<ListOptionProps | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editableAddressId, setEditableAddressId] = useState<string>("");
+  const [editableFamilyMember, setEditableFamilyMember] = useState<string>("");
+  const [scheduleTime, setScheduleTime] = useState<ListOptionProps | null>(
+    null
+  );
   const [scheduleDate, setScheduleDate] = useState<Date | string>(new Date());
   const [deliveryNotes, setDeliveryNotes] = useState("");
   const [fetchFamily] = useFetchCustomerFamilyMutation();
@@ -148,28 +153,32 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
   const [createBooking, { isLoading: creating }] = useCreateBookingMutation();
   const [selectedUser, setSelectedUser] = useState<CustomerProps | null>(null);
   const [attachments, setAttachments] = useState<AttachmentProps[] | null>([]);
-  const [selectedFamily, setSelectedFamily] = useState<number | null>(null)
-  const [openAddressModal, setOpenAddressModal] = useState(false)
-  const [openFamilyMemberModal, setOpenFamilyMemberModal] = useState(false)
-  const [openMedicalDetailsModal, setOpenMedicalDetailsModal] = useState(false)
-  const [openCustomerModal, setOpenCustomerModal] = useState(false)
-  const [openEditServiceModal, setOpenEditServiceModal] = useState(false)
-  const [openUploadAttachment, setOpenUploadAttachment] = useState(false)
-  const [selectedService, setSelectedServiceModal] = useState<string | null>(null)
-  const [categories, setCategories]=useState<ListOptionProps[]>([])
-  const [profesionsData, setProfesionsData]=useState<ListOptionProps[]>([])
-  const [bookingsData, setBookingsData]=useState<BookingProps[]>([])
+  const [selectedFamily, setSelectedFamily] = useState<number | null>(null);
+  const [openAddressModal, setOpenAddressModal] = useState(false);
+  const [openFamilyMemberModal, setOpenFamilyMemberModal] = useState(false);
+  const [openMedicalDetailsModal, setOpenMedicalDetailsModal] = useState(false);
+  const [openCustomerModal, setOpenCustomerModal] = useState(false);
+  const [openEditServiceModal, setOpenEditServiceModal] = useState(false);
+  const [openUploadAttachment, setOpenUploadAttachment] = useState(false);
+  const [selectedService, setSelectedServiceModal] = useState<string | null>(
+    null
+  );
+  const [categories, setCategories] = useState<ListOptionProps[]>([]);
+  const [profesionsData, setProfesionsData] = useState<ListOptionProps[]>([]);
+  const [bookingsData, setBookingsData] = useState<BookingProps[]>([]);
   const [history, setHistory] = useState(false);
 
   const [fetchCategories] = useFetchCategoriesMutation();
   const { data: professions } = useFetchUsersByRolesQuery({});
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const getCategories = async () => {
-    const {data}  = await fetchCategories(null);
-    const temp=data?.data?.map((item: CategoryListProps)=> {return {id: item?.category_id, name: item?.category_name}})
-    setCategories(temp)
+    const { data } = await fetchCategories(null);
+    const temp = data?.data?.map((item: CategoryListProps) => {
+      return { id: item?.category_id, name: item?.category_name };
+    });
+    setCategories(temp);
   };
   const getAddresses = async (id: string) => {
     const { data } = await fetchAddresses(id);
@@ -257,8 +266,11 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     urlencoded.append("firstname", selectedUser!.firstname);
     urlencoded.append("lastname", selectedUser!.lastname);
     urlencoded.append("phone", selectedUser!.phone);
-    urlencoded.append("schedule_date", dayjs(scheduleDate).format("DD-MM-YYYY"));
-    urlencoded.append("schedule_slot", scheduleTime?.name || '');
+    urlencoded.append(
+      "schedule_date",
+      dayjs(scheduleDate).format("DD-MM-YYYY")
+    );
+    urlencoded.append("schedule_slot", scheduleTime?.name || "");
     urlencoded.append("delivery_notes", deliveryNotes);
     urlencoded.append(
       "payment_method",
@@ -289,11 +301,11 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
             service_id: item.service_id,
             qty: item.qty,
             price: item.price_without_vat,
-            discount: item.discount || '',
-            discount_value: item.discount_value || '',
-            discount_type: item.discount_type || '',
-            total: item.discount || '',
-            new_price: item.new_price || ''
+            discount: item.discount || "",
+            discount_value: item.discount_value || "",
+            discount_type: item.discount_type || "",
+            total: item.discount || "",
+            new_price: item.new_price || "",
           };
         })
       )
@@ -334,66 +346,80 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
 
   const handleSelectFamily = (id: number) => {
     if (id === selectedFamily) {
-      setSelectedFamily(null)
+      setSelectedFamily(null);
     } else {
-      setSelectedFamily(id)
+      setSelectedFamily(id);
     }
-  }
+  };
 
   const handleAddAddress = () => {
-    setOpenAddressModal(!openAddressModal)
-  }
+    setOpenAddressModal(!openAddressModal);
+  };
 
   const handleFamilymembers = () => {
-    setOpenFamilyMemberModal(!openFamilyMemberModal)
-  }
+    setOpenFamilyMemberModal(!openFamilyMemberModal);
+  };
 
   const handleMedicalDetails = () => {
-    setOpenMedicalDetailsModal(!openMedicalDetailsModal)
-  }
+    setOpenMedicalDetailsModal(!openMedicalDetailsModal);
+  };
 
   const handleSetDate = (date: string | Date) => {
     dispatch(setDate(date));
   };
 
   const handleEditService = (id: string) => {
-    setOpenEditServiceModal(true)
-    setSelectedServiceModal(id)
-  }
+    setOpenEditServiceModal(true);
+    setSelectedServiceModal(id);
+  };
 
   const handleSetSelectedService = (discount: DiscountType) => {
     if (selectedServices?.length) {
-      const temp = selectedServices?.map(service => service.service_id === selectedService ?
-        {
-          ...service,
-          discount: String(discount.total),
-          total: String(discount.total),
-          discount_value: String(discount.value),
-          new_price: String(discount.newPrice),
-          discount_type: discount.type,
-        } : service
-      )
+      const temp = selectedServices?.map((service) =>
+        service.service_id === selectedService
+          ? {
+              ...service,
+              discount: String(discount.total),
+              total: String(discount.total),
+              discount_value: String(discount.value),
+              new_price: String(discount.newPrice),
+              discount_type: discount.type,
+            }
+          : service
+      );
       setSelectedServices(temp);
     }
   };
 
-  const handleSelectCategoty=(value: ListOptionProps)=>{
-    setCategory(value)
-    if(value?.name){
-      const filteredBookings = bookingsData?.filter(booking =>
-        booking?.categories?.some(cat => cat.code === value.name)
-      )
-      setBookingsData(filteredBookings)
-    }else{
-      if(data){
-        setBookingsData(data)
+  const handleSelectCategoty = (value: ListOptionProps) => {
+    setCategory(value);
+    if (value?.name) {
+      const filteredBookings = bookingsData?.filter((booking) =>
+        booking?.categories?.some((cat) => cat.code === value.name)
+      );
+      setBookingsData(filteredBookings);
+    } else {
+      if (data) {
+        setBookingsData(data);
       }
     }
-  }
+  };
 
-  const handleSelectProfession=(value: ListOptionProps)=>{
-    setProfession(value)
-  }
+  const handleSelectProfession = (value: ListOptionProps) => {
+    setProfession(value);
+  };
+
+  const handleEditClick = (address) => {
+    setEditMode(true);
+    setEditableAddressId(address);
+    setOpenAddressModal(true);
+  };
+
+  const handleEditFamilymemberClick = (member) => {
+    setEditMode(true);
+    setEditableFamilyMember(member);
+    setOpenFamilyMemberModal(true);
+  };
 
   useEffect(() => {
     if (bookingsData) {
@@ -402,11 +428,11 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     }
   }, [bookingsData]);
 
-  useEffect(()=>{
-    if(data?.length){
-      setBookingsData(data)
+  useEffect(() => {
+    if (data?.length) {
+      setBookingsData(data);
     }
-  },[data])
+  }, [data]);
 
   useEffect(() => {
     if (selectedUser) {
@@ -416,16 +442,18 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
     }
   }, [selectedUser]);
 
-  useEffect(()=>{
-    getCategories()
-  },[])
+  useEffect(() => {
+    getCategories();
+  }, []);
 
-  useEffect(()=>{
-    if(professions?.data?.doctors?.length){
-      const data=professions?.data?.doctors?.map((item: EmployeeProps)=> {return {id: item?.user_id, name: item?.position}})
-      setProfesionsData(data)
-      }
-  },[professions])
+  useEffect(() => {
+    if (professions?.data?.doctors?.length) {
+      const data = professions?.data?.doctors?.map((item: EmployeeProps) => {
+        return { id: item?.user_id, name: item?.position };
+      });
+      setProfesionsData(data);
+    }
+  }, [professions]);
 
   return (
     <>
@@ -437,8 +465,10 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
       >
         <div className="grid w-full grid-cols-3 divide-x overflow-hidden rounded-lg bg-gray-100">
           <div className="col-span-1 flex h-full flex-col overflow-auto border-r">
-            <div className="h-12 w-full border-b bg-white flex items-center justify-between px-2.5">
-              <p className="bg-primary text-white rounded-md py-1 px-2.5 mr-3">{dayNames[new Date(date).getDay()]}</p>
+            <div className="flex h-12 w-full items-center justify-between border-b bg-white px-2.5">
+              <p className="mr-3 rounded-md bg-primary px-2.5 py-1 text-white">
+                {dayNames[new Date(date).getDay()]}
+              </p>
               <CustomDatePicker
                 date={date}
                 setDate={handleSetDate}
@@ -450,7 +480,11 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                   </div>
                 }
               />
-              <CustomButton name="Today" handleClick={() => handleSetDate(new Date())} style="bg-white border border-grey50 text-black" />
+              <CustomButton
+                name="Today"
+                handleClick={() => handleSetDate(new Date())}
+                style="bg-white border border-grey50 text-black"
+              />
             </div>
             <div className="grid w-full grid-cols-2 items-center justify-center gap-2.5 border-b px-2.5 py-2.5">
               <Combobox
@@ -513,17 +547,22 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                 <IoClose className="size-8" />
               </button>
             </div>
-            <div className={`no-scrollbar col-span-1 flex w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pl-2.5 ${selectedUser ? 'max-h-[calc(100vh-100px)]' : 'h-screen'}`}>
+            <div
+              className={`no-scrollbar col-span-1 flex w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pl-2.5 ${selectedUser ? "max-h-[calc(100vh-100px)]" : "h-screen"}`}
+            >
               <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
                 <div className="mb-2.5 flex w-full items-center justify-between border-b pb-2.5">
                   <h1 className="text-left font-semibold text-primary">
                     Client Details
                   </h1>
-                  {!selectedUser ?
-                    <CustomButton name='Add New' handleClick={() => setOpenCustomerModal(true)} />
-
-                    :
-                    <FaRegEdit className="h-5 w-5 text-gray-500" />}
+                  {!selectedUser ? (
+                    <CustomButton
+                      name="Add New"
+                      handleClick={() => setOpenCustomerModal(true)}
+                    />
+                  ) : (
+                    <FaRegEdit className="h-5 w-5 text-gray-500" />
+                  )}
                 </div>
                 <AutoComplete setSelectedUser={setSelectedUser} />
               </div>
@@ -542,7 +581,8 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                         />
                         <div className="flex flex-col items-center justify-center space-y-1">
                           <span className="w-full text-left text-xs text-gray-500">
-                            {selectedUser.firstname}&nbsp;{selectedUser.lastname}
+                            {selectedUser.firstname}&nbsp;
+                            {selectedUser.lastname}
                           </span>
                           <span className="w-full text-left text-xs text-gray-500">
                             {selectedUser.phone}
@@ -572,7 +612,10 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                       <h1 className="text-left font-semibold text-primary">
                         Address Details
                       </h1>
-                      <FiPlus onClick={handleAddAddress} className="h-5 w-5 text-gray-500 cursor-pointer" />
+                      <FiPlus
+                        onClick={handleAddAddress}
+                        className="h-5 w-5 cursor-pointer text-gray-500"
+                      />
                     </div>
                     <div className="mt-2.5 grid w-full grid-cols-2 gap-2.5 text-gray-500">
                       {addresses?.length !== 0 &&
@@ -600,7 +643,12 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                                 >
                                   <GoShareAndroid />
                                 </button>
-                                <FaRegEdit />
+                                <button
+                                  type="button"
+                                  onClick={() => handleEditClick(address)}
+                                >
+                                  <FaRegEdit />
+                                </button>
                               </div>
                             </div>
                             <span className="w-full overflow-hidden truncate text-left text-xs">
@@ -617,7 +665,10 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                       <h1 className="text-left font-semibold text-primary">
                         Medical Details
                       </h1>
-                      <FiPlus onClick={handleMedicalDetails} className="h-5 w-5 text-gray-500 cursor-pointer" />
+                      <FiPlus
+                        onClick={handleMedicalDetails}
+                        className="h-5 w-5 cursor-pointer text-gray-500"
+                      />
                     </div>
                     {selectedUser.is_allergy !== "0" && (
                       <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
@@ -646,7 +697,9 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                     )}
                     {selectedUser.is_medical_conition !== "0" && (
                       <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5 text-xs text-gray-500">
-                        <span className="text-primary">Medical Conditions:</span>
+                        <span className="text-primary">
+                          Medical Conditions:
+                        </span>
                         <span>
                           {selectedUser.medical_condition_description
                             .split(",")
@@ -660,7 +713,10 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                       <h1 className="text-left font-semibold text-primary">
                         Family Members
                       </h1>
-                      <FiPlus className="h-5 w-5 text-gray-500 cursor-pointer" onClick={handleFamilymembers} />
+                      <FiPlus
+                        className="h-5 w-5 cursor-pointer text-gray-500"
+                        onClick={handleFamilymembers}
+                      />
                     </div>
                     <div className="grid w-full grid-cols-5 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
                       <div className="col-span-1 w-full">Name</div>
@@ -694,11 +750,23 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                             {member.relationship}
                           </div>
                           <div className="col-span-1 flex w-full items-center justify-between">
-                            <button className="rounded-md bg-primary px-1 py-0.5 text-[10px] text-white">
+                            <button
+                              className="rounded-md bg-primary px-1 py-0.5 text-[10px] text-white"
+                              onClick={() =>
+                                handleEditFamilymemberClick(member)
+                              }
+                            >
                               Edit
                             </button>
-                            <button onClick={() => handleSelectFamily(member?.family_member_id)} className={`rounded-md px-1 py-0.5 text-[10px] text-white ${selectedFamily === member?.family_member_id ? 'bg-red-500' : 'bg-primary'}`}>
-                              {selectedFamily === member?.family_member_id ? 'Remove' : 'Book'}
+                            <button
+                              onClick={() =>
+                                handleSelectFamily(member?.family_member_id)
+                              }
+                              className={`rounded-md px-1 py-0.5 text-[10px] text-white ${selectedFamily === member?.family_member_id ? "bg-red-500" : "bg-primary"}`}
+                            >
+                              {selectedFamily === member?.family_member_id
+                                ? "Remove"
+                                : "Book"}
                             </button>
                           </div>
                         </div>
@@ -709,7 +777,10 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                       <h1 className="text-left font-semibold text-primary">
                         Attachments
                       </h1>
-                      <FiPlus onClick={() => setOpenUploadAttachment(true)} className="h-5 w-5 text-gray-500 cursor-pointer" />
+                      <FiPlus
+                        onClick={() => setOpenUploadAttachment(true)}
+                        className="h-5 w-5 cursor-pointer text-gray-500"
+                      />
                     </div>
                     {attachments?.length !== 0 &&
                       attachments?.map((attachment) => (
@@ -742,13 +813,16 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                 </>
               )}
             </div>
-            <div className="no-scrollbar col-span-1 flex max-h-[calc(100vh-100px)]  w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pr-2.5">
+            <div className="no-scrollbar col-span-1 flex max-h-[calc(100vh-100px)] w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pr-2.5">
               <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
                 <div className="flex w-full items-center justify-between border-b pb-2.5">
                   <h1 className="text-left font-semibold text-primary">
                     Booking Details
                   </h1>
-                  <button onClick={() => setHistory(true)} className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
+                  <button
+                    onClick={() => setHistory(true)}
+                    className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
+                  >
                     Booking History
                   </button>
                 </div>
@@ -759,7 +833,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                     isCustomerSelected={!!selectedUser?.customer_id}
                   />
                 </div>
-                {selectedServices?.length ?
+                {selectedServices?.length ? (
                   <>
                     <div className="grid w-full grid-cols-9 gap-2.5 p-2.5 text-xs text-primary">
                       <div className="col-span-1 w-full" />
@@ -783,7 +857,9 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                       >
                         <button
                           type="button"
-                          onClick={() => removeSelectedService(service.service_id)}
+                          onClick={() =>
+                            removeSelectedService(service.service_id)
+                          }
                         >
                           <IoClose className="h-5 w-5" />
                         </button>
@@ -812,22 +888,39 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                         />
                         <div className="col-span-1 flex w-full items-center justify-end">
                           {service?.qty
-                            ? Math.round(parseFloat(service.total || service.price_without_vat) * service!.qty)
-                            : Math.round(parseFloat(service.total || service.price_without_vat))}
+                            ? Math.round(
+                                parseFloat(
+                                  service.total || service.price_without_vat
+                                ) * service!.qty
+                              )
+                            : Math.round(
+                                parseFloat(
+                                  service.total || service.price_without_vat
+                                )
+                              )}
                         </div>
-                        <div onClick={() => handleEditService(service?.service_id)} className="col-span-1 flex w-full items-center justify-end cursor-pointer"><FaRegEdit /></div>
+                        <div
+                          onClick={() => handleEditService(service?.service_id)}
+                          className="col-span-1 flex w-full cursor-pointer items-center justify-end"
+                        >
+                          <FaRegEdit />
+                        </div>
                       </div>
                     ))}
                     <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5">
                       <div className="flex w-full items-center justify-end space-x-40 pr-2.5 text-xs text-gray-500">
                         <p>Subtotal</p>
-                        <p>{calculateBookingCost(selectedServices!).subtotal}</p>
+                        <p>
+                          {calculateBookingCost(selectedServices!).subtotal}
+                        </p>
                       </div>
                       <div className="flex w-full items-center justify-end space-x-7 text-xs text-gray-500">
                         <p>Discount</p>
                         <div className="flex h-[38px] items-center justify-center space-x-2.5 overflow-hidden rounded-lg border p-2.5">
                           <div
-                            onClick={() => setDiscount({ ...discount, type: "aed" })}
+                            onClick={() =>
+                              setDiscount({ ...discount, type: "aed" })
+                            }
                             className="size-3 cursor-pointer rounded-full border border-gray-400 p-px"
                           >
                             <div
@@ -865,7 +958,9 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                       </div>
                       <div className="flex w-full items-center justify-end space-x-36 pr-2.5 text-xs text-gray-500">
                         <p>VAT</p>
-                        <p>{calculateBookingCost(selectedServices!).total_vat}</p>
+                        <p>
+                          {calculateBookingCost(selectedServices!).total_vat}
+                        </p>
                       </div>
                       <div className="w-72 place-self-end border border-gray-300" />
                       <div className="flex w-full items-center justify-end space-x-[105px] pr-2.5 font-bold text-gray-500">
@@ -876,10 +971,10 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                         </p>
                       </div>
                     </div>
-                  </> : null
-                }
+                  </>
+                ) : null}
               </div>
-              {selectedServices?.length ?
+              {selectedServices?.length ? (
                 <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
                   <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
                     <h1 className="w-full text-left font-semibold text-primary">
@@ -899,17 +994,19 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                     </h1>
                     <div className="grid w-full grid-cols-2 gap-2.5">
                       <div className="-mt-1">
-                        <label className="w-full text-left text-xs text-grey100 font-medium mb-0.5">
+                        <label className="mb-0.5 w-full text-left text-xs font-medium text-grey100">
                           Select Date
                         </label>
                         <CustomDatePicker
                           date={scheduleDate}
                           setDate={setScheduleDate}
-                          toggleClassName='-right-20'
+                          toggleClassName="-right-20"
                           toggleButton={
                             <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-2 text-xs font-medium">
                               <p>{dayjs(scheduleDate).format("DD MMM YYYY")}</p>
-                              <div><IoCalendarOutline className="h-5 w-5 text-grey100" /></div>
+                              <div>
+                                <IoCalendarOutline className="h-5 w-5 text-grey100" />
+                              </div>
                             </div>
                           }
                         />
@@ -918,7 +1015,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                         value={scheduleTime}
                         options={timeSlots}
                         handleSelect={(value) => setScheduleTime(value)}
-                        label='Select Time'
+                        label="Select Time"
                         placeholder="Select Time"
                         mainClassName="w-full"
                         toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey"
@@ -1011,17 +1108,56 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
                       "Confirm Booking"
                     )}
                   </button>
-                </div> : null}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
-        <AddAddressModal customerId={selectedUser?.customer_id} userId={user!.id} open={openAddressModal} setOpen={setOpenAddressModal} getAddresses={getAddresses} />
-        <AddCustomerModal customerId={selectedUser?.customer_id} userId={user!.id} open={openCustomerModal} setOpen={setOpenCustomerModal} />
-        <AddFamilyMemberModal customerId={selectedUser?.customer_id} userId={user!.id} open={openFamilyMemberModal} setOpen={setOpenFamilyMemberModal} getFamily={getFamily} />
-        <AddMedicalDetailModal customerId={selectedUser?.customer_id} userId={user!.id} open={openMedicalDetailsModal} setOpen={setOpenMedicalDetailsModal} />
-        <EditServiceModal selectedService={selectedServices?.find(item => item.service_id === selectedService)} setSelectedService={handleSetSelectedService} open={openEditServiceModal} setOpen={setOpenEditServiceModal} />
-        <UploadAttachmentModal customerId={selectedUser?.customer_id} userId={user!.id} open={openUploadAttachment} setOpen={setOpenUploadAttachment} getAttachments={getAttachments} />
-
+        <AddAddressModal
+          customerId={selectedUser?.customer_id}
+          userId={user!.id}
+          open={openAddressModal}
+          setOpen={setOpenAddressModal}
+          getAddresses={getAddresses}
+          editMode={editMode}
+          editableAddressId={editableAddressId}
+        />
+        <AddCustomerModal
+          customerId={selectedUser?.customer_id}
+          userId={user!.id}
+          open={openCustomerModal}
+          setOpen={setOpenCustomerModal}
+        />
+        <AddFamilyMemberModal
+          customerId={selectedUser?.customer_id}
+          userId={user!.id}
+          open={openFamilyMemberModal}
+          setOpen={setOpenFamilyMemberModal}
+          getFamily={getFamily}
+          editMode={editMode}
+          editableFamilyMember={editableFamilyMember}
+        />
+        <AddMedicalDetailModal
+          customerId={selectedUser?.customer_id}
+          userId={user!.id}
+          open={openMedicalDetailsModal}
+          setOpen={setOpenMedicalDetailsModal}
+        />
+        <EditServiceModal
+          selectedService={selectedServices?.find(
+            (item) => item.service_id === selectedService
+          )}
+          setSelectedService={handleSetSelectedService}
+          open={openEditServiceModal}
+          setOpen={setOpenEditServiceModal}
+        />
+        <UploadAttachmentModal
+          customerId={selectedUser?.customer_id}
+          userId={user!.id}
+          open={openUploadAttachment}
+          setOpen={setOpenUploadAttachment}
+          getAttachments={getAttachments}
+        />
       </Modal>
     </>
   );
