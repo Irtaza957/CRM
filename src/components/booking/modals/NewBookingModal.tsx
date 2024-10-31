@@ -444,7 +444,6 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
       setSelectedUser({
         customer_id: bookingDetailData?.customer?.id || '',
         branch_id: bookingDetailData?.branch_id || '',
-        // customer_source_id: 'bookingDetailData?.customer?.customer_source_id';
         partner_id: bookingDetailData?.partner_id || '',
         firstname: bookingDetailData?.customer?.firstname || '',
         lastname: bookingDetailData?.customer?.lastname || '',
@@ -462,6 +461,13 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
         special_notes: bookingDetailData?.customer?.special_notes || '',
         active: bookingDetailData?.status
       })
+      // const temp=bookingDetailData?.services?.map(item=>{return {}})
+      // setSelectedServices(bookingDetailData?.services)
+      setDiscount({
+        type: 'aed',
+        value: Number(bookingDetailData?.discount_value)
+      })
+      // calculateBookingCost()
     }
   },[bookingDetailData])
 
