@@ -48,7 +48,7 @@ declare type CustomInputProps = {
   type?: string;
   placeholder: string;
   value?: string | number | null;
-  setter?: React.Dispatch<React.SetStateAction<string | number | null>>;
+  setter?: React.Dispatch<React.SetStateAction>;
   className?: string;
   label: string;
   register?: UseFormRegister<FormDataProps>;
@@ -124,7 +124,7 @@ declare type UserProps = {
 declare type GlobalStateProps = {
   user: UserProps | null;
   sidebar: boolean;
-  date: string;
+  date: Date;
 };
 
 declare type ServiceProps = {

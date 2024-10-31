@@ -16,8 +16,8 @@ interface AddBusinessModalProps {
 }
 
 const AddBusiness = ({ open, setOpen }: AddBusinessModalProps) => {
-  const [code, setCode] = useState("");
-  const [name, setName] = useState("");
+  const [code, setCode] = useState<string | number | null>("");
+  const [name, setName] = useState<string | number | null>("");
   const [description, setDescription] = useState("");
   const [createBusiness, { isLoading }] = usePostBusinessMutation();
   const { user } = useSelector((state: RootState) => state.global);
@@ -30,8 +30,8 @@ const AddBusiness = ({ open, setOpen }: AddBusinessModalProps) => {
 
   const handleCategorySubmit = async () => {
     const formData = new FormData();
-    formData.append("code", code);
-    formData.append("name", name);
+    formData.append("code", code as string);
+    formData.append("name", name as string);
     formData.append("user_id", `${user?.id}`);
     formData.append("description", description);
 

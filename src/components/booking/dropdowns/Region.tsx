@@ -25,7 +25,7 @@ const RegionDropdown = ({
   const [toggle, setToggle] = useState(false);
   const [area, setArea] = useState<string>("");
   const ComboboxRef = useRef<HTMLDivElement>(null);
-  const [emirate, setEmirate] = useState<string>("");
+  // const [emirate, setEmirate] = useState<string>("");
   useOnClickOutside(ComboboxRef, () => setToggle(false));
 
   return (
@@ -88,7 +88,7 @@ const RegionDropdown = ({
                     key={a.id}
                     onClick={() => {
                       setArea(`${a.id}`);
-                      setEmirate(`${emirate.id}`);
+                      // setEmirate(`${emirate.id}`);
                       setToggle(false);
                     }}
                     className="flex w-full cursor-pointer items-center justify-start gap-2.5 p-2.5 hover:bg-primary/20"

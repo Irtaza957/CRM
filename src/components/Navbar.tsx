@@ -18,7 +18,7 @@ const Navbar = () => {
   const { user, date } = useSelector((state: RootState) => state.global);
   const dispatch = useDispatch();
 
-  const handleSetDate = (date: string) => {
+  const handleSetDate = (date: string | Date) => {
     dispatch(setDate(date));
   };
 
