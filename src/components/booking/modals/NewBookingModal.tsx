@@ -13,6 +13,7 @@ import {
   useCreateBookingMutation,
   useFetchCategoriesMutation,
   useFetchBookingDetailsQuery,
+  useDeleteAttachmentMutation,
 } from "../../../store/services/booking";
 import {
   useFetchCustomerFamilyMutation,
@@ -138,8 +139,8 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
   });
   const [payment, setPayment] = useState("cod");
   const [editMode, setEditMode] = useState(false);
-  const [editableAddressId, setEditableAddressId] = useState<string>("");
-  const [editableFamilyMember, setEditableFamilyMember] = useState<string>("");
+  const [editableAddressId, setEditableAddressId] = useState<AddressProps | null>(null);
+  const [editableFamilyMember, setEditableFamilyMember] = useState<FamilyProps | null>(null);
   const [scheduleTime, setScheduleTime] = useState<ListOptionProps | null>(
     null
   );
@@ -181,6 +182,7 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
     skip: !selectedBooking,
     refetchOnMountOrArgChange: true,
   });
+  const [deleteAttachment] = useDeleteAttachmentMutation();
 
   const dispatch = useDispatch();
 
@@ -420,17 +422,30 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
     setProfession(value);
   };
 
-  const handleEditClick = (address) => {
+  const handleEditClick = (address: AddressProps) => {
     setEditMode(true);
     setEditableAddressId(address);
     setOpenAddressModal(true);
   };
 
-  const handleEditFamilymemberClick = (member) => {
+  const handleEditFamilymemberClick = (member: FamilyProps) => {
     setEditMode(true);
     setEditableFamilyMember(member);
     setOpenFamilyMemberModal(true);
   };
+
+  const handleDeleteAttachment = async (attachment: AttachmentProps) => {
+    try {
+      const formData=new FormData()
+      formData.append("file_name", attachment?.file_name)
+      formData.append("file_type", attachment?.file_type)
+      formData.append("attachment_id", attachment?.attachment_id)
+      await deleteAttachment(formData)
+      await getAttachments(attachment?.customer_id || '')
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   useEffect(() => {
     if (bookingsData) {
@@ -468,7 +483,6 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
 
   useEffect(()=>{
     if(bookingDetailData?.booking_id){
-      console.log(bookingDetailData, 'bookingDetailDatabookingDetailData')
       setSelectedUser({
         customer_id: bookingDetailData?.customer?.id || '',
         branch_id: bookingDetailData?.branch_id || '',
@@ -510,6 +524,7 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
       setScheduleTime({id: bookingDetailData?.schedule_slot, name: bookingDetailData?.schedule_slot})
       setPayment(bookingDetailData?.payment_method_code)
       setAddress(Number(bookingDetailData?.address_id))
+      setAttachments(bookingDetailData?.attachments)
     }
   },[bookingDetailData])
 
@@ -863,7 +878,7 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
                           </span>
                           <div className="flex items-center justify-end space-x-3 text-gray-500">
                             <FiDownload className="h-6 w-6 cursor-pointer" />
-                            <FaRegTrashAlt className="h-6 w-6" />
+                            <FaRegTrashAlt onClick={()=>handleDeleteAttachment(attachment)}  className="h-6 w-6" />
                           </div>
                         </div>
                       ))}

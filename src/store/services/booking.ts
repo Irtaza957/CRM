@@ -97,6 +97,13 @@ export const bookingApi = api.injectEndpoints({
         body: data,
       }),
     }),
+    deleteAttachment: build.mutation({
+      query: (data) => ({
+        url: "/customer/delete_attachment",
+        method: "POST",
+        body: data,
+      }),
+    }),
     addCustomer: build.mutation({
       query: (data) => ({
         url: "/customer",
@@ -132,6 +139,7 @@ export const {
   useAddAddressMutation,
   useAddFamilyMutation,
   useUploadAttachmentMutation,
+  useDeleteAttachmentMutation,
   useAddCustomerMutation,
   useFetchBookingHistoryMutation
 } = bookingApi;

@@ -371,7 +371,7 @@ declare type FamilyProps = {
 
 declare type AttachmentProps = {
   attachment_id: string;
-  customer_id: string;
+  customer_id?: string;
   file_name: string;
   file_type: string;
   user_id: string;
