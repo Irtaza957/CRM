@@ -306,19 +306,19 @@ declare type BookingDetailProps = {
 
 declare type CustomerProps = {
   customer_id: string;
-  mrn: string;
+  mrn?: string;
   branch_id: string;
-  customer_source_id: string;
+  customer_source_id?: string;
   partner_id: string;
   firstname: string;
   lastname: string;
   phone: string;
   email: string;
-  image: string | null;
-  password: string;
+  image?: string | null;
+  password?: string;
   date_of_birth: string;
   gender: string;
-  nationality_id: string;
+  nationality_id?: string;
   is_allergy: string;
   allergy_description: string;
   is_medication: string;
@@ -326,13 +326,13 @@ declare type CustomerProps = {
   is_medical_conition: string;
   medical_condition_description: string;
   special_notes: string;
-  last_otp: string;
-  last_otp_expiry: string;
+  last_otp?: string;
+  last_otp_expiry?: string;
   active: string;
-  ip: string;
-  user_id: string;
-  created_at: string;
-  last_updated: string;
+  ip?: string;
+  user_id?: string;
+  created_at?: string;
+  last_updated?: string;
   nationality: string;
 };
 

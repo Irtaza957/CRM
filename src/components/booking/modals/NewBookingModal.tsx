@@ -12,6 +12,7 @@ import {
   useFetchBookingsQuery,
   useCreateBookingMutation,
   useFetchCategoriesMutation,
+  useFetchBookingDetailsQuery,
 } from "../../../store/services/booking";
 import {
   useFetchCustomerFamilyMutation,
@@ -59,6 +60,12 @@ import AddMedicalDetailModal from "./AddMedicalDetailModal";
 import EditServiceModal from "./EditServiceModal";
 import UploadAttachmentModal from "./UploadAttachmentModal";
 import { useFetchUsersByRolesQuery } from "../../../store/services/filters";
+
+interface NewBookingModal{
+  selectedBooking?: string | null;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
 const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   return (
@@ -116,7 +123,7 @@ const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
   );
 };
 
-const NewBookingModal = ({ open, setOpen }: ModalProps) => {
+const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) => {
   const [address, setAddress] = useState(1);
   const [timeline, setTimeline] = useState<Record<
     string,
@@ -163,6 +170,10 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
 
   const [fetchCategories] = useFetchCategoriesMutation();
   const { data: professions } = useFetchUsersByRolesQuery({});
+  const { data: bookingDetailData } = useFetchBookingDetailsQuery(selectedBooking, {
+    skip: !selectedBooking,
+    refetchOnMountOrArgChange: true,
+  });
 
   const dispatch = useDispatch()
 
@@ -426,6 +437,33 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
       setProfesionsData(data)
       }
   },[professions])
+
+  useEffect(()=>{
+    if(bookingDetailData?.booking_id){
+      console.log(bookingDetailData, 'bookingDetailDatabookingDetailData')
+      setSelectedUser({
+        customer_id: bookingDetailData?.customer?.id || '',
+        branch_id: bookingDetailData?.branch_id || '',
+        // customer_source_id: 'bookingDetailData?.customer?.customer_source_id';
+        partner_id: bookingDetailData?.partner_id || '',
+        firstname: bookingDetailData?.customer?.firstname || '',
+        lastname: bookingDetailData?.customer?.lastname || '',
+        phone: bookingDetailData?.customer?.phone || '',
+        email: bookingDetailData?.customer?.email || '',
+        date_of_birth: bookingDetailData?.customer?.date_of_birth || '',
+        gender: bookingDetailData?.customer?.gender || '',
+        nationality: bookingDetailData?.customer?.nationality || '',
+        is_allergy: bookingDetailData?.customer?.is_allergy || '',
+        allergy_description: bookingDetailData?.customer?.allergy_description || '',
+        is_medication: bookingDetailData?.customer?.is_medication || '',
+        medication_description: bookingDetailData?.customer?.medication_description || '',
+        is_medical_conition: bookingDetailData?.customer?.is_medical_conition || '',
+        medical_condition_description: bookingDetailData?.customer?.medical_condition_description || '',
+        special_notes: bookingDetailData?.customer?.special_notes || '',
+        active: bookingDetailData?.status
+      })
+    }
+  },[bookingDetailData])
 
   return (
     <>

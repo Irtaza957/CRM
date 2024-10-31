@@ -17,6 +17,7 @@ import SmallUpDownArrow from "../../assets/icons/small-updown-arrow.svg";
 import PhoneColored from "../../assets/icons/colored/colored-phone-square.svg";
 import ViewBookingModal from "../../components/booking/modals/ViewBookingModal";
 import WhatsappColored from "../../assets/icons/colored/colored-whatsapp-square.svg";
+import NewBookingModal from "./modals/NewBookingModal";
 
 const columns = [
   {
@@ -81,14 +82,22 @@ const Table = () => {
     id: 2,
     name: "10",
   });
+  const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+
   const { date } = useSelector((state: RootState) => state.global);
   const { data, isLoading } = useFetchBookingsQuery(
     dayjs(date).format("YYYY-MM-DD")
   );
 
+  const handleEditBooking=(id: string)=>{
+    setOpen(true)
+    setSelectedBooking(id)
+  }
   return (
     <>
       <ViewBookingModal id={id} open={update} setOpen={setUpdate} />
+      <NewBookingModal selectedBooking={selectedBooking || ""} open={open} setOpen={setOpen} />
       <div className="mt-5 h-[calc(100vh-385px)] w-full lg:h-[calc(100vh-275px)] xl:h-[calc(100vh-220px)]">
         <div className="h-full w-full overflow-hidden rounded-t-lg border">
           <div className="no-scrollbar h-full overflow-y-scroll">
@@ -345,6 +354,7 @@ const Table = () => {
                               src={Edit}
                               alt="icon"
                               className="size-[18px]"
+                              onClick={()=>handleEditBooking(booking?.booking_id)}
                             />
                           </div>
                         </td>

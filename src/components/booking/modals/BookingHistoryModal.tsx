@@ -85,7 +85,7 @@ const BookingHistoryModal = ({ customerId, open, setOpen }: BookingHistoryModalP
             </div>
           </div>
         </div>
-        <div className="grid w-full grid-cols-9 gap-5 p-5">
+        <div className="grid w-full grid-cols-8 gap-5 p-5">
           <p className="w-full text-left text-xs font-semibold text-primary">
             Ref. #
           </p>
@@ -116,7 +116,7 @@ const BookingHistoryModal = ({ customerId, open, setOpen }: BookingHistoryModalP
             <div
             key={idx}
             className={cn(
-              "grid w-full grid-cols-9 gap-5 p-5 text-xs text-[#656565]",
+              "grid w-full grid-cols-8 gap-5 p-5 text-xs text-[#656565]",
               {
                 "bg-gray-100": idx % 2 === 0,
               }
