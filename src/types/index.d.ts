@@ -593,3 +593,16 @@ declare type DiscountType = {
   total?: number;
   newPrice?: number
 };
+
+declare type HistoryType={
+booking_id: string;
+booking_status: string;
+created_at: string;
+created_by: string;
+customer: string;
+family_member_id: string;
+schedule_date: string;
+schedule_slot: string;
+source: string;
+total: string;
+}

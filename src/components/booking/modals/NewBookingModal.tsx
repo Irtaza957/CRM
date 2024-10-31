@@ -429,7 +429,7 @@ const NewBookingModal = ({ open, setOpen }: ModalProps) => {
 
   return (
     <>
-      <BookingHistoryModal open={history} setOpen={setHistory} />
+      <BookingHistoryModal customerId={selectedUser?.customer_id} open={history} setOpen={setHistory} />
       <Modal
         open={open}
         setOpen={setOpen}
