@@ -16,7 +16,7 @@ import { LuLoader2 } from "react-icons/lu";
 import { TiArrowSortedDown } from "react-icons/ti";
 
 const CancelBookingModal = ({ id, open, setOpen }: ModalProps) => {
-  const [other, setOther] = useState("");
+  const [other, setOther] = useState<string | number | null>("");
   const { data: reasons } = useFetchCancellationReasonsQuery({});
   const { user } = useSelector((state: RootState) => state.global);
   const [cancelBooking, { isLoading }] = useCancelBookingMutation();
@@ -25,7 +25,7 @@ const CancelBookingModal = ({ id, open, setOpen }: ModalProps) => {
   const handleCancel = async () => {
     const urlencoded = new URLSearchParams();
     if (reason?.name === "Other") {
-      urlencoded.append("reason", other);
+      urlencoded.append("reason", other as string);
     } else {
       urlencoded.append("reason", reason!.name);
     }

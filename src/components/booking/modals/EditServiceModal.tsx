@@ -16,7 +16,7 @@ const EditServiceModal = ({ open, selectedService, setSelectedService, setOpen }
         type: "aed",
         value: 0,
     });
-    const [newPrice, setNewPrice]=useState<number | null>(null)
+    const [newPrice, setNewPrice]=useState<number | string | null>(null)
 
     const calculateDiscount = () => {
         if (isNaN(discount.value)) {
@@ -34,7 +34,7 @@ const EditServiceModal = ({ open, selectedService, setSelectedService, setOpen }
     }
 
     const handleSave = () => {
-        setSelectedService({...discount, total: calculateDiscount(), newPrice: newPrice || 0 })
+        setSelectedService({...discount, total: calculateDiscount(), newPrice: Number(newPrice) || 0 })
         setDiscount({
             type: "aed",
             value: 0,

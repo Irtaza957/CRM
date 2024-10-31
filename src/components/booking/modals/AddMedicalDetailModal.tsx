@@ -21,9 +21,9 @@ const AddMedicalDetailModal = ({
   const [addAddress, { isLoading }] = useAddAddressMutation();
   //   const [fetchAddresses] = useFetchCustomerAddressesMutation();
 
-  const { register, setValue, reset, handleSubmit } = useForm();
+  const { register, reset, handleSubmit } = useForm();
 
-  const handleSave = async (data) => {
+  const handleSave = async () => {
     try {
       if (customerId && userId) {
         const urlencoded = new URLSearchParams();

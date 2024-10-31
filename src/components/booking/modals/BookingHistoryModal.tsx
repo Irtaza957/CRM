@@ -1,10 +1,26 @@
 import Modal from "../../ui/Modal";
 import { cn } from "../../../utils/helpers";
-import MenuDots from "../../../assets/icons/menu-dots.svg";
-
 import { IoClose } from "react-icons/io5";
+import { useEffect } from "react";
+import { useFetchBookingHistoryMutation } from "../../../store/services/booking";
 
-const BookingHistoryModal = ({ open, setOpen }: ModalProps) => {
+interface BookingHistoryModalProps{
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  customerId?: string
+}
+
+const BookingHistoryModal = ({ customerId, open, setOpen }: BookingHistoryModalProps ) => {
+  const [fetchBookingHistory, {data: historyData}] = useFetchBookingHistoryMutation();
+
+  const getHistory=async()=>{
+    if(customerId){
+      await fetchBookingHistory(customerId)
+    }
+  }
+  useEffect(()=>{
+    getHistory()
+  },[customerId])
   return (
     <Modal 
       open={open}
@@ -94,57 +110,51 @@ const BookingHistoryModal = ({ open, setOpen }: ModalProps) => {
           <p className="w-full text-right text-xs font-semibold text-primary">
             Created By
           </p>
-          <p className="w-full text-right text-xs font-semibold text-primary">
-            Actions
-          </p>
         </div>
         <div className="flex max-h-[600px] w-full flex-col items-start justify-start overflow-auto">
-          {[...Array(15)].map((_, idx) => (
+          {historyData?.data?.map((history: HistoryType, idx: number)=>(
             <div
-              key={idx}
-              className={cn(
-                "grid w-full grid-cols-9 gap-5 p-5 text-xs text-[#656565]",
-                {
-                  "bg-gray-100": idx % 2 === 0,
-                }
-              )}
-            >
-              <p className="w-full text-left text-xs">5745</p>
-              <div className="flex w-full items-start justify-center">
-                <span className="flex-1 text-left text-xs">DOC</span>
-                <div className="size-4 rounded-full bg-[#009AE2]"></div>
-              </div>
-              <p className="w-full text-left text-xs">Son</p>
-              <div className="flex w-full flex-col items-start justify-start">
-                <span className="w-full overflow-hidden truncate text-left">
-                  05/10/23
-                </span>
-                <span className="w-full overflow-hidden truncate text-left">
-                  16:45
-                </span>
-              </div>
-              <p className="w-full text-left text-xs">AED 1000</p>
-              <div className="flex w-full flex-col items-center justify-center">
-                <span className="w-full overflow-hidden truncate text-left">
-                  Ahmed Ali
-                </span>
-                <span className="w-full overflow-hidden truncate text-left">
-                  Sandeep Dev
-                </span>
-                <span className="w-full overflow-hidden truncate text-left">
-                  Ali Muhammad
-                </span>
-              </div>
-              <div className="flex w-full items-start justify-start">
-                <span className="rounded-full bg-[#31B86A] px-2 py-px text-white">
-                  Completed
-                </span>
-              </div>
-              <p className="w-full text-right text-xs">Praveen</p>
-              <div className="flex w-full items-start justify-end">
-                <img src={MenuDots} alt="menu-icon" />
-              </div>
+            key={idx}
+            className={cn(
+              "grid w-full grid-cols-9 gap-5 p-5 text-xs text-[#656565]",
+              {
+                "bg-gray-100": idx % 2 === 0,
+              }
+            )}
+          >
+            <p className="w-full text-left text-xs">{history?.booking_id}</p>
+            <div className="flex w-full items-start justify-center">
+              <span className="flex-1 text-left text-xs">DOC</span>
+              <div className="size-4 rounded-full bg-[#009AE2]"></div>
             </div>
+            <p className="w-full text-left text-xs">{history?.customer}</p>
+            <div className="flex w-full flex-col items-start justify-start">
+              <span className="w-full overflow-hidden truncate text-left">
+                {history?.schedule_date}
+              </span>
+              <span className="w-full overflow-hidden truncate text-left">
+                {history?.schedule_slot}
+              </span>
+            </div>
+            <p className="w-full text-left text-xs">AED {history?.total}</p>
+            <div className="flex w-full flex-col items-center justify-center">
+              <span className="w-full overflow-hidden truncate text-left">
+                Ahmed Ali
+              </span>
+              <span className="w-full overflow-hidden truncate text-left">
+                Sandeep Dev
+              </span>
+              <span className="w-full overflow-hidden truncate text-left">
+                Ali Muhammad
+              </span>
+            </div>
+            <div className="flex w-full items-start justify-start">
+              <span className="rounded-full bg-[#31B86A] px-2 py-px text-white">
+                {history?.booking_status}
+              </span>
+            </div>
+            <p className="w-full text-right text-xs">{history?.created_by}</p>
+          </div>
           ))}
         </div>
       </div>

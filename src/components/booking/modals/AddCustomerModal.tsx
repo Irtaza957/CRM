@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Modal from "../../ui/Modal";
 import CustomInput from "../../ui/CustomInput";
 import Combobox from "../../ui/Combobox";
@@ -27,7 +27,6 @@ const options = [
 
 const AddCustomerModal = ({
   open,
-  customerId,
   userId,
   setOpen,
 }: AddCustomerModalProps) => {

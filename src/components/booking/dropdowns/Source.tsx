@@ -24,7 +24,7 @@ const SourceDropdown = ({
   const [idToggle, setIdToggle] = useState(1);
   const [toggle, setToggle] = useState(false);
   const ComboboxRef = useRef<HTMLDivElement>(null);
-  const [source, setSource] = useState<string>("");
+  // const [source, setSource] = useState<string>("");
   const [channel, setChannel] = useState<string>("");
   useOnClickOutside(ComboboxRef, () => setToggle(false));
 
@@ -88,7 +88,7 @@ const SourceDropdown = ({
                     key={a.id}
                     onClick={() => {
                       setChannel(`${a.id}`);
-                      setSource(`${source.id}`);
+                      // setSource(`${source.id}`);
                       setToggle(false);
                     }}
                     className="flex w-full cursor-pointer items-center justify-start gap-2.5 p-2.5 hover:bg-primary/20"

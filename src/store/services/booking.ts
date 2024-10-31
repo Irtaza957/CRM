@@ -113,6 +113,12 @@ export const bookingApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
+    fetchBookingHistory: build.mutation({
+      query: (customerId) => ({
+        url: `/booking/history?customer_id=${customerId}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -127,4 +133,5 @@ export const {
   useAddFamilyMutation,
   useUploadAttachmentMutation,
   useAddCustomerMutation,
+  useFetchBookingHistoryMutation
 } = bookingApi;

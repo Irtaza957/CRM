@@ -92,7 +92,7 @@ const UploadAttachmentModal = ({ open, customerId, userId, setOpen, getAttachmen
         setFiles(files.filter((file) => file.id !== id));
     };
 
-    const setFileType = (type: string, id: number, fileId: number) => {
+    const setFileType = (type: string, fileId: number) => {
         const updatedFiles = files.map(item =>
             item.id === fileId ? { ...item, name: type } : item
         );
@@ -181,7 +181,7 @@ const UploadAttachmentModal = ({ open, customerId, userId, setOpen, getAttachmen
                                 <Combobox
                                     value={{ name: file.name, id: file.id }}
                                     options={fileTypes}
-                                    handleSelect={(value) => setFileType(value.name, value.id, file.id)}
+                                    handleSelect={(value) => setFileType(value.name, file.id)}
                                     placeholder="Enter Document Type"
                                     mainClassName="w-full"
                                     toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"

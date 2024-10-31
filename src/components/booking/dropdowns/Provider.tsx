@@ -18,7 +18,6 @@ interface ComboboxProps {
 
 const ProviderDropdown = ({
   icon,
-  provider,
   setProvider,
   listClassName,
   mainClassName,
