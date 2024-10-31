@@ -1,5 +1,5 @@
 declare type ListOptionProps = {
-  id: number;
+  id: number | string;
   name: string;
   color?: string;
 };
@@ -129,23 +129,23 @@ declare type GlobalStateProps = {
 
 declare type ServiceProps = {
   service_id: string;
-  code: string;
-  thumbnail: string;
+  code?: string;
+  thumbnail?: string;
   service_name: string;
-  parent_id: string;
-  category_name: string;
-  category_code: string;
-  duration: string;
-  response_time: string;
-  description: string;
-  cost_price: string;
-  price_with_vat: string;
-  price_without_vat: string;
-  vat_value: string;
-  supplier: string | null;
-  providor: string;
-  sort_order: string;
-  active: string;
+  parent_id?: string;
+  category_name?: string;
+  category_code?: string;
+  duration?: string;
+  response_time?: string;
+  description?: string;
+  cost_price?: string;
+  price_with_vat?: string;
+  price_without_vat?: string;
+  vat_value?: string;
+  supplier?: string | null;
+  providor?: string;
+  sort_order?: string;
+  active?: string;
   qty?: number;
   discount: string;
   discount_value: string;

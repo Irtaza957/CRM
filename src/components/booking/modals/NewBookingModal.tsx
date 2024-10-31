@@ -230,8 +230,8 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
     const totals = services.reduce(
       (acc, service) => {
         const priceWithoutVAT =
-          parseFloat(service.total || service.price_without_vat) * service.qty!;
-        const vatValue = parseFloat(service.vat_value) * service.qty!;
+          parseFloat(service.total || service?.price_without_vat || "0") * service.qty!;
+        const vatValue = parseFloat(service.vat_value || "0") * service.qty!;
 
         acc.subtotal += priceWithoutVAT;
         acc.total_vat += vatValue;
@@ -489,13 +489,27 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
         special_notes: bookingDetailData?.customer?.special_notes || '',
         active: bookingDetailData?.status
       })
-      // const temp=bookingDetailData?.services?.map(item=>{return {}})
-      // setSelectedServices(bookingDetailData?.services)
+      const temp: ServiceProps[]=bookingDetailData?.services?.map(item=>{
+        return {
+          service_id: item?.service_id,
+          service_name: item?.service_name,
+          qty: Number(item?.quantity),
+          discount: item?.discount,
+          discount_value: item?.discount_value,
+          discount_type: item?.discount_type,
+          total: item?.total,
+          new_price: item?.new_price,        
+        }})
+      setSelectedServices(temp)
       setDiscount({
         type: 'aed',
         value: Number(bookingDetailData?.discount_value)
       })
-      // calculateBookingCost()
+      setDeliveryNotes(bookingDetailData?.delivery_notes)
+      setScheduleDate(bookingDetailData?.schedule_date)
+      setScheduleTime({id: bookingDetailData?.schedule_slot, name: bookingDetailData?.schedule_slot})
+      setPayment(bookingDetailData?.payment_method_code)
+      setAddress(Number(bookingDetailData?.address_id))
     }
   },[bookingDetailData])
 
@@ -934,12 +948,12 @@ const NewBookingModal = ({ selectedBooking, open, setOpen }: NewBookingModal) =>
                           {service?.qty
                             ? Math.round(
                                 parseFloat(
-                                  service.total || service.price_without_vat
+                                  service.total || service.price_without_vat || "0"
                                 ) * service!.qty
                               )
                             : Math.round(
                                 parseFloat(
-                                  service.total || service.price_without_vat
+                                  service.total || service.price_without_vat || "0"
                                 )
                               )}
                         </div>
