@@ -768,7 +768,7 @@ const NewBookingModal = ({
                       <h1 className="text-left font-semibold text-primary">
                         Medical Details
                       </h1>
-                      <FiPlus
+                      <FaRegEdit
                         onClick={handleMedicalDetails}
                         className="h-5 w-5 cursor-pointer text-gray-500"
                       />
@@ -1250,8 +1250,8 @@ const NewBookingModal = ({
           editableFamilyMember={editableFamilyMember}
         />
         <AddMedicalDetailModal
-          customerId={selectedUser?.customer_id}
-          userId={user!.id}
+          selectedUser={selectedUser!}
+          setSelectedUser={setSelectedUser}
           open={openMedicalDetailsModal}
           setOpen={setOpenMedicalDetailsModal}
         />

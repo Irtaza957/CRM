@@ -34,6 +34,7 @@ const genderOptions = [
 const AddCustomerModal = ({
   open,
   userId,
+  customerId,
   setOpen,
   editMode,
   userData,
@@ -159,8 +160,10 @@ const AddCustomerModal = ({
         urlencoded.append("special_notes", "abc");
 
         if (editMode) {
-          urlencoded.append("user_id", userData?.user_id);
-          await updateCustomer(urlencoded);
+          if(customerId){
+            urlencoded.append("customer_id", customerId);
+            await updateCustomer(urlencoded);
+          }
         } else {
           await addCustomer(urlencoded);
         }
