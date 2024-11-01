@@ -53,6 +53,7 @@ declare type CustomInputProps = {
   label: string;
   register?: UseFormRegister<FormDataProps>;
   name?: string,
+  errorMsg?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>>,
   disabled?: boolean
 };
 

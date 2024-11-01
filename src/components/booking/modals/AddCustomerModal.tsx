@@ -43,7 +43,7 @@ const AddCustomerModal = ({
   const [source, setSource] = useState<ListOptionProps | null>(null);
   const [nationality, setNationality] = useState<ListOptionProps | null>(null);
   const [dateOfBirth, setDateOfBirth] = useState<Date | string>(new Date());
-  const { register, setValue, reset, handleSubmit, watch } = useForm();
+  const { register, setValue, reset, handleSubmit, watch, formState: { errors } } = useForm();
 
   const [addCustomer, { isLoading }] = useAddCustomerMutation();
   const [updateCustomer] = useUpdateCustomerMutation();
@@ -131,26 +131,26 @@ const AddCustomerModal = ({
         urlencoded.append("gender", data?.gender);
         urlencoded.append("nationality", data?.nationality);
         urlencoded.append("is_allergy", data?.is_allergy === "yes" ? "1" : "0");
-          urlencoded.append(
-            "allergy_description",
-            data?.allergy_description || ""
-          );
+        urlencoded.append(
+          "allergy_description",
+          data?.allergy_description || ""
+        );
         urlencoded.append(
           "is_medication",
           data?.is_medication === "yes" ? "1" : "0"
         );
-          urlencoded.append(
-            "medication_description",
-            data?.medication_description || ""
-          );
+        urlencoded.append(
+          "medication_description",
+          data?.medication_description || ""
+        );
         urlencoded.append(
           "is_medical_conition",
           data?.is_medical_condition === "yes" ? "1" : "0"
         );
-          urlencoded.append(
-            "medical_condition_description",
-            data?.medical_condition_description || ""
-          );
+        urlencoded.append(
+          "medical_condition_description",
+          data?.medical_condition_description || ""
+        );
         urlencoded.append("special_notes", "abc");
 
         let response
@@ -276,20 +276,23 @@ const AddCustomerModal = ({
               />
             </div>
           </div>
-          <div className="my-4 flex w-full items-center justify-center gap-5">
+          <div className="my-4 flex w-full items-baseline justify-center gap-5">
             <CustomInput
               name="phone"
               label="Mobile No."
               placeholder="Mobile No."
               register={register}
             />
-            <CustomInput
-              name="email"
-              label="Email"
-              placeholder="Email"
-              type="text"
-              register={register}
-            />
+            <div className='w-full flex flex-col'>
+              <CustomInput
+                name="email"
+                label="Email"
+                placeholder="Email"
+                type="email"
+                register={register}
+                errorMsg={errors?.email?.message}
+              />
+            </div>
             <div className="flex w-full items-center justify-center gap-2">
               <Combobox
                 value={gender}
