@@ -13,6 +13,7 @@ import { useForm } from "react-hook-form";
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
 import { emirates } from "../../../utils/constants";
+import Map from "../../../assets/icons/map.svg";
 
 interface AddAddressModalProps {
   open: boolean;
@@ -246,7 +247,7 @@ const AddAddressModal = ({
                 register={register}
               />
             </div>
-            <div className="w-full">
+            <div className="w-full flex items-center gap-2">
               <CustomInput
                 label="Map Link"
                 placeholder="Map Link"
@@ -254,6 +255,10 @@ const AddAddressModal = ({
                 type="text"
                 register={register}
               />
+              <div className="flex items-center gap-3 bg-primary rounded-md px-6 py-2 text-white mt-5 cursor-pointer">
+                <p>Map</p>
+                <img src={Map} alt=''/>
+              </div>
             </div>
           </div>
           <div className="mt-7 flex w-full justify-end gap-3">

@@ -40,6 +40,7 @@ const AddFamilyMemberModal = ({
 }: AddAddressModalProps) => {
   const [date, setDate] = useState<string | Date>(dayjs().toDate());
   const [gender, setGender] = useState<ListOptionProps | null>(null);
+  const [relationship, setRelationship] = useState<ListOptionProps | null>(null);
 
   const { register, setValue, reset, handleSubmit, watch } = useForm();
   const isAllergy = watch("allergies");
@@ -51,7 +52,10 @@ const AddFamilyMemberModal = ({
 
   const handleSelectGender = (value: ListOptionProps) => {
     setGender(value);
-    setValue("gender", value.name);
+  };
+
+  const handleSelectRelationship = (value: ListOptionProps) => {
+    setRelationship(value);
   };
 
   const resetState = () => {
@@ -70,6 +74,7 @@ const AddFamilyMemberModal = ({
     });
     setDate(dayjs().toDate())
     setGender(null)
+    setRelationship(null)
   }
 
   const handleSave = async (data: any) => {
@@ -78,11 +83,11 @@ const AddFamilyMemberModal = ({
         const urlencoded = new URLSearchParams();
         urlencoded.append("user_id", String(userId));
         urlencoded.append("customer_id", customerId);
-        urlencoded.append("relationship", data?.relation);
+        urlencoded.append("relationship", relationship?.name || '');
         urlencoded.append("firstname", data?.first_name);
         urlencoded.append("lastname", data?.last_name);
         urlencoded.append("date_of_birth", data?.date_of_birth);
-        urlencoded.append("gender", data?.gender);
+        urlencoded.append("gender", gender?.name || '');
         urlencoded.append("is_allergy", data?.allergies === "yes" ? "1" : "0");
         urlencoded.append("allergy_description", data?.allergiesDesc);
         urlencoded.append("is_medication", data?.medications === "yes" ? "1" : "0");
@@ -120,8 +125,6 @@ const AddFamilyMemberModal = ({
               message={`Successfully ${editableFamilyMember?.family_member_id ? 'Updated':'Added'} Family Member!`}
             />
           ));
-          setDate(dayjs().toDate());
-          setGender(null);
           getFamily(customerId);
           closeModal();
         }
@@ -160,6 +163,11 @@ const AddFamilyMemberModal = ({
         null
       );
 
+      setRelationship(
+        options.find((option) => option.name === editableFamilyMember.relationship) ||
+        null
+      );
+
       // Radio buttons - convert to "yes"/"no" for the UI if needed
       setValue(
         "allergies",
@@ -184,11 +192,6 @@ const AddFamilyMemberModal = ({
         "medicalConditionDesc",
         editableFamilyMember.medical_condition_description || ""
       );
-    } else {
-      // Reset values when not in edit mode
-      resetState()
-      setDate(dayjs().toDate());
-      setGender(null);
     }
   }, [editableFamilyMember, reset, setValue]);
 
@@ -261,11 +264,18 @@ const AddFamilyMemberModal = ({
             </div>
           </div>
           <div className="my-4 flex w-[66%] items-center justify-center gap-5">
-            <CustomInput
-              name="relation"
+            <Combobox
+              value={relationship}
+              options={options}
+              handleSelect={handleSelectRelationship}
               label="Relationship"
-              placeholder="Select Relationship"
-              register={register}
+              placeholder="Relationship"
+              mainClassName="w-full"
+              toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+              listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+              icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+              isSearch={false}
             />
             <Combobox
               value={gender}

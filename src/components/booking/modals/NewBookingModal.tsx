@@ -931,12 +931,13 @@ const NewBookingModal = ({
                   <h1 className="text-left font-semibold text-primary">
                     Booking Details
                   </h1>
+                  {selectedUser &&
                   <button
                     onClick={() => setHistory(true)}
                     className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
                   >
                     Booking History
-                  </button>
+                  </button>}
                 </div>
                 <div className="relative w-full">
                   <ServiceAutoComplete
