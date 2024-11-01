@@ -6,11 +6,13 @@ import { RiArrowDownSLine } from "react-icons/ri";
 import CustomButton from "../../ui/CustomButton";
 import {
   useAddAddressMutation,
+  useFetchAreasQuery,
   useUpdateAddressMutation,
 } from "../../../store/services/booking";
 import { useForm } from "react-hook-form";
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
+import { emirates } from "../../../utils/constants";
 
 interface AddAddressModalProps {
   open: boolean;
@@ -22,12 +24,6 @@ interface AddAddressModalProps {
   editMode?: boolean;
 }
 
-const emiratesOption = [
-  { id: 1, name: "abc" },
-  { id: 2, name: "xyz" },
-  { id: 3, name: "asd" },
-];
-
 const AddAddressModal = ({
   open,
   customerId,
@@ -37,11 +33,15 @@ const AddAddressModal = ({
   editableAddressId,
   editMode,
 }: AddAddressModalProps) => {
-  const [emirate, setEmirate] = useState<any | null>(null);
-  const [villa, setVilla] = useState<any | null>(null);
+  const [emirate, setEmirate] = useState<ListOptionProps | null>(null);
+  const [villa, setVilla] = useState<ListOptionProps | null>(null);
 
   const [addAddress, { isLoading }] = useAddAddressMutation();
   const [updateAddress] = useUpdateAddressMutation();
+  const {data: areasDate} = useFetchAreasQuery(emirate?.id as string, {
+    skip: !emirate?.id,
+    refetchOnMountOrArgChange: true,
+  });
 
   const defaultValues = {
     address_type: "",
@@ -81,12 +81,13 @@ const AddAddressModal = ({
         setValue("extra_direction", editableAddressId.extra_direction);
 
         // Set Emirate and Area Combobox values
+        const emirateId=emirates?.find(item=>item.name===editableAddressId.emirate)?.id
         setEmirate({
-          id: editableAddressId.emirate,
+          id: Number(emirateId),
           name: editableAddressId.emirate,
         });
         setVilla({
-          id: editableAddressId.area_id,
+          id: Number(editableAddressId.area_id),
           name: editableAddressId.area,
         });
       } else {
@@ -170,7 +171,7 @@ const AddAddressModal = ({
             />
             <Combobox
               value={emirate}
-              options={emiratesOption}
+              options={emirates}
               handleSelect={handleSelectEmirate}
               label="Emirate"
               placeholder="Select Emirate"
@@ -183,7 +184,7 @@ const AddAddressModal = ({
             />
             <Combobox
               value={villa}
-              options={emiratesOption}
+              options={areasDate}
               handleSelect={handleSelectArea}
               label="Area"
               placeholder="Select Area"

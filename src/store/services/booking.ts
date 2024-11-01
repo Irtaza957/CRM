@@ -156,6 +156,46 @@ export const bookingApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
+    fetchNationality: build.query({
+      query: () => ({
+        url: "/customer/nationalities",
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: NationalityProps[];
+      }) => {
+        const formatted = response.data.map((item) => {
+          return {
+            id: parseInt(item.id),
+            name: item.nationality,
+          };
+        });
+
+        return formatted;
+      },
+    }),
+    fetchAreas: build.query({
+      query: (id: string) => ({
+        url: `/customer/areas?emirate_id=${id}`,
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: AreaProps[];
+      }) => {
+        const formatted = response.data.map((item) => {
+          return {
+            id: parseInt(item.area_id),
+            name: item.name,
+          };
+        });
+
+        return formatted;
+      },
+    }),
   }),
 });
 
@@ -175,4 +215,6 @@ export const {
   useUpdateAddressMutation,
   useUpdateFamilyMutation,
   useUpdateCustomerMutation,
+  useFetchNationalityQuery,
+  useFetchAreasQuery
 } = bookingApi;

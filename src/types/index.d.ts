@@ -557,6 +557,11 @@ declare type SourceProps = {
   source: string;
 };
 
+declare type NationalityProps = {
+  id: string;
+  nationality: string;
+};
+
 declare type ChannelProps = {
   channel_id: string;
   channel: string;

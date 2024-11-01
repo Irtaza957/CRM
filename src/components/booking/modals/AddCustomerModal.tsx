@@ -10,10 +10,12 @@ import { IoCalendarOutline } from "react-icons/io5";
 import dayjs from "dayjs";
 import {
   useAddCustomerMutation,
+  useFetchNationalityQuery,
   useUpdateCustomerMutation,
 } from "../../../store/services/booking";
 import { toast } from "sonner";
 import CustomToast from "../../ui/CustomToast";
+import { useFetchSourcesQuery } from "../../../store/services/filters";
 
 interface AddCustomerModalProps {
   open: boolean;
@@ -23,13 +25,6 @@ interface AddCustomerModalProps {
   editMode?: boolean;
   userData?: any;
 }
-
-const options = [
-  { id: 0, name: "Default Source" },
-  { id: 1, name: "abc" },
-  { id: 2, name: "xyz" },
-  { id: 3, name: "asd" },
-];
 
 const genderOptions = [
   { id: "Male", name: "Male" },
@@ -51,9 +46,17 @@ const AddCustomerModal = ({
 
   const [addCustomer, { isLoading }] = useAddCustomerMutation();
   const [updateCustomer] = useUpdateCustomerMutation();
+  const {data: sources}=useFetchSourcesQuery({}, {
+    skip: !open,
+    refetchOnMountOrArgChange: true,
+  })
+  const {data: nationalities}=useFetchNationalityQuery({}, {
+    skip: !open,
+    refetchOnMountOrArgChange: true,
+  })
 
-  console.log("............UD", editMode, userData);
   useEffect(() => {
+    console.log(editMode, userData, 'userDatauserData')
     if (editMode && userData) {
       setValue("firstname", userData.firstname);
       setValue("lastname", userData.lastname);
@@ -75,7 +78,7 @@ const AddCustomerModal = ({
       setDateOfBirth(dayjs(userData.date_of_birth).toDate());
 
       // Setting source and gender based on userData values
-      const matchedSource = options.find(
+      const matchedSource = sources?.find(
         (opt) => opt.id === parseInt(userData.customer_source_id)
       );
       setSource(matchedSource || null);
@@ -86,6 +89,7 @@ const AddCustomerModal = ({
       );
       setGender(matchedGender || null);
       setValue("gender", matchedGender ? matchedGender.id : "");
+      setValue("nationality", userData?.nationality || "");
 
       setNationality({
         id: userData.nationality_id,
@@ -250,7 +254,7 @@ const AddCustomerModal = ({
               </div>
               <Combobox
                 value={source}
-                options={options}
+                options={sources}
                 handleSelect={handleSelectSource}
                 label="Source"
                 placeholder="Select Source"
@@ -280,7 +284,7 @@ const AddCustomerModal = ({
             <div className="flex w-full items-center justify-center gap-2">
               <Combobox
                 value={gender}
-                options={options}
+                options={genderOptions}
                 handleSelect={handleSelectGender}
                 label="Gender"
                 placeholder="Gender"
@@ -293,7 +297,7 @@ const AddCustomerModal = ({
               />
               <Combobox
                 value={nationality}
-                options={options}
+                options={nationalities}
                 handleSelect={handleSelectNationality}
                 label="Nationality"
                 placeholder="Nationality"

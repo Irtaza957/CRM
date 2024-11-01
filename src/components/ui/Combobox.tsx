@@ -13,7 +13,7 @@ interface ComboboxProps {
   selectedIcon?: ReactNode;
   toggleClassName?: string;
   listItemClassName?: string;
-  options: ListOptionProps[];
+  options?: ListOptionProps[];
   value: ListOptionProps | null;
   defaultIconClassName?: string;
   searchInputClassName?: string;
@@ -110,7 +110,7 @@ const Combobox = ({
           )}
         />}
         {query ? (
-          options.filter((item) =>
+          options?.filter((item) =>
             item.name.toLowerCase().includes(query.toLowerCase())
           ).length === 0 ? (
             <p className="w-full py-1.5 text-center text-xs font-semibold">
@@ -118,7 +118,7 @@ const Combobox = ({
             </p>
           ) : (
             options
-              .filter((item) =>
+              ?.filter((item) =>
                 item.name.toLowerCase().includes(query.toLowerCase())
               )
               .map((item) => (
@@ -142,7 +142,7 @@ const Combobox = ({
               ))
           )
         ) : (
-          options.map((item) => (
+          options?.map((item) => (
             <p
               key={item.id}
               onClick={handleSelect ? ()=>handleToggle(item) : () => setValue?.(item)}
