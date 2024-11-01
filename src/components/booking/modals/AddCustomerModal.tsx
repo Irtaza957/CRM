@@ -131,32 +131,26 @@ const AddCustomerModal = ({
         urlencoded.append("gender", data?.gender);
         urlencoded.append("nationality", data?.nationality);
         urlencoded.append("is_allergy", data?.is_allergy === "yes" ? "1" : "0");
-        if (data?.is_allergy === "yes") {
           urlencoded.append(
             "allergy_description",
             data?.allergy_description || ""
           );
-        }
         urlencoded.append(
           "is_medication",
           data?.is_medication === "yes" ? "1" : "0"
         );
-        if (data?.is_medication === "yes") {
           urlencoded.append(
             "medication_description",
             data?.medication_description || ""
           );
-        }
         urlencoded.append(
           "is_medical_conition",
           data?.is_medical_condition === "yes" ? "1" : "0"
         );
-        if (data?.is_medical_condition === "yes") {
           urlencoded.append(
             "medical_condition_description",
             data?.medical_condition_description || ""
           );
-        }
         urlencoded.append("special_notes", "abc");
 
         let response

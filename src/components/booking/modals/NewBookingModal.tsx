@@ -466,6 +466,10 @@ const NewBookingModal = ({
     }
   };
 
+  const handleOpenAttachment=(url: string)=>{
+    window.open(`https://crm.fandcproperties.ae${url}`, '_blank')
+  }
+
   useEffect(() => {
     if (bookingsData) {
       const view = createTimelineView(bookingsData!);
@@ -558,7 +562,7 @@ const NewBookingModal = ({
   return (
     <>
       <BookingHistoryModal
-        customerId={selectedUser?.customer_id}
+        selectedUser={selectedUser}
         open={history}
         setOpen={setHistory}
       />
@@ -911,7 +915,7 @@ const NewBookingModal = ({
                             {dayjs(attachment.created_at).format("DD MMM YYYY")}
                           </span>
                           <div className="flex items-center justify-end space-x-3 text-gray-500">
-                            <FiDownload className="h-6 w-6 cursor-pointer" />
+                            <FiDownload onClick={() => handleOpenAttachment(attachment?.file_name)} className="h-6 w-6 cursor-pointer" />
                             <FaRegTrashAlt
                               onClick={() => handleDeleteAttachment(attachment)}
                               className="h-6 w-6"

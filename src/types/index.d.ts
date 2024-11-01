@@ -610,4 +610,9 @@ schedule_date: string;
 schedule_slot: string;
 source: string;
 total: string;
+reference?: string;
+amount?: string;
+status?: string;
+team?: {is_lead: string, name: string}[];
+categories?: {code: string, color_code: string}[];
 }

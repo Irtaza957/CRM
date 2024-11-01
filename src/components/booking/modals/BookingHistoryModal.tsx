@@ -4,31 +4,32 @@ import { IoClose } from "react-icons/io5";
 import { useEffect } from "react";
 import { useFetchBookingHistoryMutation } from "../../../store/services/booking";
 
-interface BookingHistoryModalProps{
+interface BookingHistoryModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  customerId?: string
+  selectedUser?: CustomerProps | null
 }
 
-const BookingHistoryModal = ({ customerId, open, setOpen }: BookingHistoryModalProps ) => {
-  const [fetchBookingHistory, {data: historyData}] = useFetchBookingHistoryMutation();
+const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModalProps) => {
+  const [fetchBookingHistory, { data: historyData }] = useFetchBookingHistoryMutation();
 
-  const getHistory=async()=>{
-    if(customerId){
-      await fetchBookingHistory(customerId)
+  const getHistory = async () => {
+    if (selectedUser?.customer_id) {
+      await fetchBookingHistory(selectedUser?.customer_id)
     }
   }
-  useEffect(()=>{
+  useEffect(() => {
     getHistory()
-  },[customerId])
+  }, [selectedUser])
+  
   return (
-    <Modal 
+    <Modal
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
       className="h-[90%] w-full max-w-[60%]"
     >
-        <div className="w-full h-full items-center justify-center overflow-hidden rounded-lg">
+      <div className="w-full h-full items-center justify-center overflow-hidden rounded-lg">
         <div className="flex w-full items-center justify-between overflow-hidden rounded-t-lg bg-primary px-5 py-2.5 text-white">
           <h1 className="text-xl font-medium">Booking History</h1>
           <IoClose
@@ -45,44 +46,44 @@ const BookingHistoryModal = ({ customerId, open, setOpen }: BookingHistoryModalP
             />
             <div className="flex flex-col items-center justify-center space-y-1">
               <span className="w-full text-left text-xs font-bold text-[#656565]">
-                Sandeep Dev
+                {selectedUser?.firstname} {selectedUser?.lastname}
               </span>
               <span className="w-full text-left text-xs text-[#656565]">
-                055 755 9446
+                {selectedUser?.phone}
               </span>
               <span className="w-full text-left text-xs text-[#656565]">
-                sandeep@gmail.com
+                {selectedUser?.email}
               </span>
             </div>
           </div>
           <div className="col-span-2 flex w-full flex-col items-center justify-between">
+            {selectedUser?.allergy_description &&
             <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
               <span className="text-xs font-semibold text-primary">
                 Allergies:
               </span>
               <span className="rounded-full bg-red-200 px-2 text-xs text-red-500">
-                Penicillin
+                {selectedUser?.allergy_description}
               </span>
-              <span className="rounded-full bg-red-200 px-2 text-xs text-red-500">
-                Aspirin
-              </span>
-            </div>
+            </div>}
+            {selectedUser?.medication_description &&
             <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
               <span className="text-xs font-semibold text-primary">
                 Medications:
               </span>
               <span className="text-xs text-[#656565]">
-                Lipitor 40mg, Concor 5mg, Panadol
+                {selectedUser?.medication_description}
               </span>
-            </div>
+            </div>}
+            {selectedUser?.medical_condition_description &&
             <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
               <span className="text-xs font-semibold text-primary">
                 Medical Conditions:
               </span>
               <span className="text-xs text-[#656565]">
-                Hypertension, Diabetes
+                {selectedUser?.medical_condition_description}
               </span>
-            </div>
+            </div>}
           </div>
         </div>
         <div className="grid w-full grid-cols-8 gap-5 p-5">
@@ -112,49 +113,53 @@ const BookingHistoryModal = ({ customerId, open, setOpen }: BookingHistoryModalP
           </p>
         </div>
         <div className="flex max-h-[600px] w-full flex-col items-start justify-start overflow-auto">
-          {historyData?.data?.map((history: HistoryType, idx: number)=>(
+          {historyData?.data?.map((history: HistoryType, idx: number) => (
             <div
-            key={idx}
-            className={cn(
-              "grid w-full grid-cols-8 gap-5 p-5 text-xs text-[#656565]",
-              {
-                "bg-gray-100": idx % 2 === 0,
-              }
-            )}
-          >
-            <p className="w-full text-left text-xs">{history?.booking_id}</p>
-            <div className="flex w-full items-start justify-center">
-              <span className="flex-1 text-left text-xs">DOC</span>
-              <div className="size-4 rounded-full bg-[#009AE2]"></div>
+              key={idx}
+              className={cn(
+                "grid w-full grid-cols-8 gap-5 p-5 text-xs text-[#656565]",
+                {
+                  "bg-gray-100": idx % 2 === 0,
+                }
+              )}
+            >
+              <p className="w-full text-left text-xs">{history?.reference}</p>
+              <div>
+              {history?.categories?.length ? history?.categories?.map(item=>(
+                <div className="flex w-full items-start justify-center mb-1">
+                  <span className="flex-1 text-left text-xs">{item?.code}</span>
+                  <div className={`size-4 rounded-full bg-[${item?.color_code}]`}></div>
+                </div>
+              )) : 'N/A'}
+              </div>
+              <p className="w-full text-left text-xs">{history?.customer}</p>
+              <div className="flex w-full flex-col items-start justify-start">
+                <span className="w-full overflow-hidden truncate text-left">
+                  {history?.schedule_date}
+                </span>
+                <span className="w-full overflow-hidden truncate text-left">
+                  {history?.schedule_slot}
+                </span>
+              </div>
+              <p className="w-full text-left text-xs">AED {history?.amount}</p>
+              <div className="flex w-full flex-col items-center justify-center">
+                {history?.team && history?.team?.length
+                  ? [...history?.team]
+                    .sort((a, b) => Number(b.is_lead) - Number(a.is_lead))
+                    .map((item, index) => (
+                      <span key={index} className="w-full overflow-hidden truncate text-left">
+                        {item.name}
+                      </span>
+                    ))
+                  : 'N/A'}
+              </div>
+              <div className="flex w-full items-start justify-start">
+                <span className="rounded-full bg-[#31B86A] px-2 py-px text-white">
+                  {history?.status}
+                </span>
+              </div>
+              <p className="w-full text-right text-xs">{history?.created_by || 'N/A'}</p>
             </div>
-            <p className="w-full text-left text-xs">{history?.customer}</p>
-            <div className="flex w-full flex-col items-start justify-start">
-              <span className="w-full overflow-hidden truncate text-left">
-                {history?.schedule_date}
-              </span>
-              <span className="w-full overflow-hidden truncate text-left">
-                {history?.schedule_slot}
-              </span>
-            </div>
-            <p className="w-full text-left text-xs">AED {history?.total}</p>
-            <div className="flex w-full flex-col items-center justify-center">
-              <span className="w-full overflow-hidden truncate text-left">
-                Ahmed Ali
-              </span>
-              <span className="w-full overflow-hidden truncate text-left">
-                Sandeep Dev
-              </span>
-              <span className="w-full overflow-hidden truncate text-left">
-                Ali Muhammad
-              </span>
-            </div>
-            <div className="flex w-full items-start justify-start">
-              <span className="rounded-full bg-[#31B86A] px-2 py-px text-white">
-                {history?.booking_status}
-              </span>
-            </div>
-            <p className="w-full text-right text-xs">{history?.created_by}</p>
-          </div>
           ))}
         </div>
       </div>
