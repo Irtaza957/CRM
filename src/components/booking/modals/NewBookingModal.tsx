@@ -282,9 +282,7 @@ const NewBookingModal = ({
   const postBooking = async () => {
     const urlencoded = new URLSearchParams();
     urlencoded.append("customer_id", selectedUser!.customer_id);
-    if(selectedFamily){
-      urlencoded.append("family_member_id", String(selectedFamily));
-    }
+    urlencoded.append("family_member_id", String(selectedFamily));
     urlencoded.append("address_id", String(address));
     urlencoded.append("booking_source_id", "1");
     urlencoded.append("partner_id", "1");
