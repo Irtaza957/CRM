@@ -476,7 +476,7 @@ const NewBookingModal = ({
   }, [bookingsData]);
 
   useEffect(() => {
-    if (data?.length) {
+    if (data) {
       setBookingsData(data);
     }
   }, [data]);
