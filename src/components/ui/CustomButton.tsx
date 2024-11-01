@@ -19,9 +19,8 @@ const CustomButton = ({
         <button
             onClick={handleClick}
             className={cn(
-                "rounded-md bg-primary px-6 py-2 text-xs text-white",
-                style
-            )}
+                `rounded-md bg-primary px-6 py-2 text-xs text-white ${disabled && 'opacity-50'}`,
+                style)}
             disabled={disabled}
         >
             {loading ?

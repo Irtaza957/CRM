@@ -224,7 +224,7 @@ const AddMedicalDetailModal = ({
             style="bg-danger"
           />
           <CustomButton
-            name="Save"
+            name="Update"
             handleClick={handleSubmit(handleSave)}
             loading={isLoading}
             disabled={isLoading}

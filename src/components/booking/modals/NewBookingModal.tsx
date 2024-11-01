@@ -129,7 +129,7 @@ const NewBookingModal = ({
   open,
   setOpen,
 }: NewBookingModal) => {
-  const [address, setAddress] = useState(1);
+  const [address, setAddress] = useState<number | null>(null);
   const [timeline, setTimeline] = useState<Record<
     string,
     BookingProps[]
@@ -282,8 +282,10 @@ const NewBookingModal = ({
   const postBooking = async () => {
     const urlencoded = new URLSearchParams();
     urlencoded.append("customer_id", selectedUser!.customer_id);
-    urlencoded.append("family_member_id", String(selectedFamily));
-    urlencoded.append("address_id", address.toString());
+    if(selectedFamily){
+      urlencoded.append("family_member_id", String(selectedFamily));
+    }
+    urlencoded.append("address_id", String(address));
     urlencoded.append("booking_source_id", "1");
     urlencoded.append("partner_id", "1");
     urlencoded.append("firstname", selectedUser!.firstname);
@@ -377,10 +379,12 @@ const NewBookingModal = ({
 
   const handleAddAddress = () => {
     setOpenAddressModal(!openAddressModal);
+    setEditableAddressId(null)
   };
 
   const handleFamilymembers = () => {
     setOpenFamilyMemberModal(!openFamilyMemberModal);
+    setEditableFamilyMember(null)
   };
 
   const handleMedicalDetails = () => {
@@ -1203,21 +1207,13 @@ const NewBookingModal = ({
                       </div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    disabled={creating}
-                    onClick={() => postBooking()}
-                    className="w-full rounded-lg bg-primary py-3 text-white"
-                  >
-                    {creating ? (
-                      <div className="flex w-full items-center justify-center gap-3">
-                        <LuLoader2 className="animate-spin" />
-                        <span>Please Wait...</span>
-                      </div>
-                    ) : (
-                      "Confirm Booking"
-                    )}
-                  </button>
+                  <CustomButton
+                    name='Confirm Booking'
+                    handleClick={postBooking}
+                    loading={creating}
+                    disabled={creating || !address || !scheduleTime}
+                    style='w-full py-3 mt-2'
+                  />
                 </div>
               ) : null}
             </div>
@@ -1229,7 +1225,6 @@ const NewBookingModal = ({
           open={openAddressModal}
           setOpen={setOpenAddressModal}
           getAddresses={getAddresses}
-          editMode={editMode}
           editableAddressId={editableAddressId}
         />
         <AddCustomerModal
@@ -1246,7 +1241,6 @@ const NewBookingModal = ({
           open={openFamilyMemberModal}
           setOpen={setOpenFamilyMemberModal}
           getFamily={getFamily}
-          editMode={editMode}
           editableFamilyMember={editableFamilyMember}
         />
         <AddMedicalDetailModal

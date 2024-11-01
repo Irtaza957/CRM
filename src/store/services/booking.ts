@@ -82,7 +82,7 @@ export const bookingApi = api.injectEndpoints({
     }),
     updateAddress: build.mutation({
       query: (data) => ({
-        url: "customer/address/update",
+        url: "customer/address",
         method: "POST",
         body: data,
         headers: {

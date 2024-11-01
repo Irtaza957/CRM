@@ -21,7 +21,6 @@ interface AddAddressModalProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   getAddresses: (agr0: string) => void;
   editableAddressId?: any;
-  editMode?: boolean;
 }
 
 const AddAddressModal = ({
@@ -31,14 +30,13 @@ const AddAddressModal = ({
   setOpen,
   getAddresses,
   editableAddressId,
-  editMode,
 }: AddAddressModalProps) => {
   const [emirate, setEmirate] = useState<ListOptionProps | null>(null);
   const [villa, setVilla] = useState<ListOptionProps | null>(null);
 
   const [addAddress, { isLoading }] = useAddAddressMutation();
   const [updateAddress] = useUpdateAddressMutation();
-  const {data: areasDate} = useFetchAreasQuery(emirate?.id as string, {
+  const { data: areasDate } = useFetchAreasQuery(emirate?.id as string, {
     skip: !emirate?.id,
     refetchOnMountOrArgChange: true,
   });
@@ -68,42 +66,24 @@ const AddAddressModal = ({
     setValue("area_id", value.id);
   };
 
-  useEffect(() => {
-    if (open) {
-      if (editMode && editableAddressId) {
-        setValue("address_type", editableAddressId.address_type);
-        setValue("emirate_id", editableAddressId.emirate);
-        setValue("area_id", editableAddressId.area_id);
-        setValue("building_no", editableAddressId.building_no);
-        setValue("apartment", editableAddressId.apartment);
-        setValue("street", editableAddressId.street);
-        setValue("map_link", editableAddressId.map_link);
-        setValue("extra_direction", editableAddressId.extra_direction);
-
-        // Set Emirate and Area Combobox values
-        const emirateId=emirates?.find(item=>item.name===editableAddressId.emirate)?.id
-        setEmirate({
-          id: Number(emirateId),
-          name: editableAddressId.emirate,
-        });
-        setVilla({
-          id: Number(editableAddressId.area_id),
-          name: editableAddressId.area,
-        });
-      } else {
-        reset(); // Clear form if not in edit mode
-        setEmirate(null); // Reset emirate dropdown value
-        setVilla(null); // Reset area dropdown value
-      }
-    }
-  }, [editMode, editableAddressId, open, setValue, reset]);
+  const resetState = () => {
+    reset({
+      'address_type': "",
+      'building_no': "",
+      'apartment': "",
+      'street': "",
+      'map_link': "",
+      'extra_direction': "",
+    });
+    setEmirate(null);
+    setVilla(null);
+  }
 
   const handleSave = async (data: any) => {
     try {
       if (customerId && userId) {
         const urlencoded = new URLSearchParams();
         urlencoded.append("user_id", String(userId));
-        urlencoded.append("customer_id", customerId);
         urlencoded.append("address_type", data?.address_type);
         urlencoded.append("area_id", data?.area_id);
         urlencoded.append("building_no", data?.building_no);
@@ -115,13 +95,13 @@ const AddAddressModal = ({
         urlencoded.append("lng", "0");
         urlencoded.append("is_default", "0");
 
-        if (editMode) {
+        if (editableAddressId?.address_id) {
           urlencoded.append("address_id", editableAddressId?.address_id);
           await updateAddress(urlencoded);
         } else {
+          urlencoded.append("customer_id", customerId);
           await addAddress(urlencoded);
         }
-        reset();
         getAddresses(customerId);
         toast.custom((t) => (
           <CustomToast
@@ -140,14 +120,40 @@ const AddAddressModal = ({
 
   const closeModal = () => {
     setOpen(false);
-
-    // Reset the form fields to their initial default values
-    reset(defaultValues);
-
-    // Reset the dropdown values
-    setEmirate(null);
-    setVilla(null);
+    resetState()
   };
+
+  useEffect(()=>{
+    if(!open){
+      resetState()
+    }
+  },[open])
+
+  useEffect(() => {
+    if (open) {
+      if (editableAddressId && editableAddressId?.address_id) {
+        setValue("address_type", editableAddressId.address_type);
+        setValue("emirate_id", editableAddressId.emirate);
+        setValue("area_id", editableAddressId.area_id);
+        setValue("building_no", editableAddressId.building_no);
+        setValue("apartment", editableAddressId.apartment);
+        setValue("street", editableAddressId.street);
+        setValue("map_link", editableAddressId.map_link);
+        setValue("extra_direction", editableAddressId.extra_direction);
+
+        // Set Emirate and Area Combobox values
+        const emirateId = emirates?.find(item => item.name === editableAddressId.emirate)?.id
+        setEmirate({
+          id: Number(emirateId),
+          name: editableAddressId.emirate,
+        });
+        setVilla({
+          id: Number(editableAddressId.area_id),
+          name: editableAddressId.area,
+        });
+      }
+    }
+  }, [editableAddressId, open, setValue]);
 
   return (
     <Modal
@@ -155,7 +161,7 @@ const AddAddressModal = ({
       setOpen={setOpen}
       mainClassName="!z-[99999]"
       className="w-[60%] max-w-[80%]"
-      title={editMode ? "Edit Address" : "Add Address"}
+      title={editableAddressId?.address_id ? "Edit Address" : "Add Address"}
     >
       <div className="w-full px-6 py-7">
         <p className="text-left text-[18px] font-bold text-primary">
@@ -245,7 +251,7 @@ const AddAddressModal = ({
               style="bg-danger"
             />
             <CustomButton
-              name={editMode ? "Update" : "Save"}
+              name={editableAddressId?.address_id ? "Update" : "Save"}
               handleClick={handleSubmit(handleSave)}
               loading={isLoading}
               disabled={isLoading}

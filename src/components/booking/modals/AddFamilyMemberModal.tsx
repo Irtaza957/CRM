@@ -21,7 +21,6 @@ interface AddAddressModalProps {
   userId?: number;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   getFamily: (agr0: string) => void;
-  editMode?: boolean;
   editableFamilyMember?: any;
 }
 
@@ -37,17 +36,100 @@ const AddFamilyMemberModal = ({
   userId,
   setOpen,
   getFamily,
-  editMode,
   editableFamilyMember,
 }: AddAddressModalProps) => {
   const [date, setDate] = useState<string | Date>(dayjs().toDate());
   const [gender, setGender] = useState<ListOptionProps | null>(null);
+
+  const { register, setValue, reset, handleSubmit, watch } = useForm();
+  const isAllergy = watch("allergies");
+  const isMedication = watch("medications");
+  const isMedicalCondition = watch("medicalConditions");
+
   const [addFamily, { isLoading }] = useAddFamilyMutation();
-  const { register, setValue, reset, handleSubmit } = useForm();
   const [updateFamily] = useUpdateFamilyMutation();
 
+  const handleSelectGender = (value: ListOptionProps) => {
+    setGender(value);
+    setValue("gender", value.name);
+  };
+
+  const resetState=()=>{
+    reset({
+      'allergiesDesc': '',
+      'date_of_birth': '',
+      'last_name':'',
+      'first_name':'',
+      'relation': '',
+      'gender': '',
+      "medicalConditionDesc": '',
+      "medicalConditions": '',
+      'medicationsDesc': '',
+      'medications': '',
+      'allergies': '',
+    });
+    setDate(dayjs().toDate())
+    setGender(null)
+  }
+
+  const handleSave = async (data: any) => {
+    try {
+      if (customerId && userId) {
+        const urlencoded = new URLSearchParams();
+        urlencoded.append("user_id", String(userId));
+        urlencoded.append("customer_id", customerId);
+        urlencoded.append("relationship", data?.relation);
+        urlencoded.append("firstname", data?.first_name);
+        urlencoded.append("lastname", data?.last_name);
+        urlencoded.append("date_of_birth", data?.date_of_birth);
+        urlencoded.append("gender", data?.gender);
+        urlencoded.append("is_allergy", data?.allergies=== "yes" ? "1" : "0");
+        urlencoded.append("allergy_description", data?.allergiesDesc);
+        urlencoded.append("is_medication", data?.medications=== "yes" ? "1" : "0");
+        urlencoded.append("medication_description", data?.medicationsDesc);
+        urlencoded.append("is_medical_condition", data?.medicalConditions=== "yes" ? "1" : "0");
+        urlencoded.append(
+          "medical_condition_description",
+          data?.medicalConditionDesc
+        );
+        if (editableFamilyMember?.family_member_id) {
+          urlencoded.append(
+            "family_member_id",
+            editableFamilyMember?.family_member_id
+          );
+          await updateFamily(urlencoded);
+        } else {
+          await addFamily(urlencoded);
+        }
+        setDate(dayjs().toDate());
+        setGender(null);
+        getFamily(customerId);
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="success"
+            title="Success"
+            message="Successfully Added Family Member!"
+          />
+        ));
+        closeModal();
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDate = (newDate: string | Date) => {
+    setDate(newDate);
+    setValue("date_of_birth", newDate);
+  };
+
+  const closeModal = () => {
+    setOpen(false);
+  };
+
   useEffect(() => {
-    if (editMode && editableFamilyMember) {
+    if (editableFamilyMember && editableFamilyMember?.family_member_id) {
       // Ensure values are properly mapped
       setValue("first_name", editableFamilyMember.firstname || "");
       setValue("last_name", editableFamilyMember.lastname || "");
@@ -92,74 +174,35 @@ const AddFamilyMemberModal = ({
       );
     } else {
       // Reset values when not in edit mode
-      reset();
+      resetState()
       setDate(dayjs().toDate());
       setGender(null);
     }
-  }, [editMode, editableFamilyMember, reset, setValue]);
+  }, [editableFamilyMember, reset, setValue]);
 
-  const handleSelectGender = (value: ListOptionProps) => {
-    setGender(value);
-    setValue("gender", value.name);
-  };
-
-  const handleSave = async (data: any) => {
-    try {
-      if (customerId && userId) {
-        const urlencoded = new URLSearchParams();
-        urlencoded.append("user_id", String(userId));
-        urlencoded.append("customer_id", customerId);
-        urlencoded.append("relationship", data?.relation);
-        urlencoded.append("firstname", data?.first_name);
-        urlencoded.append("lastname", data?.last_name);
-        urlencoded.append("date_of_birth", data?.date_of_birth);
-        urlencoded.append("gender", data?.gender);
-        urlencoded.append("is_allergy", data?.allergies);
-        urlencoded.append("allergy_description", data?.allergiesDesc);
-        urlencoded.append("is_medication", data?.medicalConditions);
-        urlencoded.append("medication_description", data?.medicalConditionDesc);
-        urlencoded.append("is_medical_condition", data?.medications);
-        urlencoded.append(
-          "medical_condition_description",
-          data?.medicationsDesc
-        );
-        console.log(urlencoded, "urlencodedurlencoded");
-        if (editMode) {
-          urlencoded.append(
-            "family_member_id",
-            editableFamilyMember?.family_member_id
-          );
-          await updateFamily(urlencoded);
-        } else {
-          await addFamily(urlencoded);
-        }
-        reset();
-        setDate(dayjs().toDate());
-        setGender(null);
-        getFamily(customerId);
-        toast.custom((t) => (
-          <CustomToast
-            t={t}
-            type="success"
-            title="Success"
-            message="Successfully Added Family Member!"
-          />
-        ));
-        closeModal();
-      }
-    } catch (error) {
-      console.log(error);
+  useEffect(()=>{
+    if(isAllergy==='no'){
+      setValue('allergiesDesc', '')
+    }else{
+      setValue('allergiesDesc', editableFamilyMember?.allergy_description)
     }
-  };
+    if(isMedication==='no'){
+      setValue('medicationsDesc', '')
+    }else{
+      setValue('medicationsDesc', editableFamilyMember?.medication_description)
+    }
+    if(isMedicalCondition==='no'){
+      setValue('medicalConditionDesc', '')
+    }else{
+      setValue('medicalConditionDesc', editableFamilyMember?.medical_condition_description)
+    }
+  },[isAllergy, isMedicalCondition, isMedication])
 
-  const handleDate = (newDate: string | Date) => {
-    setDate(newDate);
-    setValue("date_of_birth", newDate);
-  };
-
-  const closeModal = () => {
-    setOpen(false);
-  };
+  useEffect(()=>{
+    if(!open){
+      resetState()
+    }
+  },[open])
 
   return (
     <Modal
@@ -167,7 +210,7 @@ const AddFamilyMemberModal = ({
       setOpen={setOpen}
       mainClassName="!z-[99999]"
       className="max-h-[80%] w-[60%] max-w-[80%]"
-      title={editMode ? "Edit Family Member" : "Add Family Member"}
+      title={editableFamilyMember?.family_member_id ? "Edit Family Member" : "Add Family Member"}
     >
       <div className="w-full px-6 py-7">
         <p className="text-left text-[18px] font-bold text-primary">
@@ -251,6 +294,7 @@ const AddFamilyMemberModal = ({
               label=""
               placeholder="Please Specify"
               register={register}
+              disabled={!isAllergy || isAllergy === "no"}
             />
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
@@ -273,6 +317,7 @@ const AddFamilyMemberModal = ({
               label=""
               placeholder="Please Specify"
               register={register}
+              disabled={!isMedication || isMedication === "no"}
             />
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
@@ -284,7 +329,7 @@ const AddFamilyMemberModal = ({
               <input
                 type="radio"
                 value="yes"
-                {...register("medicalConditions:")}
+                {...register("medicalConditions")}
               />
               <span>Yes</span>
             </label>
@@ -304,6 +349,7 @@ const AddFamilyMemberModal = ({
               label=""
               placeholder="Please Specify"
               register={register}
+              disabled={!isMedicalCondition || isMedicalCondition === "no"}
             />
           </div>
           {/* end */}
@@ -314,7 +360,7 @@ const AddFamilyMemberModal = ({
               style="bg-danger"
             />
             <CustomButton
-              name={editMode ? "Update" : "Save"}
+              name={editableFamilyMember?.family_member_id ? "Update" : "Save"}
               handleClick={handleSubmit(handleSave)}
               loading={isLoading}
               disabled={isLoading}
