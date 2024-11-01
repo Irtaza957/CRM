@@ -557,6 +557,13 @@ const NewBookingModal = ({
     }
   }, [bookingDetailData]);
 
+  useEffect(()=>{
+    if(!open){
+      setSelectedUser(null)
+      setSelectedServices(null)
+    }
+  },[open])
+
   return (
     <>
       <BookingHistoryModal
