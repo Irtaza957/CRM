@@ -398,7 +398,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                 <div className="w-full max-h-[calc(100vh-100px)] overflow-auto">
                 <div className="flex w-full flex-col rounded-lg bg-white items-start justify-start space-y-2.5">
                     {/* Customer Attachments */}
-                    <div className="flex h-fit max-h-[200px] w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 pt-2.5">
+                    <div className="flex h-fit w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 pt-2.5">
                       <div className="flex w-full items-center justify-center border-b pb-2.5">
                         <h1 className="flex-1 text-left font-semibold text-primary">
                           Customer Attachments

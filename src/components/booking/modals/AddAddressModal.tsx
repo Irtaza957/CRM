@@ -95,23 +95,35 @@ const AddAddressModal = ({
         urlencoded.append("lng", "0");
         urlencoded.append("is_default", "0");
 
+        let response
         if (editableAddressId?.address_id) {
           urlencoded.append("address_id", editableAddressId?.address_id);
-          await updateAddress(urlencoded);
+          response = await updateAddress(urlencoded);
         } else {
           urlencoded.append("customer_id", customerId);
-          await addAddress(urlencoded);
+          response = await addAddress(urlencoded);
         }
-        getAddresses(customerId);
-        toast.custom((t) => (
-          <CustomToast
-            t={t}
-            type="success"
-            title="Success"
-            message="Successfully Added Address!"
-          />
-        ));
-        closeModal();
+        if(response?.error){
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="error"
+              title="Error"
+              message="Something Went Wrong"
+            />
+          ));
+        }else{
+          getAddresses(customerId);
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="success"
+              title="Success"
+              message={`Successfully ${editableAddressId?.address_id? 'Updated' : "Added"} Address!`}
+            />
+          ));
+          closeModal();
+        }
       }
     } catch (error) {
       console.log(error);

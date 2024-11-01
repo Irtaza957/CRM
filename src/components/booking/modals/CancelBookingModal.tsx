@@ -23,6 +23,16 @@ const CancelBookingModal = ({ id, open, setOpen }: ModalProps) => {
   const [reason, setReason] = useState<ListOptionProps | null>(null);
 
   const handleCancel = async () => {
+    if(!reason?.name){
+      toast.custom((t) => (
+        <CustomToast
+          t={t}
+          type="error"
+          title="error"
+          message="Please Select Reason!"
+        />
+      ));
+    }
     const urlencoded = new URLSearchParams();
     if (reason?.name === "Other") {
       urlencoded.append("reason", other as string);
@@ -33,10 +43,7 @@ const CancelBookingModal = ({ id, open, setOpen }: ModalProps) => {
     urlencoded.append("user_id", `${user?.id}`);
 
     try {
-      const data = await cancelBooking({
-        booking: urlencoded,
-        token: user?.token,
-      });
+      const data = await cancelBooking(urlencoded);
 
       if (data.error) {
         toast.custom((t) => (
@@ -57,6 +64,8 @@ const CancelBookingModal = ({ id, open, setOpen }: ModalProps) => {
           />
         ));
         setOpen(false);
+        setReason(null)
+        setOpen(false)
       }
     } catch (error) {
       toast.custom((t) => (

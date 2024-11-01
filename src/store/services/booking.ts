@@ -1,5 +1,5 @@
 import { api } from "./api";
-import { setUser } from "../slices/global";
+// import { setUser } from "../slices/global";
 
 export const bookingApi = api.injectEndpoints({
   endpoints: (build) => ({
@@ -30,14 +30,14 @@ export const bookingApi = api.injectEndpoints({
         method: "POST",
         body: data,
       }),
-      async onQueryStarted(_, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          dispatch(setUser(data.data));
-        } catch (error: any) {
-          throw new Error(error.message);
-        }
-      },
+      // async onQueryStarted(_, { dispatch, queryFulfilled }) {
+      //   try {
+      //     const { data } = await queryFulfilled;
+      //     dispatch(setUser(data.data));
+      //   } catch (error: any) {
+      //     throw new Error(error.message);
+      //   }
+      // },
     }),
     fetchBookingDetails: build.query({
       query: (id) => ({

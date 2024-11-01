@@ -47,11 +47,11 @@ const AddCustomerModal = ({
 
   const [addCustomer, { isLoading }] = useAddCustomerMutation();
   const [updateCustomer] = useUpdateCustomerMutation();
-  const {data: sources}=useFetchSourcesQuery({}, {
+  const { data: sources } = useFetchSourcesQuery({}, {
     skip: !open,
     refetchOnMountOrArgChange: true,
   })
-  const {data: nationalities}=useFetchNationalityQuery({}, {
+  const { data: nationalities } = useFetchNationalityQuery({}, {
     skip: !open,
     refetchOnMountOrArgChange: true,
   })
@@ -159,42 +159,54 @@ const AddCustomerModal = ({
         }
         urlencoded.append("special_notes", "abc");
 
+        let response
         if (editMode) {
-          if(customerId){
+          if (customerId) {
             urlencoded.append("customer_id", customerId);
-            await updateCustomer(urlencoded);
+            response = await updateCustomer(urlencoded);
           }
         } else {
-          await addCustomer(urlencoded);
+          response = await addCustomer(urlencoded);
         }
-        setNationality(null);
-        setDateOfBirth(new Date());
-        setSource(null);
-        setGender(null);
-        reset({
-          firstname: "",
-          lastname: "",
-          email: "",
-          phone: "",
-          medical_condition_description: "",
-          is_medical_condition: "",
-          medication_description: "",
-          allergy_description: "",
-          is_medication: "",
-          is_allergy: "",
-          nationality: "",
-          gender: "",
-          date_of_birth: "",
-        });
-        toast.custom((t) => (
-          <CustomToast
-            t={t}
-            type="success"
-            title="Success"
-            message="Successfully Added Customer!"
-          />
-        ));
-        closeModal();
+        if (response?.error) {
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="error"
+              title="Error"
+              message={`Something Went Wrong!`}
+            />
+          ));
+        } else {
+          setNationality(null);
+          setDateOfBirth(new Date());
+          setSource(null);
+          setGender(null);
+          reset({
+            firstname: "",
+            lastname: "",
+            email: "",
+            phone: "",
+            medical_condition_description: "",
+            is_medical_condition: "",
+            medication_description: "",
+            allergy_description: "",
+            is_medication: "",
+            is_allergy: "",
+            nationality: "",
+            gender: "",
+            date_of_birth: "",
+          });
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="success"
+              title="Success"
+              message={`Successfully ${editMode ? 'Updated' : 'Added'} Customer!`}
+            />
+          ));
+          closeModal();
+        }
       }
     } catch (error) {
       console.log(error);

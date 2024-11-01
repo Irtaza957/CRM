@@ -54,12 +54,12 @@ const AddFamilyMemberModal = ({
     setValue("gender", value.name);
   };
 
-  const resetState=()=>{
+  const resetState = () => {
     reset({
       'allergiesDesc': '',
       'date_of_birth': '',
-      'last_name':'',
-      'first_name':'',
+      'last_name': '',
+      'first_name': '',
       'relation': '',
       'gender': '',
       "medicalConditionDesc": '',
@@ -83,36 +83,48 @@ const AddFamilyMemberModal = ({
         urlencoded.append("lastname", data?.last_name);
         urlencoded.append("date_of_birth", data?.date_of_birth);
         urlencoded.append("gender", data?.gender);
-        urlencoded.append("is_allergy", data?.allergies=== "yes" ? "1" : "0");
+        urlencoded.append("is_allergy", data?.allergies === "yes" ? "1" : "0");
         urlencoded.append("allergy_description", data?.allergiesDesc);
-        urlencoded.append("is_medication", data?.medications=== "yes" ? "1" : "0");
+        urlencoded.append("is_medication", data?.medications === "yes" ? "1" : "0");
         urlencoded.append("medication_description", data?.medicationsDesc);
-        urlencoded.append("is_medical_condition", data?.medicalConditions=== "yes" ? "1" : "0");
+        urlencoded.append("is_medical_condition", data?.medicalConditions === "yes" ? "1" : "0");
         urlencoded.append(
           "medical_condition_description",
           data?.medicalConditionDesc
         );
+        let response
         if (editableFamilyMember?.family_member_id) {
           urlencoded.append(
             "family_member_id",
             editableFamilyMember?.family_member_id
           );
-          await updateFamily(urlencoded);
+          response = await updateFamily(urlencoded);
         } else {
-          await addFamily(urlencoded);
+          response = await addFamily(urlencoded);
         }
-        setDate(dayjs().toDate());
-        setGender(null);
-        getFamily(customerId);
-        toast.custom((t) => (
-          <CustomToast
-            t={t}
-            type="success"
-            title="Success"
-            message="Successfully Added Family Member!"
-          />
-        ));
-        closeModal();
+        if (response?.error) {
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="error"
+              title="Error"
+              message="Something Went Wrong!"
+            />
+          ));
+        } else {
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="success"
+              title="Success"
+              message={`Successfully ${editableFamilyMember?.family_member_id ? 'Updated':'Added'} Family Member!`}
+            />
+          ));
+          setDate(dayjs().toDate());
+          setGender(null);
+          getFamily(customerId);
+          closeModal();
+        }
       }
     } catch (error) {
       console.log(error);
@@ -145,7 +157,7 @@ const AddFamilyMemberModal = ({
       // Find the gender option matching the editable member's gender
       setGender(
         options.find((option) => option.name === editableFamilyMember.gender) ||
-          null
+        null
       );
 
       // Radio buttons - convert to "yes"/"no" for the UI if needed
@@ -180,29 +192,29 @@ const AddFamilyMemberModal = ({
     }
   }, [editableFamilyMember, reset, setValue]);
 
-  useEffect(()=>{
-    if(isAllergy==='no'){
+  useEffect(() => {
+    if (isAllergy === 'no') {
       setValue('allergiesDesc', '')
-    }else{
+    } else {
       setValue('allergiesDesc', editableFamilyMember?.allergy_description)
     }
-    if(isMedication==='no'){
+    if (isMedication === 'no') {
       setValue('medicationsDesc', '')
-    }else{
+    } else {
       setValue('medicationsDesc', editableFamilyMember?.medication_description)
     }
-    if(isMedicalCondition==='no'){
+    if (isMedicalCondition === 'no') {
       setValue('medicalConditionDesc', '')
-    }else{
+    } else {
       setValue('medicalConditionDesc', editableFamilyMember?.medical_condition_description)
     }
-  },[isAllergy, isMedicalCondition, isMedication])
+  }, [isAllergy, isMedicalCondition, isMedication])
 
-  useEffect(()=>{
-    if(!open){
+  useEffect(() => {
+    if (!open) {
       resetState()
     }
-  },[open])
+  }, [open])
 
   return (
     <Modal
