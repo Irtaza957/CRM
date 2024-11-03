@@ -43,21 +43,34 @@ const AddCustomerModal = ({
   const [source, setSource] = useState<ListOptionProps | null>(null);
   const [nationality, setNationality] = useState<ListOptionProps | null>(null);
   const [dateOfBirth, setDateOfBirth] = useState<Date | string>(new Date());
-  const { register, setValue, reset, handleSubmit, watch, formState: { errors } } = useForm();
+  const {
+    register,
+    setValue,
+    reset,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
 
   const [addCustomer, { isLoading }] = useAddCustomerMutation();
   const [updateCustomer] = useUpdateCustomerMutation();
-  const { data: sources } = useFetchSourcesQuery({}, {
-    skip: !open,
-    refetchOnMountOrArgChange: true,
-  })
-  const { data: nationalities } = useFetchNationalityQuery({}, {
-    skip: !open,
-    refetchOnMountOrArgChange: true,
-  })
+  const { data: sources } = useFetchSourcesQuery(
+    {},
+    {
+      skip: !open,
+      refetchOnMountOrArgChange: true,
+    }
+  );
+  const { data: nationalities } = useFetchNationalityQuery(
+    {},
+    {
+      skip: !open,
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   useEffect(() => {
-    console.log(editMode, userData, 'userDatauserData')
+    console.log(editMode, userData, "userDatauserData");
     if (editMode && userData) {
       setValue("firstname", userData.firstname);
       setValue("lastname", userData.lastname);
@@ -153,7 +166,7 @@ const AddCustomerModal = ({
         );
         urlencoded.append("special_notes", "abc");
 
-        let response
+        let response;
         if (editMode) {
           if (customerId) {
             urlencoded.append("customer_id", customerId);
@@ -196,7 +209,7 @@ const AddCustomerModal = ({
               t={t}
               type="success"
               title="Success"
-              message={`Successfully ${editMode ? 'Updated' : 'Added'} Customer!`}
+              message={`Successfully ${editMode ? "Updated" : "Added"} Customer!`}
             />
           ));
           closeModal();
@@ -222,7 +235,7 @@ const AddCustomerModal = ({
       className="w-[70%] max-w-[80%]"
       title={editMode ? "Edit Client" : "New Customer"}
     >
-      <div className="w-full px-6 py-7">
+      <div className="h-auto max-h-[450px] w-full overflow-y-scroll px-6 py-7">
         <p className="text-left text-[18px] font-bold text-primary">
           Personal Details
         </p>
@@ -283,7 +296,7 @@ const AddCustomerModal = ({
               placeholder="Mobile No."
               register={register}
             />
-            <div className='w-full flex flex-col'>
+            <div className="flex w-full flex-col">
               <CustomInput
                 name="email"
                 label="Email"
@@ -335,12 +348,22 @@ const AddCustomerModal = ({
             </p>
 
             <label className="flex items-center gap-2">
-              <input type="radio" value="yes" {...register("is_allergy")} />
+              <input
+                type="radio"
+                value="yes"
+                {...register("is_allergy")}
+                className="custom-radio"
+              />
               <span>Yes</span>
             </label>
 
             <label className="flex items-center gap-2">
-              <input type="radio" value="no" {...register("is_allergy")} />
+              <input
+                type="radio"
+                value="no"
+                {...register("is_allergy")}
+                className="custom-radio"
+              />
               <span>No</span>
             </label>
 
@@ -358,12 +381,22 @@ const AddCustomerModal = ({
             </p>
 
             <label className="flex items-center gap-2">
-              <input type="radio" value="yes" {...register("is_medication")} />
+              <input
+                type="radio"
+                value="yes"
+                {...register("is_medication")}
+                className="custom-radio"
+              />
               <span>Yes</span>
             </label>
 
             <label className="flex items-center gap-2">
-              <input type="radio" value="no" {...register("is_medication")} />
+              <input
+                type="radio"
+                value="no"
+                {...register("is_medication")}
+                className="custom-radio"
+              />
               <span>No</span>
             </label>
 
@@ -385,6 +418,7 @@ const AddCustomerModal = ({
                 type="radio"
                 value="yes"
                 {...register("is_medical_condition")}
+                className="custom-radio"
               />
               <span>Yes</span>
             </label>
@@ -394,6 +428,7 @@ const AddCustomerModal = ({
                 type="radio"
                 value="no"
                 {...register("is_medical_condition")}
+                className="custom-radio"
               />
               <span>No</span>
             </label>

@@ -61,6 +61,7 @@ import AddMedicalDetailModal from "./AddMedicalDetailModal";
 import EditServiceModal from "./EditServiceModal";
 import UploadAttachmentModal from "./UploadAttachmentModal";
 import { useFetchUsersByRolesQuery } from "../../../store/services/filters";
+import DeleteAttachmentModal from "./DeleteAttachmentModal";
 
 interface NewBookingModal {
   selectedBooking?: string | null;
@@ -181,6 +182,9 @@ const NewBookingModal = ({
   const [profesionsData, setProfesionsData] = useState<ListOptionProps[]>([]);
   const [bookingsData, setBookingsData] = useState<BookingProps[]>([]);
   const [history, setHistory] = useState(false);
+  const [openDeleteAttachmentModal, setOpenDeleteAttachmentModal] =
+    useState(false);
+  const [deleteAttachment, setDeleteAttachment] = useState({});
 
   const [fetchCategories] = useFetchCategoriesMutation();
   const { data: professions } = useFetchUsersByRolesQuery({});
@@ -191,7 +195,6 @@ const NewBookingModal = ({
       refetchOnMountOrArgChange: true,
     }
   );
-  const [deleteAttachment] = useDeleteAttachmentMutation();
 
   const dispatch = useDispatch();
 
@@ -377,12 +380,12 @@ const NewBookingModal = ({
 
   const handleAddAddress = () => {
     setOpenAddressModal(!openAddressModal);
-    setEditableAddressId(null)
+    setEditableAddressId(null);
   };
 
   const handleFamilymembers = () => {
     setOpenFamilyMemberModal(!openFamilyMemberModal);
-    setEditableFamilyMember(null)
+    setEditableFamilyMember(null);
   };
 
   const handleMedicalDetails = () => {
@@ -451,22 +454,9 @@ const NewBookingModal = ({
     setOpenCustomerModal(true);
   };
 
-  const handleDeleteAttachment = async (attachment: AttachmentProps) => {
-    try {
-      const formData = new FormData();
-      formData.append("file_name", attachment?.file_name);
-      formData.append("file_type", attachment?.file_type);
-      formData.append("attachment_id", attachment?.attachment_id);
-      await deleteAttachment(formData);
-      await getAttachments(attachment?.customer_id || "");
-    } catch (error) {
-      console.log(error);
-    }
+  const handleOpenAttachment = (url: string) => {
+    window.open(`https://crm.fandcproperties.ae${url}`, "_blank");
   };
-
-  const handleOpenAttachment=(url: string)=>{
-    window.open(`https://crm.fandcproperties.ae${url}`, '_blank')
-  }
 
   useEffect(() => {
     if (bookingsData) {
@@ -557,12 +547,12 @@ const NewBookingModal = ({
     }
   }, [bookingDetailData]);
 
-  useEffect(()=>{
-    if(!open){
-      setSelectedUser(null)
-      setSelectedServices(null)
+  useEffect(() => {
+    if (!open) {
+      setSelectedUser(null);
+      setSelectedServices(null);
     }
-  },[open])
+  }, [open]);
 
   return (
     <>
@@ -647,7 +637,9 @@ const NewBookingModal = ({
               </div>
             ) : (
               <div className="flex h-[827px] w-full items-center justify-center">
-                <LuLoader2 className="size-10 animate-spin text-secondary" />
+                {creating && (
+                  <LuLoader2 className="size-10 animate-spin text-secondary" />
+                )}
               </div>
             )}
           </div>
@@ -867,12 +859,12 @@ const NewBookingModal = ({
                           </div>
                           <div className="col-span-1 flex w-full items-center justify-between">
                             <button
-                              className="rounded-md bg-primary px-1 py-0.5 text-[10px] text-white"
+                              type="button"
                               onClick={() =>
                                 handleEditFamilymemberClick(member)
                               }
                             >
-                              Edit
+                              <FaRegEdit className="h-5 w-5" />
                             </button>
                             <button
                               onClick={() =>
@@ -920,10 +912,18 @@ const NewBookingModal = ({
                             {dayjs(attachment.created_at).format("DD MMM YYYY")}
                           </span>
                           <div className="flex items-center justify-end space-x-3 text-gray-500">
-                            <FiDownload onClick={() => handleOpenAttachment(attachment?.file_name)} className="h-6 w-6 cursor-pointer" />
+                            <FiDownload
+                              onClick={() =>
+                                handleOpenAttachment(attachment?.file_name)
+                              }
+                              className="h-6 w-6 cursor-pointer"
+                            />
                             <FaRegTrashAlt
-                              onClick={() => handleDeleteAttachment(attachment)}
-                              className="h-6 w-6"
+                              onClick={() => {
+                                setOpenDeleteAttachmentModal(true);
+                                setDeleteAttachment(attachment);
+                              }}
+                              className="h-6 w-6 cursor-pointer"
                             />
                           </div>
                         </div>
@@ -938,13 +938,14 @@ const NewBookingModal = ({
                   <h1 className="text-left font-semibold text-primary">
                     Booking Details
                   </h1>
-                  {selectedUser &&
-                  <button
-                    onClick={() => setHistory(true)}
-                    className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
-                  >
-                    Booking History
-                  </button>}
+                  {selectedUser && (
+                    <button
+                      onClick={() => setHistory(true)}
+                      className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
+                    >
+                      Booking History
+                    </button>
+                  )}
                 </div>
                 <div className="relative w-full">
                   <ServiceAutoComplete
@@ -1218,11 +1219,11 @@ const NewBookingModal = ({
                     </div>
                   </div>
                   <CustomButton
-                    name='Confirm Booking'
+                    name="Confirm Booking"
                     handleClick={postBooking}
                     loading={creating}
                     disabled={creating || !address || !scheduleTime}
-                    style='w-full py-3 mt-2'
+                    style="w-full py-3 mt-2"
                   />
                 </div>
               ) : null}
@@ -1272,6 +1273,12 @@ const NewBookingModal = ({
           userId={user!.id}
           open={openUploadAttachment}
           setOpen={setOpenUploadAttachment}
+          getAttachments={getAttachments}
+        />
+        <DeleteAttachmentModal
+          open={openDeleteAttachmentModal}
+          setOpen={setOpenDeleteAttachmentModal}
+          attachment={deleteAttachment}
           getAttachments={getAttachments}
         />
       </Modal>

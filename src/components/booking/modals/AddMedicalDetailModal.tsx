@@ -18,7 +18,7 @@ const AddMedicalDetailModal = ({
   setSelectedUser,
   setOpen,
 }: AddMedicalDetailModalProps) => {
-  const [updateCustomer, {isLoading}] = useUpdateCustomerMutation();
+  const [updateCustomer, { isLoading }] = useUpdateCustomerMutation();
 
   const { register, reset, setValue, handleSubmit, watch } = useForm();
 
@@ -30,17 +30,17 @@ const AddMedicalDetailModal = ({
     try {
       if (selectedUser?.customer_id) {
         const urlencoded = new URLSearchParams();
-        urlencoded.append("user_id", selectedUser?.user_id || '');
+        urlencoded.append("user_id", selectedUser?.user_id || "");
         urlencoded.append("customer_id", selectedUser?.customer_id);
-        urlencoded.append("customer_source_id", selectedUser?.customer_source_id || '');
+        urlencoded.append(
+          "customer_source_id",
+          selectedUser?.customer_source_id || ""
+        );
         urlencoded.append("firstname", selectedUser?.firstname);
         urlencoded.append("lastname", selectedUser?.lastname);
         urlencoded.append("phone", selectedUser?.phone);
         urlencoded.append("email", selectedUser?.email);
-        urlencoded.append(
-          "date_of_birth",
-          selectedUser?.date_of_birth
-        );
+        urlencoded.append("date_of_birth", selectedUser?.date_of_birth);
         urlencoded.append("gender", selectedUser?.gender);
         urlencoded.append("nationality", selectedUser?.nationality);
         urlencoded.append("is_allergy", data?.is_allergy === "yes" ? "1" : "0");
@@ -79,8 +79,8 @@ const AddMedicalDetailModal = ({
           is_medication: data?.is_medication === "yes" ? "1" : "0",
           medication_description: data?.medication_description,
           is_medical_conition: data?.is_medical_condition === "yes" ? "1" : "0",
-          medical_condition_description: data?.medical_condition_description
-        })
+          medical_condition_description: data?.medical_condition_description,
+        });
         reset({
           medical_condition_description: "",
           is_medical_condition: "",
@@ -100,11 +100,14 @@ const AddMedicalDetailModal = ({
     setOpen(false);
   };
 
-  useEffect(()=>{
-    if(selectedUser?.customer_id){
+  useEffect(() => {
+    if (selectedUser?.customer_id) {
       setValue("is_allergy", selectedUser.is_allergy === "1" ? "yes" : "no");
       setValue("allergy_description", selectedUser.allergy_description);
-      setValue("is_medication", selectedUser.is_medication === "1" ? "yes" : "no");
+      setValue(
+        "is_medication",
+        selectedUser.is_medication === "1" ? "yes" : "no"
+      );
       setValue("medication_description", selectedUser.medication_description);
       setValue(
         "is_medical_condition",
@@ -115,25 +118,28 @@ const AddMedicalDetailModal = ({
         selectedUser.medical_condition_description
       );
     }
-  },[selectedUser])
+  }, [selectedUser]);
 
-  useEffect(()=>{
-    if(isAllergy==='no'){
-      setValue('allergy_description', '')
-    }else{
-      setValue('allergy_description', selectedUser?.allergy_description)
+  useEffect(() => {
+    if (isAllergy === "no") {
+      setValue("allergy_description", "");
+    } else {
+      setValue("allergy_description", selectedUser?.allergy_description);
     }
-    if(isMedication==='no'){
-      setValue('medication_description', '')
-    }else{
-      setValue('medication_description', selectedUser?.allergy_description)
+    if (isMedication === "no") {
+      setValue("medication_description", "");
+    } else {
+      setValue("medication_description", selectedUser?.allergy_description);
     }
-    if(isMedicalCondition==='no'){
-      setValue('medical_condition_description', '')
-    }else{
-      setValue('medical_condition_description', selectedUser?.allergy_description)
+    if (isMedicalCondition === "no") {
+      setValue("medical_condition_description", "");
+    } else {
+      setValue(
+        "medical_condition_description",
+        selectedUser?.allergy_description
+      );
     }
-  },[isAllergy, isMedicalCondition, isMedication])
+  }, [isAllergy, isMedicalCondition, isMedication]);
   return (
     <Modal
       open={open}
@@ -149,12 +155,22 @@ const AddMedicalDetailModal = ({
           </p>
 
           <label className="flex items-center gap-2">
-            <input type="radio" value={"yes"} {...register("is_allergy")} />
+            <input
+              type="radio"
+              value="yes"
+              {...register("is_allergy")}
+              className="custom-radio"
+            />
             <span>Yes</span>
           </label>
 
           <label className="flex items-center gap-2">
-            <input type="radio" value="no" {...register("is_allergy")} />
+            <input
+              type="radio"
+              value="no"
+              {...register("is_allergy")}
+              className="custom-radio"
+            />
             <span>No</span>
           </label>
 
@@ -172,12 +188,22 @@ const AddMedicalDetailModal = ({
           </p>
 
           <label className="flex items-center gap-2">
-            <input type="radio" value="yes" {...register("is_medication")} />
+            <input
+              type="radio"
+              value="yes"
+              {...register("is_medication")}
+              className="custom-radio"
+            />
             <span>Yes</span>
           </label>
 
           <label className="flex items-center gap-2">
-            <input type="radio" value="no" {...register("is_medication")} />
+            <input
+              type="radio"
+              value="no"
+              {...register("is_medication")}
+              className="custom-radio"
+            />
             <span>No</span>
           </label>
 
@@ -199,12 +225,18 @@ const AddMedicalDetailModal = ({
               type="radio"
               value="yes"
               {...register("is_medical_condition")}
+              className="custom-radio"
             />
             <span>Yes</span>
           </label>
 
           <label className="flex items-center gap-2">
-            <input type="radio" value="no" {...register("is_medical_condition")} />
+            <input
+              type="radio"
+              value="no"
+              {...register("is_medical_condition")}
+              className="custom-radio"
+            />
             <span>No</span>
           </label>
 

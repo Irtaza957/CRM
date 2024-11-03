@@ -69,16 +69,16 @@ const AddAddressModal = ({
 
   const resetState = () => {
     reset({
-      'address_type': "",
-      'building_no': "",
-      'apartment': "",
-      'street': "",
-      'map_link': "",
-      'extra_direction': "",
+      address_type: "",
+      building_no: "",
+      apartment: "",
+      street: "",
+      map_link: "",
+      extra_direction: "",
     });
     setEmirate(null);
     setVilla(null);
-  }
+  };
 
   const handleSave = async (data: any) => {
     try {
@@ -96,7 +96,7 @@ const AddAddressModal = ({
         urlencoded.append("lng", "0");
         urlencoded.append("is_default", "0");
 
-        let response
+        let response;
         if (editableAddressId?.address_id) {
           urlencoded.append("address_id", editableAddressId?.address_id);
           response = await updateAddress(urlencoded);
@@ -104,7 +104,7 @@ const AddAddressModal = ({
           urlencoded.append("customer_id", customerId);
           response = await addAddress(urlencoded);
         }
-        if(response?.error){
+        if (response?.error) {
           toast.custom((t) => (
             <CustomToast
               t={t}
@@ -113,14 +113,14 @@ const AddAddressModal = ({
               message="Something Went Wrong"
             />
           ));
-        }else{
+        } else {
           getAddresses(customerId);
           toast.custom((t) => (
             <CustomToast
               t={t}
               type="success"
               title="Success"
-              message={`Successfully ${editableAddressId?.address_id? 'Updated' : "Added"} Address!`}
+              message={`Successfully ${editableAddressId?.address_id ? "Updated" : "Added"} Address!`}
             />
           ));
           closeModal();
@@ -133,14 +133,14 @@ const AddAddressModal = ({
 
   const closeModal = () => {
     setOpen(false);
-    resetState()
+    resetState();
   };
 
-  useEffect(()=>{
-    if(!open){
-      resetState()
+  useEffect(() => {
+    if (!open) {
+      resetState();
     }
-  },[open])
+  }, [open]);
 
   useEffect(() => {
     if (open) {
@@ -155,7 +155,9 @@ const AddAddressModal = ({
         setValue("extra_direction", editableAddressId.extra_direction);
 
         // Set Emirate and Area Combobox values
-        const emirateId = emirates?.find(item => item.name === editableAddressId.emirate)?.id
+        const emirateId = emirates?.find(
+          (item) => item.name === editableAddressId.emirate
+        )?.id;
         setEmirate({
           id: Number(emirateId),
           name: editableAddressId.emirate,
@@ -247,7 +249,7 @@ const AddAddressModal = ({
                 register={register}
               />
             </div>
-            <div className="w-full flex items-center gap-2">
+            <div className="flex w-full items-center gap-2">
               <CustomInput
                 label="Map Link"
                 placeholder="Map Link"
@@ -255,9 +257,9 @@ const AddAddressModal = ({
                 type="text"
                 register={register}
               />
-              <div className="flex items-center gap-3 bg-primary rounded-md px-6 py-2 text-white mt-5 cursor-pointer">
+              <div className="mt-5 flex cursor-pointer items-center gap-3 rounded-md bg-primary px-6 py-2 text-white">
                 <p>Map</p>
-                <img src={Map} alt=''/>
+                <img src={Map} alt="" />
               </div>
             </div>
           </div>
