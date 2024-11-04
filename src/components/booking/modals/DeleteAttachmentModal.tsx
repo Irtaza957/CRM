@@ -2,6 +2,8 @@ import React from "react";
 import Modal from "../../ui/Modal";
 import CustomButton from "../../ui/CustomButton";
 import { useDeleteAttachmentMutation } from "../../../store/services/booking";
+import { toast } from "sonner";
+import CustomToast from "../../ui/CustomToast";
 
 interface DeleteAttachmentModalProps {
   open: boolean;
@@ -24,9 +26,28 @@ const DeleteAttachmentModal = ({
       formData.append("file_name", attachment?.file_name);
       formData.append("file_type", attachment?.file_type);
       formData.append("attachment_id", attachment?.attachment_id);
-      await deleteAttachment(formData);
-      await getAttachments(attachment?.customer_id || "");
-      setOpen(false);
+      const response=await deleteAttachment(formData);
+      if (response?.error) {
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="error"
+            title="Error"
+            message={`Something Went Wrong!`}
+          />
+        ));
+      } else {
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="success"
+            title="Success"
+            message={`Attachment Deleted Successfully!`}
+          />
+        ));
+        getAttachments(attachment?.customer_id || "");
+        setOpen(false);
+      }
     } catch (error) {
       console.log(error);
     }

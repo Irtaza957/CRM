@@ -116,6 +116,7 @@ const UploadAttachmentModal = ({ open, customerId, userId, setOpen, getAttachmen
                 await Promise.all(uploadPromises);
                 getAttachments(customerId)
                 setOpen(false);
+                setFiles([])
             }
         } catch (error) {
             console.error("Error uploading files:", error);
