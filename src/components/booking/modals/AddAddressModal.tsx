@@ -9,18 +9,31 @@ import {
   useFetchAreasQuery,
   useUpdateAddressMutation,
 } from "../../../store/services/booking";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { z } from "zod"; // Import Zod
+import { zodResolver } from "@hookform/resolvers/zod"; // Import Zod resolver
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
 import { emirates } from "../../../utils/constants";
 import Map from "../../../assets/icons/map.svg";
+
+const addressSchema = z.object({
+  address_type: z.string().min(1, "Address Type is required"),
+  emirate_id: z.string().min(1, "Emirate is required"),
+  area_id: z.string().min(1, "Area is required"),
+  building_no: z.string().min(1, "Building Number is required"),
+  apartment: z.string().min(1, "Apartment Number is required"),
+  street: z.string().min(1, "Street is required"),
+  map_link: z.string().min(1, "Map Link is required"),
+  extra_direction: z.string().min(1, "Extra Direction is required"),
+});
 
 interface AddAddressModalProps {
   open: boolean;
   customerId?: string;
   userId?: number;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  getAddresses: (agr0: string) => void;
+  getAddresses: (arg0: string) => void;
   editableAddressId?: any;
 }
 
@@ -53,8 +66,16 @@ const AddAddressModal = ({
     extra_direction: "",
   };
 
-  const { register, setValue, reset, handleSubmit } = useForm({
+  const {
+    register,
+    setValue,
+    reset,
+    handleSubmit,
+    formState: { errors, isDirty, isValid },
+  } = useForm({
+    resolver: zodResolver(addressSchema),
     defaultValues,
+    mode: "all",
   });
 
   const handleSelectEmirate = (value: any) => {
@@ -68,30 +89,23 @@ const AddAddressModal = ({
   };
 
   const resetState = () => {
-    reset({
-      address_type: "",
-      building_no: "",
-      apartment: "",
-      street: "",
-      map_link: "",
-      extra_direction: "",
-    });
+    reset(defaultValues);
     setEmirate(null);
     setVilla(null);
   };
 
-  const handleSave = async (data: any) => {
+  const handleSave: SubmitHandler<any> = async (data) => {
     try {
       if (customerId && userId) {
         const urlencoded = new URLSearchParams();
         urlencoded.append("user_id", String(userId));
-        urlencoded.append("address_type", data?.address_type);
-        urlencoded.append("area_id", data?.area_id);
-        urlencoded.append("building_no", data?.building_no);
-        urlencoded.append("apartment", data?.apartment);
-        urlencoded.append("street", data?.street);
-        urlencoded.append("map_link", data?.map_link);
-        urlencoded.append("extra_direction", data?.extra_direction);
+        urlencoded.append("address_type", data.address_type);
+        urlencoded.append("area_id", data.area_id);
+        urlencoded.append("building_no", data.building_no);
+        urlencoded.append("apartment", data.apartment);
+        urlencoded.append("street", data.street);
+        urlencoded.append("map_link", data.map_link);
+        urlencoded.append("extra_direction", data.extra_direction);
         urlencoded.append("lat", "0");
         urlencoded.append("lng", "0");
         urlencoded.append("is_default", "0");
@@ -103,6 +117,7 @@ const AddAddressModal = ({
         } else {
           urlencoded.append("customer_id", customerId);
           response = await addAddress(urlencoded);
+          console.log("Res...........", response);
         }
         if (response?.error) {
           toast.custom((t) => (
@@ -189,6 +204,7 @@ const AddAddressModal = ({
               placeholder="Address Type"
               label="Address Type"
               register={register}
+              errorMsg={errors.address_type?.message} // Display error message
             />
             <Combobox
               value={emirate}
@@ -220,42 +236,43 @@ const AddAddressModal = ({
           <div className="my-4 flex w-full items-center justify-center gap-5">
             <CustomInput
               name="street"
-              label="Steet"
-              placeholder="Steet"
+              label="Street"
+              placeholder="Street"
               register={register}
+              errorMsg={errors.street?.message} // Display error message
             />
             <CustomInput
               name="building_no"
-              label="Building"
-              placeholder="Building Name"
-              type="text"
+              label="Building No"
+              placeholder="Building No"
               register={register}
+              errorMsg={errors.building_no?.message} // Display error message
             />
             <CustomInput
-              label="Villa / Apartment No."
-              placeholder="Villa / Apartment No."
               name="apartment"
-              type="text"
+              label="Apartment No"
+              placeholder="Apartment No"
               register={register}
+              errorMsg={errors.apartment?.message} // Display error message
             />
           </div>
-          <div className="flex w-full items-center justify-center gap-5">
+          <div className="flex w-full items-start justify-start gap-5">
             <div className="w-[50%]">
               <CustomInput
                 label="Extra Direction"
-                placeholder="Type..."
+                placeholder="Extra Direction"
                 name="extra_direction"
-                type="text"
                 register={register}
+                errorMsg={errors.extra_direction?.message}
               />
             </div>
-            <div className="flex w-full items-center gap-2">
+            <div className="flex w-full items-start justify-start gap-2">
               <CustomInput
                 label="Map Link"
                 placeholder="Map Link"
                 name="map_link"
-                type="text"
                 register={register}
+                errorMsg={errors.map_link?.message}
               />
               <div className="mt-5 flex cursor-pointer items-center gap-3 rounded-md bg-primary px-6 py-2 text-white">
                 <p>Map</p>
@@ -263,20 +280,20 @@ const AddAddressModal = ({
               </div>
             </div>
           </div>
-          <div className="mt-7 flex w-full justify-end gap-3">
-            <CustomButton
-              name="Cancel"
-              handleClick={closeModal}
-              style="bg-danger"
-            />
-            <CustomButton
-              name={editableAddressId?.address_id ? "Update" : "Save"}
-              handleClick={handleSubmit(handleSave)}
-              loading={isLoading}
-              disabled={isLoading}
-            />
-          </div>
         </div>
+      </div>
+      <div className="flex w-full items-center justify-end gap-3 px-6 pb-4">
+        <CustomButton
+          name="Cancel"
+          handleClick={closeModal}
+          style="bg-danger"
+        />
+        <CustomButton
+          name={editableAddressId?.address_id ? "Update" : "Save"}
+          handleClick={handleSubmit(handleSave)}
+          loading={isLoading}
+          disabled={isLoading}
+        />
       </div>
     </Modal>
   );

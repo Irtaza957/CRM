@@ -4,7 +4,6 @@ import CustomInput from "../../ui/CustomInput";
 import Combobox from "../../ui/Combobox";
 import { RiArrowDownSLine } from "react-icons/ri";
 import CustomButton from "../../ui/CustomButton";
-import { useForm } from "react-hook-form";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 import { IoCalendarOutline } from "react-icons/io5";
 import dayjs from "dayjs";
@@ -16,6 +15,9 @@ import {
 import { toast } from "sonner";
 import CustomToast from "../../ui/CustomToast";
 import { useFetchSourcesQuery } from "../../../store/services/filters";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { z } from "zod"; // Import Zod
+import { zodResolver } from "@hookform/resolvers/zod"; // Import Zod resolver
 
 interface AddCustomerModalProps {
   open: boolean;
@@ -25,6 +27,76 @@ interface AddCustomerModalProps {
   editMode?: boolean;
   userData?: any;
 }
+
+const customerSchema = z.object({
+  firstname: z.string().min(1).max(50),
+  lastname: z.string().min(1).max(50),
+  phone: z.string().min(7).optional(),
+  email: z.string().email().optional(),
+  date_of_birth: z
+    .preprocess((val) => {
+      const date = dayjs(val);
+      return date.isValid() ? date.toDate() : null;
+    }, z.date())
+    .nullable()
+    .optional(),
+  // Allergy
+  is_allergy: z.enum(["yes", "no"]).default("no"),
+  allergy_description: z
+    .string()
+    .max(500)
+    .optional()
+    .refine(
+      (val, ctx) => {
+        if (ctx.parent.is_allergy === "yes" && !val) {
+          return false;
+        }
+        return true;
+      },
+      { message: "Allergy description is required when allergy is 'yes'." }
+    ),
+
+  // Medication
+  is_medication: z.enum(["yes", "no"]).default("no"),
+  medication_description: z
+    .string()
+    .max(500)
+    .optional()
+    .refine(
+      (val, ctx) => {
+        if (ctx.parent.is_medication === "yes" && !val) {
+          return false;
+        }
+        return true;
+      },
+      {
+        message: "Medication description is required when medication is 'yes'.",
+      }
+    ),
+
+  // Medical Condition
+  is_medical_condition: z.enum(["yes", "no"]).default("no"),
+  medical_condition_description: z
+    .string()
+    .max(500)
+    .optional()
+    .refine(
+      (val, ctx) => {
+        if (ctx.parent.is_medical_condition === "yes" && !val) {
+          return false;
+        }
+        return true;
+      },
+      {
+        message:
+          "Medical condition description is required when medical condition is 'yes'.",
+      }
+    ),
+
+  customer_source_id: z.string().min(1).optional(),
+  gender: z.string().min(1).optional(),
+  nationality: z.string().min(1).optional(),
+});
 
 const genderOptions = [
   { id: "Male", name: "Male" },
@@ -43,6 +115,24 @@ const AddCustomerModal = ({
   const [source, setSource] = useState<ListOptionProps | null>(null);
   const [nationality, setNationality] = useState<ListOptionProps | null>(null);
   const [dateOfBirth, setDateOfBirth] = useState<Date | string>(new Date());
+
+  const defaultValues = {
+    firstname: "",
+    lastname: "",
+    phone: "",
+    email: "",
+    date_of_birth: null,
+    is_allergy: "no",
+    allergy_description: "",
+    is_medication: "no",
+    medication_description: "",
+    is_medical_condition: "no",
+    medical_condition_description: "",
+    customer_source_id: "",
+    gender: "",
+    nationality: "",
+  };
+
   const {
     register,
     setValue,
@@ -50,7 +140,10 @@ const AddCustomerModal = ({
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    resolver: zodResolver(customerSchema),
+    mode: "all",
+  });
 
   const [addCustomer, { isLoading }] = useAddCustomerMutation();
   const [updateCustomer] = useUpdateCustomerMutation();
@@ -127,7 +220,7 @@ const AddCustomerModal = ({
     setValue("nationality", value.id);
   };
 
-  const handleSave = async (data: any) => {
+  const handleSave: SubmitHandler<any> = async (data) => {
     try {
       if (userId) {
         const urlencoded = new URLSearchParams();
@@ -246,12 +339,14 @@ const AddCustomerModal = ({
               placeholder="First Name"
               label="First Name"
               register={register}
+              errorMsg={errors?.firstname?.message}
             />
             <CustomInput
               name="lastname"
               placeholder="Last Name"
               label="Last Name"
               register={register}
+              errorMsg={errors?.lastname?.message}
             />
             <div className="flex w-full items-center justify-center gap-2">
               <div className="w-full">
@@ -262,6 +357,7 @@ const AddCustomerModal = ({
                   date={dateOfBirth}
                   setDate={setDateOfBirth}
                   toggleClassName="-right-20"
+                  // errorMsg={errors?.date_of_birth?.message}
                   toggleButton={
                     <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-3 text-xs font-medium">
                       <p className="whitespace-nowrap">
@@ -286,6 +382,7 @@ const AddCustomerModal = ({
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                 icon={<RiArrowDownSLine className="size-5 text-grey100" />}
                 isSearch={false}
+                errorMsg={errors?.customer_source_id?.message}
               />
             </div>
           </div>
@@ -295,6 +392,7 @@ const AddCustomerModal = ({
               label="Mobile No."
               placeholder="Mobile No."
               register={register}
+              errorMsg={errors?.phone?.message}
             />
             <div className="flex w-full flex-col">
               <CustomInput
@@ -319,6 +417,7 @@ const AddCustomerModal = ({
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                 icon={<RiArrowDownSLine className="size-5 text-grey100" />}
                 isSearch={false}
+                errorMsg={errors?.gender?.message}
               />
               <Combobox
                 value={nationality}
@@ -332,6 +431,7 @@ const AddCustomerModal = ({
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                 icon={<RiArrowDownSLine className="size-5 text-grey100" />}
                 isSearch={false}
+                errorMsg={errors?.nationality?.message}
               />
             </div>
           </div>
@@ -346,7 +446,6 @@ const AddCustomerModal = ({
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
               Allergies:
             </p>
-
             <label className="flex items-center gap-2">
               <input
                 type="radio"
@@ -366,14 +465,17 @@ const AddCustomerModal = ({
               />
               <span>No</span>
             </label>
-
             <CustomInput
               name="allergy_description"
               label=""
               placeholder="Please Specify"
               register={register}
               disabled={!isAllergy || isAllergy === "no"}
+              errorMsg={errors?.allergy_description?.message}
             />
+            {errors?.is_allergy?.message && (
+              <span> {errors?.is_allergy?.message}</span>
+            )}
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
@@ -406,7 +508,11 @@ const AddCustomerModal = ({
               placeholder="Please Specify"
               register={register}
               disabled={!isMedication || isMedication === "no"}
+              errorMsg={errors?.medication_description?.message}
             />
+            {errors?.is_medication?.message && (
+              <span> {errors?.is_medication?.message}</span>
+            )}
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
@@ -438,7 +544,11 @@ const AddCustomerModal = ({
               placeholder="Please Specify"
               register={register}
               disabled={!isMedicalCondition || isMedicalCondition === "no"}
+              errorMsg={errors?.medical_condition_description?.message}
             />
+            {errors?.is_medical_condition?.message && (
+              <span> {errors?.is_medical_condition?.message}</span>
+            )}
           </div>
 
           <div className="mt-7 flex w-full justify-end gap-3">

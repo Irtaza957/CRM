@@ -8,22 +8,59 @@ import {
   useAddFamilyMutation,
   useUpdateFamilyMutation,
 } from "../../../store/services/booking";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { z, ZodSchema } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 import dayjs from "dayjs";
 import { IoCalendarOutline } from "react-icons/io5";
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
 
+// Define the Zod schema
+const schema: ZodSchema = z
+  .object({
+    first_name: z.string().min(1, "First name is required"),
+    last_name: z.string().min(1, "Last name is required"),
+    date_of_birth: z.string().nonempty("Date of birth is required"),
+    allergies: z.enum(["yes", "no"]),
+    allergiesDesc: z.string().optional().nullable(),
+    medications: z.enum(["yes", "no"]),
+    medicationsDesc: z.string().optional().nullable(),
+    medicalConditions: z.enum(["yes", "no"]),
+    medicalConditionDesc: z.string().optional().nullable(),
+    relation: z.string().optional(),
+    gender: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.allergies === "yes" && !data.allergiesDesc) {
+        return false; // Description is required if allergies is "yes"
+      }
+      if (data.medications === "yes" && !data.medicationsDesc) {
+        return false; // Description is required if medications is "yes"
+      }
+      if (data.medicalConditions === "yes" && !data.medicalConditionDesc) {
+        return false; // Description is required if medical conditions is "yes"
+      }
+      return true; // All conditions are met
+    },
+    {
+      message: "Description is required when the respective field is 'yes'",
+      path: ["allergiesDesc", "medicationsDesc", "medicalConditionDesc"], // Optional: specify which paths to return in error
+    }
+  );
+
 interface AddAddressModalProps {
   open: boolean;
   customerId?: string;
   userId?: number;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  getFamily: (agr0: string) => void;
+  getFamily: (arg0: string) => void;
   editableFamilyMember?: any;
 }
 
+// Options for gender and relationship
 const options = [
   { id: 1, name: "Male" },
   { id: 2, name: "Female" },
@@ -44,7 +81,18 @@ const AddFamilyMemberModal = ({
     null
   );
 
-  const { register, setValue, reset, handleSubmit, watch } = useForm();
+  const {
+    register,
+    setValue,
+    reset,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(schema), // Use Zod for validation
+  });
+
+  // Watch specific fields
   const isAllergy = watch("allergies");
   const isMedication = watch("medications");
   const isMedicalCondition = watch("medicalConditions");
@@ -52,13 +100,9 @@ const AddFamilyMemberModal = ({
   const [addFamily, { isLoading }] = useAddFamilyMutation();
   const [updateFamily] = useUpdateFamilyMutation();
 
-  const handleSelectGender = (value: ListOptionProps) => {
-    setGender(value);
-  };
-
-  const handleSelectRelationship = (value: ListOptionProps) => {
+  const handleSelectGender = (value: ListOptionProps) => setGender(value);
+  const handleSelectRelationship = (value: ListOptionProps) =>
     setRelationship(value);
-  };
 
   const resetState = () => {
     reset({
@@ -79,7 +123,7 @@ const AddFamilyMemberModal = ({
     setRelationship(null);
   };
 
-  const handleSave = async (data: any) => {
+  const handleSave: SubmitHandler<any> = async (data) => {
     try {
       if (customerId && userId) {
         const urlencoded = new URLSearchParams();
@@ -91,30 +135,35 @@ const AddFamilyMemberModal = ({
         urlencoded.append("date_of_birth", data?.date_of_birth);
         urlencoded.append("gender", gender?.name || "");
         urlencoded.append("is_allergy", data?.allergies === "yes" ? "1" : "0");
-        urlencoded.append("allergy_description", data?.allergiesDesc);
+        urlencoded.append("allergy_description", data?.allergiesDesc || "");
         urlencoded.append(
           "is_medication",
           data?.medications === "yes" ? "1" : "0"
         );
-        urlencoded.append("medication_description", data?.medicationsDesc);
+        urlencoded.append(
+          "medication_description",
+          data?.medicationsDesc || ""
+        );
         urlencoded.append(
           "is_medical_condition",
           data?.medicalConditions === "yes" ? "1" : "0"
         );
         urlencoded.append(
           "medical_condition_description",
-          data?.medicalConditionDesc
+          data?.medicalConditionDesc || ""
         );
+
         let response;
         if (editableFamilyMember?.family_member_id) {
           urlencoded.append(
             "family_member_id",
-            editableFamilyMember?.family_member_id
+            editableFamilyMember.family_member_id
           );
           response = await updateFamily(urlencoded);
         } else {
           response = await addFamily(urlencoded);
         }
+
         if (response?.error) {
           toast.custom((t) => (
             <CustomToast
@@ -152,38 +201,30 @@ const AddFamilyMemberModal = ({
   };
 
   useEffect(() => {
-    if (editableFamilyMember && editableFamilyMember?.family_member_id) {
-      // Ensure values are properly mapped
+    if (editableFamilyMember && editableFamilyMember.family_member_id) {
+      // Set the form values based on the editable family member
       setValue("first_name", editableFamilyMember.firstname || "");
       setValue("last_name", editableFamilyMember.lastname || "");
       setValue("relation", editableFamilyMember.relationship || "");
-
-      // Set date if available
       setDate(
         editableFamilyMember.date_of_birth
           ? editableFamilyMember.date_of_birth
           : dayjs().toDate()
       );
-
-      // Find the gender option matching the editable member's gender
       setGender(
         options.find((option) => option.name === editableFamilyMember.gender) ||
           null
       );
-
       setRelationship(
         options.find(
           (option) => option.name === editableFamilyMember.relationship
         ) || null
       );
-
-      // Radio buttons - convert to "yes"/"no" for the UI if needed
       setValue(
         "allergies",
         editableFamilyMember.is_allergy === "1" ? "yes" : "no"
       );
       setValue("allergiesDesc", editableFamilyMember.allergy_description || "");
-
       setValue(
         "medications",
         editableFamilyMember.is_medication === "1" ? "yes" : "no"
@@ -192,7 +233,6 @@ const AddFamilyMemberModal = ({
         "medicationsDesc",
         editableFamilyMember.medication_description || ""
       );
-      ``;
       setValue(
         "medicalConditions",
         editableFamilyMember.is_medical_condition === "1" ? "yes" : "no"
@@ -203,27 +243,6 @@ const AddFamilyMemberModal = ({
       );
     }
   }, [editableFamilyMember, reset, setValue]);
-
-  useEffect(() => {
-    if (isAllergy === "no") {
-      setValue("allergiesDesc", "");
-    } else {
-      setValue("allergiesDesc", editableFamilyMember?.allergy_description);
-    }
-    if (isMedication === "no") {
-      setValue("medicationsDesc", "");
-    } else {
-      setValue("medicationsDesc", editableFamilyMember?.medication_description);
-    }
-    if (isMedicalCondition === "no") {
-      setValue("medicalConditionDesc", "");
-    } else {
-      setValue(
-        "medicalConditionDesc",
-        editableFamilyMember?.medical_condition_description
-      );
-    }
-  }, [isAllergy, isMedicalCondition, isMedication]);
 
   useEffect(() => {
     if (!open) {
@@ -254,12 +273,14 @@ const AddFamilyMemberModal = ({
               placeholder="First Name"
               label="First Name"
               register={register}
+              errorMsg={errors.first_name?.message}
             />
             <CustomInput
               name="last_name"
               placeholder="Last Name"
               label="Last Name"
               register={register}
+              errorMsg={errors.last_name?.message}
             />
             <div className="flex w-full flex-col">
               <p className="mb-0.5 w-full text-left text-xs font-medium text-grey100">
@@ -311,12 +332,11 @@ const AddFamilyMemberModal = ({
           <p className="pt-3 text-left text-[18px] font-bold text-primary">
             Medical Details
           </p>
-          {/* start */}
+          {/* Start Medical Details Section */}
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
               Allergies:
             </p>
-
             <label className="flex items-center gap-2">
               <input
                 type="radio"
@@ -326,7 +346,6 @@ const AddFamilyMemberModal = ({
               />
               <span>Yes</span>
             </label>
-
             <label className="flex items-center gap-2">
               <input
                 type="radio"
@@ -336,20 +355,19 @@ const AddFamilyMemberModal = ({
               />
               <span>No</span>
             </label>
-
             <CustomInput
               name="allergiesDesc"
               label=""
               placeholder="Please Specify"
               register={register}
               disabled={!isAllergy || isAllergy === "no"}
+              errorMsg={errors.allergiesDesc?.message}
             />
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
               Medications:
             </p>
-
             <label className="flex items-center gap-2">
               <input
                 type="radio"
@@ -359,7 +377,6 @@ const AddFamilyMemberModal = ({
               />
               <span>Yes</span>
             </label>
-
             <label className="flex items-center gap-2">
               <input
                 type="radio"
@@ -369,20 +386,19 @@ const AddFamilyMemberModal = ({
               />
               <span>No</span>
             </label>
-
             <CustomInput
               name="medicationsDesc"
               label=""
               placeholder="Please Specify"
               register={register}
               disabled={!isMedication || isMedication === "no"}
+              errorMsg={errors.medicationsDesc?.message}
             />
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
               Medical Conditions:
             </p>
-
             <label className="flex items-center gap-2">
               <input
                 type="radio"
@@ -392,7 +408,6 @@ const AddFamilyMemberModal = ({
               />
               <span>Yes</span>
             </label>
-
             <label className="flex items-center gap-2">
               <input
                 type="radio"
@@ -402,17 +417,16 @@ const AddFamilyMemberModal = ({
               />
               <span>No</span>
             </label>
-
-            {/* Text Input to Specify Allergies */}
             <CustomInput
               name="medicalConditionDesc"
               label=""
               placeholder="Please Specify"
               register={register}
               disabled={!isMedicalCondition || isMedicalCondition === "no"}
+              errorMsg={errors.medicalConditionDesc?.message}
             />
           </div>
-          {/* end */}
+          {/* End Medical Details Section */}
           <div className="mt-7 flex w-full justify-end gap-3">
             <CustomButton
               name="Cancel"
