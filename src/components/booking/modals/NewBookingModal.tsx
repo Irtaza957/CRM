@@ -309,7 +309,14 @@ const NewBookingModal = ({
       "sub_total",
       `${calculateBookingCost(selectedServices!).subtotal}`
     );
-    urlencoded.append("discount_value", `${discount.value}`);
+    urlencoded.append("discount_value", `${discount.value || '0.00'}`);
+    urlencoded.append("discount_type", `${discount.type === 'percent' ? discount.type : 'fixed'}`);
+    if(discount.type==='aed'){
+      urlencoded.append("discount", `${discount.value || '0.00'}`);
+    }else{
+      const total=calculateBookingCost(selectedServices!).grand_total
+      urlencoded.append("discount", `${(total - Math.round(total - total * (discount.value / 100))) || '0.00'}`);
+    }
     urlencoded.append(
       "vat_value",
       `${calculateBookingCost(selectedServices!).total_vat}`
@@ -322,15 +329,16 @@ const NewBookingModal = ({
       "services",
       JSON.stringify(
         selectedServices?.map((item) => {
+          const disc=item.discount_type==='aed' ? item.discount_value : Number(item.price_without_vat) - Math.round(Number(item.price_without_vat) - Number(item.price_without_vat) * (Number(item.discount_value) / 100))
           return {
             service_id: item.service_id,
             qty: item.qty,
             price: item.price_without_vat,
-            discount: item.discount || "",
-            discount_value: item.discount_value || "",
-            discount_type: item.discount_type || "",
-            total: item.discount || "",
-            new_price: item.new_price || "",
+            discount: disc || "0.00",
+            discount_value: item.discount_value || "0.00",
+            discount_type: item.discount_type === 'percent' ? item.discount_type : 'fixed',
+            total: item.discount || "0.00",
+            new_price: item.new_price || "0.00",
           };
         })
       )
@@ -537,11 +545,12 @@ const NewBookingModal = ({
           discount_type: item?.discount_type,
           total: item?.total,
           new_price: item?.new_price,
+          price: item?.price
         };
       });
       setSelectedServices(temp);
       setDiscount({
-        type: "aed",
+        type: bookingDetailData?.discount_type === 'fixed' ? 'aed' : 'percent',
         value: Number(bookingDetailData?.discount_value),
       });
       setDeliveryNotes(bookingDetailData?.delivery_notes);
@@ -1080,6 +1089,7 @@ const NewBookingModal = ({
                           <input
                             type="text"
                             placeholder="0.00"
+                            value={discount.value}
                             onChange={(e) =>
                               setDiscount({
                                 ...discount,

@@ -152,7 +152,8 @@ declare type ServiceProps = {
   discount_value: string;
   discount_type: string;
   total: string;
-  new_price: string
+  new_price: string,
+  price?: string
 };
 
 declare type BookingDetailProps = {
@@ -194,6 +195,7 @@ declare type BookingDetailProps = {
   payment_status: string;
   sub_total: string;
   discount_value: string;
+  discount_type?: string;
   vat_value: string;
   total: string;
   status_id: string;
