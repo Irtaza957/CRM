@@ -117,7 +117,6 @@ const AddAddressModal = ({
         } else {
           urlencoded.append("customer_id", customerId);
           response = await addAddress(urlencoded);
-          console.log("Res...........", response);
         }
         if (response?.error) {
           toast.custom((t) => (

@@ -16,6 +16,7 @@ import dayjs from "dayjs";
 import { IoCalendarOutline } from "react-icons/io5";
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
+import { options, relationshipOptions } from "../../../utils/constants";
 
 // Define the Zod schema
 const schema: ZodSchema = z
@@ -216,7 +217,7 @@ const AddFamilyMemberModal = ({
           null
       );
       setRelationship(
-        options.find(
+        relationshipOptions.find(
           (option) => option.name === editableFamilyMember.relationship
         ) || null
       );
@@ -303,7 +304,7 @@ const AddFamilyMemberModal = ({
           <div className="my-4 flex w-[66%] items-center justify-center gap-5">
             <Combobox
               value={relationship}
-              options={options}
+              options={relationshipOptions}
               handleSelect={handleSelectRelationship}
               label="Relationship"
               placeholder="Relationship"

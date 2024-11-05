@@ -27,15 +27,14 @@ const EditServiceModal = ({
     if (isNaN(discount.value)) {
       return Number(newPrice || selectedService?.price_without_vat);
     }
-
     if (discount.type === "aed") {
       return (
-        Number(newPrice || selectedService?.price_without_vat) - discount.value
+        Number(newPrice || selectedService?.price_without_vat || selectedService?.price) - discount.value
       );
     } else {
       return (
-        Number(newPrice || selectedService?.price_without_vat) -
-        Number(newPrice || selectedService?.price_without_vat) *
+        Number(newPrice || selectedService?.price_without_vat || selectedService?.price) -
+        Number(newPrice || selectedService?.price_without_vat || selectedService?.price) *
           (discount.value / 100)
       );
     }

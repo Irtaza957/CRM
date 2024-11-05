@@ -152,8 +152,30 @@ declare type ServiceProps = {
   discount_value: string;
   discount_type: string;
   total: string;
-  new_price: string
+  new_price: string,
+  price?: string
 };
+
+declare type Team={
+  name: string;
+  phone: string;
+  position: string;
+  is_lead: string;
+  status_id: string;
+  consultation_team_id: string;
+  booking_id: string;
+  user_id: string;
+  is_accepted: string;
+  accepted_at: string;
+  started_at: string;
+  arrived_at: string;
+  consulted_at: string | null;
+  completed_at: string | null;
+  rejected_at: string | null;
+  reject_reason: string;
+  created_at: string;
+  last_updated: string;
+}
 
 declare type BookingDetailProps = {
   booking_id: string;
@@ -194,6 +216,7 @@ declare type BookingDetailProps = {
   payment_status: string;
   sub_total: string;
   discount_value: string;
+  discount_type?: string;
   vat_value: string;
   total: string;
   status_id: string;
@@ -255,26 +278,7 @@ declare type BookingDetailProps = {
     discount: string;
     total: string;
   }[];
-  team: {
-    name: string;
-    phone: string;
-    position: string;
-    is_lead: string;
-    status_id: string;
-    consultation_team_id: string;
-    booking_id: string;
-    user_id: string;
-    is_accepted: string;
-    accepted_at: string;
-    started_at: string;
-    arrived_at: string;
-    consulted_at: string | null;
-    completed_at: string | null;
-    rejected_at: string | null;
-    reject_reason: string;
-    created_at: string;
-    last_updated: string;
-  }[];
+  team: Team[];
   logs: {
     booking_log_id: string;
     status: string;

@@ -36,11 +36,8 @@ const ServiceAutoComplete = ({
       return
     }
     setQuery("");
-    if (selectedServices?.length === 0) {
-      setSelectedServices([{ ...service, qty: 1 }]);
-    } else {
-      setSelectedServices([...selectedServices!, { ...service, qty: 1 }]);
-    }
+    const updatedServices = [...(selectedServices || []), { ...service, qty: 1 }];
+    setSelectedServices(updatedServices);
   };
 
   const debouncedFetchData = useCallback(

@@ -196,6 +196,16 @@ export const bookingApi = api.injectEndpoints({
         return formatted;
       },
     }),
+    assignTeamMember: build.mutation({
+      query: (data) => ({
+        url: "/booking/assign",
+        method: "POST",
+        body: data,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }),
+    }),
   }),
 });
 
@@ -205,6 +215,7 @@ export const {
   useCreateBookingMutation,
   useCancelBookingMutation,
   useFetchBookingDetailsQuery,
+  useLazyFetchBookingDetailsQuery,
   useFetchCancellationReasonsQuery,
   useAddAddressMutation,
   useAddFamilyMutation,
@@ -214,6 +225,7 @@ export const {
   useFetchBookingHistoryMutation,
   useUpdateAddressMutation,
   useUpdateFamilyMutation,
+  useAssignTeamMemberMutation,
   useUpdateCustomerMutation,
   useFetchNationalityQuery,
   useFetchAreasQuery

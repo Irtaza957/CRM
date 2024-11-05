@@ -142,7 +142,7 @@ const Combobox = ({
               ))
           )
         ) : (
-          options?.map((item) => (
+          options?.length ? options?.map((item) => (
             <p
               key={item.id}
               onClick={handleSelect ? ()=>handleToggle(item) : () => setValue?.(item)}
@@ -159,8 +159,11 @@ const Combobox = ({
                   <FaCheck className={cn(defaultSelectedIconClassName)} />
                 )
               ) : null}
-            </p>
-          ))
+            </p> 
+          )) :  
+          <p className="w-full py-1.5 text-center text-xs font-semibold">
+            No Results
+        </p>
         )}
       </div>
     </div>
