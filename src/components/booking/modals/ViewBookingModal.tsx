@@ -22,6 +22,7 @@ import { RiVisaLine } from "react-icons/ri";
 import { FaRegClock } from "react-icons/fa6";
 import UploadDocumentsModal from "./UploadDocumentsModal";
 import BookingHistoryModal from "./BookingHistoryModal";
+import TeamMembersModal from "./TeamMembersModal";
 
 const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
   const [logs, setLogs] = useState(false);
@@ -30,13 +31,19 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
   const [editing, setEditing] = useState(false);
   const [history, setHistory] = useState(false);
   const [deliveryNotes, setDeliveryNotes] = useState("");
+  const [isAssignModal, setIsAssignModal]=useState(false)
+
   const { data, isLoading } = useFetchBookingDetailsQuery(id, {
     skip: !id,
     refetchOnMountOrArgChange: true,
   });
+  const handleAssign=()=>{
+    setIsAssignModal(true)
+  }
 
   return (
     <>
+      <TeamMembersModal members={data?.team} bookingId={data?.booking_id} open={isAssignModal} setOpen={setIsAssignModal} />
       <BookingLogsModal open={logs} setOpen={setLogs} />
       <UploadDocumentsModal open={upload} setOpen={setUpload} />
       <BookingHistoryModal open={history} setOpen={setHistory} />
@@ -54,7 +61,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
             {isLoading ? (
               <LuLoader2 className="h-14 w-14 animate-spin text-secondary" />
             ) : (
-              <div className="flex w-full h-full">
+              <div className="flex gap-3 w-full h-full">
                 <div className="w-full max-h-[calc(100vh-100px)] overflow-auto">
                   <div className="flex w-full bg-white rounded-lg flex-col items-start justify-start space-y-2.5 ">
                     {/* Client Details */}
@@ -291,14 +298,14 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                       )}
                     </div>
                     {/* Team Members */}
-                    {data?.team.length !== 0 && (
+                    {/* {data?.team.length !== 0 && ( */}
                       <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
                         <div className="flex w-full items-center justify-between border-b pb-2.5">
                           <h1 className="text-left font-semibold text-primary">
                             Team Members
                           </h1>
                           <div className="flex items-center justify-end space-x-2.5">
-                            <button className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
+                            <button onClick={handleAssign} className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
                               Re-assign
                             </button>
                             <button
@@ -350,28 +357,29 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                               <img
                                 src={PhoneSquare}
                                 alt="icon"
-                                className="size-5"
+                                className="size-5 cursor-pointer"
                               />
                               <img
                                 src={WhatsappSquare}
                                 alt="icon"
-                                className="size-5"
+                                className="size-5 cursor-pointer"
                               />
                               <img
+                                onClick={handleAssign}
                                 src={ReAssign}
                                 alt="icon"
-                                className="size-5"
+                                className="size-5 cursor-pointer"
                               />
                               <img
                                 src={LocationSquare}
                                 alt="icon"
-                                className="size-5"
+                                className="size-5 cursor-pointer"
                               />
                             </div>
                           </div>
                         ))}
                       </div>
-                    )}
+                    {/* )} */}
                     {/* Booking Instructions */}
                     <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
                       <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
