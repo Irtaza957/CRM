@@ -197,7 +197,7 @@ const UploadAttachmentModal = ({ open, customerId, userId, setOpen, getAttachmen
                             </div>
                         ))}
                     </div>
-                    {files.length ?
+                    {files?.some(file=>file.name) ?
                         <div className='flex items-end justify-end gap-3 w-full mt-7'>
                             <CustomButton
                                 name='Upload'

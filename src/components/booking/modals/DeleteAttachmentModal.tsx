@@ -18,7 +18,7 @@ const DeleteAttachmentModal = ({
   attachment,
   getAttachments,
 }: DeleteAttachmentModalProps) => {
-  const [deleteAttachment] = useDeleteAttachmentMutation();
+  const [deleteAttachment, {isLoading}] = useDeleteAttachmentMutation();
 
   const handleDeleteAttachment = async (attachment: AttachmentProps) => {
     try {
@@ -71,6 +71,8 @@ const DeleteAttachmentModal = ({
             name="Delete"
             style="bg-danger"
             handleClick={() => handleDeleteAttachment(attachment)}
+            loading={isLoading}
+            disabled={isLoading}
           />
         </div>
       </div>
