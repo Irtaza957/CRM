@@ -12,8 +12,7 @@ import {
   useFetchBookingsQuery,
   useCreateBookingMutation,
   useFetchCategoriesMutation,
-  useFetchBookingDetailsQuery,
-  useDeleteAttachmentMutation,
+  useFetchBookingDetailsQuery
 } from "../../../store/services/booking";
 import {
   useFetchCustomerFamilyMutation,
@@ -294,7 +293,7 @@ const NewBookingModal = ({
     urlencoded.append("phone", selectedUser!.phone);
     urlencoded.append(
       "schedule_date",
-      dayjs(scheduleDate).format("DD-MM-YYYY")
+      dayjs(scheduleDate).format("YYYY-MM-DD")
     );
     urlencoded.append("schedule_slot", scheduleTime?.name || "");
     urlencoded.append("delivery_notes", deliveryNotes);
@@ -435,6 +434,16 @@ const NewBookingModal = ({
 
   const handleSelectProfession = (value: ListOptionProps) => {
     setProfession(value);
+    if (value?.name) {
+      const filteredBookings = bookingsData?.filter((booking) =>
+        booking?.consultation_team?.some((cat) => cat.is_lead === "1")
+      );
+      setBookingsData(filteredBookings);
+    } else {
+      if (data) {
+        setBookingsData(data);
+      }
+    }
   };
 
   const handleEditClick = (address: AddressProps) => {
@@ -833,7 +842,7 @@ const NewBookingModal = ({
                       <div className="col-span-1 w-full">Relation</div>
                       <div className="col-span-1 w-full">Actions</div>
                     </div>
-                    {family?.length !== 0 &&
+                    {family?.length &&
                       family?.map((member, idx) => (
                         <div
                           key={member.family_member_id}

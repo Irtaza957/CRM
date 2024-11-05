@@ -14,6 +14,7 @@ import dayjs from "dayjs";
 import { IoCalendarOutline } from "react-icons/io5";
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
+import { options, relationshipOptions } from "../../../utils/constants";
 
 interface AddAddressModalProps {
   open: boolean;
@@ -23,12 +24,6 @@ interface AddAddressModalProps {
   getFamily: (agr0: string) => void;
   editableFamilyMember?: any;
 }
-
-const options = [
-  { id: 1, name: "Male" },
-  { id: 2, name: "Female" },
-  { id: 3, name: "Other" },
-];
 
 const AddFamilyMemberModal = ({
   open,
@@ -172,7 +167,7 @@ const AddFamilyMemberModal = ({
       );
 
       setRelationship(
-        options.find(
+        relationshipOptions.find(
           (option) => option.name === editableFamilyMember.relationship
         ) || null
       );
@@ -282,7 +277,7 @@ const AddFamilyMemberModal = ({
           <div className="my-4 flex w-[66%] items-center justify-center gap-5">
             <Combobox
               value={relationship}
-              options={options}
+              options={relationshipOptions}
               handleSelect={handleSelectRelationship}
               label="Relationship"
               placeholder="Relationship"

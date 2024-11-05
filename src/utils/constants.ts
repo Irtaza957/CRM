@@ -621,3 +621,20 @@ export const timeSlots = [
 ]
 
 export const dayNames = ["Sun", "Mon", "Tues", "Wed", "Thur", "Fri", "Sat"];
+
+export const genderOptions=[
+  { id: 1, name: "Male" },
+  { id: 2, name: "Female" },
+  { id: 3, name: "Other" },
+];
+
+export const relationshipOptions=[
+  {id: "Father", name: "Father"},
+  {id: "Mother", name: "Mother"},
+  {id: "Brother", name: "Brother"},
+  {id: "Daughter", name: "Daughter"},
+  {id: "Sister", name: "Sister"},
+  {id: "Wife", name: "Wife"},
+  {id: "Husband", name: "Husband"},
+  {id: "Son", name: "Son"}
+]
