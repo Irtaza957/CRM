@@ -163,7 +163,6 @@ const AddCustomerModal = ({
   );
 
   useEffect(() => {
-    console.log(editMode, userData, "userDatauserData");
     if (editMode && userData) {
       setValue("firstname", userData.firstname);
       setValue("lastname", userData.lastname);
@@ -203,7 +202,7 @@ const AddCustomerModal = ({
         name: userData.nationality,
       });
     }
-  }, [editMode, userData, setValue]);
+  }, [editMode, userData, open]);
 
   const handleSelectGender = (value: ListOptionProps) => {
     setGender(value);

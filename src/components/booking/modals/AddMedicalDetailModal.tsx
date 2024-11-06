@@ -118,7 +118,7 @@ const AddMedicalDetailModal = ({
         selectedUser.medical_condition_description
       );
     }
-  }, [selectedUser]);
+  }, [selectedUser, open]);
 
   useEffect(() => {
     if (isAllergy === "no") {
