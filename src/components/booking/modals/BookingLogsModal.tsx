@@ -2,14 +2,20 @@ import Modal from "../../ui/Modal";
 import { cn } from "../../../utils/helpers";
 
 import { IoClose } from "react-icons/io5";
+import dayjs from "dayjs";
 
-const BookingLogsModal = ({ open, setOpen }: ModalProps) => {
+interface BookingLogsModalProps{
+  logsData?: BookingLogs[];
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+const BookingLogsModal = ({ logsData, open, setOpen }: BookingLogsModalProps) => {
   return (
     <Modal
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="w-full max-w-lg"
+      className="w-full max-w-xl"
     >
       <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
         <div className="flex w-full items-center justify-between rounded-t-lg bg-primary px-5 py-2.5 text-white">
@@ -32,7 +38,7 @@ const BookingLogsModal = ({ open, setOpen }: ModalProps) => {
               Comments
             </p>
           </div>
-          {[...Array(4)].map((_, idx) => (
+          {logsData?.map((log, idx) => (
             <div
               key={idx}
               className={cn("grid w-full grid-cols-4 p-2.5", {
@@ -40,18 +46,18 @@ const BookingLogsModal = ({ open, setOpen }: ModalProps) => {
               })}
             >
               <p className="w-full overflow-hidden truncate text-left text-sm font-semibold text-[#656565]">
-                Agent
+                {log?.name}
               </p>
               <p className="w-full overflow-hidden truncate text-left text-sm font-semibold text-[#656565]">
-                Updated At
+                {dayjs(log.created_at).format("DD MMM YYYY")}
               </p>
               <div className="flex w-full items-center justify-start">
                 <span className="rounded-full bg-[#009AE2] px-2 py-px text-left text-sm font-semibold text-white">
-                  Status
+                  {log?.status}
                 </span>
               </div>
               <p className="w-full overflow-hidden truncate text-left text-sm font-semibold text-[#656565]">
-                Comments
+                {log?.comments}
               </p>
             </div>
           ))}

@@ -44,7 +44,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
   return (
     <>
       <TeamMembersModal members={data?.team} bookingId={data?.booking_id} open={isAssignModal} setOpen={setIsAssignModal} />
-      <BookingLogsModal open={logs} setOpen={setLogs} />
+      <BookingLogsModal logsData={data?.logs} open={logs} setOpen={setLogs} />
       <UploadDocumentsModal open={upload} setOpen={setUpload} />
       <BookingHistoryModal open={history} setOpen={setHistory} />
       <CancelBookingModal id={id} open={cancel} setOpen={setCancel} />
@@ -393,6 +393,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                             placeholder={
                               data?.delivery_notes || "Further Instructions..."
                             }
+                            disabled={!editing}
                           />
                         </div>
                       </div>
@@ -580,6 +581,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                                 type="text"
                                 placeholder={data?.booking_source}
                                 className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
+                                disabled={!editing}
                               />
                             </div>
                             <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
@@ -593,6 +595,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                                 type="text"
                                 placeholder={data?.booking_source}
                                 className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
+                                disabled={!editing}
                               />
                             </div>
                             <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
@@ -606,6 +609,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                                 type="text"
                                 placeholder={data?.partner}
                                 className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
+                                disabled={!editing}
                               />
                             </div>
                             <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
@@ -619,6 +623,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                                 type="text"
                                 placeholder={data?.branch}
                                 className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
+                                disabled={!editing}
                               />
                             </div>
                           </div>

@@ -177,6 +177,14 @@ declare type Team={
   last_updated: string;
 }
 
+declare type BookingLogs={
+  booking_log_id: string;
+  status: string;
+  name: string | null;
+  comments: string;
+  created_at: string;
+}
+
 declare type BookingDetailProps = {
   booking_id: string;
   invoice_no: string;
@@ -279,13 +287,7 @@ declare type BookingDetailProps = {
     total: string;
   }[];
   team: Team[];
-  logs: {
-    booking_log_id: string;
-    status: string;
-    name: string | null;
-    comments: string;
-    created_at: string;
-  }[];
+  logs: BookingLogs[];
   booking_attachments: {
     attachment_id: string;
     booking_id: string;
