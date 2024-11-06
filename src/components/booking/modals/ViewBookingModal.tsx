@@ -43,7 +43,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
 
   return (
     <>
-      <TeamMembersModal members={data?.team} bookingId={data?.booking_id} open={isAssignModal} setOpen={setIsAssignModal} />
+      <TeamMembersModal members={data?.team} showMembers={["3","4","5","6",'7'].includes(data?.status_id || '')} bookingId={data?.booking_id} open={isAssignModal} setOpen={setIsAssignModal} />
       <BookingLogsModal logsData={data?.logs} open={logs} setOpen={setLogs} />
       <UploadDocumentsModal open={upload} setOpen={setUpload} />
       <BookingHistoryModal open={history} setOpen={setHistory} />
@@ -69,7 +69,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                         <div className="flex w-full flex-col items-center justify-center rounded-lg p-2.5">
                           <div className="flex w-full items-center justify-between border-b pb-2.5">
                             <h1 className="text-left font-semibold text-primary">
-                              Client Details
+                            Customer Details
                             </h1>
                             <button
                               type="button"
@@ -220,7 +220,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                         {/* Booking Details */}
                         <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
                           <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
-                            Booking Details
+                            Services List
                           </h1>
                           <div className="grid w-full grid-cols-2">
                             {data?.address.address_type && (
@@ -306,9 +306,10 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                               Team Members
                             </h1>
                             <div className="flex items-center justify-end space-x-2.5">
+                              {!["8","9"].includes(data?.status_id || '') &&
                               <button onClick={handleAssign} className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
-                                Re-assign
-                              </button>
+                                {["3","4","5","6",'7'].includes(data?.status_id || '') ? "Re-assign": 'Assign'}
+                              </button>}
                               <button
                                 type="button"
                                 onClick={() => setLogs(true)}
@@ -318,6 +319,8 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                               </button>
                             </div>
                           </div>
+                          {!["1","2"].includes(data?.status_id || '') &&
+                          <>
                           <div className="mt-2.5 grid w-full grid-cols-4 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
                             <p className="col-span-1 w-full text-left">Team</p>
                             <p className="col-span-1 w-full text-left">Title</p>
@@ -379,6 +382,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                               </div>
                             </div>
                           ))}
+                          </>}
                         </div>
                         {/* )} */}
                         {/* Booking Instructions */}
@@ -631,6 +635,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                       </div>
                     </div>
                   </div>
+                  {!["8","9"].includes(data?.status_id || '') &&
                   <div className="sticky bottom-0 bg-white p-3 w-full flex items-center gap-3 rounded-lg">
                     <button
                       type="button"
@@ -646,7 +651,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                     >
                       {editing ? "Confirm" : "Edit Booking"}
                     </button>
-                  </div>
+                  </div>}
                 </>
             )}
           </div>

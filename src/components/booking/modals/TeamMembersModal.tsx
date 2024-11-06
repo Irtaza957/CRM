@@ -14,10 +14,11 @@ interface TeamMembersModal {
     open: boolean;
     bookingId?: string;
     members?: Team[];
+    showMembers?: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const TeamMembersModal = ({ open, bookingId, members, setOpen }: TeamMembersModal) => {
+const TeamMembersModal = ({ open, bookingId, members, showMembers, setOpen }: TeamMembersModal) => {
     const [dropdownsData, setDropdownsData] = useState({
         doctors: [],
         drivers: [],
@@ -151,7 +152,7 @@ const TeamMembersModal = ({ open, bookingId, members, setOpen }: TeamMembersModa
             open={open}
             setOpen={setOpen}
             mainClassName="!z-[99999]"
-            className="w-full max-w-lg"
+            className="w-full max-w-[50%]"
             title="Team Members"
         >
             <div className="w-full p-6">
@@ -209,11 +210,12 @@ const TeamMembersModal = ({ open, bookingId, members, setOpen }: TeamMembersModa
                         />
                     </div>
                 </div>
+                {showMembers &&
                 <div className="mt-5 flex flex-wrap items-center gap-3">
                     {members?.map((item, index) => (
                         <p key={index} className="text-sm whitespace-nowrap border-2 border-grey rounded-full flex items-center justify-between py-1.5 px-4">{item?.name}</p>
                     ))}
-                </div>
+                </div>}
                 <div className="mt-7 flex w-full justify-end gap-3">
                     <CustomButton
                         name="Cancel"

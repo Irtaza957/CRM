@@ -676,7 +676,7 @@ const NewBookingModal = ({
               <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
                 <div className="mb-2.5 flex w-full items-center justify-between border-b pb-2.5">
                   <h1 className="text-left font-semibold text-primary">
-                    Client Details
+                    Customer Details
                   </h1>
                   {!selectedUser && !editMode ? (
                     <CustomButton
@@ -954,7 +954,7 @@ const NewBookingModal = ({
               <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
                 <div className="flex w-full items-center justify-between border-b pb-2.5">
                   <h1 className="text-left font-semibold text-primary">
-                    Booking Details
+                    Services List
                   </h1>
                   {selectedUser && (
                     <button
