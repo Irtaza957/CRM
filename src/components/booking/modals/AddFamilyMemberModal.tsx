@@ -92,7 +92,7 @@ const AddFamilyMemberModal = ({
   const isMedicalCondition = watch("medicalConditions");
 
   const [addFamily, { isLoading }] = useAddFamilyMutation();
-  const [updateFamily] = useUpdateFamilyMutation();
+  const [updateFamily, {isLoading: loadingUpdate}] = useUpdateFamilyMutation();
 
   const handleSelectGender = (value: ListOptionProps) => setGender(value);
   const handleSelectRelationship = (value: ListOptionProps) =>
@@ -126,7 +126,7 @@ const AddFamilyMemberModal = ({
         urlencoded.append("relationship", relationship?.name || "");
         urlencoded.append("firstname", data?.first_name);
         urlencoded.append("lastname", data?.last_name);
-        urlencoded.append("date_of_birth", data?.date_of_birth);
+        urlencoded.append("date_of_birth", date as string);
         urlencoded.append("gender", gender?.name || "");
         urlencoded.append("is_allergy", data?.allergies === "yes" ? "1" : "0");
         urlencoded.append("allergy_description", data?.allergiesDesc || "");
@@ -187,7 +187,6 @@ const AddFamilyMemberModal = ({
 
   const handleDate = (newDate: string | Date) => {
     setDate(newDate);
-    setValue("date_of_birth", newDate);
   };
 
   const closeModal = () => {
@@ -221,11 +220,11 @@ const AddFamilyMemberModal = ({
       setValue("allergiesDesc", editableFamilyMember.allergy_description || "");
       setValue(
         "medications",
-        editableFamilyMember.is_medication === "1" ? "yes" : "no"
+        editableFamilyMember.is_medications === "1" ? "yes" : "no"
       );
       setValue(
         "medicationsDesc",
-        editableFamilyMember.medication_description || ""
+        editableFamilyMember.medications_description || ""
       );
       setValue(
         "medicalConditions",
@@ -430,8 +429,8 @@ const AddFamilyMemberModal = ({
             <CustomButton
               name={editableFamilyMember?.family_member_id ? "Update" : "Save"}
               handleClick={handleSubmit(handleSave)}
-              loading={isLoading}
-              disabled={isLoading}
+              loading={isLoading || loadingUpdate}
+              disabled={isLoading || loadingUpdate}
             />
           </div>
         </div>

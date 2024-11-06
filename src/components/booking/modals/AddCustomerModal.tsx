@@ -225,7 +225,7 @@ const AddCustomerModal = ({
       if (userId) {
         const urlencoded = new URLSearchParams();
         urlencoded.append("user_id", String(userId));
-        urlencoded.append("customer_source_id", data?.customer_source_id);
+        urlencoded.append("customer_source_id", String(source?.id || ''));
         urlencoded.append("firstname", data?.firstname);
         urlencoded.append("lastname", data?.lastname);
         urlencoded.append("phone", data?.phone);
@@ -234,8 +234,8 @@ const AddCustomerModal = ({
           "date_of_birth",
           dayjs(dateOfBirth).format("YYYY-MM-DD")
         );
-        urlencoded.append("gender", data?.gender);
-        urlencoded.append("nationality", data?.nationality);
+        urlencoded.append("gender", String(gender?.id || ''));
+        urlencoded.append("nationality", String(nationality?.id || ''));
         urlencoded.append("is_allergy", data?.is_allergy === "yes" ? "1" : "0");
         urlencoded.append(
           "allergy_description",

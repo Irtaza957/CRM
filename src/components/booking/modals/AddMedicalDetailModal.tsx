@@ -129,14 +129,14 @@ const AddMedicalDetailModal = ({
     if (isMedication === "no") {
       setValue("medication_description", "");
     } else {
-      setValue("medication_description", selectedUser?.allergy_description);
+      setValue("medication_description", selectedUser?.medication_description);
     }
     if (isMedicalCondition === "no") {
       setValue("medical_condition_description", "");
     } else {
       setValue(
         "medical_condition_description",
-        selectedUser?.allergy_description
+        selectedUser?.medical_condition_description
       );
     }
   }, [isAllergy, isMedicalCondition, isMedication]);

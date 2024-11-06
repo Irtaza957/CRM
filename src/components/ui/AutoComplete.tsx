@@ -48,9 +48,10 @@ const AutoComplete = ({ setSelectedUser }: AutoCompleteProps) => {
         />
         <HiMagnifyingGlass className="h-5 w-5" />
       </div>
+      <div className="w-full relative">
       <div
         className={cn(
-          "no-scrollbar absolute -bottom-[302px] left-0 z-10 flex h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
+          "no-scrollbar absolute mt-1 left-0 z-10 flex max-h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
           {
             hidden: query === "",
             "items-center justify-center": results?.length === 0 || isLoading,
@@ -78,6 +79,7 @@ const AutoComplete = ({ setSelectedUser }: AutoCompleteProps) => {
             </div>
           ))
         )}
+      </div>
       </div>
     </div>
   );
