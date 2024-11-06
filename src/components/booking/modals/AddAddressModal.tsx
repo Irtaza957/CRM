@@ -19,8 +19,8 @@ import Map from "../../../assets/icons/map.svg";
 
 const addressSchema = z.object({
   address_type: z.string().min(1, "Address Type is required"),
-  emirate_id: z.string().min(1, "Emirate is required"),
-  area_id: z.string().min(1, "Area is required"),
+  emirate_id: z.number().min(1, "Emirate is required"),
+  area_id: z.number().min(1, "Area is required"),
   building_no: z.string().min(1, "Building Number is required"),
   apartment: z.string().min(1, "Apartment Number is required"),
   street: z.string().min(1, "Street is required"),

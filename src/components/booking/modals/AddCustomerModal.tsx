@@ -48,7 +48,7 @@ const customerSchema = z.object({
     .optional()
     .refine(
       (val, ctx) => {
-        if (ctx.parent.is_allergy === "yes" && !val) {
+        if (ctx?.parent.is_allergy === "yes" && !val) {
           return false;
         }
         return true;
@@ -64,7 +64,7 @@ const customerSchema = z.object({
     .optional()
     .refine(
       (val, ctx) => {
-        if (ctx.parent.is_medication === "yes" && !val) {
+        if (ctx?.parent.is_medication === "yes" && !val) {
           return false;
         }
         return true;
@@ -82,7 +82,7 @@ const customerSchema = z.object({
     .optional()
     .refine(
       (val, ctx) => {
-        if (ctx.parent.is_medical_condition === "yes" && !val) {
+        if (ctx?.parent.is_medical_condition === "yes" && !val) {
           return false;
         }
         return true;
