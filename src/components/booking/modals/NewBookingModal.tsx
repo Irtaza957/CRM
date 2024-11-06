@@ -475,6 +475,10 @@ console.log(bookingCost, 'bookingCostbookingCost')
     window.open(`https://crm.fandcproperties.ae${url}`, "_blank");
   };
 
+  const handleSelectUser=()=>{
+    setSelectedServices([])
+  }
+  
   useEffect(() => {
     if (bookingsData) {
       const view = createTimelineView(bookingsData!);
@@ -690,7 +694,7 @@ console.log(bookingCost, 'bookingCostbookingCost')
                     />
                   )}
                 </div>
-                <AutoComplete setSelectedUser={setSelectedUser} />
+                <AutoComplete handleSelectUser={handleSelectUser} setSelectedUser={setSelectedUser} />
               </div>
               {selectedUser && (
                 <>

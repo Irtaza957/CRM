@@ -113,7 +113,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
           </p>
         </div>
         <div className="flex max-h-[600px] w-full flex-col items-start justify-start overflow-auto">
-          {historyData?.data?.map((history: HistoryType, idx: number) => (
+          {historyData?.data?.length ? historyData?.data?.map((history: HistoryType, idx: number) => (
             <div
               key={idx}
               className={cn(
@@ -160,7 +160,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
               </div>
               <p className="w-full text-right text-xs">{history?.created_by || 'N/A'}</p>
             </div>
-          ))}
+          )): <p className="text-center text-sm w-full text-red-500 bg-gray-100 p-3">No Data Found!</p>}
         </div>
       </div>
     </Modal>

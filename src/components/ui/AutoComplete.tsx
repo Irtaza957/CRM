@@ -7,10 +7,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchCustomerMutation } from "../../store/services/customer";
 
 interface AutoCompleteProps {
+  handleSelectUser: ()=>void;
   setSelectedUser: React.Dispatch<React.SetStateAction<CustomerProps | null>>;
 }
 
-const AutoComplete = ({ setSelectedUser }: AutoCompleteProps) => {
+const AutoComplete = ({ handleSelectUser, setSelectedUser }: AutoCompleteProps) => {
   const [query, setQuery] = useState("");
   const [searchCustomers, { isLoading }] = useSearchCustomerMutation();
   const [results, setResults] = useState<CustomerProps[] | undefined>([]);
@@ -67,6 +68,7 @@ const AutoComplete = ({ setSelectedUser }: AutoCompleteProps) => {
               onClick={() => {
                 setQuery("");
                 setSelectedUser(result);
+                handleSelectUser()
               }}
               className="flex w-full cursor-pointer flex-col items-center justify-center p-1.5 hover:bg-gray-100"
             >
