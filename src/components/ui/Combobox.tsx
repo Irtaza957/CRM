@@ -52,13 +52,21 @@ const Combobox = ({
   useOnClickOutside(ComboboxRef, () => setToggle(false));
 
   const handleToggle=(dropdownValue: ListOptionProps)=>{
-    if(!isFilter){
-      setToggle(!toggle)
-    }
     if(isFilter && value?.id===dropdownValue?.id){
       handleSelect && handleSelect({id: 0, name: ''})
     }else{
       handleSelect && handleSelect(dropdownValue)
+    }
+  }
+
+  const handleClick=(item: ListOptionProps)=>{
+    if(!isFilter){
+      setToggle(!toggle)
+    }
+    if(handleSelect){
+      handleToggle(item)
+    }else{
+      setValue?.(item)
     }
   }
 
@@ -124,7 +132,7 @@ const Combobox = ({
               .map((item) => (
                 <p
                   key={item.id}
-                  onClick={handleSelect ? ()=>handleToggle(item) : () => setValue?.(item)}
+                  onClick={()=>handleClick(item)}
                   className={cn(
                     "flex cursor-pointer items-center justify-start",
                     listItemClassName
@@ -145,7 +153,7 @@ const Combobox = ({
           options?.length ? options?.map((item) => (
             <p
               key={item.id}
-              onClick={handleSelect ? ()=>handleToggle(item) : () => setValue?.(item)}
+              onClick={()=>handleClick(item)}
               className={cn(
                 "flex cursor-pointer items-center justify-start",
                 listItemClassName
