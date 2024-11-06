@@ -587,14 +587,14 @@ console.log(bookingCost, 'bookingCostbookingCost')
         <div className="grid w-full grid-cols-3 divide-x overflow-hidden rounded-lg bg-gray-100">
           <div className="col-span-1 flex h-full flex-col overflow-auto border-r">
             <div className="flex h-12 w-full items-center justify-between border-b bg-white px-2.5">
-              <p className="mr-3 rounded-md bg-primary px-2.5 py-1 text-white">
+              <p className="mr-3 rounded-md bg-primary px-2.5 py-1 text-white lg:text-sm xl:text-base">
                 {dayNames[new Date(date).getDay()]}
               </p>
               <CustomDatePicker
                 date={date}
                 setDate={handleSetDate}
                 toggleButton={
-                  <div className="flex h-12 w-full items-center gap-4 text-gray-500">
+                  <div className="flex h-12 w-full items-center text-sm xl:text-base lg:gap-1 xl:gap-4 text-gray-500">
                     <FaChevronLeft />
                     {dayjs(date).format("DD MMM YYYY")}
                     <FaChevronRight />
@@ -604,7 +604,7 @@ console.log(bookingCost, 'bookingCostbookingCost')
               <CustomButton
                 name="Today"
                 handleClick={() => handleSetDate(new Date())}
-                style="bg-white border border-grey50 text-black"
+                style="bg-white border border-grey50 text-black px-4 xl:px-6"
               />
             </div>
             <div className="grid w-full grid-cols-2 items-center justify-center gap-2.5 border-b px-2.5 py-2.5">
@@ -695,8 +695,8 @@ console.log(bookingCost, 'bookingCostbookingCost')
               {selectedUser && (
                 <>
                   <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
-                    <div className="grid w-full grid-cols-12">
-                      <div className="col-span-7 flex w-full items-center justify-between">
+                    <div className="grid w-full grid-cols-12 xl:gap-8">
+                      <div className="col-span-7 flex w-full items-center gap-3">
                         <img
                           alt="profile"
                           className="size-14 rounded-full"
@@ -713,7 +713,7 @@ console.log(bookingCost, 'bookingCostbookingCost')
                           <span className="w-full text-left text-xs text-gray-500">
                             {selectedUser.phone}
                           </span>
-                          <span className="w-full text-left text-xs text-gray-500">
+                          <span className="w-full text-left text-xs text-gray-500 lg:truncate lg:max-w-20 xl:max-w-max">
                             {selectedUser.email}
                           </span>
                         </div>
@@ -751,15 +751,10 @@ console.log(bookingCost, 'bookingCostbookingCost')
                             className="col-span-1 flex w-full flex-col items-center justify-between space-y-1.5 rounded-lg border border-gray-200 bg-gray-100 p-2.5"
                           >
                             <div className="flex w-full items-center justify-between">
-                              <span className="font-bold capitalize text-primary">
+                              <span className="font-bold capitalize text-primary truncate">
                                 {address.address_type}
                               </span>
                               <div className="flex items-center justify-end space-x-2.5">
-                                {address.map_link && (
-                                  <Link target="_blank" to={address.map_link}>
-                                    <IoLocationOutline />
-                                  </Link>
-                                )}
                                 <button
                                   type="button"
                                   onClick={() =>
@@ -844,6 +839,7 @@ console.log(bookingCost, 'bookingCostbookingCost')
                         onClick={handleFamilymembers}
                       />
                     </div>
+                    <div className="w-full overflow-auto">
                     <div className="grid w-full grid-cols-5 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
                       <div className="col-span-1 w-full">Name</div>
                       <div className="col-span-1 w-full">DOB</div>
@@ -870,12 +866,12 @@ console.log(bookingCost, 'bookingCostbookingCost')
                             {dayjs(member.date_of_birth).format("DD-MM-YYYY")}
                           </div>
                           <div className="col-span-1 w-full capitalize">
-                            {member.gender}
+                            {member.gender==='undefined' ? 'N/A' : member.gender}
                           </div>
                           <div className="col-span-1 w-full">
-                            {member.relationship}
+                            {member.relationship==='undefined' ? 'N/A' : member.relationship}
                           </div>
-                          <div className="col-span-1 flex w-full items-center justify-between">
+                          <div className="col-span-1 gap-1 flex w-full items-center justify-between">
                             <button
                               type="button"
                               onClick={() =>
@@ -897,6 +893,7 @@ console.log(bookingCost, 'bookingCostbookingCost')
                           </div>
                         </div>
                       ))}
+                    </div>
                   </div>
                   <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
                     <div className="flex w-full items-center justify-between border-b pb-2.5">
@@ -1162,7 +1159,7 @@ console.log(bookingCost, 'bookingCostbookingCost')
                         label="Select Time"
                         placeholder="Select Time"
                         mainClassName="w-full"
-                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
                         listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
                         listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                         icon={<FaRegClock className="h-5 w-5 text-grey100" />}
