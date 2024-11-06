@@ -7,7 +7,7 @@ import { useFetchBookingHistoryMutation } from "../../../store/services/booking"
 interface BookingHistoryModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedUser?: CustomerProps | null
+  selectedUser?: CustomerProps | UserType | null
 }
 
 const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModalProps) => {
@@ -27,7 +27,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="h-[90%] w-full max-w-[60%]"
+      className="h-[90%] w-full max-w-[70%]"
     >
       <div className="w-full h-full items-center justify-center overflow-hidden rounded-lg">
         <div className="flex w-full items-center justify-between overflow-hidden rounded-t-lg bg-primary px-5 py-2.5 text-white">
@@ -37,7 +37,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
             className="h-8 w-8 cursor-pointer"
           />
         </div>
-        <div className="grid w-full grid-cols-3 px-5 pt-5">
+        <div className="grid w-full grid-cols-3 px-5 pt-5 gap-52 xl:gap-24">
           <div className="col-span-1 flex w-full flex-1 items-center justify-start gap-3.5">
             <img
               alt="profile"
@@ -108,7 +108,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
           <p className="w-full text-left text-xs font-semibold text-primary">
             Status
           </p>
-          <p className="w-full text-right text-xs font-semibold text-primary">
+          <p className="w-full text-right text-xs font-semibold text-primary whitespace-nowrap">
             Created By
           </p>
         </div>

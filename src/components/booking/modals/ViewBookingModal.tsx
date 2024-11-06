@@ -32,6 +32,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
   const [history, setHistory] = useState(false);
   const [deliveryNotes, setDeliveryNotes] = useState("");
   const [isAssignModal, setIsAssignModal]=useState(false)
+  const [selectedUser, setSelectedUser]=useState<UserType | null>(null);
 
   const { data, isLoading } = useFetchBookingDetailsQuery(id, {
     skip: !id,
@@ -41,12 +42,26 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
     setIsAssignModal(true)
   }
 
+  const handleHistory=()=>{
+    setSelectedUser({
+      customer_id: data?.customer?.id || '',
+      firstname: data?.customer?.firstname || '',
+      lastname: data?.customer?.lastname || '',
+      phone: data?.customer?.phone || '',
+      email: data?.customer?.email || '',
+      medication_description: data?.customer?.medication_description || '',
+      medical_condition_description: data?.customer?.medical_condition_description || '',
+      allergy_description: data?.customer?.allergy_description || ''
+    })
+    setHistory(true)
+  }
+console.log(data, 'datadata')
   return (
     <>
       <TeamMembersModal members={data?.team} showMembers={["3","4","5","6",'7'].includes(data?.status_id || '')} bookingId={data?.booking_id} open={isAssignModal} setOpen={setIsAssignModal} />
       <BookingLogsModal logsData={data?.logs} open={logs} setOpen={setLogs} />
       <UploadDocumentsModal open={upload} setOpen={setUpload} />
-      <BookingHistoryModal open={history} setOpen={setHistory} />
+      <BookingHistoryModal selectedUser={selectedUser} open={history} setOpen={setHistory} />
       <CancelBookingModal id={id} open={cancel} setOpen={setCancel} />
       <Modal open={open} setOpen={setOpen} className="h-[95%] w-full max-w-[95%] lg:max-w-[85%]">
         <div className="w-full items-center justify-center overflow-hidden rounded-lg bg-gray-100">
@@ -73,7 +88,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                             </h1>
                             <button
                               type="button"
-                              onClick={() => setHistory(true)}
+                              onClick={handleHistory}
                               className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
                             >
                               Booking History

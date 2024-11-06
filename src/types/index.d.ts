@@ -623,3 +623,13 @@ status?: string;
 team?: {is_lead: string, name: string}[];
 categories?: {code: string, color_code: string}[];
 }
+declare type UserType={
+  customer_id: string;
+  firstname: string;
+  lastname: string;
+  phone: string;
+  email: string;
+  medication_description: string;
+  medical_condition_description: string;
+  allergy_description: string
+}
