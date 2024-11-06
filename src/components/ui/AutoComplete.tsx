@@ -50,7 +50,7 @@ const AutoComplete = ({ setSelectedUser }: AutoCompleteProps) => {
       </div>
       <div
         className={cn(
-          "no-scrollbar absolute -bottom-[310px] left-0 z-10 flex h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
+          "no-scrollbar absolute -bottom-[302px] left-0 z-10 flex h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
           {
             hidden: query === "",
             "items-center justify-center": results?.length === 0 || isLoading,
@@ -69,7 +69,7 @@ const AutoComplete = ({ setSelectedUser }: AutoCompleteProps) => {
               }}
               className="flex w-full cursor-pointer flex-col items-center justify-center p-1.5 hover:bg-gray-100"
             >
-              <p className="w-full text-left font-semibold text-black">
+              <p className="w-full text-left text-sm font-semibold text-black">
                 {result.firstname}&nbsp;{result.lastname}
               </p>
               <p className="w-full text-left text-xs text-gray-500">

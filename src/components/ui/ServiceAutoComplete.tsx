@@ -76,7 +76,7 @@ const ServiceAutoComplete = ({
       </div>
       <div
         className={cn(
-          "no-scrollbar absolute -bottom-[310px] left-0 z-10 flex h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
+          "no-scrollbar absolute -bottom-[302px] left-0 z-10 flex h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
           {
             hidden: query === "",
             "items-center justify-center": results?.length === 0 || isLoading,
@@ -101,10 +101,10 @@ const ServiceAutoComplete = ({
               )}
             >
               <div className="flex w-full items-center justify-center text-sm">
-                <p className="w-full text-left">
+                <p className="w-full text-left text-sm">
                   {result.category_code}:{result.service_name}
                 </p>
-                <p className="text-right">AED&nbsp;{result.price_with_vat}</p>
+                <p className="text-right text-sm">AED&nbsp;{result.price_with_vat}</p>
               </div>
               <p className="w-full text-[10px]">CD - 105</p>
             </div>

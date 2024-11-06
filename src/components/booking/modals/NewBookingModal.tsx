@@ -266,7 +266,7 @@ const NewBookingModal = ({
 
   const calculateDiscount = () => {
     const bookingCost = calculateBookingCost(selectedServices!);
-
+console.log(bookingCost, 'bookingCostbookingCost')
     if (isNaN(discount.value)) {
       return bookingCost.grand_total;
     }
@@ -1012,7 +1012,7 @@ const NewBookingModal = ({
                         </div>
                         <div className="col-span-2 flex w-full items-center justify-start">
                           AED&nbsp;
-                          {service.price_without_vat}
+                          {service.price_without_vat || service?.price}
                         </div>
                         <input
                           type="text"
@@ -1054,7 +1054,7 @@ const NewBookingModal = ({
                       <div className="flex w-full items-center justify-end space-x-40 pr-2.5 text-xs text-gray-500">
                         <p>Subtotal</p>
                         <p>
-                          {calculateBookingCost(selectedServices!).subtotal}
+                          {Math.round(calculateBookingCost(selectedServices!).subtotal)}
                         </p>
                       </div>
                       <div className="flex w-full items-center justify-end space-x-7 text-xs text-gray-500">
