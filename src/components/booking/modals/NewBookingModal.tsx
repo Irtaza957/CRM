@@ -1052,7 +1052,7 @@ console.log(bookingCost, 'bookingCostbookingCost')
                       </div>
                     ))}
                     <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5">
-                      <div className="flex w-full items-center justify-end space-x-40 pr-2.5 text-xs text-gray-500">
+                      <div className="flex w-full items-center justify-end space-x-40 pr-5 text-xs text-gray-500">
                         <p>Subtotal</p>
                         <p>
                           {Math.round(calculateBookingCost(selectedServices!).subtotal)}
