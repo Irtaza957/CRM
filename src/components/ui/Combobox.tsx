@@ -88,7 +88,6 @@ const Combobox = ({
           {label}
         </label>
       )}
-      <div className="mb">
       <button
         type="button"
         onClick={() => setToggle(!toggle)}
@@ -184,7 +183,6 @@ const Combobox = ({
             No Results
           </p>
         )}
-      </div>
       </div>
       {errorMsg && (
         <p className="mt-1 text-xs text-red-500">
