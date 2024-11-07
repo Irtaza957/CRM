@@ -29,6 +29,7 @@ export const customerSchema = z.object({
       ctx.addIssue({
         path: ["allergy_description"],
         message: "Allergy description is required.",
+        code: 'custom'
       });
     }
 
@@ -36,6 +37,7 @@ export const customerSchema = z.object({
       ctx.addIssue({
         path: ["medication_description"],
         message: "Medication description is required.",
+        code: 'custom'
       });
     }
 
@@ -43,6 +45,7 @@ export const customerSchema = z.object({
       ctx.addIssue({
         path: ["medical_condition_description"],
         message: "Medical condition description is required.",
+        code: 'custom'
       });
     }
   });
@@ -59,6 +62,7 @@ export const medicalDetailSchema = z.object({
       ctx.addIssue({
         path: ["allergy_description"],
         message: "Allergy description is required.",
+        code: 'custom'
       });
     }
 
@@ -66,6 +70,7 @@ export const medicalDetailSchema = z.object({
       ctx.addIssue({
         path: ["medication_description"],
         message: "Medication description is required.",
+        code: 'custom'
       });
     }
 
@@ -73,6 +78,7 @@ export const medicalDetailSchema = z.object({
       ctx.addIssue({
         path: ["medical_condition_description"],
         message: "Medical condition description is required.",
+        code: 'custom'
       });
     }
   });
@@ -98,11 +104,13 @@ export const familyMemberSchema = z
       ctx.addIssue({
         path: ["allergiesDesc"],
         message: "Allergy description is required.",
+        code: 'custom'
       });
     } else if (data.allergies === "no") {
       ctx.addIssue({
         path: ["allergiesDesc"],
         message: "",
+        code: 'custom'
       });
     }
 
@@ -110,6 +118,7 @@ export const familyMemberSchema = z
       ctx.addIssue({
         path: ["medicationsDesc"],
         message: "Medication description is required.",
+        code: 'custom'
       });
     }
 
@@ -117,6 +126,7 @@ export const familyMemberSchema = z
       ctx.addIssue({
         path: ["medicalConditionDesc"],
         message: "Medical condition description is required.",
+        code: 'custom'
       });
     }
   });

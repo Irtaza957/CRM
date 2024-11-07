@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useSearchCustomerMutation } from "../../store/services/customer";
 
 interface AutoCompleteProps {
-  handleSelectUser: ()=>void;
+  handleSelectUser: () => void;
   setSelectedUser: React.Dispatch<React.SetStateAction<CustomerProps | null>>;
 }
 
@@ -50,38 +50,38 @@ const AutoComplete = ({ handleSelectUser, setSelectedUser }: AutoCompleteProps) 
         <HiMagnifyingGlass className="h-5 w-5" />
       </div>
       <div className="w-full relative">
-      <div
-        className={cn(
-          "no-scrollbar absolute mt-1 left-0 z-10 flex max-h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
-          {
-            hidden: query === "",
-            "items-center justify-center": results?.length === 0 || isLoading,
-          }
-        )}
-      >
-        {results?.length === 0 || isLoading ? (
-          <LuLoader2 className="h-10 w-10 animate-spin text-secondary" />
-        ) : (
-          results?.map((result) => (
-            <div
-              key={result.customer_id}
-              onClick={() => {
-                setQuery("");
-                setSelectedUser(result);
-                handleSelectUser()
-              }}
-              className="flex w-full cursor-pointer flex-col items-center justify-center p-1.5 hover:bg-gray-100"
-            >
-              <p className="w-full text-left text-sm font-semibold text-black">
-                {result.firstname}&nbsp;{result.lastname}
-              </p>
-              <p className="w-full text-left text-xs text-gray-500">
-                {result.phone}
-              </p>
-            </div>
-          ))
-        )}
-      </div>
+        <div
+          className={cn(
+            "no-scrollbar absolute mt-1 left-0 z-10 flex max-h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
+            {
+              hidden: query === "",
+              "items-center justify-center": results?.length === 0 || isLoading,
+            }
+          )}
+        >
+          {results?.length === 0 || isLoading ? (
+            <LuLoader2 className="h-10 w-10 animate-spin text-secondary" />
+          ) : (
+            results?.map((result) => (
+              <div
+                key={result.customer_id}
+                onClick={() => {
+                  setQuery("");
+                  setSelectedUser(result);
+                  handleSelectUser()
+                }}
+                className="flex w-full cursor-pointer flex-col items-center justify-center p-1.5 hover:bg-gray-100"
+              >
+                <p className="w-full text-left text-sm font-semibold text-black">
+                  {result.firstname}&nbsp;{result.lastname}
+                </p>
+                <p className="w-full text-left text-xs text-gray-500">
+                  {result.phone}
+                </p>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

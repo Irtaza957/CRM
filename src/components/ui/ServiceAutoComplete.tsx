@@ -11,7 +11,7 @@ import { toast } from "sonner";
 interface AutoCompleteProps {
   selectedServices: ServiceProps[] | null;
   isCustomerSelected?: boolean;
-  setSelectedServices: (arg0: ServiceProps[])=>void;
+  setSelectedServices: (arg0: ServiceProps[]) => void;
 }
 
 const ServiceAutoComplete = ({
@@ -24,7 +24,7 @@ const ServiceAutoComplete = ({
   const [results, setResults] = useState<ServiceProps[] | undefined>([]);
 
   const handleServiceSelection = (service: ServiceProps) => {
-    if(!isCustomerSelected){
+    if (!isCustomerSelected) {
       toast.custom((t) => (
         <CustomToast
           t={t}
@@ -74,42 +74,44 @@ const ServiceAutoComplete = ({
         />
         <HiMagnifyingGlass className="size-5" />
       </div>
-      <div
-        className={cn(
-          "no-scrollbar absolute -bottom-[302px] left-0 z-10 flex h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
-          {
-            hidden: query === "",
-            "items-center justify-center": results?.length === 0 || isLoading,
-          }
-        )}
-      >
-        {results?.length === 0 || isLoading ? (
-          <LuLoader2 className="h-10 w-10 animate-spin text-secondary" />
-        ) : (
-          results?.map((result) => (
-            <div
-              key={result.service_id}
-              onClick={() => {
-                handleServiceSelection(result);
-              }}
-              className={cn(
-                "flex w-full cursor-pointer flex-col items-center justify-center p-1.5 text-gray-500 hover:text-white",
-                {
-                  "hover:bg-[#31B86A]": result.active === "1",
-                  "hover:bg-[#E94235]": result.active === "0",
-                }
-              )}
-            >
-              <div className="flex w-full items-center justify-center text-sm">
-                <p className="w-full text-left text-sm">
-                  {result.category_code}:{result.service_name}
-                </p>
-                <p className="text-right text-sm">AED&nbsp;{result.price_with_vat}</p>
+      <div className="w-full relative">
+        <div
+          className={cn(
+            "no-scrollbar absolute mt-1 left-0 z-10 flex max-h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
+            {
+              hidden: query === "",
+              "items-center justify-center": results?.length === 0 || isLoading,
+            }
+          )}
+        >
+          {results?.length === 0 || isLoading ? (
+            <LuLoader2 className="h-10 w-10 animate-spin text-secondary" />
+          ) : (
+            results?.map((result) => (
+              <div
+                key={result.service_id}
+                onClick={() => {
+                  handleServiceSelection(result);
+                }}
+                className={cn(
+                  "flex w-full cursor-pointer flex-col items-center justify-center p-1.5 text-gray-500 hover:text-white",
+                  {
+                    "hover:bg-[#31B86A]": result.active === "1",
+                    "hover:bg-[#E94235]": result.active === "0",
+                  }
+                )}
+              >
+                <div className="flex w-full items-center justify-center text-sm">
+                  <p className="w-full text-left text-sm">
+                    {result.category_code}:{result.service_name}
+                  </p>
+                  <p className="text-right text-sm">AED&nbsp;{result.price_with_vat}</p>
+                </div>
+                <p className="w-full text-[10px]">CD - 105</p>
               </div>
-              <p className="w-full text-[10px]">CD - 105</p>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
