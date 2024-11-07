@@ -18,39 +18,68 @@ import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
 import { options, relationshipOptions } from "../../../utils/constants";
 
-// Define the Zod schema
-const schema: ZodSchema = z
-  .object({
-    first_name: z.string().min(1, "First name is required"),
-    last_name: z.string().min(1, "Last name is required"),
-    date_of_birth: z.string().nonempty("Date of birth is required"),
-    allergies: z.enum(["yes", "no"]),
-    allergiesDesc: z.string().optional().nullable(),
-    medications: z.enum(["yes", "no"]),
-    medicationsDesc: z.string().optional().nullable(),
-    medicalConditions: z.enum(["yes", "no"]),
-    medicalConditionDesc: z.string().optional().nullable(),
-    relation: z.string().optional(),
-    gender: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.allergies === "yes" && !data.allergiesDesc) {
-        return false; // Description is required if allergies is "yes"
+// Define the Zod schema with detailed conditions for radio buttons
+const schema = z.object({
+  first_name: z.string().min(1, { message: "First name is required" }),
+  last_name: z.string().min(1, { message: "Last name is required" }),
+  date_of_birth: z.string().nonempty({ message: "Date of birth is required" }),
+
+  // Allergies radio button and its description
+  is_allergy: z.enum(["yes", "no"]).default("no"),
+  allergy_description: z
+    .string()
+    .max(500)
+    .optional()
+    .refine(
+      (val, ctx) => {
+        if (ctx?.parent.is_allergy === "yes" && !val) {
+          return false;
+        }
+        return true;
+      },
+      { message: "Allergy description is required when allergy is 'yes'." }
+    ),
+
+  // Medication
+  is_medication: z.enum(["yes", "no"]).default("no"),
+  medication_description: z
+    .string()
+    .max(500)
+    .optional()
+    .refine(
+      (val, ctx) => {
+        if (ctx?.parent.is_medication === "yes" && !val) {
+          return false;
+        }
+        return true;
+      },
+      {
+        message: "Medication description is required when medication is 'yes'.",
       }
-      if (data.medications === "yes" && !data.medicationsDesc) {
-        return false; // Description is required if medications is "yes"
+    ),
+
+  // Medical Condition
+  is_medical_condition: z.enum(["yes", "no"]).default("no"),
+  medical_condition_description: z
+    .string()
+    .max(500)
+    .optional()
+    .refine(
+      (val, ctx) => {
+        if (ctx?.parent.is_medical_condition === "yes" && !val) {
+          return false;
+        }
+        return true;
+      },
+      {
+        message:
+          "Medical condition description is required when medical condition is 'yes'.",
       }
-      if (data.medicalConditions === "yes" && !data.medicalConditionDesc) {
-        return false; // Description is required if medical conditions is "yes"
-      }
-      return true; // All conditions are met
-    },
-    {
-      message: "Description is required when the respective field is 'yes'",
-      path: ["allergiesDesc", "medicationsDesc", "medicalConditionDesc"], // Optional: specify which paths to return in error
-    }
-  );
+    ),
+
+  relation: z.string().optional(),
+  gender: z.string().optional(),
+});
 
 interface AddAddressModalProps {
   open: boolean;
@@ -92,7 +121,8 @@ const AddFamilyMemberModal = ({
   const isMedicalCondition = watch("medicalConditions");
 
   const [addFamily, { isLoading }] = useAddFamilyMutation();
-  const [updateFamily, {isLoading: loadingUpdate}] = useUpdateFamilyMutation();
+  const [updateFamily, { isLoading: loadingUpdate }] =
+    useUpdateFamilyMutation();
 
   const handleSelectGender = (value: ListOptionProps) => setGender(value);
   const handleSelectRelationship = (value: ListOptionProps) =>
@@ -243,6 +273,8 @@ const AddFamilyMemberModal = ({
     }
   }, [open]);
 
+  console.log("Errors", errors); // Log all errors in the form
+
   return (
     <Modal
       open={open}
@@ -357,6 +389,13 @@ const AddFamilyMemberModal = ({
               errorMsg={errors.allergiesDesc?.message}
             />
           </div>
+          {errors.allergy_description?.message ||
+            (errors?.is_allergy?.message && (
+              <p className="mt-1 whitespace-nowrap text-xs text-red-500">
+                *{errors?.allergy_description?.message} || *
+                {errors.is_allergy?.message}
+              </p>
+            ))}
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
               Medications:
@@ -388,6 +427,13 @@ const AddFamilyMemberModal = ({
               errorMsg={errors.medicationsDesc?.message}
             />
           </div>
+          {errors.medication_description?.message ||
+            (errors.is_medication?.message && (
+              <p className="mt-1 whitespace-nowrap text-xs text-red-500">
+                *{errors.medication_description?.message} || *
+                {errors.is_medication?.message}
+              </p>
+            ))}
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
               Medical Conditions:
@@ -419,6 +465,13 @@ const AddFamilyMemberModal = ({
               errorMsg={errors.medicalConditionDesc?.message}
             />
           </div>
+          {errors.medical_condition_description?.message ||
+            (errors.is_medical_condition?.message && (
+              <p className="mt-1 whitespace-nowrap text-xs text-red-500">
+                *{errors.medical_condition_description?.message} || *
+                {errors.is_medical_condition?.message}
+              </p>
+            ))}
           {/* End Medical Details Section */}
           <div className="mt-7 flex w-full justify-end gap-3">
             <CustomButton

@@ -24,7 +24,8 @@ interface ComboboxProps {
   isFilter?: boolean;
   disabled?: boolean;
   setValue?: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
-  handleSelect?: (arg0: ListOptionProps)=>void
+  handleSelect?: (arg0: ListOptionProps) => void;
+  errorMsg?: string;
 }
 
 const Combobox = ({
@@ -43,34 +44,35 @@ const Combobox = ({
   searchInputPlaceholder,
   defaultSelectedIconClassName,
   label,
-  isSearch=true,
+  isSearch = true,
   isFilter,
   disabled,
-  handleSelect
+  handleSelect,
+  errorMsg,
 }: ComboboxProps) => {
   const [toggle, setToggle] = useState(false);
   const [query, setQuery] = useState<string>("");
   const ComboboxRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(ComboboxRef, () => setToggle(false));
 
-  const handleToggle=(dropdownValue: ListOptionProps)=>{
-    if(isFilter && value?.id===dropdownValue?.id){
-      handleSelect && handleSelect({id: 0, name: ''})
-    }else{
-      handleSelect && handleSelect(dropdownValue)
+  const handleToggle = (dropdownValue: ListOptionProps) => {
+    if (isFilter && value?.id === dropdownValue?.id) {
+      handleSelect && handleSelect({ id: 0, name: "" });
+    } else {
+      handleSelect && handleSelect(dropdownValue);
     }
-  }
+  };
 
-  const handleClick=(item: ListOptionProps)=>{
-    if(!isFilter){
-      setToggle(!toggle)
+  const handleClick = (item: ListOptionProps) => {
+    if (!isFilter) {
+      setToggle(!toggle);
     }
-    if(handleSelect){
-      handleToggle(item)
-    }else{
-      setValue?.(item)
+    if (handleSelect) {
+      handleToggle(item);
+    } else {
+      setValue?.(item);
     }
-  }
+  };
 
   return (
     <div
@@ -80,14 +82,16 @@ const Combobox = ({
         mainClassName
       )}
     >
-      {label && <label className="w-full text-left text-xs text-grey100 font-medium mb-0.5">
-        {label}
-      </label>}
+      {label && (
+        <label className="mb-0.5 w-full text-left text-xs font-medium text-grey100">
+          {label}
+        </label>
+      )}
       <button
         type="button"
         onClick={() => setToggle(!toggle)}
         className={cn(
-          `flex items-center justify-between space-x-3 ${disabled && 'opacity-50'}`,
+          `flex items-center justify-between space-x-3 ${disabled && "opacity-50"}`,
           toggleClassName
         )}
         disabled={disabled}
@@ -109,17 +113,18 @@ const Combobox = ({
           }
         )}
       >
-        {isSearch &&
-        <input
-          type="text"
-          value={query}
-          placeholder={searchInputPlaceholder}
-          onChange={(e) => setQuery(e.target.value)}
-          className={cn(
-            "sticky left-0 top-0 w-full border-b",
-            searchInputClassName
-          )}
-        />}
+        {isSearch && (
+          <input
+            type="text"
+            value={query}
+            placeholder={searchInputPlaceholder}
+            onChange={(e) => setQuery(e.target.value)}
+            className={cn(
+              "sticky left-0 top-0 w-full border-b",
+              searchInputClassName
+            )}
+          />
+        )}
         {query ? (
           options?.filter((item) =>
             item.name.toLowerCase().includes(query.toLowerCase())
@@ -135,7 +140,7 @@ const Combobox = ({
               .map((item) => (
                 <p
                   key={item.id}
-                  onClick={()=>handleClick(item)}
+                  onClick={() => handleClick(item)}
                   className={cn(
                     "flex cursor-pointer items-center justify-start",
                     listItemClassName
@@ -152,11 +157,11 @@ const Combobox = ({
                 </p>
               ))
           )
-        ) : (
-          options?.length ? options?.map((item) => (
+        ) : options?.length ? (
+          options?.map((item) => (
             <p
               key={item.id}
-              onClick={()=>handleClick(item)}
+              onClick={() => handleClick(item)}
               className={cn(
                 "flex cursor-pointer items-center justify-start",
                 listItemClassName
@@ -170,13 +175,19 @@ const Combobox = ({
                   <FaCheck className={cn(defaultSelectedIconClassName)} />
                 )
               ) : null}
-            </p> 
-          )) :  
+            </p>
+          ))
+        ) : (
           <p className="w-full py-1.5 text-center text-xs font-semibold">
             No Results
-        </p>
+          </p>
         )}
       </div>
+      {errorMsg && (
+        <p className="mt-1 whitespace-nowrap text-xs text-red-500">
+          *{errorMsg}
+        </p>
+      )}
     </div>
   );
 };
