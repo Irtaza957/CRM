@@ -10,7 +10,6 @@ import ReAssign from "../../../assets/icons/colored/re-assign.svg";
 import CalendarPlain from "../../../assets/icons/calendar-plain.svg";
 import WhatsAppColored from "../../../assets/icons/whatsapp-colored.svg";
 import { useFetchBookingDetailsQuery } from "../../../store/services/booking";
-import LocationSquare from "../../../assets/icons/colored/location-colored.svg";
 import PhoneSquare from "../../../assets/icons/colored/colored-phone-square.svg";
 import WhatsappSquare from "../../../assets/icons/colored/colored-whatsapp-square.svg";
 
@@ -55,7 +54,10 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
     })
     setHistory(true)
   }
-console.log(data, 'datadata')
+
+  const handleWhatsapp=(phone: string)=>{
+    window.open(`https://wa.me/?text=${phone}`, '_blank')
+  }
   return (
     <>
       <TeamMembersModal members={data?.team} showMembers={["3","4","5","6",'7'].includes(data?.status_id || '')} bookingId={data?.booking_id} open={isAssignModal} setOpen={setIsAssignModal} />
@@ -334,7 +336,7 @@ console.log(data, 'datadata')
                               </button>
                             </div>
                           </div>
-                          {!["1","2"].includes(data?.status_id || '') &&
+                          {["1","2"].includes(data?.status_id || '') &&
                           <>
                           <div className="mt-2.5 grid w-full grid-cols-4 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
                             <p className="col-span-1 w-full text-left">Team</p>
@@ -372,28 +374,31 @@ console.log(data, 'datadata')
                                   {m.is_accepted === "1" ? "Accepted" : "Pending"}
                                 </p>
                               </div>
-                              <div className="flex w-full items-center justify-between">
+                              <div className="flex w-full items-center justify- gap-2">
                                 <img
                                   src={PhoneSquare}
                                   alt="icon"
                                   className="size-5 cursor-pointer"
+                                  onClick={()=>handleWhatsapp(m?.phone)}
                                 />
                                 <img
                                   src={WhatsappSquare}
                                   alt="icon"
                                   className="size-5 cursor-pointer"
+                                  onClick={()=>handleWhatsapp(m?.phone)}
                                 />
+                                {["3","4","5","6",'7'].includes(data?.status_id || '') &&
                                 <img
                                   onClick={handleAssign}
                                   src={ReAssign}
                                   alt="icon"
                                   className="size-5 cursor-pointer"
-                                />
-                                <img
+                                />}
+                                {/* <img
                                   src={LocationSquare}
                                   alt="icon"
                                   className="size-5 cursor-pointer"
-                                />
+                                /> */}
                               </div>
                             </div>
                           ))}

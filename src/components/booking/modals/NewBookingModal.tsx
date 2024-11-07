@@ -41,7 +41,6 @@ import {
 } from "react-icons/fa";
 import dayjs from "dayjs";
 import { toast } from "sonner";
-import { Link } from "react-router-dom";
 import { FreeMode } from "swiper/modules";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
@@ -183,7 +182,7 @@ const NewBookingModal = ({
   const [history, setHistory] = useState(false);
   const [openDeleteAttachmentModal, setOpenDeleteAttachmentModal] =
     useState(false);
-  const [deleteAttachment, setDeleteAttachment] = useState({});
+  const [deleteAttachment, setDeleteAttachment] = useState<AttachmentProps | null>(null);
 
   const [fetchCategories] = useFetchCategoriesMutation();
   const { data: professions } = useFetchUsersByRolesQuery({});
@@ -364,6 +363,8 @@ console.log(bookingCost, 'bookingCostbookingCost')
             message="Successfully Created Booking!"
           />
         ));
+        setSelectedServices([])
+        setSelectedFamily(null)
       }
     } catch (error) {
       toast.custom((t) => (

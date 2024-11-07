@@ -35,7 +35,7 @@ const EditServiceModal = ({
       return (
         Number(newPrice || selectedService?.price_without_vat || selectedService?.price) -
         Number(newPrice || selectedService?.price_without_vat || selectedService?.price) *
-          (discount.value / 100)
+        (discount.value / 100)
       );
     }
   };
@@ -73,10 +73,10 @@ const EditServiceModal = ({
       open={!!open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="w-[30%] max-w-[80%]"
+      className="w-full max-w-[50%] xl:max-w-[30%]"
       title="Service"
     >
-      <div className="w-full px-6 py-7">
+      <div className="w-full px-6 py-4">
         <p className="text-left text-[18px] font-bold text-primary">
           Edit Service
         </p>
@@ -92,28 +92,32 @@ const EditServiceModal = ({
           <div className="my-5 flex w-full items-center justify-end space-x-4 text-xs text-gray-500">
             <p className="text-xs font-medium text-grey100">Discount</p>
             <div className="flex h-[38px] items-center justify-center space-x-2.5 overflow-hidden rounded-lg border p-2.5">
-              <div
-                onClick={() => setDiscount({ ...discount, type: "aed" })}
-                className="size-3 cursor-pointer rounded-full border border-gray-400 bg-black p-px"
-              >
+              <div onClick={() => setDiscount({ ...discount, type: "aed" })} className="flex items-center justify-center space-x-2.5 cursor-pointer">
                 <div
-                  className={cn("size-full rounded-full", {
-                    "bg-gray-500": discount.type === "aed",
-                  })}
-                />
+                  className="size-3 rounded-full border border-gray-400 p-px"
+                >
+                  <div
+                    className={cn("size-full rounded-full", {
+                      "bg-gray-500": discount.type === "aed",
+                    })}
+                  />
+                </div>
+                <span>AED</span>
               </div>
-              <span>AED</span>
-              <div
-                onClick={() => setDiscount({ ...discount, type: "percent" })}
-                className="size-3 cursor-pointer rounded-full border border-gray-400 p-px"
-              >
+              <div onClick={() => setDiscount({ ...discount, type: "percent" })} className="flex items-center justify-center space-x-2.5 cursor-pointer">
                 <div
-                  className={cn("size-full rounded-full", {
-                    "bg-gray-500": discount.type === "percent",
-                  })}
-                />
+
+                  className="size-3 rounded-full border border-gray-400 p-px"
+                >
+                  <div
+                    className={cn("size-full rounded-full", {
+                      "bg-gray-500": discount.type === "percent",
+                    })}
+                  />
+                </div>
+
+                <span>%</span>
               </div>
-              <span>%</span>
               <input
                 value={discount.value}
                 type="number"
@@ -128,6 +132,7 @@ const EditServiceModal = ({
                 }}
                 className="w-10 border-l-2 pl-2.5"
               />
+
             </div>
           </div>
           <div className="flex w-full items-center justify-end space-x-[115px] border-t-2 border-gray-300 pr-2.5 pt-3 font-bold text-gray-500">

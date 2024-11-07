@@ -1,7 +1,5 @@
 import Modal from "../../ui/Modal";
-import { cn } from "../../../utils/helpers";
-
-import { IoClose } from "react-icons/io5";
+import { cn } from "../../../utils/helpers"
 import dayjs from "dayjs";
 
 interface BookingLogsModalProps {

@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod"; // Import Zod resolver
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
 import { emirates } from "../../../utils/constants";
-import Map from "../../../assets/icons/map.svg";
+// import Map from "../../../assets/icons/map.svg";
 
 const addressSchema = z.object({
   address_type: z.string().min(1, "Address Type is required"),
@@ -230,6 +230,7 @@ const AddAddressModal = ({
               listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               icon={<RiArrowDownSLine className="size-5 text-grey100" />}
               isSearch={false}
+              disabled={!emirate?.id}
             />
           </div>
           <div className="my-4 flex w-full items-center justify-center gap-5">
@@ -273,10 +274,10 @@ const AddAddressModal = ({
                 register={register}
                 errorMsg={errors.map_link?.message}
               />
-              <div className="mt-5 flex cursor-pointer items-center gap-3 rounded-md bg-primary px-6 py-2 text-white">
+              {/* <div className="mt-5 flex cursor-pointer items-center gap-3 rounded-md bg-primary px-6 py-2 text-white">
                 <p>Map</p>
                 <img src={Map} alt="" />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

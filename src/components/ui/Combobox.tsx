@@ -22,6 +22,7 @@ interface ComboboxProps {
   label?: string;
   isSearch?: boolean;
   isFilter?: boolean;
+  disabled?: boolean;
   setValue?: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
   handleSelect?: (arg0: ListOptionProps)=>void
 }
@@ -44,6 +45,7 @@ const Combobox = ({
   label,
   isSearch=true,
   isFilter,
+  disabled,
   handleSelect
 }: ComboboxProps) => {
   const [toggle, setToggle] = useState(false);
@@ -85,9 +87,10 @@ const Combobox = ({
         type="button"
         onClick={() => setToggle(!toggle)}
         className={cn(
-          "flex items-center justify-between space-x-3",
+          `flex items-center justify-between space-x-3 ${disabled && 'opacity-50'}`,
           toggleClassName
         )}
+        disabled={disabled}
       >
         <span>{value?.name ? value.name : placeholder}</span>
         {icon ? (

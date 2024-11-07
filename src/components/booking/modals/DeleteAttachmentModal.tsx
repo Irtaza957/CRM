@@ -8,7 +8,7 @@ import CustomToast from "../../ui/CustomToast";
 interface DeleteAttachmentModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  attachment: AttachmentProps;
+  attachment?: AttachmentProps | null;
   getAttachments: (agr0: string) => void;
 }
 
@@ -20,33 +20,35 @@ const DeleteAttachmentModal = ({
 }: DeleteAttachmentModalProps) => {
   const [deleteAttachment, {isLoading}] = useDeleteAttachmentMutation();
 
-  const handleDeleteAttachment = async (attachment: AttachmentProps) => {
+  const handleDeleteAttachment = async (attachment?: AttachmentProps | null) => {
     try {
-      const formData = new FormData();
-      formData.append("file_name", attachment?.file_name);
-      formData.append("file_type", attachment?.file_type);
-      formData.append("attachment_id", attachment?.attachment_id);
-      const response=await deleteAttachment(formData);
-      if (response?.error) {
-        toast.custom((t) => (
-          <CustomToast
-            t={t}
-            type="error"
-            title="Error"
-            message={`Something Went Wrong!`}
-          />
-        ));
-      } else {
-        toast.custom((t) => (
-          <CustomToast
-            t={t}
-            type="success"
-            title="Success"
-            message={`Attachment Deleted Successfully!`}
-          />
-        ));
-        getAttachments(attachment?.customer_id || "");
-        setOpen(false);
+      if(attachment){
+        const formData = new FormData();
+        formData.append("file_name", attachment?.file_name);
+        formData.append("file_type", attachment?.file_type);
+        formData.append("attachment_id", attachment?.attachment_id);
+        const response=await deleteAttachment(formData);
+        if (response?.error) {
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="error"
+              title="Error"
+              message={`Something Went Wrong!`}
+            />
+          ));
+        } else {
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="success"
+              title="Success"
+              message={`Attachment Deleted Successfully!`}
+            />
+          ));
+          getAttachments(attachment?.customer_id || "");
+          setOpen(false);
+        }
       }
     } catch (error) {
       console.log(error);
