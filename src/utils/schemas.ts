@@ -47,6 +47,36 @@ export const customerSchema = z.object({
     }
   });
 
+export const medicalDetailSchema = z.object({
+  is_allergy: z.string().default("no"),
+  allergy_description: z.string().max(500).optional(),
+  is_medication: z.string().default("no"),
+  medication_description: z.string().max(500).optional(),
+  is_medical_condition: z.string().default("no"),
+  medical_condition_description: z.string().max(500).optional(),
+}).superRefine((data, ctx) => {
+    if (data.is_allergy === "yes" && !data.allergy_description) {
+      ctx.addIssue({
+        path: ["allergy_description"],
+        message: "Allergy description is required.",
+      });
+    }
+
+    if (data.is_medication === "yes" && !data.medication_description) {
+      ctx.addIssue({
+        path: ["medication_description"],
+        message: "Medication description is required.",
+      });
+    }
+
+    if (data.is_medical_condition === "yes" && !data.medical_condition_description) {
+      ctx.addIssue({
+        path: ["medical_condition_description"],
+        message: "Medical condition description is required.",
+      });
+    }
+  });
+
 
 export const familyMemberSchema = z
   .object({

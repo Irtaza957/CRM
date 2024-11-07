@@ -4,6 +4,8 @@ import CustomInput from "../../ui/CustomInput";
 import CustomButton from "../../ui/CustomButton";
 import { useUpdateCustomerMutation } from "../../../store/services/booking";
 import { useForm } from "react-hook-form";
+import { medicalDetailSchema } from "../../../utils/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface AddMedicalDetailModalProps {
   open: boolean;
@@ -20,7 +22,10 @@ const AddMedicalDetailModal = ({
 }: AddMedicalDetailModalProps) => {
   const [updateCustomer, { isLoading }] = useUpdateCustomerMutation();
 
-  const { register, reset, setValue, handleSubmit, watch } = useForm();
+  const { register, reset, setValue, handleSubmit, watch, formState: { errors }, } = useForm({
+    resolver: zodResolver(medicalDetailSchema),
+    mode: "all",
+  });
 
   const isAllergy = watch("is_allergy");
   const isMedication = watch("is_medication");
@@ -180,6 +185,7 @@ const AddMedicalDetailModal = ({
             placeholder="Please Specify"
             register={register}
             disabled={!isAllergy || isAllergy === "no"}
+            errorMsg={errors?.allergy_description?.message}
           />
         </div>
         <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
@@ -213,6 +219,7 @@ const AddMedicalDetailModal = ({
             placeholder="Please Specify"
             register={register}
             disabled={!isMedication || isMedication === "no"}
+            errorMsg={errors?.medication_description?.message}
           />
         </div>
         <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
@@ -246,6 +253,7 @@ const AddMedicalDetailModal = ({
             placeholder="Please Specify"
             register={register}
             disabled={!isMedicalCondition || isMedicalCondition === "no"}
+            errorMsg={errors?.medical_condition_description?.message}
           />
         </div>
 
