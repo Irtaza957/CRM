@@ -59,8 +59,8 @@
 }
 
 .custom-radio {
-  width: 15px;
-  height: 15px;
+  width: 18px;
+  height: 18px;
   border: 1px solid #656565;
   appearance: none;
   border-radius: 20px; /* Adjust this to control the corner radius */
@@ -78,7 +78,7 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-55%, -55%);
+  transform: translate(-50%, -50%);
   width: 10px;
   height: 10px;
   background-color: #6b7280;
