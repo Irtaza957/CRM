@@ -4,6 +4,7 @@ import { ReactNode, useRef, useState } from "react";
 
 import { cn } from "../../utils/helpers";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
+import { FieldError, FieldErrorsImpl, Merge } from "react-hook-form";
 
 interface ComboboxProps {
   icon?: ReactNode;
@@ -25,7 +26,7 @@ interface ComboboxProps {
   disabled?: boolean;
   setValue?: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
   handleSelect?: (arg0: ListOptionProps) => void;
-  errorMsg?: string;
+  errorMsg?: string | FieldError | Merge<FieldError, FieldErrorsImpl>;
 }
 
 const Combobox = ({
@@ -78,7 +79,7 @@ const Combobox = ({
     <div
       ref={ComboboxRef}
       className={cn(
-        "relative flex flex-col items-start justify-start",
+        "relative flex flex-col items-start justify-start pt-2",
         mainClassName
       )}
     >
@@ -87,6 +88,7 @@ const Combobox = ({
           {label}
         </label>
       )}
+      <div className="mb">
       <button
         type="button"
         onClick={() => setToggle(!toggle)}
@@ -183,9 +185,10 @@ const Combobox = ({
           </p>
         )}
       </div>
+      </div>
       {errorMsg && (
-        <p className="mt-1 whitespace-nowrap text-xs text-red-500">
-          *{errorMsg}
+        <p className="mt-1 text-xs text-red-500">
+          *{errorMsg as string}
         </p>
       )}
     </div>

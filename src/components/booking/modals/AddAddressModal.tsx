@@ -10,24 +10,11 @@ import {
   useUpdateAddressMutation,
 } from "../../../store/services/booking";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { z } from "zod"; // Import Zod
-import { zodResolver } from "@hookform/resolvers/zod"; // Import Zod resolver
+import { zodResolver } from "@hookform/resolvers/zod";
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
 import { emirates } from "../../../utils/constants";
-// import Map from "../../../assets/icons/map.svg";
-
-const addressSchema = z.object({
-  address_type: z.string().min(1, "Address Type is required"),
-  emirate_id: z.number().min(1, "Emirate is required"),
-  area_id: z.number().min(1, "Area is required"),
-  building_no: z.string().min(1, "Building Number is required"),
-  apartment: z.string().min(1, "Apartment Number is required"),
-  street: z.string().min(1, "Street is required"),
-  map_link: z.string().min(1, "Map Link is required"),
-  extra_direction: z.string().min(1, "Extra Direction is required"),
-});
-
+import { addressSchema } from "../../../utils/schemas";
 interface AddAddressModalProps {
   open: boolean;
   customerId?: string;
@@ -49,7 +36,7 @@ const AddAddressModal = ({
   const [villa, setVilla] = useState<ListOptionProps | null>(null);
 
   const [addAddress, { isLoading }] = useAddAddressMutation();
-  const [updateAddress] = useUpdateAddressMutation();
+  const [updateAddress, {isLoading: updateLoading}] = useUpdateAddressMutation();
   const { data: areasDate } = useFetchAreasQuery(emirate?.id as string, {
     skip: !emirate?.id,
     refetchOnMountOrArgChange: true,
@@ -71,7 +58,7 @@ const AddAddressModal = ({
     setValue,
     reset,
     handleSubmit,
-    formState: { errors, isDirty, isValid },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(addressSchema),
     defaultValues,
@@ -291,8 +278,8 @@ const AddAddressModal = ({
         <CustomButton
           name={editableAddressId?.address_id ? "Update" : "Save"}
           handleClick={handleSubmit(handleSave)}
-          loading={isLoading}
-          disabled={isLoading}
+          loading={isLoading || updateLoading}
+          disabled={isLoading || updateLoading}
         />
       </div>
     </Modal>

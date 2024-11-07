@@ -50,7 +50,7 @@ const CustomInput = ({
           className
         )}
       />
-      {errorMsg &&<p className="text-red-500 text-xs mt-1 whitespace-nowrap">*{errorMsg}</p>}
+      {errorMsg &&<p className="text-red-500 text-left w-full text-xs mt-1">*{errorMsg}</p>}
     </div>
   );
 };

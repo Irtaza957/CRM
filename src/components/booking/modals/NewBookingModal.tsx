@@ -574,6 +574,7 @@ console.log(bookingCost, 'bookingCostbookingCost')
     if (!open) {
       setSelectedUser(null);
       setSelectedServices(null);
+      setEditMode(false)
     }
   }, [open]);
 

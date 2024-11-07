@@ -16,8 +16,8 @@ import { toast } from "sonner";
 import CustomToast from "../../ui/CustomToast";
 import { useFetchSourcesQuery } from "../../../store/services/filters";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { z } from "zod"; // Import Zod
-import { zodResolver } from "@hookform/resolvers/zod"; // Import Zod resolver
+import { zodResolver } from "@hookform/resolvers/zod";
+import { customerSchema } from "../../../utils/schemas";
 
 interface AddCustomerModalProps {
   open: boolean;
@@ -27,76 +27,6 @@ interface AddCustomerModalProps {
   editMode?: boolean;
   userData?: any;
 }
-
-const customerSchema = z.object({
-  firstname: z.string().min(1).max(50),
-  lastname: z.string().min(1).max(50),
-  phone: z.string().min(7).optional(),
-  email: z.string().email().optional(),
-  date_of_birth: z
-    .preprocess((val) => {
-      const date = dayjs(val);
-      return date.isValid() ? date.toDate() : null;
-    }, z.date())
-    .nullable()
-    .optional(),
-  // Allergy
-  is_allergy: z.enum(["yes", "no"]).default("no"),
-  allergy_description: z
-    .string()
-    .max(500)
-    .optional()
-    .refine(
-      (val, ctx) => {
-        if (ctx?.parent.is_allergy === "yes" && !val) {
-          return false;
-        }
-        return true;
-      },
-      { message: "Allergy description is required when allergy is 'yes'." }
-    ),
-
-  // Medication
-  is_medication: z.enum(["yes", "no"]).default("no"),
-  medication_description: z
-    .string()
-    .max(500)
-    .optional()
-    .refine(
-      (val, ctx) => {
-        if (ctx?.parent.is_medication === "yes" && !val) {
-          return false;
-        }
-        return true;
-      },
-      {
-        message: "Medication description is required when medication is 'yes'.",
-      }
-    ),
-
-  // Medical Condition
-  is_medical_condition: z.enum(["yes", "no"]).default("no"),
-  medical_condition_description: z
-    .string()
-    .max(500)
-    .optional()
-    .refine(
-      (val, ctx) => {
-        if (ctx?.parent.is_medical_condition === "yes" && !val) {
-          return false;
-        }
-        return true;
-      },
-      {
-        message:
-          "Medical condition description is required when medical condition is 'yes'.",
-      }
-    ),
-
-  customer_source_id: z.string().min(1).optional(),
-  gender: z.string().min(1).optional(),
-  nationality: z.string().min(1).optional(),
-});
 
 const genderOptions = [
   { id: "Male", name: "Male" },
@@ -116,22 +46,6 @@ const AddCustomerModal = ({
   const [nationality, setNationality] = useState<ListOptionProps | null>(null);
   const [dateOfBirth, setDateOfBirth] = useState<Date | string>(new Date());
 
-  const defaultValues = {
-    firstname: "",
-    lastname: "",
-    phone: "",
-    email: "",
-    date_of_birth: null,
-    is_allergy: "no",
-    allergy_description: "",
-    is_medication: "no",
-    medication_description: "",
-    is_medical_condition: "no",
-    medical_condition_description: "",
-    customer_source_id: "",
-    gender: "",
-    nationality: "",
-  };
 
   const {
     register,
@@ -139,11 +53,17 @@ const AddCustomerModal = ({
     reset,
     handleSubmit,
     watch,
+    clearErrors,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(customerSchema),
     mode: "all",
   });
+
+  
+  const isAllergy = watch("is_allergy");
+  const isMedication = watch("is_medication");
+  const isMedicalCondition = watch("is_medical_condition");
 
   const [addCustomer, { isLoading }] = useAddCustomerMutation();
   const [updateCustomer] = useUpdateCustomerMutation();
@@ -162,61 +82,22 @@ const AddCustomerModal = ({
     }
   );
 
-  useEffect(() => {
-    if (editMode && userData) {
-      setValue("firstname", userData.firstname);
-      setValue("lastname", userData.lastname);
-      setValue("phone", userData.phone);
-      setValue("email", userData.email);
-      setValue("date_of_birth", dayjs(userData.date_of_birth).toDate());
-      setValue("is_allergy", userData.is_allergy === "1" ? "yes" : "no");
-      setValue("allergy_description", userData.allergy_description);
-      setValue("is_medication", userData.is_medication === "1" ? "yes" : "no");
-      setValue("medication_description", userData.medication_description);
-      setValue(
-        "is_medical_condition",
-        userData.is_medical_conition === "1" ? "yes" : "no"
-      );
-      setValue(
-        "medical_condition_description",
-        userData.medical_condition_description
-      );
-      setDateOfBirth(dayjs(userData.date_of_birth).toDate());
-
-      // Setting source and gender based on userData values
-      const matchedSource = sources?.find(
-        (opt) => opt.id === parseInt(userData.customer_source_id)
-      );
-      setSource(matchedSource || null);
-      setValue("customer_source_id", matchedSource ? matchedSource.id : "");
-
-      const matchedGender = genderOptions.find(
-        (opt) => opt.id === userData.gender
-      );
-      setGender(matchedGender || null);
-      setValue("gender", matchedGender ? matchedGender.id : "");
-      setValue("nationality", userData?.nationality || "");
-
-      setNationality({
-        id: userData.nationality_id,
-        name: userData.nationality,
-      });
-    }
-  }, [editMode, userData, open]);
-
   const handleSelectGender = (value: ListOptionProps) => {
     setGender(value);
-    setValue("gender", value.id);
+    setValue("gender", String(value.id));
+    clearErrors('gender')
   };
 
   const handleSelectSource = (value: ListOptionProps) => {
     setSource(value);
-    setValue("customer_source_id", value.id);
+    setValue("customer_source_id", String(value.id));
+    clearErrors('customer_source_id')
   };
 
   const handleSelectNationality = (value: ListOptionProps) => {
     setNationality(value);
-    setValue("nationality", value.id);
+    setValue("nationality", String(value.id));
+    clearErrors('nationality')
   };
 
   const handleSave: SubmitHandler<any> = async (data) => {
@@ -281,21 +162,6 @@ const AddCustomerModal = ({
           setDateOfBirth(new Date());
           setSource(null);
           setGender(null);
-          reset({
-            firstname: "",
-            lastname: "",
-            email: "",
-            phone: "",
-            medical_condition_description: "",
-            is_medical_condition: "",
-            medication_description: "",
-            allergy_description: "",
-            is_medication: "",
-            is_allergy: "",
-            nationality: "",
-            gender: "",
-            date_of_birth: "",
-          });
           toast.custom((t) => (
             <CustomToast
               t={t}
@@ -312,13 +178,76 @@ const AddCustomerModal = ({
     }
   };
 
+  const resetState=()=>{
+    reset({
+      firstname: "",
+      lastname: "",
+      email: "",
+      phone: "",
+      medical_condition_description: "",
+      is_medical_condition: "",
+      medication_description: "",
+      allergy_description: "",
+      is_medication: "",
+      is_allergy: "",
+      nationality: "",
+      gender: "",
+      date_of_birth: "",
+    });
+  }
+
   const closeModal = () => {
     setOpen(false);
   };
 
-  const isAllergy = watch("is_allergy");
-  const isMedication = watch("is_medication");
-  const isMedicalCondition = watch("is_medical_condition");
+  useEffect(() => {
+    if (!open) {
+      resetState();
+    }
+  }, [open]);
+  
+  useEffect(() => {
+    if (editMode && userData) {
+      setValue("firstname", userData.firstname);
+      setValue("lastname", userData.lastname);
+      setValue("phone", userData.phone);
+      setValue("email", userData.email);
+      setValue("date_of_birth", dayjs(userData.date_of_birth).toDate());
+      setValue("is_allergy", userData.is_allergy === "1" ? "yes" : "no");
+      setValue("allergy_description", userData.allergy_description);
+      setValue("is_medication", userData.is_medication === "1" ? "yes" : "no");
+      setValue("medication_description", userData.medication_description);
+      setValue(
+        "is_medical_condition",
+        userData.is_medical_conition === "1" ? "yes" : "no"
+      );
+      setValue(
+        "medical_condition_description",
+        userData.medical_condition_description
+      );
+      setDateOfBirth(dayjs(userData.date_of_birth).toDate());
+
+      // Setting source and gender based on userData values
+      const matchedSource = sources?.find(
+        (opt) => opt.id === parseInt(userData.customer_source_id)
+      );
+      setSource(matchedSource || null);
+      setValue("customer_source_id", matchedSource ? matchedSource.id : "");
+
+      const matchedGender = genderOptions.find(
+        (opt) => opt.id === userData.gender
+      );
+      setGender(matchedGender || null);
+      setValue("gender", matchedGender ? matchedGender.id : "");
+      setValue("nationality", userData?.nationality || "");
+
+      setNationality({
+        id: userData.nationality_id,
+        name: userData.nationality,
+      });
+    }
+  }, [editMode, userData, open]);
+
   return (
     <Modal
       open={open}
@@ -350,7 +279,7 @@ const AddCustomerModal = ({
             <div className="flex w-full items-center justify-center gap-2">
               <div className="w-full">
                 <label className="mb-0.5 w-full text-left text-xs font-medium text-grey100">
-                  Select Date
+                  DOB
                 </label>
                 <CustomDatePicker
                   date={dateOfBirth}
@@ -472,9 +401,6 @@ const AddCustomerModal = ({
               disabled={!isAllergy || isAllergy === "no"}
               errorMsg={errors?.allergy_description?.message}
             />
-            {errors?.is_allergy?.message && (
-              <span> {errors?.is_allergy?.message}</span>
-            )}
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
@@ -509,9 +435,6 @@ const AddCustomerModal = ({
               disabled={!isMedication || isMedication === "no"}
               errorMsg={errors?.medication_description?.message}
             />
-            {errors?.is_medication?.message && (
-              <span> {errors?.is_medication?.message}</span>
-            )}
           </div>
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
@@ -545,9 +468,6 @@ const AddCustomerModal = ({
               disabled={!isMedicalCondition || isMedicalCondition === "no"}
               errorMsg={errors?.medical_condition_description?.message}
             />
-            {errors?.is_medical_condition?.message && (
-              <span> {errors?.is_medical_condition?.message}</span>
-            )}
           </div>
 
           <div className="mt-7 flex w-full justify-end gap-3">
