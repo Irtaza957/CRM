@@ -161,7 +161,7 @@ const NewBookingModal = ({
   const [fetchAttachments] = useFetchCustomerAttachmentsMutation();
   const [addresses, setAddresses] = useState<AddressProps[] | null>([]);
   const [category, setCategory] = useState<ListOptionProps | null>(null);
-  const { data } = useFetchBookingsQuery(dayjs(date).format("YYYY-MM-DD"));
+  const { data, refetch } = useFetchBookingsQuery(dayjs(date).format("YYYY-MM-DD"));
   const [profession, setProfession] = useState<ListOptionProps | null>(null);
   const [createBooking, { isLoading: creating }] = useCreateBookingMutation();
   const [selectedUser, setSelectedUser] = useState<CustomerProps | null>(null);
@@ -244,7 +244,7 @@ const NewBookingModal = ({
         const priceWithoutVAT =
           parseFloat(service.total || service?.price_without_vat || "0") *
           service.qty!;
-        const vatValue = parseFloat(service.vat_value || "0") * service.qty!;
+        const vatValue = parseFloat(service.vat_value || bookingDetailData?.vat_value || "0") * service.qty!;
 
         acc.subtotal += priceWithoutVAT;
         acc.total_vat += vatValue;
@@ -265,7 +265,7 @@ const NewBookingModal = ({
 
   const calculateDiscount = () => {
     const bookingCost = calculateBookingCost(selectedServices!);
-console.log(bookingCost, 'bookingCostbookingCost')
+    console.log(bookingCost, 'bookingCostbookingCost')
     if (isNaN(discount.value)) {
       return bookingCost.grand_total;
     }
@@ -363,6 +363,12 @@ console.log(bookingCost, 'bookingCostbookingCost')
             message="Successfully Created Booking!"
           />
         ));
+        refetch()
+        setOpen(false)
+        setDeliveryNotes('')
+        setAddress(null)
+        setScheduleTime(null)
+        setScheduleDate(new Date())
         setSelectedServices([])
         setSelectedFamily(null)
       }
@@ -473,7 +479,7 @@ console.log(bookingCost, 'bookingCostbookingCost')
   };
 
   const handleOpenAttachment = (url: string) => {
-    window.open(`https://crm.fandcproperties.ae${url}`, "_blank");
+    window.open(`https://crm.fandcproperties.ru${url}`, "_blank");
   };
 
   const handleSelectUser=()=>{

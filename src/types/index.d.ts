@@ -224,6 +224,7 @@ declare type BookingDetailProps = {
   payment_status: string;
   sub_total: string;
   discount_value: string;
+  discount?: string;
   discount_type?: string;
   vat_value: string;
   total: string;

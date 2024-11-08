@@ -125,8 +125,8 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
             >
               <p className="w-full text-left text-xs">{history?.reference}</p>
               <div>
-              {history?.categories?.length ? history?.categories?.map(item=>(
-                <div className="flex w-full items-start justify-center mb-1">
+              {history?.categories?.length ? history?.categories?.map((item, index)=>(
+                <div key={index} className="flex w-full items-start justify-center mb-1">
                   <span className="flex-1 text-left text-xs">{item?.code}</span>
                   <div className={`size-4 rounded-full bg-[${item?.color_code}]`}></div>
                 </div>

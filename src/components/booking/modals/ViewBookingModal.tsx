@@ -556,29 +556,23 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                             <div className="flex w-full items-center justify-end space-x-10 pr-2.5 text-xs text-gray-500">
                               <p>Subtotal</p>
                               <p>
-                                {data?.services.reduce(
-                                  (sum, service) => sum + parseFloat(service.total),
-                                  0
-                                )}
+                                {data?.sub_total}
                               </p>
                             </div>
                             <div className="flex w-full items-center justify-end space-x-10 pr-2.5 text-xs text-gray-500">
                               <p>Discount</p>
-                              <p>000</p>
+                              <p>{data?.discount}</p>
                             </div>
                             <div className="flex w-full items-center justify-end space-x-10 pr-2.5 text-xs text-gray-500">
                               <p>VAT</p>
-                              <p>000</p>
+                              <p>{data?.vat_value}</p>
                             </div>
                             <div className="w-56 place-self-end border border-gray-300" />
                             <div className="flex w-full items-center justify-end space-x-10 pr-2.5 font-bold text-gray-500">
                               <p>Grand Total</p>
                               <p>
                                 AED&nbsp;
-                                {data?.services.reduce(
-                                  (sum, service) => sum + parseFloat(service.total),
-                                  0
-                                )}
+                                {data?.total}
                               </p>
                             </div>
                           </div>

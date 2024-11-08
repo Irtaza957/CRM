@@ -57,7 +57,7 @@ const EditServiceModal = ({
   useEffect(() => {
     if (selectedService?.discount_type) {
       setDiscount({
-        type: selectedService.discount_type,
+        type: selectedService.discount_type === 'percent' ? selectedService.discount_type : 'aed',
         value: Number(selectedService.discount_value),
       });
     } else {
@@ -65,6 +65,9 @@ const EditServiceModal = ({
         type: "aed",
         value: 0,
       });
+    }
+    if(selectedService?.new_price){
+      setNewPrice(Number(selectedService?.new_price))
     }
   }, [selectedService]);
 

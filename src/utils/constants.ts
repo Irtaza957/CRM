@@ -617,7 +617,7 @@ export const timeSlots = [
   { id: '12:00-12:30', name: '12:00 - 12:30' },
   { id: '13:00-13:30', name: '13:00 - 13:30' },
   { id: '14:00-14:30', name: '14:00 - 14:30' },
-  { id: '14:00-14:30', name: '15:00 - 15:30' },
+  { id: '15:00-15:30', name: '15:00 - 15:30' },
 ]
 
 export const dayNames = ["Sun", "Mon", "Tues", "Wed", "Thur", "Fri", "Sat"];
