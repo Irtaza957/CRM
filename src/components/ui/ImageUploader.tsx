@@ -7,7 +7,7 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 interface ImageUploaderProps {
   label: string;
   link?: string | undefined;
-  setImage: Dispatch<SetStateAction<File | null>>;
+  setImage: Dispatch<SetStateAction<File | string | null>>;
 }
 
 const ImageUploader = ({ link, label, setImage }: ImageUploaderProps) => {

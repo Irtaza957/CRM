@@ -2,15 +2,14 @@ import { toast } from "sonner";
 import { useSelector } from "react-redux";
 import { IoClose } from "react-icons/io5";
 import { LuLoader2 } from "react-icons/lu";
-import { HexColorPicker } from "react-colorful";
 import { TiArrowSortedDown } from "react-icons/ti";
 import { type Dispatch, type SetStateAction, useEffect, useState } from "react";
 
 import Modal from "../../../ui/Modal";
 import {
   useFetchServiceQuery,
-  usePostServiceMutation,
   useFetchCategoryListQuery,
+  useUpdateServiceMutation,
 } from "../../../../store/services/service";
 import Combobox from "../../../ui/Combobox";
 import { RootState } from "../../../../store";
@@ -22,9 +21,10 @@ interface UpdateServiceModalProps {
   id: string;
   open: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
+  refetch: ()=>void
 }
 
-const UpdateService = ({ id, open, setOpen }: UpdateServiceModalProps) => {
+const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) => {
   const [vat, setVat] = useState("");
   const [code, setCode] = useState("");
   const [size, setSize] = useState("");
@@ -37,12 +37,15 @@ const UpdateService = ({ id, open, setOpen }: UpdateServiceModalProps) => {
   const [serviceName, setServiceName] = useState("");
   const [description, setDescription] = useState("");
   const [responseTime, setResponseTime] = useState("");
-  const { data: serviceDetails } = useFetchServiceQuery(id);
+  const { data: serviceDetails } = useFetchServiceQuery(id,     {
+    skip: !id,
+    refetchOnMountOrArgChange: true,
+  });
   const { data, isLoading } = useFetchCategoryListQuery({});
-  const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [thumbnail, setThumbnail] = useState<File | string | null>(null);
+  const [coverImage, setCoverImage] = useState<File | string | null>(null);
   const { user } = useSelector((state: RootState) => state.global);
-  const [postService, { isLoading: creating }] = usePostServiceMutation();
+  const [updateService, { isLoading: creating }] = useUpdateServiceMutation();
 
   const clearForm = () => {
     setVat("");
@@ -59,10 +62,9 @@ const UpdateService = ({ id, open, setOpen }: UpdateServiceModalProps) => {
     setCoverImage(null);
     setSelectedCategory(null);
   };
-
   const handleSubmit = async () => {
     const formData = new FormData();
-    formData.append("company_id", "1");
+    formData.append("company_id", serviceDetails?.company_id || '');
     formData.append("category_id", `${selectedCategory?.id}`);
     formData.append("user_id", `${user?.id}`);
     formData.append("code", code);
@@ -80,7 +82,7 @@ const UpdateService = ({ id, open, setOpen }: UpdateServiceModalProps) => {
     formData.append("service_id", id);
 
     try {
-      const data = await postService(formData);
+      const data = await updateService(formData);
       if (data.error) {
         toast.custom((t) => (
           <CustomToast
@@ -99,6 +101,7 @@ const UpdateService = ({ id, open, setOpen }: UpdateServiceModalProps) => {
             message="Created Service Successfully!"
           />
         ));
+        refetch()
         setOpen(false);
         clearForm();
       }
@@ -138,6 +141,8 @@ const UpdateService = ({ id, open, setOpen }: UpdateServiceModalProps) => {
           ? serviceDetails?.price_without_vat
           : ""
       );
+      const temp: ListOptionProps | undefined = data?.find(item => item.id===Number(serviceDetails?.category_id))
+      setSelectedCategory(temp || null)
     }
   }, [serviceDetails]);
 
@@ -245,14 +250,14 @@ const UpdateService = ({ id, open, setOpen }: UpdateServiceModalProps) => {
             setter={setResponseTime}
             placeholder="Response Time"
           />
-          <div className="col-span-2 flex w-full flex-col items-start justify-start gap-1">
+          <div className="col-span-1 flex w-full flex-col items-start justify-start gap-1">
             <label
               htmlFor="Service Color"
               className="w-full text-left text-xs text-gray-500"
             >
               Service Color
             </label>
-            <HexColorPicker color={color} onChange={setColor} />
+            <input value={color} onChange={(e) => setColor(e.target.value)}  type="color" className="p-1 h-10 w-14 block bg-white border border-gray-200 cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700" id="hs-color-input" title="Choose your color"></input>
           </div>
           <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-1">
             <label htmlFor="Description" className="w-full text-left">
@@ -271,13 +276,13 @@ const UpdateService = ({ id, open, setOpen }: UpdateServiceModalProps) => {
             </h1>
             <div className="grid w-full grid-cols-6 gap-6">
               <ImageUploader
-                link={serviceDetails?.thumbnail}
+                link={serviceDetails?.thumbnail ? `https://crm.fandcproperties.ru${serviceDetails?.thumbnail}` : ''}
                 label="Thumbnail"
                 setImage={setThumbnail}
               />
               <ImageUploader
                 link={
-                  serviceDetails?.cover_image ? serviceDetails?.cover_image : ""
+                  serviceDetails?.cover_image ? `https://crm.fandcproperties.ru${serviceDetails?.cover_image}` : ""
                 }
                 label="Cover Image"
                 setImage={setCoverImage}
@@ -307,7 +312,7 @@ const UpdateService = ({ id, open, setOpen }: UpdateServiceModalProps) => {
                   <span>Please Wait...</span>
                 </div>
               ) : (
-                "Save"
+                "Update"
               )}
             </button>
           </div>

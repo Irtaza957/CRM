@@ -79,7 +79,7 @@ const Combobox = ({
     <div
       ref={ComboboxRef}
       className={cn(
-        "relative flex flex-col items-start justify-start pt-2",
+        "relative flex flex-col items-start justify-start",
         mainClassName
       )}
     >
@@ -185,9 +185,7 @@ const Combobox = ({
         )}
       </div>
       {errorMsg && (
-        <p className="mt-1 text-xs text-red-500">
-          *{errorMsg as string}
-        </p>
+        <p className="mt-1 text-xs text-red-500">*{errorMsg as string}</p>
       )}
     </div>
   );

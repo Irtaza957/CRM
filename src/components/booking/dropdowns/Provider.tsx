@@ -46,7 +46,7 @@ const ProviderDropdown = ({
           toggleClassName
         )}
       >
-        <span>Provider</span>
+        <span>Company</span>
         {icon ? (
           icon
         ) : (

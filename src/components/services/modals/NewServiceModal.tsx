@@ -8,87 +8,135 @@ import AddSubCategory from "../forms/add/AddSubCategory";
 import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { TiArrowSortedDown } from "react-icons/ti";
+import { useFetchBusinessesListQuery } from "../../../store/services/filters";
 
-const NewServiceModal = ({ open, setOpen, type }: NewServiceModalProps) => {
-  const [tab, setTab] = useState("Category");
+const NewServiceModal = ({
+  companiesData,
+  open,
+  setOpen,
+  type,
+  selectedCategory,
+  refetch,
+  refetchServices,
+}: NewServiceModalProps) => {
+  console.log("selectedCategory:", selectedCategory);
+  const [tab, setTab] = useState('Category');
   const [business, setBusiness] = useState<ListOptionProps | null>(null);
   const [provider, setProvider] = useState<ListOptionProps | null>(null);
+  const [companyOptions, setCompanyOptions] = useState<ListOptionProps[]>([]);
 
+  const { data: businesses } = useFetchBusinessesListQuery({});
   const providerOptions = [
     {
       id: 1,
       name: "Business",
       value: business,
       setter: setBusiness,
-      options: [
-        {
-          id: 1,
-          name: "Name",
-        },
-      ],
+      options: companyOptions,
     },
     {
       id: 2,
-      name: "Provider",
+      name: "Company",
       value: provider,
       setter: setProvider,
-      options: [
-        {
-          id: 1,
-          name: "Name",
-        },
-      ],
+      options: businesses,
     },
   ];
 
   useEffect(() => {
     if (type) {
-      setTab(type);
+      setTab(type === "service" ? "Service" : "Category");
     }
   }, [type]);
 
+  useEffect(() => {
+    if (companiesData?.length) {
+      const temp = companiesData?.map((item) => {
+        return { id: item.id, name: item.name };
+      });
+      setCompanyOptions(temp);
+    }
+  }, [companiesData]);
+
+  useEffect(() => {
+    if(selectedCategory?.parent_id && Number(selectedCategory?.parent_id)){
+      setTab('Sub Category')
+    }
+    if (selectedCategory?.category_id) {
+      const selectedBusiness = businesses?.find(
+        (item) => item?.name === selectedCategory?.business
+      );
+      if (selectedBusiness?.id) {
+        setBusiness(selectedBusiness);
+      }
+      const selectedCompany = companyOptions?.find(
+        (item) => item?.name === selectedCategory?.company_name
+      );
+      if (selectedCompany?.id) {
+        setProvider(selectedCompany);
+      }
+    }
+  }, [selectedCategory, open]);
+
+  useEffect(() => {
+    if (!open) {
+      setBusiness(null);
+      setProvider(null);
+      setTab('Category')
+    }
+  }, [open]);
   return (
     <Modal open={open} setOpen={setOpen} className="w-[95%] lg:max-w-3xl">
-      <div className="flex w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-white">
+      <div className="flex h-auto w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-white">
         <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white">
-          <h1 className="text-xl font-medium">Add New Service</h1>
+          <h1 className="text-xl font-medium">
+            {selectedCategory?.category_id ? (
+              "Edit Category"
+            ) : (
+              <>
+                Add New{" "}
+                {type === "service"
+                  ? "Service"
+                  : type === "category"
+                    ? "Category"
+                    : "Customer"}
+              </>
+            )}
+          </h1>
           <IoClose
             onClick={() => setOpen(false)}
             className="h-8 w-8 cursor-pointer"
           />
         </div>
-        <div className="no-scrollbar relative flex h-full max-h-[800px] w-full flex-col items-start justify-start space-y-5 overflow-auto">
-          <div className="sticky top-0 z-10 flex w-full items-center justify-start space-x-5 bg-white px-5 pt-5">
-            <button
-              onClick={() => setTab("Category")}
-              className={cn("rounded-lg border border-primary px-4 py-2", {
-                "bg-primary text-white": tab === "Category",
-                "bg-gray-100 text-primary": tab !== "Category",
-              })}
-            >
-              Category
-            </button>
-            <button
-              onClick={() => setTab("Sub Category")}
-              className={cn("rounded-lg border border-primary px-4 py-2", {
-                "bg-primary text-white": tab === "Sub Category",
-                "bg-gray-100 text-primary": tab !== "Sub Category",
-              })}
-            >
-              Sub Category
-            </button>
-            <button
-              onClick={() => setTab("Service")}
-              className={cn("rounded-lg border border-primary px-4 py-2", {
-                "bg-primary text-white": tab === "Service",
-                "bg-gray-100 text-primary": tab !== "Service",
-              })}
-            >
-              Service
-            </button>
-          </div>
+        <div className="no-scrollbar relative flex h-full max-h-[calc(100vh-130px)] w-full flex-col items-start justify-start space-y-5 overflow-auto">
+          {type !== "service" &&
+            !selectedCategory?.parent_id &&
+            !selectedCategory?.category_id && (
+              <div className="sticky top-0 z-10 flex w-full items-center justify-start space-x-5 bg-white px-5 py-5">
+                <button
+                  onClick={() => setTab("Category")}
+                  className={cn("rounded-lg border border-primary px-4 py-2", {
+                    "bg-primary text-white": tab === "Category",
+                    "bg-gray-100 text-primary": tab !== "Category",
+                  })}
+                >
+                  Category
+                </button>
+                <button
+                  onClick={() => setTab("Sub Category")}
+                  className={cn("rounded-lg border border-primary px-4 py-2", {
+                    "bg-primary text-white": tab === "Sub Category",
+                    "bg-gray-100 text-primary": tab !== "Sub Category",
+                  })}
+                >
+                  Sub Category
+                </button>
+              </div>
+            )}
           <div className="flex w-full flex-col items-center justify-center space-y-2.5 px-5 pb-5">
-            <h1 className="col-span-2 w-full text-left text-base font-bold text-primary">
+            <h1
+              className={`col-span-2 w-full text-left text-base font-bold text-primary ${selectedCategory?.parent_id ? "pt-5" : "pt-3"} ${type !== "service" ? "pt-0" : "pt-5"}`}
+            >
               Provider Details
             </h1>
             <div className="grid w-full grid-cols-2 gap-5">
@@ -123,9 +171,33 @@ const NewServiceModal = ({ open, setOpen, type }: NewServiceModalProps) => {
             <h1 className="col-span-2 w-full text-left text-base font-bold text-primary">
               {tab} Details
             </h1>
-            {tab === "Category" && <AddCategory />}
-            {tab === "Sub Category" && <AddSubCategory />}
-            {tab === "Service" && <AddService />}
+            {tab === "Category" && (
+              <AddCategory
+                open={open}
+                setOpen={setOpen}
+                selectedCategory={selectedCategory}
+                provider={provider?.id || ""}
+                business={business?.id || ""}
+                refetch={refetch}
+              />
+            )}
+            {tab === "Sub Category" && (
+              <AddSubCategory
+                refetch={refetch}
+                setOpen={setOpen}
+                selectedSubCategory={selectedCategory}
+                provider={provider?.id || ""}
+                business={business?.id || ""}
+              />
+            )}
+            {tab === "Service" && (
+              <AddService
+                provider={provider?.id || ""}
+                business={business?.id || ""}
+                refetch={refetchServices}
+                setOpen={setOpen}
+              />
+            )}
           </div>
         </div>
       </div>

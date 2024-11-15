@@ -23,9 +23,12 @@ interface AddCustomerModalProps {
   open: boolean;
   customerId?: string;
   userId?: number;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   editMode?: boolean;
+  isService?: boolean;
   userData?: any;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setSelectedUser?: React.Dispatch<React.SetStateAction<CustomerProps | null>>;
+  fetchCustomers?: ()=>void
 }
 
 const genderOptions = [
@@ -37,9 +40,12 @@ const AddCustomerModal = ({
   open,
   userId,
   customerId,
-  setOpen,
   editMode,
   userData,
+  isService,
+  setOpen,
+  setSelectedUser,
+  fetchCustomers
 }: AddCustomerModalProps) => {
   const [gender, setGender] = useState<ListOptionProps | null>(null);
   const [source, setSource] = useState<ListOptionProps | null>(null);
@@ -66,7 +72,7 @@ const AddCustomerModal = ({
   const isMedicalCondition = watch("is_medical_condition");
 
   const [addCustomer, { isLoading }] = useAddCustomerMutation();
-  const [updateCustomer] = useUpdateCustomerMutation();
+  const [updateCustomer, { isLoading: updateLoading }] = useUpdateCustomerMutation();
   const { data: sources } = useFetchSourcesQuery(
     {},
     {
@@ -99,7 +105,7 @@ const AddCustomerModal = ({
     setValue("nationality", String(value.id));
     clearErrors('nationality')
   };
-
+console.log(userData, 'userDatauserData')
   const handleSave: SubmitHandler<any> = async (data) => {
     try {
       if (userId) {
@@ -162,6 +168,7 @@ const AddCustomerModal = ({
           setDateOfBirth(new Date());
           setSource(null);
           setGender(null);
+          resetState()
           toast.custom((t) => (
             <CustomToast
               t={t}
@@ -170,6 +177,25 @@ const AddCustomerModal = ({
               message={`Successfully ${editMode ? "Updated" : "Added"} Customer!`}
             />
           ));
+          setSelectedUser && setSelectedUser({
+            ...userData,
+            customer_source_id: String(source?.id || ''),
+            gender: String(gender?.id || ''),
+            nationality: String(nationality?.name || ''), 
+            nationality_id: nationality?.id,
+            date_of_birth: dayjs(dateOfBirth).format("YYYY-MM-DD"),
+            firstname: data?.firstname,
+            lastname: data?.lastname,
+            phone: data?.phone,
+            email: data?.email,
+            is_allergy: data?.is_allergy === "yes" ? "1" : "0",
+            allergy_description: data?.allergy_description,
+            is_medication: data?.is_medication === "yes" ? "1" : "0",
+            medication_description: data?.medication_description,
+            is_medical_conition: data?.is_medical_condition === "yes" ? "1" : "0",
+            medical_condition_description: data?.medical_condition_description,
+          });
+          fetchCustomers && fetchCustomers()
           closeModal();
         }
       }
@@ -194,6 +220,10 @@ const AddCustomerModal = ({
       gender: "",
       date_of_birth: "",
     });
+    setDateOfBirth(new Date());
+    setNationality(null);
+    setSource(null);
+    setGender(null);
   }
 
   const closeModal = () => {
@@ -206,8 +236,48 @@ const AddCustomerModal = ({
     }
   }, [open]);
 
+  useEffect(()=>{
+    if(isMedication === "no"){
+      setValue("medication_description", "")
+    }else {
+      if(userData?.medication_description){
+        setValue("medication_description", userData?.medication_description);
+      }
+    }
+    if(isAllergy === "no"){
+      setValue("allergy_description", "")
+    }else {
+      if(userData?.allergy_description){  
+        setValue("allergy_description", userData?.allergy_description);
+      }
+    }
+    if(isMedicalCondition === "no"){
+      setValue("medical_condition_description", "")
+    }else {
+      if(userData?.medical_condition_description){
+        setValue("medical_condition_description", userData?.medical_condition_description);
+      }
+    }
+  },[isMedication, isAllergy, isMedicalCondition])
+  
   useEffect(() => {
-    if (editMode && userData) {
+    if(isService && userData?.customer_id){
+      setValue("firstname", userData.full_name.split(" ")[0]);
+      setValue("lastname", userData.full_name.split(" ")[1]);
+      setValue("phone", userData.phone);
+      setValue("email", userData.email);
+      setValue("date_of_birth", dayjs(userData.date_of_birth).toDate());
+      const gender = genderOptions.find(opt => opt.id === userData.gender);
+      setGender(gender || null);
+      setValue("gender", gender ? gender.id : "");
+      const nationality = nationalities?.find(opt => opt.name === userData.nationality);
+      setNationality(nationality || null);
+      setValue("nationality", nationality ? String(nationality.id) : "");
+      const source = sources?.find(opt => opt.name === userData.source_name);
+      setSource(source || null);
+      setValue("customer_source_id", source ? String(source.id) : "");
+    }
+    if (editMode && userData && !isService) {
       setValue("firstname", userData.firstname);
       setValue("lastname", userData.lastname);
       setValue("phone", userData.phone);
@@ -232,7 +302,7 @@ const AddCustomerModal = ({
         (opt) => opt.id === parseInt(userData.customer_source_id)
       );
       setSource(matchedSource || null);
-      setValue("customer_source_id", matchedSource ? matchedSource.id : "");
+      setValue("customer_source_id", matchedSource ? String(matchedSource.id) : "");
 
       const matchedGender = genderOptions.find(
         (opt) => opt.id === userData.gender
@@ -245,6 +315,10 @@ const AddCustomerModal = ({
         id: userData.nationality_id,
         name: userData.nationality,
       });
+    }else{
+      setValue('is_allergy', 'no')
+      setValue('is_medication', 'no')
+      setValue('is_medical_condition', 'no')
     }
   }, [editMode, userData, open]);
 
@@ -253,10 +327,10 @@ const AddCustomerModal = ({
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="w-[70%] max-w-[80%]"
-      title={editMode ? "Edit Client" : "New Customer"}
+      className="w-full max-w-[70%]"
+      title={editMode ? "Edit Customer" : "New Customer"}
     >
-      <div className="h-auto max-h-[450px] w-full overflow-y-scroll px-6 py-7">
+      <div className="h-auto max-h-[calc(100vh-150px)] w-full overflow-y-scroll px-6 py-7">
         <p className="text-left text-[18px] font-bold text-primary">
           Personal Details
         </p>
@@ -369,7 +443,7 @@ const AddCustomerModal = ({
           Medical Details
         </p>
 
-        <div className="w-full px-6 py-4">
+        <div className="w-full py-2">
           <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
               Allergies:
@@ -479,8 +553,8 @@ const AddCustomerModal = ({
             <CustomButton
               name={editMode ? "Update" : "Save"}
               handleClick={handleSubmit(handleSave)}
-              loading={isLoading}
-              disabled={isLoading}
+              loading={isLoading || updateLoading}
+              disabled={isLoading || updateLoading}
             />
           </div>
         </div>

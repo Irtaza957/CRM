@@ -33,7 +33,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
   const [isAssignModal, setIsAssignModal]=useState(false)
   const [selectedUser, setSelectedUser]=useState<UserType | null>(null);
 
-  const { data, isLoading } = useFetchBookingDetailsQuery(id, {
+  const { data, isLoading, refetch } = useFetchBookingDetailsQuery(id, {
     skip: !id,
     refetchOnMountOrArgChange: true,
   });
@@ -58,14 +58,15 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
   const handleWhatsapp=(phone: string)=>{
     window.open(`https://wa.me/?text=${phone}`, '_blank')
   }
+
   return (
     <>
       <TeamMembersModal members={data?.team} showMembers={["3","4","5","6",'7'].includes(data?.status_id || '')} bookingId={data?.booking_id} open={isAssignModal} setOpen={setIsAssignModal} />
       <BookingLogsModal logsData={data?.logs} open={logs} setOpen={setLogs} />
       <UploadDocumentsModal open={upload} setOpen={setUpload} />
       <BookingHistoryModal selectedUser={selectedUser} open={history} setOpen={setHistory} />
-      <CancelBookingModal id={id} open={cancel} setOpen={setCancel} />
-      <Modal open={open} setOpen={setOpen} className="h-[95%] w-full max-w-[95%] lg:max-w-[85%]">
+      <CancelBookingModal id={id} open={cancel} setOpen={setCancel} refetch={refetch} />
+      <Modal open={open} setOpen={setOpen} className="max-h-[95%] w-full max-w-[95%] lg:max-w-[85%]">
         <div className="w-full items-center justify-center overflow-hidden rounded-lg bg-gray-100">
           <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white">
             <h1 className="text-xl font-medium">Booking Ref: {id}</h1>

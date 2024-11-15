@@ -31,8 +31,12 @@ declare type NewServiceModalProps = {
   type?: string;
   open: boolean;
   width?: string;
+  companiesData?: CompanyListProps[];
   children?: React.ReactNode;
+  selectedCategory?: CategoryAllListProps | null;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  refetch: () => void;
+  refetchServices: () => void;
 };
 
 declare type BookingListProps = {
@@ -52,9 +56,9 @@ declare type CustomInputProps = {
   className?: string;
   label: string;
   register?: UseFormRegister<FormDataProps>;
-  name?: string,
-  errorMsg?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>>,
-  disabled?: boolean
+  name?: string;
+  errorMsg?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
+  disabled?: boolean;
 };
 
 declare type FormDataProps = {
@@ -152,11 +156,12 @@ declare type ServiceProps = {
   discount_value: string;
   discount_type: string;
   total: string;
-  new_price: string,
-  price?: string
+  new_price: string;
+  price?: string;
+  code?: string;
 };
 
-declare type Team={
+declare type Team = {
   name: string;
   phone: string;
   position: string;
@@ -175,15 +180,15 @@ declare type Team={
   reject_reason: string;
   created_at: string;
   last_updated: string;
-}
+};
 
-declare type BookingLogs={
+declare type BookingLogs = {
   booking_log_id: string;
   status: string;
   name: string | null;
   comments: string;
   created_at: string;
-}
+};
 
 declare type BookingDetailProps = {
   booking_id: string;
@@ -319,6 +324,7 @@ declare type CustomerProps = {
   customer_source_id?: string;
   partner_id: string;
   firstname: string;
+  full_name?: string;
   lastname: string;
   phone: string;
   email: string;
@@ -439,8 +445,20 @@ declare type CategoryAllListProps = {
   description: string;
   thumbnail: string;
   cover_image: string;
+  icon: string;
   sort_order: string;
   active: string;
+  duration?: string;
+  tagline?: string;
+};
+
+declare type BusinessProps = {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  total_companies: number;
+  total_value: number;
 };
 
 declare type CategoryDetailProps = {
@@ -604,27 +622,27 @@ declare type DiscountType = {
   type: string;
   value: number;
   total?: number;
-  newPrice?: number
+  newPrice?: number;
 };
 
-declare type HistoryType={
-booking_id: string;
-booking_status: string;
-created_at: string;
-created_by: string;
-customer: string;
-family_member_id: string;
-schedule_date: string;
-schedule_slot: string;
-source: string;
-total: string;
-reference?: string;
-amount?: string;
-status?: string;
-team?: {is_lead: string, name: string}[];
-categories?: {code: string, color_code: string}[];
-}
-declare type UserType={
+declare type HistoryType = {
+  booking_id: string;
+  booking_status: string;
+  created_at: string;
+  created_by: string;
+  customer: string;
+  family_member_id: string;
+  schedule_date: string;
+  schedule_slot: string;
+  source: string;
+  total: string;
+  reference?: string;
+  amount?: string;
+  status?: string;
+  team?: { is_lead: string; name: string }[];
+  categories?: { code: string; color_code: string }[];
+};
+declare type UserType = {
   customer_id: string;
   firstname: string;
   lastname: string;
@@ -632,5 +650,9 @@ declare type UserType={
   email: string;
   medication_description: string;
   medical_condition_description: string;
-  allergy_description: string
-}
+  allergy_description: string;
+};
+
+declare type DataProps = {
+  [key: string]: any;
+};

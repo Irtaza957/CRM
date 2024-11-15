@@ -1,18 +1,18 @@
-import HR from "../assets/icons/sidebar/hr.svg";
-import EMR from "../assets/icons/sidebar/emr.svg";
-import Team from "../assets/icons/sidebar/team.svg";
-import Finance from "../assets/icons/sidebar/finance.svg";
-import Reports from "../assets/icons/sidebar/reports.svg";
-import Accounts from "../assets/icons/sidebar/accounts.svg";
-import Requests from "../assets/icons/sidebar/requests.svg";
+// import HR from "../assets/icons/sidebar/hr.svg";
+// import EMR from "../assets/icons/sidebar/emr.svg";
+// import Team from "../assets/icons/sidebar/team.svg";
+// import Finance from "../assets/icons/sidebar/finance.svg";
+// import Reports from "../assets/icons/sidebar/reports.svg";
+// import Accounts from "../assets/icons/sidebar/accounts.svg";
+// import Requests from "../assets/icons/sidebar/requests.svg";
 import Bookings from "../assets/icons/sidebar/bookings.svg";
-import AppPanel from "../assets/icons/sidebar/app_panel.svg";
-import Customers from "../assets/icons/sidebar/customers.svg";
-import Dashboard from "../assets/icons/sidebar/dashboard.svg";
-import Marketing from "../assets/icons/sidebar/marketing.svg";
+// import AppPanel from "../assets/icons/sidebar/app_panel.svg";
+// import Customers from "../assets/icons/sidebar/customers.svg";
+// import Dashboard from "../assets/icons/sidebar/dashboard.svg";
+// import Marketing from "../assets/icons/sidebar/marketing.svg";
 import ServiceList from "../assets/icons/sidebar/service_list.svg";
-import WebsitePanel from "../assets/icons/sidebar/website_panel.svg";
-import CustomerRatings from "../assets/icons/sidebar/customer_ratings.svg";
+// import WebsitePanel from "../assets/icons/sidebar/website_panel.svg";
+// import CustomerRatings from "../assets/icons/sidebar/customer_ratings.svg";
 
 export const emirates = [
   {
@@ -474,96 +474,96 @@ export const professionals = [
 ];
 
 export const sidebarItems = [
-  {
-    id: 1,
-    name: "Dashboard",
-    icon: Dashboard,
-    link: "/",
-  },
-  {
-    id: 2,
-    name: "Requests",
-    icon: Requests,
-    link: "/requests",
-  },
+  // {
+  //   id: 1,
+  //   name: "Dashboard",
+  //   icon: Dashboard,
+  //   link: "/",
+  // },
+  // {
+  //   id: 2,
+  //   name: "Requests",
+  //   icon: Requests,
+  //   link: "/requests",
+  // },
   {
     id: 3,
     name: "Bookings",
     icon: Bookings,
     link: "/bookings",
   },
-  {
-    id: 4,
-    name: "Customers",
-    icon: Customers,
-    link: "/customers",
-  },
+  // {
+  //   id: 4,
+  //   name: "Customers",
+  //   icon: Customers,
+  //   link: "/customers",
+  // },
   {
     id: 5,
     name: "Service List",
     icon: ServiceList,
     link: "/services",
   },
-  {
-    id: 6,
-    name: "Customer Ratings",
-    icon: CustomerRatings,
-    link: "/customer-ratings",
-  },
-  {
-    id: 7,
-    name: "Team Members",
-    icon: Team,
-    link: "/team-members",
-  },
-  {
-    id: 8,
-    name: "Reports",
-    icon: Reports,
-    link: "/reports",
-  },
-  {
-    id: 9,
-    name: "EMR",
-    icon: EMR,
-    link: "/emr",
-  },
-  {
-    id: 10,
-    name: "Human Resources",
-    icon: HR,
-    link: "/hr",
-  },
-  {
-    id: 11,
-    name: "Finance",
-    icon: Finance,
-    link: "/finance",
-  },
-  {
-    id: 12,
-    name: "Marketing",
-    icon: Marketing,
-    link: "/marketing",
-  },
-  {
-    id: 13,
-    name: "Accounts",
-    icon: Accounts,
-    link: "/accounts",
-  },
-  {
-    id: 14,
-    name: "App Panel",
-    icon: AppPanel,
-    link: "/app-panel",
-  },
-  {
-    id: 15,
-    name: "Website Panel",
-    icon: WebsitePanel,
-    link: "/website-panel",
-  },
+  // {
+  //   id: 6,
+  //   name: "Customer Ratings",
+  //   icon: CustomerRatings,
+  //   link: "/customer-ratings",
+  // },
+  // {
+  //   id: 7,
+  //   name: "Team Members",
+  //   icon: Team,
+  //   link: "/team-members",
+  // },
+  // {
+  //   id: 8,
+  //   name: "Reports",
+  //   icon: Reports,
+  //   link: "/reports",
+  // },
+  // {
+  //   id: 9,
+  //   name: "EMR",
+  //   icon: EMR,
+  //   link: "/emr",
+  // },
+  // {
+  //   id: 10,
+  //   name: "Human Resources",
+  //   icon: HR,
+  //   link: "/hr",
+  // },
+  // {
+  //   id: 11,
+  //   name: "Finance",
+  //   icon: Finance,
+  //   link: "/finance",
+  // },
+  // {
+  //   id: 12,
+  //   name: "Marketing",
+  //   icon: Marketing,
+  //   link: "/marketing",
+  // },
+  // {
+  //   id: 13,
+  //   name: "Accounts",
+  //   icon: Accounts,
+  //   link: "/accounts",
+  // },
+  // {
+  //   id: 14,
+  //   name: "App Panel",
+  //   icon: AppPanel,
+  //   link: "/app-panel",
+  // },
+  // {
+  //   id: 15,
+  //   name: "Website Panel",
+  //   icon: WebsitePanel,
+  //   link: "/website-panel",
+  // },
 ];
 
 export const options = [
@@ -610,31 +610,167 @@ export const options = [
 ];
 
 export const timeSlots = [
-  { id: '08:00-08:30', name: '08:00 - 08:30' },
-  { id: '09:00-09:30', name: '09:00 - 09:30' },
-  { id: '10:00-10:30', name: '10:00 - 10:30' },
-  { id: '11:00-11:30', name: '11:00 - 11:30' },
-  { id: '12:00-12:30', name: '12:00 - 12:30' },
-  { id: '13:00-13:30', name: '13:00 - 13:30' },
-  { id: '14:00-14:30', name: '14:00 - 14:30' },
-  { id: '15:00-15:30', name: '15:00 - 15:30' },
-]
+  { id: "08:00-08:30", name: "08:00 - 08:30" },
+  { id: "09:00-09:30", name: "09:00 - 09:30" },
+  { id: "10:00-10:30", name: "10:00 - 10:30" },
+  { id: "11:00-11:30", name: "11:00 - 11:30" },
+  { id: "12:00-12:30", name: "12:00 - 12:30" },
+  { id: "13:00-13:30", name: "13:00 - 13:30" },
+  { id: "14:00-14:30", name: "14:00 - 14:30" },
+  { id: "15:00-15:30", name: "15:00 - 15:30" },
+];
 
 export const dayNames = ["Sun", "Mon", "Tues", "Wed", "Thur", "Fri", "Sat"];
 
-export const genderOptions=[
+export const genderOptions = [
   { id: 1, name: "Male" },
   { id: 2, name: "Female" },
   { id: 3, name: "Other" },
 ];
 
-export const relationshipOptions=[
-  {id: "Father", name: "Father"},
-  {id: "Mother", name: "Mother"},
-  {id: "Brother", name: "Brother"},
-  {id: "Daughter", name: "Daughter"},
-  {id: "Sister", name: "Sister"},
-  {id: "Wife", name: "Wife"},
-  {id: "Husband", name: "Husband"},
-  {id: "Son", name: "Son"}
-]
+export const relationshipOptions = [
+  { id: "Father", name: "Father" },
+  { id: "Mother", name: "Mother" },
+  { id: "Brother", name: "Brother" },
+  { id: "Daughter", name: "Daughter" },
+  { id: "Sister", name: "Sister" },
+  { id: "Wife", name: "Wife" },
+  { id: "Husband", name: "Husband" },
+  { id: "Son", name: "Son" },
+];
+
+export const serviceColumns = [
+  {
+    id: 2,
+    name: "Service Code",
+    key: "code",
+  },
+  {
+    id: 3,
+    name: "Category Name",
+    key: "category_name",
+  },
+  {
+    id: 5,
+    name: "Service Name",
+    key: "service_name",
+  },
+  {
+    id: 6,
+    name: "Provider Name",
+    key: "providor",
+  },
+  {
+    id: 9,
+    name: "Selling Price",
+    key: "price_with_vat",
+  },
+];
+
+export const customerColumns = [
+  {
+    id: 2,
+    name: "MRN",
+    key: "mrn",
+  },
+  {
+    id: 2,
+    name: "Name",
+    key: "full_name",
+  },
+  {
+    id: 3,
+    name: "Phone",
+    key: "phone",
+  },
+  {
+    id: 4,
+    name: "Gender",
+    key: "gender",
+  },
+  {
+    id: 5,
+    name: "Nationality",
+    key: "nationality",
+  },
+  {
+    id: 6,
+    name: "Source",
+    key: "source_name",
+  },
+  {
+    id: 7,
+    name: "Company",
+    key: "company",
+  },
+  {
+    id: 8,
+    name: "Total",
+    key: "total",
+  },
+  {
+    id: 9,
+    name: "Value",
+    key: "value",
+  },
+];
+export const categoriesColumns = [
+  {
+    id: 2,
+    name: "Name",
+    key: "category_name",
+  },
+  {
+    id: 2,
+    name: "Sub Category",
+    key: "sub_category",
+  },
+  {
+    id: 3,
+    name: "Color",
+    key: "color",
+  },
+  {
+    id: 4,
+    name: "Code",
+    key: "code",
+  },
+  {
+    id: 5,
+    name: "Company Name",
+    key: "company_name",
+  },
+  {
+    id: 6,
+    name: "Business",
+    key: "business",
+  },
+  {
+    id: 7,
+    name: "Description",
+    key: "description",
+  },
+];
+
+export const businessColumns = [
+  {
+    id: 1,
+    name: "Code",
+    key: "code",
+  },
+  {
+    id: 2,
+    name: "Name",
+    key: "name",
+  },
+  {
+    id: 3,
+    name: "Description",
+    key: "description",
+  },
+  {
+    id: 4,
+    name: "Total Companies",
+    key: "total_companies",
+  },
+];

@@ -18,7 +18,7 @@ const Sidebar = () => {
 
   return (
     <div
-      className={cn("bg-main hidden w-20 flex-col transition-[width] md:flex", {
+      className={cn("bg-main hidden w-20 max-h-screen overflow-y-auto flex-col transition-[width] md:flex", {
         "w-60": sidebar,
       })}
     >

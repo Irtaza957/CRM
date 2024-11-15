@@ -142,7 +142,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
                 </span>
               </div>
               <p className="w-full text-left text-xs">AED {history?.amount}</p>
-              <div className="flex w-full flex-col items-center justify-center">
+              <div className="flex w-full flex-col items-start justify-center">
                 {history?.team && history?.team?.length
                   ? [...history?.team]
                     .sort((a, b) => Number(b.is_lead) - Number(a.is_lead))
@@ -158,7 +158,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
                   {history?.status}
                 </span>
               </div>
-              <p className="w-full text-right text-xs">{history?.created_by || 'N/A'}</p>
+              <p className="w-full text-right text-xs whitespace-nowrap">{history?.created_by || 'N/A'}</p>
             </div>
           )): <p className="text-center text-sm w-full text-red-500 bg-gray-100 p-3">No Data Found!</p>}
         </div>

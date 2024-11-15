@@ -24,7 +24,6 @@ export const customerSchema = z.object({
   gender: z.string().min(1, { message: "Gender is required" }),
   nationality: z.string().min(1, { message: "Nationality is required" }),
 }).superRefine((data, ctx) => {
-    console.log(data, ctx, "data, ctx");
     if (data.is_allergy === "yes" && !data.allergy_description) {
       ctx.addIssue({
         path: ["allergy_description"],
@@ -99,7 +98,6 @@ export const familyMemberSchema = z
     gender: z.string().min(1, { message: "Gender is required" }),
   })
   .superRefine((data, ctx) => {
-    console.log(data, ctx, "data, ctx");
     if (data.allergies === "yes" && !data.allergiesDesc) {
       ctx.addIssue({
         path: ["allergiesDesc"],

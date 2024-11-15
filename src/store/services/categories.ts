@@ -14,10 +14,21 @@ export const categoryApi = api.injectEndpoints({
       }) => response.data,
     }),
     fetchAllCategories: build.query({
-      query: () => ({
-        url: "/categories/all",
-        method: "GET",
-      }),
+      query: ({ customer_id, filters }) => {
+        // Start with customer_id if defined
+        let query = customer_id ? `?customer_id=${customer_id}` : '';
+        if (filters) {
+          const filterQuery = Object.entries(filters)
+            .filter(([, value]) => value !== undefined && value !== null) // Exclude undefined or null values
+            .map(([key, value]) => `${key}=${value}`)
+            .join('&');
+          query += query ? `&${filterQuery}` : `?${filterQuery}`;
+        }
+        return {
+          url: `/categories/all${query}`,
+          method: "GET",
+        };
+      },
       transformResponse: (response: {
         success: number;
         error: string;

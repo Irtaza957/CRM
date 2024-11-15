@@ -63,14 +63,15 @@ const TeamMembersModal = ({ open, bookingId, members, showMembers, setOpen }: Te
     const handleAssign = async () => {
         try {
             let alertMsg = ''
-            if (!dropdownValues.driver && !dropdownValues.nurse) {
-                alertMsg = 'Please select driver and nurse!'
-            }
-            else if (!dropdownValues.driver) {
+            // if (!dropdownValues.driver && !dropdownValues.nurse) {
+            //     alertMsg = 'Please select driver and nurse!'
+            // }
+            if (!dropdownValues.driver) {
                 alertMsg = 'Please select driver!'
-            }else if(!dropdownValues.nurse){
-                alertMsg = 'Please select nurse!'
             }
+            // else if(!dropdownValues.nurse){
+            //     alertMsg = 'Please select nurse!'
+            // }
             if (alertMsg) {
                 toast.custom((t) => (
                     <CustomToast
@@ -165,7 +166,7 @@ const TeamMembersModal = ({ open, bookingId, members, showMembers, setOpen }: Te
                         placeholder="Doctors"
                         mainClassName="w-full"
                         toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
-                        listClassName="w-full top-[72px] max-h-52 border rounded-lg z-20 bg-white"
+                        listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
                         listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                         icon={<RiArrowDownSLine className="size-5 text-grey100" />}
                         isSearch={false}
@@ -178,7 +179,7 @@ const TeamMembersModal = ({ open, bookingId, members, showMembers, setOpen }: Te
                         placeholder="Drivers"
                         mainClassName="w-full"
                         toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
-                        listClassName="w-full top-[72px] max-h-52 border rounded-lg z-20 bg-white"
+                        listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
                         listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                         icon={<RiArrowDownSLine className="size-5 text-grey100" />}
                         isSearch={false}
@@ -191,7 +192,7 @@ const TeamMembersModal = ({ open, bookingId, members, showMembers, setOpen }: Te
                         placeholder="Nurses"
                         mainClassName="w-full"
                         toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
-                        listClassName="w-full top-[72px] max-h-52 border rounded-lg z-20 bg-white"
+                        listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
                         listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                         icon={<RiArrowDownSLine className="size-5 text-grey100" />}
                         isSearch={false}

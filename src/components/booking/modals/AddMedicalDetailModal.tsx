@@ -6,6 +6,8 @@ import { useUpdateCustomerMutation } from "../../../store/services/booking";
 import { useForm } from "react-hook-form";
 import { medicalDetailSchema } from "../../../utils/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import CustomToast from "../../ui/CustomToast";
 
 interface AddMedicalDetailModalProps {
   open: boolean;
@@ -76,25 +78,44 @@ const AddMedicalDetailModal = ({
           );
         }
         urlencoded.append("special_notes", "abc");
-        await updateCustomer(urlencoded);
-        setSelectedUser({
-          ...selectedUser,
-          is_allergy: data?.is_allergy === "yes" ? "1" : "0",
-          allergy_description: data?.allergy_description,
-          is_medication: data?.is_medication === "yes" ? "1" : "0",
-          medication_description: data?.medication_description,
-          is_medical_conition: data?.is_medical_condition === "yes" ? "1" : "0",
-          medical_condition_description: data?.medical_condition_description,
-        });
-        reset({
-          medical_condition_description: "",
-          is_medical_condition: "",
-          medication_description: "",
-          allergy_description: "",
-          is_medication: "",
-          is_allergy: "",
-        });
-        closeModal();
+        const response = await updateCustomer(urlencoded);
+        if (response?.error) {
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="error"
+              title="Error"
+              message="Something Went Wrong!"
+            />
+          ));
+        } else {
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="success"
+              title="Success"
+              message={`Successfully Updated Medical Detail!`}
+            />
+          ));
+          setSelectedUser({
+            ...selectedUser,
+            is_allergy: data?.is_allergy === "yes" ? "1" : "0",
+            allergy_description: data?.allergy_description,
+            is_medication: data?.is_medication === "yes" ? "1" : "0",
+            medication_description: data?.medication_description,
+            is_medical_conition: data?.is_medical_condition === "yes" ? "1" : "0",
+            medical_condition_description: data?.medical_condition_description,
+          });
+          reset({
+            medical_condition_description: "",
+            is_medical_condition: "",
+            medication_description: "",
+            allergy_description: "",
+            is_medication: "",
+            is_allergy: "",
+          });
+          closeModal();
+        }
       }
     } catch (error) {
       console.log(error);
@@ -129,20 +150,26 @@ const AddMedicalDetailModal = ({
     if (isAllergy === "no") {
       setValue("allergy_description", "");
     } else {
-      setValue("allergy_description", selectedUser?.allergy_description);
+      if(selectedUser?.allergy_description){
+        setValue("allergy_description", selectedUser?.allergy_description);
+      }
     }
     if (isMedication === "no") {
       setValue("medication_description", "");
     } else {
-      setValue("medication_description", selectedUser?.medication_description);
+      if(selectedUser?.medication_description){
+        setValue("medication_description", selectedUser?.medication_description);
+      }
     }
     if (isMedicalCondition === "no") {
       setValue("medical_condition_description", "");
     } else {
-      setValue(
-        "medical_condition_description",
-        selectedUser?.medical_condition_description
-      );
+      if(selectedUser?.medical_condition_description){
+        setValue(
+          "medical_condition_description",
+          selectedUser?.medical_condition_description
+        );
+      }
     }
   }, [isAllergy, isMedicalCondition, isMedication]);
   return (
@@ -150,7 +177,7 @@ const AddMedicalDetailModal = ({
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="w-[60%] max-w-[80%]"
+      className="w-[50%] max-w-[60%]"
       title="Add Medical Detail"
     >
       <div className="w-full px-6 py-4">

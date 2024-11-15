@@ -222,21 +222,43 @@ const AddFamilyMemberModal = ({
     }
   }, [open]);
 
-  console.log("Errors", errors); // Log all errors in the form
+  useEffect(()=>{
+    if(isMedication === "no"){
+      setValue("medicationsDesc", "")
+    }else {
+      if(editableFamilyMember?.medication_description){
+        setValue("medicationsDesc", editableFamilyMember?.medication_description);
+      }
+    }
+    if(isAllergy === "no"){
+      setValue("allergiesDesc", "")
+    }else {
+      if(editableFamilyMember?.allergy_description){
+        setValue("allergiesDesc", editableFamilyMember?.allergy_description);
+      }
+    }
+    if(isMedicalCondition === "no"){
+      setValue("medicalConditionDesc", "")
+    }else {
+      if(editableFamilyMember?.medical_condition_description){
+        setValue("medicalConditionDesc", editableFamilyMember?.medical_condition_description);
+      }
+    }
+  },[isMedication, isAllergy, isMedicalCondition])
 
   return (
     <Modal
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="max-h-[80%] w-[60%] max-w-[80%]"
+      className="w-[60%] max-w-[80%]"
       title={
         editableFamilyMember?.family_member_id
           ? "Edit Family Member"
           : "Add Family Member"
       }
     >
-      <div className="h-auto max-h-[450px] w-full overflow-y-scroll px-6 py-7">
+      <div className="h-auto max-h-[calc(100vh-160px)] w-full overflow-y-scroll px-6 py-7">
         <p className="text-left text-[18px] font-bold text-primary">
           Personal Details
         </p>

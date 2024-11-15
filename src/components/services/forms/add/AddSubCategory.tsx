@@ -1,8 +1,7 @@
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { LuLoader2 } from "react-icons/lu";
-import { HexColorPicker } from "react-colorful";
 import { TiArrowSortedDown } from "react-icons/ti";
 
 import {
@@ -14,22 +13,31 @@ import { RootState } from "../../../../store";
 import CustomInput from "../../../ui/CustomInput";
 import CustomToast from "../../../ui/CustomToast";
 import ImageUploader from "../../../ui/ImageUploader";
+import { useUpdateCategoryMutation } from "../../../../store/services/categories";
 
-const AddSubCategory = () => {
+interface AddSubCategoryProps{
+  provider: string | number,
+  business: string | number,
+  selectedSubCategory?: CategoryAllListProps | null;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  refetch: ()=>void
+}
+const AddSubCategory = ({provider, business, selectedSubCategory, setOpen, refetch}: AddSubCategoryProps) => {
   const [tagline, setTagline] = useState("");
   const [duration, setDuration] = useState("");
   const [color, setColor] = useState("#000000");
   const [selectedCategory, setSelectedCategory] =
     useState<ListOptionProps | null>(null);
   const [description, setDescription] = useState("");
-  const [icon, setIcon] = useState<File | null>(null);
+  const [icon, setIcon] = useState<File | string | null>(null);
   const [categoryCode, setCategoryCode] = useState("");
   const [categoryName, setCategoryName] = useState("");
-  const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [thumbnail, setThumbnail] = useState<File | string | null>(null);
+  const [coverImage, setCoverImage] = useState<File | string | null>(null);
   const { user } = useSelector((state: RootState) => state.global);
   const { data, isLoading: fetching } = useFetchCategoryListQuery({});
   const [createCategory, { isLoading }] = useCreateCategoryMutation();
+  const [updateCategory, { isLoading: updateLoading }] = useUpdateCategoryMutation();
 
   const clearForm = () => {
     setTagline("");
@@ -45,8 +53,8 @@ const AddSubCategory = () => {
 
   const handleCategorySubmit = async () => {
     const formData = new FormData();
-    formData.append("business_id", "1");
-    formData.append("company_id", "1");
+    formData.append("business_id", String(business || ''));
+    formData.append("company_id", String(provider || ''));
     formData.append("parent_id", `${selectedCategory?.id}`);
     formData.append("code", categoryCode);
     formData.append("color", color);
@@ -60,7 +68,13 @@ const AddSubCategory = () => {
     formData.append("user_id", `${user?.id}`);
 
     try {
-      const data = await createCategory(formData);
+      let data
+      if(selectedSubCategory?.category_id){
+        formData.append("id", `${selectedSubCategory?.category_id}`);
+        data = await updateCategory(formData);
+      }else{
+         data = await createCategory(formData);
+      }
       if (data.error) {
         toast.custom((t) => (
           <CustomToast
@@ -79,7 +93,9 @@ const AddSubCategory = () => {
             message="Created Subcategory Successfully!"
           />
         ));
+        refetch()
         clearForm();
+        setOpen(false)
       }
     } catch (error) {
       toast.custom((t) => (
@@ -88,10 +104,41 @@ const AddSubCategory = () => {
           type="error"
           title="error"
           message="Couldn't Create Subcategory. Please Try Again!"
-        />
-      ));
+          />
+        ));
+      }
+    };
+    
+    useEffect(()=>{
+    if(selectedSubCategory?.category_id){
+      setCategoryCode(selectedSubCategory?.code)
+      setCategoryName(selectedSubCategory?.category_name)
+      setColor(selectedSubCategory?.color)
+      setCoverImage(selectedSubCategory?.cover_image || null)
+      setThumbnail(selectedSubCategory?.thumbnail)
+      setDescription(selectedSubCategory?.description)
+      setDuration(selectedSubCategory?.duration || '')
+      setTagline(selectedSubCategory?.tagline || '')
+      const temp: ListOptionProps | undefined =data?.find((item)=>String(item.id)===selectedSubCategory?.parent_id)
+      if(temp) setSelectedCategory(temp)
     }
-  };
+  },[selectedSubCategory, open])
+
+  useEffect(()=>{
+    if(!open){
+      setCategoryCode('')
+      setCategoryName('')
+      setColor('')
+      setCoverImage(null)
+      setThumbnail(null)
+      setIcon(null)
+      setDescription('')
+      setTagline('')
+      setDuration('')
+      setCoverImage(null)
+      setSelectedCategory(null)
+    }
+  },[open])
 
   return (
     <form
@@ -153,14 +200,14 @@ const AddSubCategory = () => {
         setter={setTagline}
         placeholder="Name"
       />
-      <div className="col-span-2 flex w-full flex-col items-start justify-start gap-1">
+      <div className="col-span-1 flex w-full flex-col items-start justify-start gap-1">
         <label
           htmlFor="Subcategory Color"
           className="w-full text-left text-xs text-gray-500"
         >
           Subcategory Color
         </label>
-        <HexColorPicker color={color} onChange={setColor} />
+        <input value={color} onChange={(e) => setColor(e.target.value)}  type="color" className="p-1 h-10 w-14 block bg-white border border-gray-200 cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700" id="hs-color-input" title="Choose your color"></input>
       </div>
       <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-1">
         <label htmlFor="Description" className="w-full text-left">
@@ -178,18 +225,24 @@ const AddSubCategory = () => {
           Image Gallery
         </h1>
         <div className="grid w-full grid-cols-6 gap-6">
-          <ImageUploader label="Icon" setImage={setIcon} />
-          <ImageUploader label="Thumbnail" setImage={setThumbnail} />
-          <ImageUploader label="Cover Image" setImage={setCoverImage} />
+          <ImageUploader
+            link={selectedSubCategory?.icon ? `https://crm.fandcproperties.ru${selectedSubCategory?.icon}` : ''}
+           label="Icon" setImage={setIcon} />
+          <ImageUploader 
+            link={selectedSubCategory?.thumbnail ? `https://crm.fandcproperties.ru${selectedSubCategory?.thumbnail}` : ''}
+           label="Thumbnail" setImage={setThumbnail} />
+          <ImageUploader 
+            link={selectedSubCategory?.cover_image ? `https://crm.fandcproperties.ru${selectedSubCategory?.cover_image}` : ''}
+           label="Cover Image" setImage={setCoverImage} />
         </div>
       </div>
       <div className="col-span-2 flex w-full items-end justify-end">
         <button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || updateLoading}
           className="place-self-end rounded-lg bg-primary px-10 py-2 text-white"
         >
-          {isLoading ? (
+          {isLoading || updateLoading ? (
             <div className="flex w-full items-center justify-center gap-2">
               <LuLoader2 className="animate-spin" />
               <span>Please Wait...</span>

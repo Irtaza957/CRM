@@ -233,8 +233,8 @@ const NewBookingModal = ({
     }
   };
 
-  const removeSelectedService = (id: string) => {
-    const filtered = selectedServices?.filter((item) => item.service_id !== id);
+  const removeSelectedService = (id: number) => {
+    const filtered = selectedServices?.filter((_, index) => index !== id);
     setSelectedServices(filtered!);
   };
 
@@ -507,6 +507,14 @@ const NewBookingModal = ({
     }
   }, [selectedUser]);
 
+  useEffect(()=>{
+    if(!selectedService?.length){
+      setDiscount({
+        type: "aed",
+        value: 0,
+      });
+    }
+  },[selectedService])
   useEffect(() => {
     getCategories();
   }, []);
@@ -1006,7 +1014,7 @@ const NewBookingModal = ({
                         <button
                           type="button"
                           onClick={() =>
-                            removeSelectedService(service.service_id)
+                            removeSelectedService(idx)
                           }
                         >
                           <IoClose className="h-5 w-5" />
@@ -1146,7 +1154,7 @@ const NewBookingModal = ({
                       Select Time & Date
                     </h1>
                     <div className="grid w-full grid-cols-2 gap-2.5">
-                      <div className="mt-0.5">
+                      <div className="-mt-1.5">
                         <label className="mb-0.5 w-full text-left text-xs font-medium text-grey100">
                           Select Date
                         </label>
@@ -1273,6 +1281,7 @@ const NewBookingModal = ({
           setOpen={setOpenCustomerModal}
           editMode={editMode}
           userData={selectedUser}
+          setSelectedUser={setSelectedUser}
         />
         <AddFamilyMemberModal
           customerId={selectedUser?.customer_id}

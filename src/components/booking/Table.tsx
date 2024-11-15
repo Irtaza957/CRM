@@ -232,7 +232,7 @@ const Table = () => {
                                 "DD MMM YYYY"
                               )}
                             </p>
-                            <p className="w-full text-xs">
+                            <p className="w-full text-xs whitespace-nowrap">
                               {booking.schedule_slot}
                             </p>
                           </div>

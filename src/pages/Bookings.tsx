@@ -10,11 +10,14 @@ import NewBookingModal from "../components/booking/modals/NewBookingModal";
 import ProfessionalDropdown from "../components/booking/dropdowns/Professional";
 import BookingStatusDropdown from "../components/booking/dropdowns/BookingStatus";
 import PaymentStatusDropdown from "../components/booking/dropdowns/PaymentStatus";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
 
 const Bookings = () => {
   const [add, setAdd] = useState(false);
   const [provider, setProvider] = useState<string>("");
   const [category, setCategory] = useState<ListOptionProps | null>(null);
+  const { sidebar } = useSelector((state: RootState) => state.global);
 
   return (
     <div className="flex h-full w-full flex-col items-start justify-start">
@@ -57,17 +60,19 @@ const Bookings = () => {
           searchInputPlaceholder="Search..."
           searchInputClassName="p-1.5 text-xs"
           icon={<TiArrowSortedDown className="size-5" />}
-          toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
+          toggleClassName={`w-full shadow-md py-3 rounded-lg text-xs bg-white ${sidebar ? "px-1" : "px-3"}`}
           listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
           listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+          sidebar={sidebar}
         />
         <PaymentStatusDropdown
           searchInputPlaceholder="Search..."
           searchInputClassName="p-1.5 text-xs"
           icon={<TiArrowSortedDown className="size-5" />}
-          toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
+          toggleClassName={`w-full shadow-md py-3 rounded-lg text-xs bg-white whitespace-nowrap ${sidebar ? "px-1" : "px-3"}`}
           listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
           listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+          sidebar={sidebar}
         />
         <button
           type="button"

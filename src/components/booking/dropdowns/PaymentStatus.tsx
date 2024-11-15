@@ -14,6 +14,7 @@ interface ComboboxProps {
   defaultIconClassName?: string;
   searchInputClassName?: string;
   searchInputPlaceholder: string;
+  sidebar?: boolean;
 }
 
 const PaymentStatusDropdown = ({
@@ -25,6 +26,7 @@ const PaymentStatusDropdown = ({
   defaultIconClassName,
   searchInputClassName,
   searchInputPlaceholder,
+  sidebar,
 }: ComboboxProps) => {
   const [toggle, setToggle] = useState(false);
   const [query, setQuery] = useState<string>("");
@@ -44,13 +46,13 @@ const PaymentStatusDropdown = ({
         type="button"
         onClick={() => setToggle(!toggle)}
         className={cn(
-          "flex items-center justify-between space-x-3",
+          `flex items-center justify-between ${sidebar ? "space-x-2" : "space-x-3"}`,
           toggleClassName
         )}
       >
         <span>Payment Status</span>
         {icon ? (
-          icon
+          <div>{icon}</div>
         ) : (
           <LuChevronsUpDown className={cn(defaultIconClassName)} />
         )}

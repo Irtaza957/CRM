@@ -2,7 +2,6 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { LuLoader2 } from "react-icons/lu";
-import { HexColorPicker } from "react-colorful";
 import { TiArrowSortedDown } from "react-icons/ti";
 
 import {
@@ -15,7 +14,13 @@ import CustomInput from "../../../ui/CustomInput";
 import CustomToast from "../../../ui/CustomToast";
 import ImageUploader from "../../../ui/ImageUploader";
 
-const AddService = () => {
+interface AddServiceProps {
+  provider: string | number;
+  business: string | number;
+  refetch: () => void;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+}
+const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) => {
   const [vat, setVat] = useState("");
   const [code, setCode] = useState("");
   const [size, setSize] = useState("");
@@ -29,8 +34,8 @@ const AddService = () => {
   const [description, setDescription] = useState("");
   const [responseTime, setResponseTime] = useState("");
   const { data, isLoading } = useFetchCategoryListQuery({});
-  const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [thumbnail, setThumbnail] = useState<File | string | null>(null);
+  const [coverImage, setCoverImage] = useState<File | string | null>(null);
   const { user } = useSelector((state: RootState) => state.global);
   const [postService, { isLoading: creating }] = usePostServiceMutation();
 
@@ -52,7 +57,8 @@ const AddService = () => {
 
   const handleSubmit = async () => {
     const formData = new FormData();
-    formData.append("company_id", "1");
+    formData.append("company_id", String(provider || ""));
+    formData.append("business_id", String(business || ""));
     formData.append("category_id", `${selectedCategory?.id}`);
     formData.append("user_id", `${user?.id}`);
     formData.append("code", code);
@@ -88,6 +94,8 @@ const AddService = () => {
             message="Created Service Successfully!"
           />
         ));
+        refetch();
+        setOpen(false);
         clearForm();
       }
     } catch (error) {
@@ -190,14 +198,21 @@ const AddService = () => {
         setter={setResponseTime}
         placeholder="Response Time"
       />
-      <div className="col-span-2 flex w-full flex-col items-start justify-start gap-1">
+      <div className="col-span-1 flex w-full flex-col items-start justify-start gap-1">
         <label
           htmlFor="Service Color"
           className="w-full text-left text-xs text-gray-500"
         >
           Service Color
         </label>
-        <HexColorPicker color={color} onChange={setColor} />
+        <input
+          value={color}
+          onChange={(e) => setColor(e.target.value)}
+          type="color"
+          className="block h-10 w-14 cursor-pointer rounded-lg border border-gray-200 bg-white p-1 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900"
+          id="hs-color-input"
+          title="Choose your color"
+        ></input>
       </div>
       <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-1">
         <label htmlFor="Description" className="w-full text-left">

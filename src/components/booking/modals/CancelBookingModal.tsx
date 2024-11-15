@@ -15,7 +15,13 @@ import { IoClose } from "react-icons/io5";
 import { LuLoader2 } from "react-icons/lu";
 import { TiArrowSortedDown } from "react-icons/ti";
 
-const CancelBookingModal = ({ id, open, setOpen }: ModalProps) => {
+interface CancelBookingModalProps{
+  id?: string;
+  open: boolean;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  refetch: () => void;
+}
+const CancelBookingModal = ({ id, open, setOpen, refetch }: CancelBookingModalProps) => {
   const [other, setOther] = useState<string | number | null>("");
   const { data: reasons } = useFetchCancellationReasonsQuery({});
   const { user } = useSelector((state: RootState) => state.global);
@@ -63,9 +69,10 @@ const CancelBookingModal = ({ id, open, setOpen }: ModalProps) => {
             message="Cancelled Booking Successfully!"
           />
         ));
+        refetch();
         setOpen(false);
-        setReason(null)
-        setOpen(false)
+        setReason(null);
+        setOther("");
       }
     } catch (error) {
       toast.custom((t) => (

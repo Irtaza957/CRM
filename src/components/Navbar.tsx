@@ -2,7 +2,7 @@ import { RootState } from "../store";
 import Logo from "../assets/img/logo.svg";
 import CustomDatePicker from "./ui/CustomDatePicker";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { GoBell } from "react-icons/go";
 import { BsGear } from "react-icons/bs";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,17 +11,29 @@ import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { setDate } from "../store/slices/global";
 import dayjs from "dayjs";
+import { useNavigate } from "react-router-dom";
+import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 const Navbar = () => {
   const [search, setSearch] = useState("");
+  const [isLogout, setIsLogout] = useState(false)
 
   const { user, date } = useSelector((state: RootState) => state.global);
+  const userRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(userRef, () => setIsLogout(false));
   const dispatch = useDispatch();
+  const navigate=useNavigate()
 
   const handleSetDate = (date: string | Date) => {
     dispatch(setDate(date));
   };
 
+  const handleLogout=()=>{
+    ['date', 'user', 'sidebar'].forEach((key) => {
+      localStorage.removeItem(key);
+    });
+    navigate('/login')
+  }
   return (
     <nav className="relative z-30 h-16 min-h-16 w-full px-5 text-gray-500 shadow-md">
       <div className="flex h-full flex-1 items-center justify-between">
@@ -59,11 +71,17 @@ const Navbar = () => {
               00
             </span>
           </div>
-          <img
-            alt="user-dp"
-            className="size-10 rounded-full"
-            src={user?.avatar || "https://ui.shadcn.com/avatars/04.png"}
-          />
+          <div className="relative" ref={userRef}>
+            <img
+              alt="user-dp"
+              className="size-10 rounded-full cursor-pointer"
+              src={user?.avatar || "https://ui.shadcn.com/avatars/04.png"}
+              onClick={() => setIsLogout(!isLogout)}
+            />
+            {isLogout &&
+              <div onClick={handleLogout} className="absolute -left-10 mt-1 shadow-[rgba(0,0,0,0.24)_0px_3px_8px] bg-white rounded-md px-4 py-2 font-medium hover:bg-gray-100 cursor-pointer">Logout</div>
+            }
+          </div>
         </div>
       </div>
     </nav>

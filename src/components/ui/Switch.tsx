@@ -1,12 +1,23 @@
 import { useState } from "react";
 import { cn } from "../../utils/helpers";
 
-const Switch = () => {
-  const [toggle, setToggle] = useState(false);
+interface SwitchProps {
+  checked?: boolean;
+  onChange?: (checked: boolean) => void;
+}
+
+const Switch: React.FC<SwitchProps> = ({ checked = false, onChange }) => {
+  const [toggle, setToggle] = useState(checked);
+
+  const handleToggle = () => {
+    const newValue = !toggle;
+    setToggle(newValue);
+    onChange?.(newValue); // Call the onChange prop if provided
+  };
 
   return (
     <div
-      onClick={() => setToggle(!toggle)}
+      onClick={handleToggle}
       className={cn("w-[48px] rounded-full bg-red-500 p-[2px]", {
         "bg-secondary": toggle,
       })}

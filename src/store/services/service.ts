@@ -14,10 +14,20 @@ export const serviceApi = api.injectEndpoints({
       }) => response.data,
     }),
     fetchServices: build.query({
-      query: () => ({
-        url: "/services",
-        method: "GET",
-      }),
+      query: ({ company_id, filters }) => {
+        let query = company_id ? `?company_id=${company_id}` : '';
+        if (filters) {
+          const filterQuery = Object.entries(filters)
+            .filter(([, value]) => value !== undefined && value !== null) // Exclude undefined or null values
+            .map(([key, value]) => `${key}=${value}`)
+            .join('&');
+          query += query ? `&${filterQuery}` : `?${filterQuery}`;
+        }
+        return {
+          url: `/services${query}`,
+          method: "GET",
+        };
+      },
       transformResponse: (response: {
         success: number;
         error: string;
@@ -81,6 +91,45 @@ export const serviceApi = api.injectEndpoints({
         body: data,
       }),
     }),
+    updateService: build.mutation({
+      query: (data) => ({
+        url: "/services/update",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    updateCategoryStatus: build.mutation({
+      query: (data) => ({
+        url: "/categories/active",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    updateServicesStatus: build.mutation({
+      query: (data) => ({
+        url: "/services/active",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    fetchBusinesses: build.query({
+      query: (company_id) => ({
+        url: `/businesses${company_id ? `?company_id=${company_id}` : ''}`,
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: BusinessProps[];
+      }) => response.data,
+    }),
+    createBusiness: build.mutation({
+      query: (data) => ({
+        url: "/businesses",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -88,8 +137,13 @@ export const {
   useFetchServiceQuery,
   useFetchServicesQuery,
   usePostServiceMutation,
+  useUpdateServiceMutation,
   useFetchCategoriesQuery,
   useCreateCategoryMutation,
   useFetchCategoryListQuery,
   useFetchServiceListMutation,
+  useUpdateCategoryStatusMutation,
+  useUpdateServicesStatusMutation,
+  useFetchBusinessesQuery,
+  useCreateBusinessMutation,
 } = serviceApi;

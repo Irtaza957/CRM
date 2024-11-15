@@ -1,90 +1,158 @@
-import Loader from "../ui/Loader";
-import Combobox from "../ui/Combobox";
-import { cn } from "../../utils/helpers";
-import Switch from "../../components/ui/Switch";
-import UpdateService from "./forms/update/UpdateService";
-import { useFetchServicesQuery } from "../../store/services/service";
-import SmallUpDownArrow from "../../assets/icons/small-updown-arrow.svg";
-
+import Loader from "../../ui/Loader";
+import Combobox from "../../ui/Combobox";
+import { cn } from "../../../utils/helpers";
+import Switch from "../../ui/Switch";
+import SmallUpDownArrow from "../../../assets/icons/small-updown-arrow.svg";
 import { useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { FaChevronDown } from "react-icons/fa";
+import {
+  categoriesColumns,
+  customerColumns,
+  serviceColumns,
+  businessColumns,
+} from "../../../utils/constants";
+import {
+  useUpdateServicesStatusMutation,
+  useUpdateCategoryStatusMutation,
+} from "../../../store/services/service";
+import { toast } from "sonner";
+import CustomToast from "../../ui/CustomToast";
 
-const columns = [
-  {
-    id: 1,
-    name: "#",
-  },
-  {
-    id: 2,
-    name: "Service Code",
-  },
-  {
-    id: 3,
-    name: "Category Name",
-  },
-  {
-    id: 4,
-    name: "Sub Category Name",
-  },
-  {
-    id: 5,
-    name: "Service Name",
-  },
-  {
-    id: 6,
-    name: "Provider Name",
-  },
-  {
-    id: 7,
-    name: "Branch Name",
-  },
-  {
-    id: 8,
-    name: "Supplier Name",
-  },
-  {
-    id: 9,
-    name: "Selling Price",
-  },
-  {
-    id: 10,
-    name: "Quick Actions",
-  },
-];
+interface TableProps {
+  selectedTab: string;
+  isLoading: boolean;
+  data: any;
+  handleEdit?: (arg0: any) => void;
+  refetchServices?: () => void;
+  refetchCategories?: () => void;
+}
 
-const Table = () => {
-  const [id, setID] = useState("");
+interface Column {
+  id: number;
+  name: string;
+  key?: string;
+}
+
+const Table = ({
+  selectedTab,
+  data,
+  isLoading,
+  handleEdit,
+  refetchServices,
+  refetchCategories,
+}: TableProps) => {
   const [page, setPage] = useState(1);
-  const [update, setUpdate] = useState(false);
-  const { data, isLoading } = useFetchServicesQuery({});
   const [limit, setLimit] = useState<ListOptionProps | null>({
     id: 2,
     name: "10",
   });
+  const [updateServiceStatus] = useUpdateServicesStatusMutation();
+  const [updateCategoryStatus] = useUpdateCategoryStatusMutation();
+
+  const getColumns = () => {
+    switch (selectedTab) {
+      case "service":
+        return serviceColumns;
+      case "customer":
+        return customerColumns;
+      case "category":
+        return categoriesColumns;
+      case "business":
+        return businessColumns;
+      default:
+        return serviceColumns;
+    }
+  };
+
+  const handleStatusToggle = async (row: any) => {
+    try {
+      if(selectedTab === 'business'){
+       return 
+      }
+      const urlencoded = new URLSearchParams();
+      urlencoded.append(
+        "id",
+        String(selectedTab === "service" ? row.service_id : row.category_id)
+      );
+      urlencoded.append("active", row.active === "1" ? "0" : "1");
+
+      const response =
+        selectedTab === "service"
+          ? await updateServiceStatus(urlencoded)
+          : await updateCategoryStatus(urlencoded);
+
+      if ("error" in response) {
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="error"
+            title="Error"
+            message="Couldn't update status. Please try again!"
+          />
+        ));
+      } else {
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="success"
+            title="Success"
+            message="Status updated successfully!"
+          />
+        ));
+        if (selectedTab === "service") {
+          refetchServices && refetchServices();
+        } else {
+          refetchCategories && refetchCategories();
+        }
+      }
+    } catch (error) {
+      toast.custom((t) => (
+        <CustomToast
+          t={t}
+          type="error"
+          title="Error"
+          message="Couldn't update status. Please try again!"
+        />
+      ));
+    }
+  };
 
   return (
     <>
-      <UpdateService id={id} open={update} setOpen={setUpdate} />
       <div className="h-[calc(100vh-375px)] w-full xl:h-[calc(100vh-275px)]">
         <div className="h-full w-full overflow-hidden rounded-t-lg border">
           <div className="no-scrollbar h-full overflow-y-scroll">
             <table className="relative w-full min-w-full">
               <thead className="sticky top-0 z-[1] bg-primary text-left text-white shadow-md">
                 <tr className="h-12">
-                  {columns.map((column) => (
+                  <th className="border-x px-3 text-xs font-medium">
+                    <div className="flex w-full items-center justify-center">
+                      <span className="flex-1 text-left font-bold">#</span>
+                      <img src={SmallUpDownArrow} alt="small-updown-arrow" />
+                    </div>
+                  </th>
+                  {getColumns().map((column: Column, index: number) => (
                     <th
-                      key={column.id}
+                      key={`${column.id}-${index}`}
                       className="border-x px-3 text-xs font-medium"
                     >
                       <div className="flex w-full items-center justify-center">
-                        <span className="flex-1 text-left font-bold">
+                        <span className="flex-1 whitespace-nowrap text-left font-bold">
                           {column.name}
                         </span>
                         <img src={SmallUpDownArrow} alt="small-updown-arrow" />
                       </div>
                     </th>
                   ))}
+                  <th className="border-x px-3 text-xs font-medium">
+                    <div className="flex w-full items-center justify-center">
+                      <span className="flex-1 text-left font-bold">
+                        Quick Actions
+                      </span>
+                      <img src={SmallUpDownArrow} alt="small-updown-arrow" />
+                    </div>
+                  </th>
                 </tr>
               </thead>
               {isLoading ? (
@@ -98,108 +166,62 @@ const Table = () => {
                       page * parseInt(limit!.name) - parseInt(limit!.name),
                       page * parseInt(limit!.name)
                     )
-                    .map((service, idx) => (
+                    .map((row: DataProps, idx: number) => (
                       <tr
                         key={idx}
                         title="Click to Edit"
-                        className={cn(
-                          "h-12 cursor-pointer bg-white text-gray-500",
-                          {
-                            "bg-[#F3F5F9]": idx % 2 !== 0,
-                          }
-                        )}
+                        className={cn("h-12 bg-white text-gray-500", {
+                          "bg-[#F3F5F9]": idx % 2 !== 0,
+                        })}
                       >
-                        <td
-                          onClick={() => {
-                            setID(service.service_id);
-                            setUpdate(true);
-                          }}
-                          className="px-3"
-                        >
+                        <td className="px-3">
                           <span className="text-xs">{idx + 1}</span>
                         </td>
-                        <td
-                          onClick={() => {
-                            setID(service.service_id);
-                            setUpdate(true);
-                          }}
-                          className="px-3"
-                        >
-                          <span className="text-xs">{service.service_id}</span>
-                        </td>
-                        <td
-                          onClick={() => {
-                            setID(service.service_id);
-                            setUpdate(true);
-                          }}
-                          className="px-3"
-                        >
-                          <span className="text-xs">
-                            {service.category_name}
-                          </span>
-                        </td>
-                        <td
-                          onClick={() => {
-                            setID(service.service_id);
-                            setUpdate(true);
-                          }}
-                          className="px-3"
-                        >
-                          <span className="text-xs">SubCategory Name</span>
-                        </td>
-                        <td
-                          onClick={() => {
-                            setID(service.service_id);
-                            setUpdate(true);
-                          }}
-                          className="px-3"
-                        >
-                          <span className="text-xs">
-                            {service.service_name}
-                          </span>
-                        </td>
-                        <td
-                          onClick={() => {
-                            setID(service.service_id);
-                            setUpdate(true);
-                          }}
-                          className="px-3"
-                        >
-                          <span className="text-xs">{service.providor}</span>
-                        </td>
-                        <td
-                          onClick={() => {
-                            setID(service.service_id);
-                            setUpdate(true);
-                          }}
-                          className="px-3"
-                        >
-                          <span className="text-xs">Branch Name</span>
-                        </td>
-                        <td
-                          onClick={() => {
-                            setID(service.service_id);
-                            setUpdate(true);
-                          }}
-                          className="px-3"
-                        >
-                          <span className="text-xs">{service.supplier}</span>
-                        </td>
-                        <td
-                          onClick={() => {
-                            setID(service.service_id);
-                            setUpdate(true);
-                          }}
-                          className="px-3"
-                        >
-                          <span className="text-xs">
-                            AED {service.price_with_vat}
-                          </span>
-                        </td>
+                        {/* className={`size-4 rounded-full bg-[${item?.color_code}]`} */}
+                        {getColumns().map((column: Column, index: number) => (
+                          <td key={`${column.id}-${index}`} className="px-3">
+                            <span className="text-xs">
+                              {column.key === "price_with_vat" && "AED"}
+                              {[
+                                "is_medical_conition",
+                                "is_medication",
+                                "is_allergy",
+                              ].includes(column.key || '') ? (
+                                row[column.key || ''] === "1" ? (
+                                  "Yes"
+                                ) : (
+                                  "No"
+                                )
+                              ) : column.key === "color" ? (
+                                <div
+                                  className={`size-4 rounded-full bg-[${row[column.key]}]`}
+                                ></div>
+                              ) : (
+                                row[column.key || column.name.toLowerCase()] ||
+                                "N/A"
+                              )}
+                            </span>
+                          </td>
+                        ))}
                         <td className="px-3">
-                          <div className="flex justify-between">
-                            <Switch />
-                            <FiEdit className="col-span-1 h-6 w-6 rounded-md bg-red-500 p-1 text-white" />
+                          <div
+                            className={`flex justify-end gap-5`}
+                          >
+                            {!["customer"].includes(
+                              selectedTab
+                            ) && (
+                              <Switch
+                                key={`${row.service_id || row.category_id}-${row.active}`}
+                                checked={row.active === "1"}
+                                onChange={() => {
+                                  handleStatusToggle(row);
+                                }}
+                              />
+                            )}
+                            <FiEdit
+                              onClick={() => handleEdit && handleEdit(row)}
+                              className="col-span-1 h-6 w-6 cursor-pointer rounded-md bg-red-500 p-1 text-white"
+                            />
                           </div>
                         </td>
                       </tr>

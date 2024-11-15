@@ -3,8 +3,6 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 
 import { cn } from "../../../utils/helpers";
 import { useOnClickOutside } from "../../../hooks/useOnClickOutside";
-import { useFetchAllCategoriesQuery } from "../../../store/services/categories";
-
 interface ComboboxProps {
   icon?: ReactNode;
   placeholder: string;
@@ -16,7 +14,9 @@ interface ComboboxProps {
   defaultIconClassName?: string;
   searchInputClassName?: string;
   searchInputPlaceholder: string;
-  setValue: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
+  data?: CategoryAllListProps[];
+  setValue?: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
+  handleSelectCategoryFilter?: (value: ListOptionProps) => void;
 }
 
 const CategoryDropdown = ({
@@ -31,10 +31,11 @@ const CategoryDropdown = ({
   defaultIconClassName,
   searchInputClassName,
   searchInputPlaceholder,
+  data,
+  handleSelectCategoryFilter,
 }: ComboboxProps) => {
   const [toggle, setToggle] = useState(false);
   const [query, setQuery] = useState<string>("");
-  const { data } = useFetchAllCategoriesQuery({});
   const ComboboxRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(ComboboxRef, () => setToggle(false));
   const [options, setOptions] = useState<ListOptionProps[]>([]);
@@ -112,7 +113,7 @@ const CategoryDropdown = ({
                 <div
                   key={item.id}
                   onClick={() => {
-                    setValue(item);
+                    handleSelectCategoryFilter ? handleSelectCategoryFilter(item) : setValue && setValue(item);
                     setToggle(false);
                   }}
                   className={cn(
@@ -120,13 +121,13 @@ const CategoryDropdown = ({
                     listItemClassName
                   )}
                 >
-                  <div className="size-4 rounded-sm border border-gray-400 p-px">
+                  {/* <div className="size-4 rounded-sm border border-gray-400 p-px">
                     <div
                       className={cn("size-full rounded-sm", {
                         "bg-gray-400": value?.id === item.id,
                       })}
                     />
-                  </div>
+                  </div> */}
                   <span className="flex-1 overflow-hidden truncate text-left text-xs">
                     {item.name}
                   </span>
@@ -142,7 +143,7 @@ const CategoryDropdown = ({
             <div
               key={item.id}
               onClick={() => {
-                setValue(item);
+                handleSelectCategoryFilter ? handleSelectCategoryFilter(item) : setValue && setValue(item);
                 setToggle(false);
               }}
               className={cn(
@@ -150,13 +151,13 @@ const CategoryDropdown = ({
                 listItemClassName
               )}
             >
-              <div className="size-4 rounded-sm border border-gray-400 p-px">
+              {/* <div className="size-4 rounded-sm border border-gray-400 p-px">
                 <div
                   className={cn("size-full rounded-sm", {
                     "bg-gray-400": value?.id === item.id,
                   })}
                 />
-              </div>
+              </div> */}
               <span className="flex-1 overflow-hidden truncate text-left text-xs">
                 {item.name}
               </span>

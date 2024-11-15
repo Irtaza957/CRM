@@ -27,11 +27,11 @@ const UpdateCategory = ({ id, open, setOpen }: UpdateCategoryModalProps) => {
   const [duration, setDuration] = useState("");
   const [color, setColor] = useState("#000000");
   const [description, setDescription] = useState("");
-  const [icon, setIcon] = useState<File | null>(null);
+  const [icon, setIcon] = useState<File | string | null>(null);
   const [categoryCode, setCategoryCode] = useState("");
   const [categoryName, setCategoryName] = useState("");
-  const [thumbnail, setThumbnail] = useState<File | null>(null);
-  const [coverImage, setCoverImage] = useState<File | null>(null);
+  const [thumbnail, setThumbnail] = useState<File | string | null>(null);
+  const [coverImage, setCoverImage] = useState<File | string | null>(null);
   const { user } = useSelector((state: RootState) => state.global);
   const [updateCategory, { isLoading }] = useUpdateCategoryMutation();
 
