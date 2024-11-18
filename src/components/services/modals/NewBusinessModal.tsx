@@ -126,13 +126,12 @@ const NewBusinessModal = ({
 
   useEffect(() => {
     if (selectedBusiness?.id) {
-      console.log(selectedBusiness, 'selectedBusiness');
       setValue("code", selectedBusiness?.code);
       setValue("name", selectedBusiness?.name);
       setValue("description", selectedBusiness?.description);
-      // setIcon(selectedBusiness?.icon);
-      // setThumbnail(selectedBusiness?.thumbnail);
-      // setCover(selectedBusiness?.cover);
+      setIcon(selectedBusiness?.icon || null);
+      setThumbnail(selectedBusiness?.thumbnail || null);
+      setCover(selectedBusiness?.cover_image || null);
     }
   }, [selectedBusiness, open]);
 
@@ -186,12 +185,21 @@ const NewBusinessModal = ({
               Image Gallery
             </h1>
             <div className="grid w-full grid-cols-6 gap-6">
-              <ImageUploader label="Icon" setImage={setIcon} />
+              <ImageUploader
+                label="Icon"
+                setImage={setIcon}
+                link={selectedBusiness?.icon ? `https://crm.fandcproperties.ru${selectedBusiness?.icon}` : ''}
+              />
               <ImageUploader
                 label="Thumbnail"
                 setImage={setThumbnail}
+                link={selectedBusiness?.thumbnail ? `https://crm.fandcproperties.ru${selectedBusiness?.thumbnail}` : ''}
               />
-              <ImageUploader label="Cover Image" setImage={setCover} />
+              <ImageUploader
+                label="Cover Image"
+                setImage={setCover}
+                link={selectedBusiness?.cover_image ? `https://crm.fandcproperties.ru${selectedBusiness?.cover_image}` : ''}
+              />
             </div>
           </div>
 

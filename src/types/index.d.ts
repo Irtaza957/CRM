@@ -459,6 +459,9 @@ declare type BusinessProps = {
   description: string;
   total_companies: number;
   total_value: number;
+  thumbnail?: string;
+  cover_image?: string;
+  icon?: string;
 };
 
 declare type CategoryDetailProps = {
