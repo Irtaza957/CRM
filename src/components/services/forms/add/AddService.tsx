@@ -33,7 +33,7 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
   const [serviceName, setServiceName] = useState("");
   const [description, setDescription] = useState("");
   const [responseTime, setResponseTime] = useState("");
-  const { data, isLoading } = useFetchCategoryListQuery({});
+  const { data, isLoading } = useFetchCategoryListQuery({}, { skip: !open });
   const [thumbnail, setThumbnail] = useState<File | string | null>(null);
   const [coverImage, setCoverImage] = useState<File | string | null>(null);
   const { user } = useSelector((state: RootState) => state.global);
@@ -143,46 +143,11 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
         </div>
       )}
       <CustomInput
-        type="number"
-        label="VAT"
-        value={vat}
-        setter={setVat}
-        placeholder="VAT"
-      />
-      <CustomInput
         type="text"
         label="Code"
         value={code}
         setter={setCode}
         placeholder="Code"
-      />
-      <CustomInput
-        type="number"
-        value={size}
-        setter={setSize}
-        placeholder="Size"
-        label="Size (in mL.)"
-      />
-      <CustomInput
-        type="text"
-        value={duration}
-        label="Duration"
-        setter={setDuration}
-        placeholder="Duration"
-      />
-      <CustomInput
-        type="number"
-        value={priceVat}
-        setter={setPriceVat}
-        label="Price with VAT"
-        placeholder="Price with VAT"
-      />
-      <CustomInput
-        type="number"
-        value={priceNoVat}
-        setter={setPriceNoVat}
-        label="Price without VAT"
-        placeholder="Price without VAT"
       />
       <CustomInput
         type="text"
@@ -193,10 +158,45 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
       />
       <CustomInput
         type="text"
+        value={duration}
+        label="Duration"
+        setter={setDuration}
+        placeholder="Duration"
+      />
+      <CustomInput
+        type="text"
         value={responseTime}
         label="Response Time"
         setter={setResponseTime}
         placeholder="Response Time"
+      />
+      <CustomInput
+        type="number"
+        value={priceNoVat}
+        setter={setPriceNoVat}
+        label="Price without VAT"
+        placeholder="Price without VAT"
+      />
+      <CustomInput
+        type="number"
+        label="VAT"
+        value={vat}
+        setter={setVat}
+        placeholder="VAT"
+      />
+      <CustomInput
+        type="number"
+        value={priceVat}
+        setter={setPriceVat}
+        label="Price with VAT"
+        placeholder="Price with VAT"
+      />
+      <CustomInput
+        type="number"
+        value={size}
+        setter={setSize}
+        placeholder="Size"
+        label="Size (in mL.)"
       />
       <div className="col-span-1 flex w-full flex-col items-start justify-start gap-1">
         <label

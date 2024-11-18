@@ -14,10 +14,23 @@ export const companyApi = api.injectEndpoints({
       }) => response.data,
     }),
     fetchCompanies: build.query({
-      query: () => ({
-        url: "/companies",
-        method: "GET",
-      }),
+      query: (query) => {
+        let queryString = "";
+        if (query?.length) {
+          queryString =
+            "?" +
+            query
+              ?.map(
+                (filter: { name: string; id: string }) =>
+                  `${encodeURIComponent(filter.name)}_id=${encodeURIComponent(filter.id?.split("-")[0])}`
+              )
+              .join("&");
+        }
+        return {
+          url: `/companies${queryString}`,
+          method: "GET",
+        };
+      },
       transformResponse: (response: {
         success: number;
         error: string;
@@ -38,6 +51,20 @@ export const companyApi = api.injectEndpoints({
         body: data,
       }),
     }),
+    postBranch: build.mutation({
+      query: (data) => ({
+        url: "/companies/branches",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    updateBranch: build.mutation({
+      query: (data) => ({
+        url: "/companies/update_branch",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
@@ -46,4 +73,6 @@ export const {
   useFetchCompaniesQuery,
   usePostCompanyMutation,
   useUpdateCompanyMutation,
+  usePostBranchMutation,
+  useUpdateBranchMutation,
 } = companyApi;

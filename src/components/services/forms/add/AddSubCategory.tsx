@@ -35,7 +35,7 @@ const AddSubCategory = ({provider, business, selectedSubCategory, setOpen, refet
   const [thumbnail, setThumbnail] = useState<File | string | null>(null);
   const [coverImage, setCoverImage] = useState<File | string | null>(null);
   const { user } = useSelector((state: RootState) => state.global);
-  const { data, isLoading: fetching } = useFetchCategoryListQuery({});
+  const { data, isLoading: fetching } = useFetchCategoryListQuery({}, {skip: !open});
   const [createCategory, { isLoading }] = useCreateCategoryMutation();
   const [updateCategory, { isLoading: updateLoading }] = useUpdateCategoryMutation();
 

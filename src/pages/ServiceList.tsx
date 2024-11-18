@@ -8,127 +8,130 @@ import BusinessDropdown from "../components/services/dropdowns/Business";
 import NewServiceModal from "../components/services/modals/NewServiceModal";
 import { useFetchCompaniesQuery } from "../store/services/company";
 import { useFetchServicesQuery } from "../store/services/service";
-import { useFetchCustomersMutation } from "../store/services/customer";
+// import { useFetchCustomersMutation } from "../store/services/customer";
 import { useFetchAllCategoriesQuery } from "../store/services/categories";
 import Table from "../components/services/Table";
-import AddCustomerModal from "../components/booking/modals/AddCustomerModal";
-import { useSelector } from "react-redux";
-import { RootState } from "../store";
+// import AddCustomerModal from "../components/booking/modals/AddCustomerModal";
+// import { useSelector } from "react-redux";
+// import { RootState } from "../store";
 import * as XLSX from "xlsx";
 import UpdateService from "../components/services/forms/update/UpdateService";
-import { cn } from "../utils/helpers";
-import { useFetchNationalityQuery } from "../store/services/booking";
-import { useFetchSourcesQuery } from "../store/services/filters";
 import { useFetchBusinessesQuery } from "../store/services/service";
 import NewBusinessModal from "../components/services/modals/NewBusinessModal";
-
-const tabs = [
-  { id: "business", label: "Businessess" },
-  { id: "service", label: "Services" },
-  { id: "category", label: "Categories" },
-  { id: "customer", label: "Customers" }
-];
+import BranchDropdown from "../components/services/dropdowns/Branch";
+import { useFetchBranchesQuery } from "../store/services/filters";
+import AddCompanyModal from "../components/services/modals/AddCompanyModal";
+import AddBranchModal from "../components/services/modals/AddBranchModal";
 
 const ServiceList = () => {
-  const [tab, setTab] = useState<string>("business"); // default to 'service' tab
   const [search, setSearch] = useState("");
   const [upload, setUpload] = useState(false);
   const [provider, setProvider] = useState<ListOptionProps | null>(null);
   const [category, setCategory] = useState<ListOptionProps | null>(null);
   const [subCategory, setSubCategory] = useState<ListOptionProps | null>(null);
-  const [selectedCompany, setSelectedCompany] = useState<string>("0");
-  const [customersData, setCustomers] = useState<CustomerProps[] | []>([]);
-  const [openCustomerModal, setOpenCustomerModal] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] =
-    useState<CustomerProps | null>(null);
+  // const [customersData, setCustomers] = useState<CustomerProps[] | []>([]);
+  // const [openCustomerModal, setOpenCustomerModal] = useState(false);
+  // const [selectedCustomer, setSelectedCustomer] =
+  //   useState<CustomerProps | null>(null);
   const [selectedCategory, setSelectedCategory] =
     useState<CategoryAllListProps | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [update, setUpdate] = useState(false);
   const [id, setID] = useState("");
-  const [source, setSource] = useState<ListOptionProps | null>(null);
-  const [nationality, setNationality] = useState<ListOptionProps | null>(null);
   const [openBusinessModal, setOpenBusinessModal] = useState(false);
-  const [selectedBusiness, setSelectedBusiness] = useState<BusinessProps | null>(null);
+  const [selectedBusiness, setSelectedBusiness] =
+    useState<BusinessProps | null>(null);
   const [business, setBusiness] = useState<ListOptionProps | null>(null);
-  const [filter, setFilter] = useState<string>('');
+  const [filterArray, setFilterArray] = useState<FilterType[]>([]);
+  const [branch, setBranch] = useState<ListOptionProps | null>(null);
+  const [openCompanyModal, setOpenCompanyModal] = useState(false);
+  const [selectedCompany, setSelectedCompany] =
+    useState<{ id: string, business: string } | null>(null);
+  const [openBranchModal, setOpenBranchModal] = useState(false);
+  const [selectedBranch, setSelectedBranch] = useState<BranchProps | null>(
+    null
+  );
 
-  const { user } = useSelector((state: RootState) => state.global);
+  // const { user } = useSelector((state: RootState) => state.global);
+
+  // const [fetchCustomers, { isLoading: customerLoading }] =
+  //   useFetchCustomersMutation();
+
+  const lastFilter = filterArray[filterArray.length - 1]?.name;
+
+  const shouldFetchBusinesses = filterArray.length === 0;
+  const shouldFetchCompanies = lastFilter === "business";
+  const shouldFetchBranches = lastFilter === "company";
+  const shouldFetchCategories = lastFilter === "branch";
+  const shouldFetchServices = lastFilter === "category";
+
+  // Pass the filterArray as query parameters
+  const businessQueryParams = shouldFetchBusinesses ? filterArray : null;
+  const companyQueryParams = shouldFetchCompanies ? filterArray : null;
+  const branchQueryParams = shouldFetchBranches ? filterArray : null;
+  const categoryQueryParams = shouldFetchCategories ? filterArray : null;
+  const serviceQueryParams = shouldFetchServices ? filterArray : null;
+
   const {
     data: servicesData,
     refetch: refetchServices,
     isFetching: servicesFetching,
-  } = useFetchServicesQuery({
-    company_id: selectedCompany !== "0" ? selectedCompany : null,
-    filters: {
-      business: business?.id,
-      provider: provider?.id,
-      category: category?.id,
-      subCategory: subCategory?.id,
-    },
-  }, {
-    skip: tab !== "service",
-    refetchOnMountOrArgChange: true,
-    refetchOnReconnect: true,
-    refetchOnFocus: true,
-  });
+    isError: servicesError
+  } = useFetchServicesQuery(serviceQueryParams, { skip: !shouldFetchServices });
 
-  const [fetchCustomers, { isLoading: customerLoading }] =
-    useFetchCustomersMutation();
-
+  const { data: branches, isFetching: branchFetching, refetch: refetchBranches } = useFetchBranchesQuery(
+    branchQueryParams,
+    { skip: !shouldFetchBranches }
+  );
   const {
     data: categoriesData,
     refetch,
     isFetching: categoriesLoading,
-  } = useFetchAllCategoriesQuery(  {
-    customer_id: Number(selectedCompany),
-    filters: {
-      business: business?.id,
-      provider: provider?.id,
-      category: category?.id,
-    },
-  }, {
-    skip: tab !== "category",
-    refetchOnMountOrArgChange: true,
-    refetchOnReconnect: true,
-    refetchOnFocus: true,
+    isError: categoryError
+  } = useFetchAllCategoriesQuery(categoryQueryParams, {
+    skip: !shouldFetchCategories,
   });
 
+  const { data: companiesData, isFetching: fetchingCompanies, refetch: refetchCompanies } =
+    useFetchCompaniesQuery(companyQueryParams, { skip: !shouldFetchCompanies });
   const {
-    data: categoriesDropdownData,
-  } = useFetchAllCategoriesQuery({ });
-  const { data: companiesData } = useFetchCompaniesQuery({});
-  const { data: sources } = useFetchSourcesQuery({});
-  const { data: nationalities } = useFetchNationalityQuery({});
-  const { data: businessData, isFetching: businessLoading, refetch: refetchBusinesses } =
-    useFetchBusinessesQuery(
-      Number(selectedCompany),
-      {
-        skip: tab !== "business",
-        refetchOnMountOrArgChange: true,
-      }
-    );
+    data: businessData,
+    isFetching: businessLoading,
+    refetch: refetchBusinesses,
+  } = useFetchBusinessesQuery(businessQueryParams, {
+    skip: !shouldFetchBusinesses,
+  });
 
-  const addButtonText =
-    tab === "service"
-      ? "Add Service"
-      : tab === "category"
-        ? "Add Category"
-        : tab === "customer"
-          ? "Add Customer"
-          : "Add Business";
+  const { data: categoriesDropdownData } = useFetchAllCategoriesQuery({});
 
-  const handleSelectCompany = (id: string) => {
-    setSelectedCompany(id);
-  };
+  const { data: branchesDropodwnData } = useFetchBranchesQuery(null);
+
+  const { data: companiesDropdownData } = useFetchCompaniesQuery(null);
+
+  // const addButtonText =
+  //   lastFilter === "business"
+  //     ? "Add Company"
+  //     : lastFilter === "company"
+  //       ? "Add Branch"
+  //       : lastFilter === "sub_category"
+  //         ? "Add Service"
+  //         : lastFilter === "category"
+  //           ? "Add Sub Category"
+  //           : lastFilter === "branch"
+  //             ? "Add Category"
+  //             : "Add Business";
 
   const handleAddModal = () => {
-    if (tab === "customer") {
-      setOpenCustomerModal(true);
-    } else if (tab === "business") {
-      setOpenBusinessModal(true);
-    } else {
+    if (lastFilter === "category") {
       setUpload(true);
+    } else if (lastFilter === "branch") {
+      setUpload(true);
+    } else if (lastFilter === "business") {
+      setOpenCompanyModal(true);
+    } else if (lastFilter === "company") {
+      setOpenBranchModal(true);
+    } else {
+      setOpenBusinessModal(true);
     }
   };
 
@@ -148,34 +151,29 @@ const ServiceList = () => {
     fileInputRef.current?.click();
   };
 
-  const getCustomers = async () => {
-    const id = Number(selectedCompany);
-    const query = id ? `?company_id=${id}${filter ? `&${filter}` : ''}` : filter ? `?${filter}` : '';
-    const response = await fetchCustomers(query);
-    setCustomers(response?.data?.data || []);
-  };
+  // const getCustomers = async () => {
+  //   const response = await fetchCustomers({});
+  //   setCustomers(response?.data?.data || []);
+  // };
 
   const handleEdit = (row: any) => {
-    if (tab === "customer") {
-      setSelectedCustomer(row);
-      setOpenCustomerModal(true);
-    } else if (tab === "category") {
-      setSelectedCategory(row);
-      setUpload(true);
-    } else if (tab === "business") {
-      setSelectedBusiness(row)
-      setOpenBusinessModal(true);
-    } else {
+    if (lastFilter === "category") {
       setID(row.service_id);
       setUpdate(true);
+    } else if (lastFilter === "branch") {
+      setSelectedCategory(row);
+      setUpload(true);
+    } else if (lastFilter === "business") {
+      setSelectedCompany({ id: row?.id, business: row?.business });
+      setOpenCompanyModal(true);
+    } else if (lastFilter === "company") {
+      setSelectedBranch(row);
+      setOpenBranchModal(true);
+    } else {
+      setSelectedBusiness(row);
+      setOpenBusinessModal(true);
     }
   };
-
-  useEffect(() => {
-    if (tab === "customer") {
-      getCustomers();
-    }
-  }, [tab, selectedCompany]);
 
   useEffect(() => {
     if (!upload) {
@@ -185,297 +183,108 @@ const ServiceList = () => {
 
   const filteredData = useMemo(() => {
     const lowercasedSearch = search.toLowerCase();
+    const lastItem = filterArray[filterArray.length - 1]?.name;
 
-    switch (tab) {
-      case "service":
-        return servicesData?.filter(
-          (service) =>
-            service.service_name.toLowerCase().includes(lowercasedSearch) ||
-            service.code?.toLowerCase().includes(lowercasedSearch)
-        );
-      case "category":
-        return categoriesData?.filter(
-          (category) =>
-            category.category_name.toLowerCase().includes(lowercasedSearch) ||
-            category.code.toLowerCase().includes(lowercasedSearch)
-        );
-      case "customer":
-        return customersData?.filter((customer) =>
-          customer.full_name?.toLowerCase().includes(lowercasedSearch)
-        );
+    if (filterArray?.length === 0) {
+      return businessData?.filter(
+        (business) =>
+          business.name.toLowerCase().includes(lowercasedSearch) ||
+          business.code.toLowerCase().includes(lowercasedSearch)
+      );
+    }
+    switch (lastItem) {
       case "business":
-        return businessData?.filter(
-          (business) =>
-            business.name.toLowerCase().includes(lowercasedSearch) ||
-            business.code.toLowerCase().includes(lowercasedSearch)
-        );
+        return companiesData?.filter(item=>item.name.toLowerCase().includes(lowercasedSearch));
+      case "company":
+        return branches?.filter(item=>item.name.toLowerCase().includes(lowercasedSearch));
+      case "branch":
+        return categoriesData?.filter(item => item.category_name.toLowerCase().includes(lowercasedSearch));
+      case "category":
+        return servicesData?.filter(item=>item.service_name.toLowerCase().includes(lowercasedSearch));
       default:
         return [];
     }
-  }, [tab, search, servicesData, categoriesData, customersData, businessData]);
+  }, [
+    search,
+    servicesData,
+    categoriesData,
+    companiesData,
+    businessData,
+    branches,
+  ]);
+
+  const removeFilter = (id: string) => {
+    const temp: FilterType[] = filterArray.filter((item) => item.id !== id);
+    setFilterArray(temp);
+  };
+
+  const addFilter = (name: string, id: string) => {
+    setFilterArray((prevFilters) => [
+      ...prevFilters.filter((filter) => filter.name !== name),
+      { name, id },
+    ]);
+  };
+  const handleSelectBranch = (value: ListOptionProps) => {
+    if (branch?.id === value.id) {
+      setBranch(null);
+      removeFilter(String(value.id) + "-branch");
+    } else {
+      setBranch(value);
+      addFilter("branch", String(value.id) + "-branch");
+    }
+  };
 
   const handleSelectCompanyFilter = (value: ListOptionProps) => {
     if (provider?.id === value.id) {
       setProvider(null);
+      removeFilter(String(value.id) + "-company");
     } else {
       setProvider(value);
+      addFilter("company", String(value.id) + "-company");
     }
   };
 
   const handleSelectBusinessFilter = (value: ListOptionProps) => {
     if (business?.id === value.id) {
       setBusiness(null);
+      removeFilter(String(value.id) + "-business");
     } else {
       setBusiness(value);
+      addFilter("business", String(value.id) + "-business");
     }
   };
-  
+
   const handleSelectCategoryFilter = (value: ListOptionProps) => {
     if (category?.id === value.id) {
       setCategory(null);
+      removeFilter(String(value.id) + "-category");
     } else {
       setCategory(value);
+      const temp: FilterType[] = filterArray.filter((item) => item.name !== "category");
+      setFilterArray(temp);
+      setSubCategory(null);
+      addFilter("category", String(value.id) + "-category");
     }
   };
 
   const handleSelectSubCategoryFilter = (value: ListOptionProps) => {
     if (subCategory?.id === value.id) {
       setSubCategory(null);
+      removeFilter(String(value.id) + "-category");
     } else {
       setSubCategory(value);
-    }
-  };
-  
-  const handleSelectSource = (value: ListOptionProps) => {
-    if (source?.id === value.id) {
-      setSource(null);
-    } else {
-      setSource(value);
-    }
-  };
-
-  const handleSelectNationality = (value: ListOptionProps) => {
-    if (nationality?.id === value.id) {
-      setNationality(null);
-    } else {
-      setNationality(value);
-    }
-  };
-
-  const renderFilters = () => {
-    switch (tab) {
-      case "category":
-        return (
-          <div className="col-span-7 grid grid-cols-3 gap-2.5">
-            <BusinessDropdown business={business} handleSelectBusinessFilter={handleSelectBusinessFilter} />
-            {/* <ProviderDropdown
-              provider={provider}
-              setProvider={setProvider}
-              icon={<TiArrowSortedDown className="size-5" />}
-              toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-              listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
-            /> */}
-            <Combobox
-              value={provider}
-              options={companiesData?.map(item => { return { id: item.id, name: item.name } })}
-              handleSelect={handleSelectCompanyFilter}
-              placeholder="Company"
-              mainClassName="w-full"
-              toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-              listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
-              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-              icon={<TiArrowSortedDown className="size-5" />}
-              searchInputPlaceholder="Search..."
-              searchInputClassName="p-1.5 text-xs"
-            />
-            <CategoryDropdown
-              value={category}
-              placeholder="Category"
-              data={categoriesDropdownData?.filter(category => category.parent_id === '0')}
-              handleSelectCategoryFilter={handleSelectCategoryFilter}
-              searchInputPlaceholder="Search..."
-              searchInputClassName="p-1.5 text-xs"
-              icon={<TiArrowSortedDown className="size-5" />}
-              toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-              listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
-              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-            />
-          </div>
-        );
-      case "customer":
-        return (
-          <div className="col-span-6 xl:col-span-7 grid grid-cols-3 xl:grid-cols-4 gap-2.5">
-            <BusinessDropdown business={business} handleSelectBusinessFilter={handleSelectBusinessFilter} />
-            {/* <ProviderDropdown
-              provider={provider}
-              setProvider={setProvider}
-              icon={<TiArrowSortedDown className="size-5" />}
-              toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-              listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
-            /> */}
-            <Combobox
-              value={provider}
-              options={companiesData?.map(item => { return { id: item.id, name: item.name } })}
-              handleSelect={handleSelectCompanyFilter}
-              placeholder="Company"
-              mainClassName="w-full"
-              toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-              listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
-              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-              icon={<TiArrowSortedDown className="size-5" />}
-              searchInputPlaceholder="Search..."
-              searchInputClassName="p-1.5 text-xs"
-            />
-            <Combobox
-              value={source}
-              options={sources}
-              handleSelect={handleSelectSource}
-              placeholder="Source"
-              searchInputPlaceholder="Search..."
-              searchInputClassName="p-1.5 text-xs"
-              mainClassName="w-full"
-              toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-              listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
-              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-              icon={<TiArrowSortedDown className="size-5" />}
-            />
-            <Combobox
-              value={nationality}
-              options={nationalities}
-              handleSelect={handleSelectNationality}
-              placeholder="Nationality"
-              mainClassName="w-full"
-              toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-              listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
-              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-              icon={<TiArrowSortedDown className="size-5" />}
-              searchInputPlaceholder="Search..."
-              searchInputClassName="p-1.5 text-xs"
-            />
-          </div>
-        );
-      case "service":
-        return (
-          <div className="col-span-7 grid grid-cols-4 gap-2.5">
-            <BusinessDropdown business={business} handleSelectBusinessFilter={handleSelectBusinessFilter} />
-            {/* <ProviderDropdown
-              provider={provider}
-              setProvider={setProvider}
-              icon={<TiArrowSortedDown className="size-5" />}
-              toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-              listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
-            /> */}
-            <Combobox
-              value={provider}
-              options={companiesData?.map(item => { return { id: item.id, name: item.name } })}
-              handleSelect={handleSelectCompanyFilter}
-              placeholder="Company"
-              mainClassName="w-full"
-              toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-              listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
-              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-              icon={<TiArrowSortedDown className="size-5" />}
-              searchInputPlaceholder="Search..."
-              searchInputClassName="p-1.5 text-xs"
-            />
-            <CategoryDropdown
-              value={category}
-              placeholder="Category"
-              data={categoriesDropdownData?.filter(category => category.parent_id === '0')}
-              handleSelectCategoryFilter={handleSelectCategoryFilter}
-              searchInputPlaceholder="Search..."
-              searchInputClassName="p-1.5 text-xs"
-              icon={<TiArrowSortedDown className="size-5" />}
-              toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-              listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
-              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-            />
-            <Combobox
-              options={categoriesDropdownData?.filter(category => category.parent_id !== '0')?.map(item => { return { id: item.category_id, name: item.category_name } })}
-              value={subCategory}
-              handleSelect={handleSelectSubCategoryFilter}
-              placeholder="Sub Category"
-              searchInputPlaceholder="Search..."
-              searchInputClassName="p-1.5 text-xs"
-              defaultSelectedIconClassName="size-4"
-              icon={
-                <div>
-                  <TiArrowSortedDown className="size-5" />
-                </div>
-              }
-              toggleClassName="w-full shadow-md px-2 py-3 rounded-lg text-xs bg-white whitespace-nowrap"
-              listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
-              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-            />
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
-  const getSearchPlaceholder = () => {
-    switch (tab) {
-      case "customer":
-        return "Search by Name";
-      case "business":
-        return "Search by Business Name";
-      default:
-        return `Search by ${tab === "service" ? "Service" : "Category"} Name or Code`;
+      const temp: FilterType[] = filterArray.filter((item) => item.name !== "category");
+      setFilterArray(temp);
+      setCategory(null);
+      addFilter("category", String(value.id) + "-category");
     }
   };
 
   useEffect(() => {
-    if (tab === 'customer') {
-      const params = [];
-      if (business) params.push(`business=${business.id}`);
-      if (provider) params.push(`company=${provider.id}`);
-      if (source) params.push(`category=${source.id}`);
-      if (nationality) params.push(`subCategory=${nationality.id}`);
-      setFilter(params.join('&'));
+    if(!openBranchModal){
+      setSelectedBranch(null);
     }
-  }, [business, provider, source, nationality]);
-
-
-  useEffect(() => {
-    if (tab === 'customer') {
-      getCustomers()
-    }
-  }, [filter])
-
-  useEffect(() => {
-    const queryParams = new URLSearchParams();
-
-    if (selectedCompany) queryParams.append("business", selectedCompany);
-    if (provider) queryParams.append("company", String(provider.id || ''));
-    if (category?.id) queryParams.append("category", String(category.id));
-    if (subCategory?.id)
-      queryParams.append("subCategory", String(subCategory.id));
-    if (source?.id) queryParams.append("source", String(source.id));
-    if (nationality?.id)
-      queryParams.append("nationality", String(nationality.id));
-
-    if (queryParams.toString()) {
-      console.log(".......>>>>>", queryParams.toString());
-    }
-  }, [
-    selectedCompany,
-    provider,
-    category,
-    subCategory,
-    source,
-    nationality
-  ]);
-
-  useEffect(() => {
-    setFilter('')
-    setBusiness(null)
-    setProvider(null)
-    setCategory(null)
-    setSubCategory(null)
-    setSource(null)
-    setNationality(null)
-  }, [tab])
+  }, [openBranchModal]);
 
   return (
     <>
@@ -484,7 +293,7 @@ const ServiceList = () => {
         setOpen={setOpenBusinessModal}
         selectedBusiness={selectedBusiness}
         refetch={() => {
-          if (tab === "business") {
+          if (filterArray?.length === 0) {
             refetchBusinesses && refetchBusinesses();
           }
         }}
@@ -497,14 +306,14 @@ const ServiceList = () => {
       />
       <NewServiceModal
         selectedCategory={selectedCategory}
-        companiesData={companiesData}
+        companiesData={companiesDropdownData}
         open={upload}
         refetch={refetch}
         refetchServices={refetchServices}
         setOpen={setUpload}
-        type={tab}
+        type={filterArray[filterArray.length - 1]?.name}
       />
-      <AddCustomerModal
+      {/* <AddCustomerModal
         userId={user!.id}
         customerId={selectedCustomer?.customer_id}
         open={openCustomerModal}
@@ -513,98 +322,96 @@ const ServiceList = () => {
         userData={selectedCustomer}
         editMode={!!selectedCustomer?.customer_id}
         isService={true}
+      /> */}
+      <AddCompanyModal
+        open={openCompanyModal}
+        setOpen={setOpenCompanyModal}
+        selectedCompany={selectedCompany}
+        businesses={businessData}
+        refetch={refetchCompanies}
       />
-      <div className="flex w-full gap-3">
-        <div>
-          {/* <div className="md:flex">
-            <ul className="flex-column space-y mb-4 max-h-screen space-y-4 overflow-y-auto text-sm font-medium text-gray-500 md:mb-0 md:me-4 dark:text-gray-400">
-              <li>
-                <p
-                  onClick={() => setSelectedCompany("0")}
-                  className={`w-full cursor-pointer whitespace-nowrap rounded-lg px-4 py-3 text-start shadow-sm ${
-                    selectedCompany === "0"
-                      ? "border-2 border-[#0557A5] bg-[#044570] text-white"
-                      : "bg-gray-50 text-primary"
-                  }`}
-                >
-                  All Companies
-                </p>
-              </li>
-              {companiesData?.map((company, index) => (
-                <li key={index} onClick={() => handleSelectCompany(company.id)}>
-                  <p
-                    className={`w-full cursor-pointer rounded-lg px-4 py-3 text-start shadow-sm ${
-                      selectedCompany === company.id
-                        ? "border-2 border-[#0557A5] bg-[#044570] text-white"
-                        : "bg-gray-50 text-primary"
-                    }`}
-                  >
-                    {company?.name}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </div> */}
-          <div className="relative z-30 hidden max-h-[calc(100vh-30px)] overflow-y-auto rounded-md bg-white text-white transition-[width] md:block">
-            <div className="relative z-20 h-full overflow-hidden">
-              <ul className="flex w-full flex-col">
-                <li
-                  onClick={() => handleSelectCompany("0")}
-                  className={cn(
-                    "w-full cursor-pointer whitespace-nowrap border-l-4 text-primary border-primary py-3 px-4 hover:text-white hover:border-white hover:bg-darkprimary border-b",
-                    {
-                      "border-white bg-darkprimary text-white": selectedCompany === "0",
-                    }
-                  )}
-                >
-                  <span className="flex-1 text-left text-sm font-semibold">
-                    All Companies{" "}
-                  </span>
-                </li>
-                {companiesData?.map((company, index) => (
-                  <li
-                    key={index}
-                    onClick={() => handleSelectCompany(company.id)}
-                    className={cn(
-                      "w-full cursor-pointer truncate text-primary whitespace-nowrap border-l-4 border-primary py-3 px-4 hover:text-white hover:border-white hover:bg-darkprimary border-b",
-                      {
-                        "border-white bg-darkprimary text-white":
-                          selectedCompany === company.id,
-                        "border-b-0": companiesData?.length === index + 1
-                      }
-                    )}
-                  >
-                    <span className="flex-1 text-left text-sm font-semibold">
-                      {company.name}{" "}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
+      <AddBranchModal
+        open={openBranchModal}
+        setOpen={setOpenBranchModal}
+        selectedBranch={selectedBranch}
+        refetch={refetchBranches}
+      />
+      <div className="flex w-full gap-3 min-h-screen">
         <div className="flex h-full w-full flex-col items-start justify-start">
-          {/* Tabs */}
-          <div className="mb-5 flex gap-4 rounded-md border border-[#E5E7EB] p-2">
-            {tabs.map((t) => (
-              <button
-                key={t.id}
-                onClick={() => setTab(t.id)}
-                className={`rounded-lg px-4 py-2 font-semibold ${tab === t.id ? "bg-primary text-white" : "border bg-white text-primary"}`}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+          <div className="mb-5 grid w-full grid-cols-12 gap-2.5">
+            {/* Filters */}
+            <div className="col-span-12 xl:col-span-7 grid grid-cols-5 gap-2.5">
+              <BusinessDropdown
+                business={business}
+                businesses={businessData}
+                handleSelectBusinessFilter={handleSelectBusinessFilter}
+              />
+              <Combobox
+                value={provider}
+                options={companiesDropdownData?.map((item) => {
+                  return { id: item.id, name: item.name };
+                })}
+                handleSelect={handleSelectCompanyFilter}
+                placeholder="Company"
+                mainClassName="w-full"
+                toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
+                listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
+                listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                icon={<div><TiArrowSortedDown className="size-5" /></div>}
+                searchInputPlaceholder="Search..."
+                searchInputClassName="p-1.5 text-xs"
+              />
+              <BranchDropdown
+                branchesData={branchesDropodwnData?.map((item) => {
+                  return { id: item?.branch_id, name: item?.name };
+                })}
+                branch={branch}
+                handleSelectBranch={handleSelectBranch}
+              />
+              <CategoryDropdown
+                value={category}
+                placeholder="Category"
+                data={categoriesDropdownData?.filter(
+                  (category) => category.parent_id === "0"
+                )}
+                handleSelectCategoryFilter={handleSelectCategoryFilter}
+                searchInputPlaceholder="Search..."
+                searchInputClassName="p-1.5 text-xs"
+                icon={<div><TiArrowSortedDown className="size-5" /></div>}
+                toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
+                listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
+                listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+              />
+              <Combobox
+                options={categoriesDropdownData
+                  ?.filter((category) => category.parent_id !== "0")
+                  ?.map((item) => {
+                    return { id: item.category_id, name: item.category_name };
+                  })}
+                value={subCategory}
+                handleSelect={handleSelectSubCategoryFilter}
+                placeholder="Sub Category"
+                searchInputPlaceholder="Search..."
+                searchInputClassName="p-1.5 text-xs"
+                defaultSelectedIconClassName="size-4"
+                icon={
+                  <div>
+                    <TiArrowSortedDown className="size-5" />
+                  </div>
+                }
+                toggleClassName="w-full shadow-md px-2 py-3 rounded-lg text-xs bg-white whitespace-nowrap"
+                listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
+                listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+              />
+            </div>
 
-          <div className="mb-5 grid w-full grid-cols-7 gap-2.5">
             {/* Search Bar */}
-            <div className="col-span-3 xl:col-span-5 flex h-full w-full items-center justify-center gap-2.5 rounded-lg bg-white px-3.5 text-gray-500">
+            <div className="col-span-8 xl:col-span-3 flex h-full w-full items-center justify-center gap-2.5 rounded-lg bg-white px-3.5 text-gray-500">
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={getSearchPlaceholder()}
+                placeholder="Search by Name..."
                 className="w-full bg-transparent text-xs placeholder:text-gray-500"
               />
               <HiMagnifyingGlass className="size-7" />
@@ -614,9 +421,9 @@ const ServiceList = () => {
             <div className="col-span-2 xl:col-span-1">
               <button
                 onClick={handleAddModal}
-                className="h-full w-full rounded-lg bg-primary py-3 text-sm font-semibold text-white whitespace-nowrap px-3"
+                className="h-full w-full whitespace-nowrap rounded-lg bg-primary px-3 py-3 text-sm font-semibold text-white"
               >
-                {addButtonText}
+                Add New
               </button>
             </div>
 
@@ -624,38 +431,34 @@ const ServiceList = () => {
             <div className="col-span-2 xl:col-span-1">
               <button
                 onClick={handleUploadClick}
-                className="h-full w-full rounded-lg bg-secondary py-3 text-sm font-semibold text-white whitespace-nowrap"
+                className="h-full w-full whitespace-nowrap rounded-lg bg-secondary py-3 text-sm font-semibold text-white"
               >
                 Upload
               </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept=".xlsx, .csv"
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+              />
             </div>
-
-            {/* Filters */}
-            {tab !== 'business' &&
-              renderFilters()
-            }
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept=".xlsx, .csv"
-              onChange={handleFileChange}
-              style={{ display: "none" }}
-            />
           </div>
 
           {/* Table */}
           <Table
-            selectedTab={tab}
-            data={filteredData}
+            data={servicesError || categoryError ? [] : filteredData}
             isLoading={
-              customerLoading ||
+              branchFetching ||
               categoriesLoading ||
               servicesFetching ||
-              businessLoading
+              businessLoading ||
+              fetchingCompanies
             }
             handleEdit={handleEdit}
             refetchServices={refetchServices}
             refetchCategories={refetch}
+            filterArray={filterArray}
           />
         </div>
       </div>

@@ -99,24 +99,27 @@ export const filtersApi = api.injectEndpoints({
       },
     }),
     fetchBranches: build.query({
-      query: (ids: { id: string; emirate_id: string }) => ({
-        url: `/companies/branches?id=${ids.id}&emirate_id=${ids.emirate_id}`,
+      query: (query) => {
+        let queryString = "";
+        if (query?.length) {
+          queryString =
+            "?" +
+            query
+              ?.map(
+                (filter: { name: string; id: string }) =>
+                  `${encodeURIComponent(filter.name)}_id=${encodeURIComponent(filter.id?.split("-")[0])}`
+              )
+              .join("&");
+        }
+        return {
+        url: `/companies/branches${queryString}`,
         method: "GET",
-      }),
+      }},
       transformResponse: (response: {
         success: number;
         error: string;
         data: BranchProps[];
-      }) => {
-        const formatted = response.data.map((branch) => {
-          return {
-            id: parseInt(branch.branch_id),
-            name: branch.name,
-          };
-        });
-
-        return formatted;
-      },
+      }) => response.data,
     }),
     fetchBookingStatuses: build.query({
       query: () => ({

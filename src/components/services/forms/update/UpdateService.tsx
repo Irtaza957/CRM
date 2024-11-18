@@ -41,7 +41,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
     skip: !id,
     refetchOnMountOrArgChange: true,
   });
-  const { data, isLoading } = useFetchCategoryListQuery({});
+  const { data, isLoading } = useFetchCategoryListQuery({}, {skip: !open});
   const [thumbnail, setThumbnail] = useState<File | string | null>(null);
   const [coverImage, setCoverImage] = useState<File | string | null>(null);
   const { user } = useSelector((state: RootState) => state.global);

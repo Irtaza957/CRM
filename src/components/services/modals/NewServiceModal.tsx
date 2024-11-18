@@ -2,13 +2,13 @@ import Modal from "../../ui/Modal";
 import Combobox from "../../ui/Combobox";
 import AddService from "../forms/add/AddService";
 import AddCategory from "../forms/add/AddCategory";
-import { cn } from "../../../utils/helpers";
 import AddSubCategory from "../forms/add/AddSubCategory";
 
 import { IoClose } from "react-icons/io5";
 import { useEffect, useState } from "react";
 import { TiArrowSortedDown } from "react-icons/ti";
 import { useFetchBusinessesListQuery } from "../../../store/services/filters";
+import { cn } from "../../../utils/helpers";
 
 const NewServiceModal = ({
   companiesData,
@@ -19,11 +19,10 @@ const NewServiceModal = ({
   refetch,
   refetchServices,
 }: NewServiceModalProps) => {
-  console.log("selectedCategory:", selectedCategory);
-  const [tab, setTab] = useState('Category');
   const [business, setBusiness] = useState<ListOptionProps | null>(null);
   const [provider, setProvider] = useState<ListOptionProps | null>(null);
   const [companyOptions, setCompanyOptions] = useState<ListOptionProps[]>([]);
+  const [tab, setTab] = useState<string>("Category");
 
   const { data: businesses } = useFetchBusinessesListQuery({});
   const providerOptions = [
@@ -44,12 +43,6 @@ const NewServiceModal = ({
   ];
 
   useEffect(() => {
-    if (type) {
-      setTab(type === "service" ? "Service" : "Category");
-    }
-  }, [type]);
-
-  useEffect(() => {
     if (companiesData?.length) {
       const temp = companiesData?.map((item) => {
         return { id: item.id, name: item.name };
@@ -59,9 +52,6 @@ const NewServiceModal = ({
   }, [companiesData]);
 
   useEffect(() => {
-    if(selectedCategory?.parent_id && Number(selectedCategory?.parent_id)){
-      setTab('Sub Category')
-    }
     if (selectedCategory?.category_id) {
       const selectedBusiness = businesses?.find(
         (item) => item?.name === selectedCategory?.business
@@ -82,7 +72,6 @@ const NewServiceModal = ({
     if (!open) {
       setBusiness(null);
       setProvider(null);
-      setTab('Category')
     }
   }, [open]);
   return (
@@ -95,11 +84,9 @@ const NewServiceModal = ({
             ) : (
               <>
                 Add New{" "}
-                {type === "service"
+                {type === "category"
                   ? "Service"
-                  : type === "category"
-                    ? "Category"
-                    : "Customer"}
+                  : type === "branch" ? ( tab === "Category" ? "Category" : "Sub Category") : ''}
               </>
             )}
           </h1>
@@ -109,7 +96,7 @@ const NewServiceModal = ({
           />
         </div>
         <div className="no-scrollbar relative flex h-full max-h-[calc(100vh-130px)] w-full flex-col items-start justify-start space-y-5 overflow-auto">
-          {type !== "service" &&
+          {type !== "category" &&
             !selectedCategory?.parent_id &&
             !selectedCategory?.category_id && (
               <div className="sticky top-0 z-10 flex w-full items-center justify-start space-x-5 bg-white px-5 py-5">
@@ -169,9 +156,9 @@ const NewServiceModal = ({
               ))}
             </div>
             <h1 className="col-span-2 w-full text-left text-base font-bold text-primary">
-              {tab} Details
+              {type === "category" ? 'Sub Category' : type==='branch' ? 'Category' : 'Service'} Details
             </h1>
-            {tab === "Category" && (
+            {type === "branch" && tab === "Category" && (
               <AddCategory
                 open={open}
                 setOpen={setOpen}
@@ -181,7 +168,7 @@ const NewServiceModal = ({
                 refetch={refetch}
               />
             )}
-            {tab === "Sub Category" && (
+            {(type === "branch" && tab === "Sub Category") && (
               <AddSubCategory
                 refetch={refetch}
                 setOpen={setOpen}
@@ -190,7 +177,7 @@ const NewServiceModal = ({
                 business={business?.id || ""}
               />
             )}
-            {tab === "Service" && (
+            {type === "category" && (
               <AddService
                 provider={provider?.id || ""}
                 business={business?.id || ""}

@@ -4,7 +4,7 @@ export const customerApi = api.injectEndpoints({
   endpoints: (build) => ({
     searchCustomer: build.mutation({
       query: (keyword) => ({
-        url: `/customer/search?${typeof keyword==='number' ? `keyword=${keyword ? `&customer_id=${keyword}` : ''}` : `keyword=${keyword}`}`,
+        url: `/customer/search?${typeof keyword === "number" ? `keyword=${keyword ? `&customer_id=${keyword}` : ""}` : `keyword=${keyword}`}`,
         method: "GET",
       }),
       transformResponse: (response: {
@@ -47,10 +47,10 @@ export const customerApi = api.injectEndpoints({
       }) => response.data,
     }),
     fetchCustomers: build.mutation({
-      query: (query) => ({
-        url: `/customer${query}`,
+      query: () => ({
+        url: `/customer`,
         method: "GET",
-      })
+      }),
     }),
   }),
 });

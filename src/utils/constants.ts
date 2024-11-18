@@ -772,5 +772,46 @@ export const businessColumns = [
     id: 4,
     name: "Total Companies",
     key: "total_companies",
-  },
+  }
 ];
+
+export const companyColumns=[
+  {
+    id: 1,
+    name: "Name",
+    key: "name",
+  },
+  {
+    id: 2,
+    name: "Email",
+    key: "email",
+  },
+  {
+    id: 3,
+    name: "Phone",
+    key: "phone",
+  },
+  {
+    id: 4,
+    name: "Code",
+    key: "code",
+  },
+  {
+    id: 6,
+    name: "Total Branches",
+    key: "total_branches",
+  },
+]
+
+export const branchColumns=[
+  {
+    id: 1,
+    name: "Name",
+    key: "name",
+  }, 
+  {
+    id: 2,
+    name: "Company",
+    key: "company",
+  }, 
+]

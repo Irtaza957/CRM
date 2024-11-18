@@ -8,9 +8,10 @@ import { FiEdit } from "react-icons/fi";
 import { FaChevronDown } from "react-icons/fa";
 import {
   categoriesColumns,
-  customerColumns,
   serviceColumns,
   businessColumns,
+  companyColumns,
+  branchColumns,
 } from "../../../utils/constants";
 import {
   useUpdateServicesStatusMutation,
@@ -20,9 +21,9 @@ import { toast } from "sonner";
 import CustomToast from "../../ui/CustomToast";
 
 interface TableProps {
-  selectedTab: string;
   isLoading: boolean;
   data: any;
+  filterArray: FilterType[];
   handleEdit?: (arg0: any) => void;
   refetchServices?: () => void;
   refetchCategories?: () => void;
@@ -35,9 +36,9 @@ interface Column {
 }
 
 const Table = ({
-  selectedTab,
   data,
   isLoading,
+  filterArray,
   handleEdit,
   refetchServices,
   refetchCategories,
@@ -51,34 +52,36 @@ const Table = ({
   const [updateCategoryStatus] = useUpdateCategoryStatusMutation();
 
   const getColumns = () => {
-    switch (selectedTab) {
-      case "service":
-        return serviceColumns;
-      case "customer":
-        return customerColumns;
-      case "category":
-        return categoriesColumns;
+    const lastFilter = filterArray[filterArray.length - 1]?.name;
+    switch (lastFilter) {
       case "business":
-        return businessColumns;
-      default:
+        return companyColumns;
+      case "company":
+        return branchColumns;
+      case "branch":
+        return categoriesColumns;
+      case "category":
         return serviceColumns;
+      default:
+        return businessColumns;
     }
   };
 
   const handleStatusToggle = async (row: any) => {
     try {
-      if(selectedTab === 'business'){
+      const lastFilter = filterArray[filterArray.length - 1]?.name;
+      if(lastFilter !== "category" && lastFilter !== "branch"){
        return 
       }
       const urlencoded = new URLSearchParams();
       urlencoded.append(
         "id",
-        String(selectedTab === "service" ? row.service_id : row.category_id)
+        String(lastFilter === "category" ? row.service_id : row.category_id)
       );
       urlencoded.append("active", row.active === "1" ? "0" : "1");
 
       const response =
-        selectedTab === "service"
+        lastFilter === "category"
           ? await updateServiceStatus(urlencoded)
           : await updateCategoryStatus(urlencoded);
 
@@ -100,7 +103,7 @@ const Table = ({
             message="Status updated successfully!"
           />
         ));
-        if (selectedTab === "service") {
+        if (lastFilter === "category") {
           refetchServices && refetchServices();
         } else {
           refetchCategories && refetchCategories();
@@ -120,7 +123,7 @@ const Table = ({
 
   return (
     <>
-      <div className="h-[calc(100vh-375px)] w-full xl:h-[calc(100vh-275px)]">
+      <div className="h-[calc(100vh-375px)] w-full xl:h-[calc(100vh-220px)]">
         <div className="h-full w-full overflow-hidden rounded-t-lg border">
           <div className="no-scrollbar h-full overflow-y-scroll">
             <table className="relative w-full min-w-full">
@@ -207,17 +210,13 @@ const Table = ({
                           <div
                             className={`flex justify-end gap-5`}
                           >
-                            {!["customer"].includes(
-                              selectedTab
-                            ) && (
-                              <Switch
+                            <Switch
                                 key={`${row.service_id || row.category_id}-${row.active}`}
                                 checked={row.active === "1"}
                                 onChange={() => {
                                   handleStatusToggle(row);
                                 }}
                               />
-                            )}
                             <FiEdit
                               onClick={() => handleEdit && handleEdit(row)}
                               className="col-span-1 h-6 w-6 cursor-pointer rounded-md bg-red-500 p-1 text-white"

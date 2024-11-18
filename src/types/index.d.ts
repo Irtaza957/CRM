@@ -560,6 +560,7 @@ declare type AreaProps = {
   name: string;
   lat: string;
   lng: string;
+  id?: string
 };
 
 declare type CategoryProps = {
@@ -610,6 +611,14 @@ declare type BranchProps = {
   name: string;
   company_id: string;
   company: string;
+  code: string;
+  license: string;
+  industry: string;
+  phone: string;
+  email: string;
+  working_hours: string;
+  address: string;
+  area_id: string;
 };
 
 declare type StatusProps = {
@@ -656,3 +665,8 @@ declare type UserType = {
 declare type DataProps = {
   [key: string]: any;
 };
+
+declare type FilterType={
+  name: string;
+  id: string
+}

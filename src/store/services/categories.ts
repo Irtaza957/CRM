@@ -14,18 +14,20 @@ export const categoryApi = api.injectEndpoints({
       }) => response.data,
     }),
     fetchAllCategories: build.query({
-      query: ({ customer_id, filters }) => {
-        // Start with customer_id if defined
-        let query = customer_id ? `?customer_id=${customer_id}` : '';
-        if (filters) {
-          const filterQuery = Object.entries(filters)
-            .filter(([, value]) => value !== undefined && value !== null) // Exclude undefined or null values
-            .map(([key, value]) => `${key}=${value}`)
-            .join('&');
-          query += query ? `&${filterQuery}` : `?${filterQuery}`;
+      query: (query) => {
+        let queryString = "";
+        if (query?.length) {
+          queryString =
+            "?" +
+            query
+              ?.map(
+                (filter: { name: string; id: string }) =>
+                  `${encodeURIComponent(filter.name)}_id=${encodeURIComponent(filter.id?.split("-")[0])}`
+              )
+              .join("&");
         }
         return {
-          url: `/categories/all${query}`,
+          url: `/categories/all${queryString}`,
           method: "GET",
         };
       },

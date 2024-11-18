@@ -144,7 +144,7 @@ const NewBusinessModal = ({
           <IoClose onClick={handleClose} className="h-8 w-8 cursor-pointer" />
         </div>
 
-        <form
+        <div
           className=" h-full max-h-[70vh] w-full gap-5 overflow-y-scroll p-5"
         >
           <div className="flex w-full gap-5">
@@ -208,7 +208,7 @@ const NewBusinessModal = ({
               disabled={isLoading || updateLoading}
             />
           </div>
-        </form>
+        </div>
       </div>
     </Modal>
   );

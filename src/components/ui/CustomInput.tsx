@@ -42,8 +42,8 @@ const CustomInput = ({
         type={type}
         value={value}
         placeholder={placeholder}
-        disabled={disabled}
         {...emailRegister}
+        disabled={disabled}
         onChange={handleChange}
         className={cn(
           "flex w-full items-center justify-between rounded-lg bg-grey p-3.5 text-xs text-gray-500 placeholder:capitalize",

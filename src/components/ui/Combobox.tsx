@@ -15,7 +15,7 @@ interface ComboboxProps {
   toggleClassName?: string;
   listItemClassName?: string;
   options?: ListOptionProps[];
-  value: ListOptionProps | null;
+  value: ListOptionProps | null | [];
   defaultIconClassName?: string;
   searchInputClassName?: string;
   searchInputPlaceholder?: string;
@@ -24,6 +24,7 @@ interface ComboboxProps {
   isSearch?: boolean;
   isFilter?: boolean;
   disabled?: boolean;
+  isMultiSelect?: boolean;
   setValue?: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
   handleSelect?: (arg0: ListOptionProps) => void;
   errorMsg?: string | FieldError | Merge<FieldError, FieldErrorsImpl>;
@@ -46,8 +47,9 @@ const Combobox = ({
   defaultSelectedIconClassName,
   label,
   isSearch = true,
-  isFilter,
+  // isFilter,
   disabled,
+  isMultiSelect = false,
   handleSelect,
   errorMsg,
 }: ComboboxProps) => {
@@ -56,23 +58,38 @@ const Combobox = ({
   const ComboboxRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(ComboboxRef, () => setToggle(false));
 
-  const handleToggle = (dropdownValue: ListOptionProps) => {
-    if (isFilter && value?.id === dropdownValue?.id) {
-      handleSelect && handleSelect({ id: 0, name: "" });
-    } else {
-      handleSelect && handleSelect(dropdownValue);
-    }
-  };
+  // const handleToggle = (dropdownValue: ListOptionProps) => {
+  //   if (isFilter && value?.id === dropdownValue?.id) {
+  //     handleSelect && handleSelect({ id: 0, name: "" });
+  //   } else {
+  //     handleSelect && handleSelect(dropdownValue);
+  //   }
+  // };
 
   const handleClick = (item: ListOptionProps) => {
-    if (!isFilter) {
-      setToggle(!toggle);
-    }
-    if (handleSelect) {
-      handleToggle(item);
+    if (isMultiSelect) {
+      let selected: ListOptionProps[] | null = value as ListOptionProps[];
+      if (selected?.find((selectedItem) => selectedItem.id === item.id)) {
+        selected = selected.filter((selectedItem) => selectedItem.id !== item.id);
+      } else {
+        selected = [...(selected || []), {id: item.id, name: item.name}];
+      }
+      setValue?.(selected as any);
+      handleSelect?.(selected as any);
     } else {
       setValue?.(item);
+      handleSelect?.(item);
+      setToggle(false);
     }
+  }
+
+  const isSelected = (item: ListOptionProps) => {
+    if (isMultiSelect) {
+      return (value as ListOptionProps[])?.some(
+        (selectedItem) => selectedItem.id === item.id
+      );
+    }
+    return (value as ListOptionProps)?.id === item.id;
   };
 
   return (
@@ -97,7 +114,12 @@ const Combobox = ({
         )}
         disabled={disabled}
       >
-        <span>{value?.name ? value.name : placeholder}</span>
+         <span className={`${isMultiSelect ? "flex flex-wrap gap-1" : "truncate"}`}>
+          {isMultiSelect && (value as ListOptionProps[])?.length
+            ? (value as ListOptionProps[])?.map((item: ListOptionProps) => item.name).join(", ") ||
+              placeholder
+            : (value as ListOptionProps)?.name || placeholder}
+        </span>
         {icon ? (
           icon
         ) : (
@@ -148,7 +170,7 @@ const Combobox = ({
                   )}
                 >
                   <span>{item.name}</span>
-                  {value?.id === item.id ? (
+                  {isSelected(item) ? (
                     selectedIcon ? (
                       selectedIcon
                     ) : (
@@ -169,7 +191,7 @@ const Combobox = ({
               )}
             >
               <span>{item.name}</span>
-              {value?.id === item.id ? (
+              {isSelected(item) ? (
                 selectedIcon ? (
                   selectedIcon
                 ) : (

@@ -14,17 +14,20 @@ export const serviceApi = api.injectEndpoints({
       }) => response.data,
     }),
     fetchServices: build.query({
-      query: ({ company_id, filters }) => {
-        let query = company_id ? `?company_id=${company_id}` : '';
-        if (filters) {
-          const filterQuery = Object.entries(filters)
-            .filter(([, value]) => value !== undefined && value !== null) // Exclude undefined or null values
-            .map(([key, value]) => `${key}=${value}`)
-            .join('&');
-          query += query ? `&${filterQuery}` : `?${filterQuery}`;
+      query: (query) => {
+        let queryString = "";
+        if (query?.length) {
+          queryString =
+            "?" +
+            query
+              ?.map(
+                (filter: { name: string; id: string }) =>
+                  `${encodeURIComponent(filter.name)}_id=${encodeURIComponent(filter.id?.split("-")[0])}`
+              )
+              .join("&");
         }
         return {
-          url: `/services${query}`,
+          url: `/services${queryString}`,
           method: "GET",
         };
       },
@@ -113,10 +116,23 @@ export const serviceApi = api.injectEndpoints({
       }),
     }),
     fetchBusinesses: build.query({
-      query: (company_id) => ({
-        url: `/businesses${company_id ? `?company_id=${company_id}` : ''}`,
-        method: "GET",
-      }),
+      query: (query) => {
+        let queryString = "";
+        if (query?.length) {
+          queryString =
+            "?" +
+            query
+              ?.map(
+                (filter: { name: string; id: string }) =>
+                  `${encodeURIComponent(filter.name)}_id=${encodeURIComponent(filter.id?.split("-")[0])}`
+              )
+              .join("&");
+        }
+        return {
+          url: `/businesses${queryString}`,
+          method: "GET",
+        };
+      },
       transformResponse: (response: {
         success: number;
         error: string;
@@ -128,6 +144,12 @@ export const serviceApi = api.injectEndpoints({
         url: "/businesses",
         method: "POST",
         body: data,
+      }),
+    }),
+    fetchAddressAreas: build.query({
+      query: () => ({
+        url: "/area?emirate_id=1",
+        method: "GET",
       }),
     }),
   }),
@@ -145,5 +167,6 @@ export const {
   useUpdateCategoryStatusMutation,
   useUpdateServicesStatusMutation,
   useFetchBusinessesQuery,
+  useFetchAddressAreasQuery,
   useCreateBusinessMutation,
 } = serviceApi;

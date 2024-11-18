@@ -6,7 +6,7 @@ interface CustomButton {
   style?: string;
   loading?: boolean;
   disabled?: boolean;
-  handleClick: () => void;
+  handleClick: (e?: React.MouseEvent<HTMLButtonElement>) => void;
 }
 const CustomButton = ({
   name,

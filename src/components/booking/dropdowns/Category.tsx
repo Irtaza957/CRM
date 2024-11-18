@@ -3,6 +3,7 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 
 import { cn } from "../../../utils/helpers";
 import { useOnClickOutside } from "../../../hooks/useOnClickOutside";
+import { FaCheck } from "react-icons/fa";
 interface ComboboxProps {
   icon?: ReactNode;
   placeholder: string;
@@ -161,10 +162,7 @@ const CategoryDropdown = ({
               <span className="flex-1 overflow-hidden truncate text-left text-xs">
                 {item.name}
               </span>
-              <div
-                style={{ backgroundColor: item.color }}
-                className="size-5 rounded-full"
-              />
+                {value?.id===item.id && <FaCheck className="size-4" />}
             </div>
           ))
         )}
