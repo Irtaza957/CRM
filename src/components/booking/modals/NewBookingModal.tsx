@@ -1146,7 +1146,7 @@ const NewBookingModal = ({
                       value={deliveryNotes}
                       placeholder="Notes..."
                       onChange={(e) => setDeliveryNotes(e.target.value)}
-                      className="w-full rounded-lg bg-gray-100 p-3 text-xs placeholder:italic"
+                      className="w-full rounded-lg bg-gray-100 p-3 text-xs placeholder:italic text-grey100"
                     />
                   </div>
                   <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">

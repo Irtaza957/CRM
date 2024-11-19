@@ -206,7 +206,7 @@ const TeamMembersModal = ({ open, bookingId, members, showMembers, setOpen }: Te
                         <textarea
                             value={note}
                             onChange={(e) => setNote(e.target.value)}
-                            className="mt-2.5 w-full rounded-lg bg-gray-100 p-3 text-xs"
+                            className="mt-2.5 w-full rounded-lg bg-gray-100 p-3 text-xs text-grey100"
                             placeholder='Note'
                         />
                     </div>

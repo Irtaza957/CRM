@@ -117,7 +117,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
             <div
               key={idx}
               className={cn(
-                "grid w-full grid-cols-8 gap-5 p-5 text-xs text-[#656565]",
+                "grid w-full grid-cols-8 gap-5 p-5 text-xs text-[#656565] justify-start",
                 {
                   "bg-gray-100": idx % 2 === 0,
                 }
@@ -126,9 +126,9 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
               <p className="w-full text-left text-xs">{history?.reference}</p>
               <div>
               {history?.categories?.length ? history?.categories?.map((item, index)=>(
-                <div key={index} className="flex w-full items-start justify-center mb-1">
-                  <span className="flex-1 text-left text-xs">{item?.code}</span>
-                  <div className={`size-4 rounded-full bg-[${item?.color_code}]`}></div>
+                <div key={index} className="flex w-full items-start justify-start mb-1">
+                  {item?.code && <span className="flex-1 text-left text-xs">{item?.code}</span>}
+                  {item?.color_code && <div className={`size-4 rounded-full bg-[${item?.color_code}]`}></div>} 
                 </div>
               )) : 'N/A'}
               </div>
@@ -142,7 +142,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
                 </span>
               </div>
               <p className="w-full text-left text-xs">AED {history?.amount}</p>
-              <div className="flex w-full flex-col items-start justify-center">
+              <div className="flex w-full flex-col items-start justify-start">
                 {history?.team && history?.team?.length
                   ? [...history?.team]
                     .sort((a, b) => Number(b.is_lead) - Number(a.is_lead))

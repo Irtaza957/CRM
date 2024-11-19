@@ -280,7 +280,7 @@ const AddBranchModal = ({
             <textarea
               {...register("address")}
               rows={2}
-              className="w-full rounded-lg bg-gray-100 p-3 text-base"
+              className="w-full rounded-lg bg-gray-100 p-3 text-base text-xs text-grey100"
               placeholder="Enter address"
             />
             {errors?.address?.message && (

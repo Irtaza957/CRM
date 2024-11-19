@@ -84,7 +84,7 @@ const Combobox = ({
   }
 
   const isSelected = (item: ListOptionProps) => {
-    if (isMultiSelect) {
+    if (isMultiSelect && (value as ListOptionProps[])?.length) {
       return (value as ListOptionProps[])?.some(
         (selectedItem) => selectedItem.id === item.id
       );

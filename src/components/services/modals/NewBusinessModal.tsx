@@ -170,7 +170,7 @@ const NewBusinessModal = ({
             <textarea
               {...register("description")}
               rows={8}
-              className="w-full rounded-lg bg-gray-100 p-3 text-base"
+              className="w-full rounded-lg bg-gray-100 p-3 text-xs text-grey100"
               placeholder="Enter business description"
             />
             {errors?.description?.message && (

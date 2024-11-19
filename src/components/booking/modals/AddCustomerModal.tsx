@@ -105,7 +105,7 @@ const AddCustomerModal = ({
     setValue("nationality", String(value.id));
     clearErrors('nationality')
   };
-console.log(userData, 'userDatauserData')
+  
   const handleSave: SubmitHandler<any> = async (data) => {
     try {
       if (userId) {
@@ -330,11 +330,11 @@ console.log(userData, 'userDatauserData')
       className="w-full max-w-[70%]"
       title={editMode ? "Edit Customer" : "New Customer"}
     >
-      <div className="h-auto max-h-[calc(100vh-150px)] w-full overflow-y-scroll px-6 py-7">
+      <div className="h-auto max-h-[calc(100vh-150px)] w-full overflow-y-scroll px-6 pt-2 pb-1">
         <p className="text-left text-[18px] font-bold text-primary">
           Personal Details
         </p>
-        <div className="mt-4 w-full">
+        <div className="mt-2 w-full">
           <div className="flex w-full items-center justify-center gap-5">
             <CustomInput
               name="firstname"
@@ -439,12 +439,12 @@ console.log(userData, 'userDatauserData')
           </div>
         </div>
 
-        <p className="pt-3 text-left text-[18px] font-bold text-primary">
+        <p className="text-left text-[18px] font-bold text-primary">
           Medical Details
         </p>
 
-        <div className="w-full py-2">
-          <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
+        <div className="w-full py-1">
+          <div className="my-1 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
               Allergies:
             </p>
@@ -476,7 +476,7 @@ console.log(userData, 'userDatauserData')
               errorMsg={errors?.allergy_description?.message}
             />
           </div>
-          <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
+          <div className="my-3 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
               Medications:
             </p>
@@ -510,7 +510,7 @@ console.log(userData, 'userDatauserData')
               errorMsg={errors?.medication_description?.message}
             />
           </div>
-          <div className="my-4 flex w-full flex-row items-center justify-start gap-5">
+          <div className="my-3 flex w-full flex-row items-center justify-start gap-5">
             <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
               Medical Conditions:
             </p>
@@ -544,7 +544,7 @@ console.log(userData, 'userDatauserData')
             />
           </div>
 
-          <div className="mt-7 flex w-full justify-end gap-3">
+          <div className="mt-5 flex w-full justify-end gap-3">
             <CustomButton
               name="Cancel"
               handleClick={closeModal}

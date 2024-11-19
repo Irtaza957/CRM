@@ -217,7 +217,7 @@ const AddSubCategory = ({provider, business, selectedSubCategory, setOpen, refet
           rows={8}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full rounded-lg bg-gray-100 p-3 capitalize"
+          className="w-full rounded-lg bg-gray-100 p-3 capitalize text-xs text-grey100"
         />
       </div>
       <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-2.5">

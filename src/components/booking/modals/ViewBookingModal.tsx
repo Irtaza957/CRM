@@ -58,7 +58,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
   const handleWhatsapp=(phone: string)=>{
     window.open(`https://wa.me/?text=${phone}`, '_blank')
   }
-
+  
   return (
     <>
       <TeamMembersModal members={data?.team} showMembers={["3","4","5","6",'7'].includes(data?.status_id || '')} bookingId={data?.booking_id} open={isAssignModal} setOpen={setIsAssignModal} />
@@ -69,7 +69,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
       <Modal open={open} setOpen={setOpen} className="max-h-[95%] w-full max-w-[95%] lg:max-w-[85%]">
         <div className="w-full items-center justify-center overflow-hidden rounded-lg bg-gray-100">
           <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white">
-            <h1 className="text-xl font-medium">Booking Ref: {id}</h1>
+            <h1 className="text-xl font-medium">Booking Ref: {id} - {data?.status}</h1>
             <IoClose
               onClick={() => setOpen(false)}
               className="h-8 w-8 cursor-pointer"
@@ -414,7 +414,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                           <textarea
                             value={deliveryNotes}
                             onChange={(e) => setDeliveryNotes(e.target.value)}
-                            className="mt-2.5 w-full rounded-lg bg-gray-100 p-3 text-xs"
+                            className="mt-2.5 w-full rounded-lg bg-gray-100 p-3 text-xs text-grey100"
                             placeholder={
                               data?.delivery_notes || "Further Instructions..."
                             }

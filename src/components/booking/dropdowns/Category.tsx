@@ -71,7 +71,7 @@ const CategoryDropdown = ({
           toggleClassName
         )}
       >
-        <span>{value ? value.name : placeholder}</span>
+        <span className="truncate">{value ? value.name : placeholder}</span>
         {icon ? (
           icon
         ) : (
