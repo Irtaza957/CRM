@@ -129,7 +129,7 @@ declare type UserProps = {
 declare type GlobalStateProps = {
   user: UserProps | null;
   sidebar: boolean;
-  date: Date;
+  date: Date | null;
 };
 
 declare type ServiceProps = {
@@ -622,6 +622,7 @@ declare type BranchProps = {
   working_hours: string;
   address: string;
   area_id: string;
+  emirate_id: string
 };
 
 declare type StatusProps = {

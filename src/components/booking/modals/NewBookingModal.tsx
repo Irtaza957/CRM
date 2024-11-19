@@ -486,6 +486,18 @@ const NewBookingModal = ({
     setSelectedServices([])
   }
   
+  const incrementDate = (e: React.MouseEvent<SVGAElement>) => {
+    e.stopPropagation();
+    const newDate = dayjs(date || new Date()).add(1, "day").toDate();
+    handleSetDate(newDate);
+  };
+
+  const decrementDate = (e: React.MouseEvent<SVGAElement>) => {
+    e.stopPropagation();
+    const newDate = dayjs(date || new Date()).subtract(1, "day").toDate();
+    handleSetDate(newDate);
+  };
+
   useEffect(() => {
     if (bookingsData) {
       const view = createTimelineView(bookingsData!);
@@ -608,16 +620,16 @@ const NewBookingModal = ({
           <div className="col-span-1 flex h-full flex-col overflow-auto border-r">
             <div className="flex h-12 w-full items-center justify-between border-b bg-white px-2.5">
               <p className="mr-3 rounded-md bg-primary px-2.5 py-1 text-white lg:text-sm xl:text-base">
-                {dayNames[new Date(date).getDay()]}
+                {dayNames[new Date(date || new Date()).getDay()]}
               </p>
               <CustomDatePicker
-                date={date}
+                date={date || new Date()}
                 setDate={handleSetDate}
                 toggleButton={
                   <div className="flex h-12 w-full items-center text-sm xl:text-base lg:gap-1 xl:gap-4 text-gray-500">
-                    <FaChevronLeft />
+                    <FaChevronLeft className="cursor-pointer" onClick={decrementDate} />
                     {dayjs(date).format("DD MMM YYYY")}
-                    <FaChevronRight />
+                    <FaChevronRight className="cursor-pointer" onClick={incrementDate} />
                   </div>
                 }
               />

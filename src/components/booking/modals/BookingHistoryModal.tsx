@@ -58,109 +58,172 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
           </div>
           <div className="col-span-2 flex w-full flex-col items-center justify-between">
             {selectedUser?.allergy_description &&
-            <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
-              <span className="text-xs font-semibold text-primary">
-                Allergies:
-              </span>
-              <span className="rounded-full bg-red-200 px-2 text-xs text-red-500">
-                {selectedUser?.allergy_description}
-              </span>
-            </div>}
+              <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
+                <span className="text-xs font-semibold text-primary">
+                  Allergies:
+                </span>
+                <span className="rounded-full bg-red-200 px-2 text-xs text-red-500">
+                  {selectedUser?.allergy_description}
+                </span>
+              </div>}
             {selectedUser?.medication_description &&
-            <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
-              <span className="text-xs font-semibold text-primary">
-                Medications:
-              </span>
-              <span className="text-xs text-[#656565]">
-                {selectedUser?.medication_description}
-              </span>
-            </div>}
+              <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
+                <span className="text-xs font-semibold text-primary">
+                  Medications:
+                </span>
+                <span className="text-xs text-[#656565]">
+                  {selectedUser?.medication_description}
+                </span>
+              </div>}
             {selectedUser?.medical_condition_description &&
-            <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
-              <span className="text-xs font-semibold text-primary">
-                Medical Conditions:
-              </span>
-              <span className="text-xs text-[#656565]">
-                {selectedUser?.medical_condition_description}
-              </span>
-            </div>}
+              <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
+                <span className="text-xs font-semibold text-primary">
+                  Medical Conditions:
+                </span>
+                <span className="text-xs text-[#656565]">
+                  {selectedUser?.medical_condition_description}
+                </span>
+              </div>}
           </div>
         </div>
-        <div className="grid w-full grid-cols-8 gap-5 p-5">
-          <p className="w-full text-left text-xs font-semibold text-primary">
-            Ref. #
-          </p>
-          <p className="w-full text-left text-xs font-semibold text-primary">
-            Category
-          </p>
-          <p className="w-full text-left text-xs font-semibold text-primary">
-            Customer
-          </p>
-          <p className="w-full text-left text-xs font-semibold text-primary">
-            Schedule
-          </p>
-          <p className="w-full text-left text-xs font-semibold text-primary">
-            Amount
-          </p>
-          <p className="w-full text-left text-xs font-semibold text-primary">
-            Team
-          </p>
-          <p className="w-full text-left text-xs font-semibold text-primary">
-            Status
-          </p>
-          <p className="w-full text-right text-xs font-semibold text-primary whitespace-nowrap">
-            Created By
-          </p>
-        </div>
-        <div className="flex max-h-[600px] w-full flex-col items-start justify-start overflow-auto">
-          {historyData?.data?.length ? historyData?.data?.map((history: HistoryType, idx: number) => (
-            <div
-              key={idx}
-              className={cn(
-                "grid w-full grid-cols-8 gap-5 p-5 text-xs text-[#656565] justify-start",
-                {
-                  "bg-gray-100": idx % 2 === 0,
-                }
-              )}
-            >
-              <p className="w-full text-left text-xs">{history?.reference}</p>
-              <div>
-              {history?.categories?.length ? history?.categories?.map((item, index)=>(
-                <div key={index} className="flex w-full items-start justify-start mb-1">
-                  {item?.code && <span className="flex-1 text-left text-xs">{item?.code}</span>}
-                  {item?.color_code && <div className={`size-4 rounded-full bg-[${item?.color_code}]`}></div>} 
-                </div>
-              )) : 'N/A'}
-              </div>
-              <p className="w-full text-left text-xs">{history?.customer}</p>
-              <div className="flex w-full flex-col items-start justify-start">
-                <span className="w-full overflow-hidden truncate text-left">
-                  {history?.schedule_date}
-                </span>
-                <span className="w-full overflow-hidden truncate text-left">
-                  {history?.schedule_slot}
-                </span>
-              </div>
-              <p className="w-full text-left text-xs">AED {history?.amount}</p>
-              <div className="flex w-full flex-col items-start justify-start">
-                {history?.team && history?.team?.length
-                  ? [...history?.team]
-                    .sort((a, b) => Number(b.is_lead) - Number(a.is_lead))
-                    .map((item, index) => (
-                      <span key={index} className="w-full overflow-hidden truncate text-left">
-                        {item.name}
-                      </span>
-                    ))
-                  : 'N/A'}
-              </div>
-              <div className="flex w-full items-start justify-start">
-                <span className="rounded-full bg-[#31B86A] px-2 py-px text-white">
-                  {history?.status}
-                </span>
-              </div>
-              <p className="w-full text-right text-xs whitespace-nowrap">{history?.created_by || 'N/A'}</p>
-            </div>
-          )): <p className="text-center text-sm w-full text-red-500 bg-gray-100 p-3">No Data Found!</p>}
+        <div className="no-scrollbar h-full overflow-y-scroll mt-3 pb-40">
+          <table className="relative w-full min-w-full">
+            <thead className="sticky top-0  text-left text-white bg-white">
+              <tr className="h-12 text-primary">
+                <th className="px-5 text-xs font-medium">
+                  <div className="flex w-full items-center justify-center gap-2.5">
+                    <span className="flex-1 text-left font-bold whitespace-nowrap">
+                      Ref. #
+                    </span>
+                  </div>
+                </th>
+                <th className="px-5 text-xs font-medium">
+                  <div className="flex w-full items-center justify-center gap-2.5">
+                    <span className="flex-1 text-left font-bold">
+                      Category
+                    </span>
+                  </div>
+                </th>
+                <th className="px-5 text-xs font-medium">
+                  <div className="flex w-full items-center justify-center gap-2.5">
+                    <span className="flex-1 text-left font-bold">
+                      Customer
+                    </span>
+                  </div>
+                </th>
+                <th className="px-5 text-xs font-medium">
+                  <div className="flex w-full items-center justify-center gap-2.5">
+                    <span className="flex-1 text-left font-bold">
+                      Schedule
+                    </span>
+                  </div>
+                </th>
+                <th className="px-5 text-xs font-medium">
+                  <div className="flex w-full items-center justify-center gap-2.5">
+                    <span className="flex-1 text-left font-bold">
+                      Amount
+                    </span>
+                  </div>
+                </th>
+                <th className="px-5 text-xs font-medium">
+                  <div className="flex w-full items-center justify-center gap-2.5">
+                    <span className="flex-1 text-left font-bold">
+                      Team
+                    </span>
+                  </div>
+                </th>
+                <th className="px-5 text-xs font-medium">
+                  <div className="flex w-full items-center justify-center gap-2.5">
+                    <span className="flex-1 text-left font-bold">
+                      Status
+                    </span>
+                  </div>
+                </th>
+                <th className="px-5 text-xs font-medium">
+                  <div className="flex w-full items-center justify-center gap-2.5">
+                    <span className="flex-1 text-left font-bold">
+                      Created By
+                    </span>
+                  </div>
+                </th>
+              </tr>
+            </thead>
+              <tbody>
+              {historyData?.data?.length ? historyData?.data?.map((history: HistoryType, idx: number) => (
+                <tr
+                  key={idx}
+                  className={cn(
+                    "h-12 bg-white text-xs text-[#656565]",
+                    {
+                      "bg-[#F3F5F9]": idx % 2 === 0,
+                    }
+                  )}
+                >
+                  <td
+                    className="px-5 pt-3 pb-1 text-center"
+                  >
+                    <span className="text-xs">{history?.reference}</span>
+                  </td>
+                  <td
+                    className="px-5 pt-3 pb-1"
+                  >
+                    {history?.categories?.length ? history?.categories?.map((item, index) => (
+                      <div key={index} className="flex w-full items-start justify-start mb-1">
+                        {item?.code ? <span className="flex-1 text-left text-xs">{item?.code}</span> : " -"}
+                        {item?.color_code && <div className={`size-4 rounded-full bg-[${item?.color_code}]`}></div>}
+                      </div>
+                    )) : 'N/A'}
+                  </td>
+                  <td
+                    className="px-5 pt-3 pb-1 whitespace-nowrap"
+                  >
+                    {history?.customer}
+                  </td>
+                  <td
+                    className="px-5 pt-3 pb-1"
+                  >
+                    <span className="w-full overflow-hidden truncate text-left">
+                      {history?.schedule_date}
+                    </span>
+                    <span className="w-full overflow-hidden truncate text-left">
+                      {history?.schedule_slot}
+                    </span>
+                  </td>
+                  <td
+                    className="px-5 pt-3 pb-1 whitespace-nowrap"
+                  >
+                    AED {history?.amount}
+                  </td>
+                  <td
+                    className="px-5 pt-3 pb-1"
+                  >
+                    {history?.team && history?.team?.length
+                      ? [...history?.team]
+                        .sort((a, b) => Number(b.is_lead) - Number(a.is_lead))
+                        .map((item, index) => (
+                          <span key={index} className="text-left">
+                            {item.name}
+                          </span>
+                        ))
+                      : 'N/A'}
+                  </td>
+                  <td
+                    className="px-5 pt-3 pb-1"
+                  >
+                    <span className={`rounded-full px-2 py-px text-white ${history?.status==='Pending' ? 'bg-orange-300' : history?.status==='Cancelled' ? 'bg-red-500' :'bg-[#31B86A]'}`}>
+                    {history?.status}
+                    </span>
+
+                  </td>
+                  <td
+                    className="px-5 pt-3 pb-1 whitespace-nowrap"
+                  >
+                    {history?.created_by || 'N/A'}
+                  </td>
+                </tr>
+              )) : <tr><td colSpan={8} className="h-12 text-center text-xs text-[#656565] bg-[#F3F5F9]">No data found</td></tr>}
+            </tbody>
+          </table>
         </div>
       </div>
     </Modal>

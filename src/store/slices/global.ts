@@ -3,7 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState: GlobalStateProps = {
   user: null,
   sidebar: false,
-  date: new Date(),
+  date: null,
 };
 
 const globalSlice = createSlice({

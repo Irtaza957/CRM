@@ -134,9 +134,9 @@ const AddBranchModal = ({
       setValue("working_hours", selectedBranch.working_hours);
       setValue("address", selectedBranch.address);
 
-      const selectedArea = areas?.find(area => area.id === selectedBranch.area_id);
-      if(selectedArea){
-        setArea({id: selectedArea.id || '', name: selectedArea.name || ''});
+      const selectedEmirate = emirates.find(emirate => emirate.id === Number(selectedBranch?.emirate_id));
+      if(selectedEmirate){
+        setEmirate({id: selectedEmirate.id || '', name: selectedEmirate.name || ''});
       }
       
       const company = companiesData?.find(
@@ -150,6 +150,15 @@ const AddBranchModal = ({
       }
     }
   }, [selectedBranch, companiesData]);
+
+  useEffect(() => {
+    if(selectedBranch?.area_id){
+      const selectedArea = areas?.find(area => area.id == selectedBranch?.area_id);
+      if(selectedArea){
+        setArea({id: selectedArea.id || '', name: selectedArea.name || ''});
+      }
+    }
+  }, [areas, selectedBranch])
 
   useEffect(() => {
     if(!open){

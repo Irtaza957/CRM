@@ -13,11 +13,11 @@ const BookingLogsModal = ({ logsData, open, setOpen }: BookingLogsModalProps) =>
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="w-full max-w-xl "
+      className="w-full max-w-[50%]"
       title="Booking Logs"
     >
       <div className="w-full items-center justify-center rounded-lg bg-white max-h-[350px] overflow-auto">
-        <div className="grid w-full grid-cols-4 px-2.5 pb-2.5">
+        <div className="grid w-full grid-cols-5 px-2.5 pb-2.5">
           <p className="w-full text-left font-semibold text-primary">Agent</p>
           <p className="w-full text-left font-semibold text-primary">
             Updated At
@@ -25,14 +25,14 @@ const BookingLogsModal = ({ logsData, open, setOpen }: BookingLogsModalProps) =>
           <p className="w-full text-left font-semibold text-primary">
             Status
           </p>
-          <p className="w-full text-left font-semibold text-primary">
+          <p className="w-full col-span-2 text-left font-semibold text-primary">
             Comments
           </p>
         </div>
         {logsData?.map((log, idx) => (
           <div
             key={idx}
-            className={cn("grid w-full grid-cols-4 p-2.5", {
+            className={cn("grid w-full grid-cols-5 p-2.5", {
               "bg-gray-100": idx % 2 === 0,
             })}
           >
@@ -47,7 +47,7 @@ const BookingLogsModal = ({ logsData, open, setOpen }: BookingLogsModalProps) =>
                 {log?.status}
               </span>
             </div>
-            <p className="w-full overflow-hidden truncate text-left text-sm font-semibold text-[#656565]">
+            <p className="w-full col-span-2 text-left text-sm font-semibold text-[#656565]">
               {log?.comments}
             </p>
           </div>

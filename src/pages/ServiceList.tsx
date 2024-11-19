@@ -102,11 +102,11 @@ const ServiceList = () => {
     skip: !shouldFetchBusinesses,
   });
 
-  const { data: categoriesDropdownData } = useFetchAllCategoriesQuery({});
+  const { data: categoriesDropdownData, refetch: refetchCategoriesDropdown } = useFetchAllCategoriesQuery({});
 
-  const { data: branchesDropodwnData } = useFetchBranchesQuery(null);
+  const { data: branchesDropodwnData, refetch: refetchBranchesDropdown } = useFetchBranchesQuery(null);
 
-  const { data: companiesDropdownData } = useFetchCompaniesQuery(null);
+  const { data: companiesDropdownData, refetch: refetchCompaniesDropdown } = useFetchCompaniesQuery(null);
 
   // const addButtonText =
   //   lastFilter === "business"
@@ -280,11 +280,32 @@ const ServiceList = () => {
     }
   };
 
+  const handleRefetchCompanies = () => {
+    refetchCompaniesDropdown && refetchCompaniesDropdown();
+    refetchCompanies && refetchCompanies();
+  }
+
+  const handleRefetchBranches = () => {
+    refetchBranchesDropdown && refetchBranchesDropdown();
+    refetchBranches && refetchBranches();
+  }
+
+  const handleRefetchCategories = () => {
+    refetchCategoriesDropdown && refetchCategoriesDropdown();
+    refetch && refetch();
+  }
+
   useEffect(() => {
     if(!openBranchModal){
       setSelectedBranch(null);
     }
   }, [openBranchModal]);
+
+  useEffect(() => {
+    if(!openCompanyModal){
+      setSelectedCompany(null);
+    }
+  }, [openCompanyModal]);
 
   return (
     <>
@@ -308,7 +329,7 @@ const ServiceList = () => {
         selectedCategory={selectedCategory}
         companiesData={companiesDropdownData}
         open={upload}
-        refetch={refetch}
+        refetch={handleRefetchCategories}
         refetchServices={refetchServices}
         setOpen={setUpload}
         type={filterArray[filterArray.length - 1]?.name}
@@ -328,13 +349,13 @@ const ServiceList = () => {
         setOpen={setOpenCompanyModal}
         selectedCompany={selectedCompany}
         businesses={businessData}
-        refetch={refetchCompanies}
+        refetch={handleRefetchCompanies}
       />
       <AddBranchModal
         open={openBranchModal}
         setOpen={setOpenBranchModal}
         selectedBranch={selectedBranch}
-        refetch={refetchBranches}
+        refetch={handleRefetchBranches}
       />
       <div className="flex w-full gap-3 min-h-screen">
         <div className="flex h-full w-full flex-col items-start justify-start">

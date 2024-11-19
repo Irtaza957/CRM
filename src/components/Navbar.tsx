@@ -34,21 +34,34 @@ const Navbar = () => {
     });
     navigate('/login')
   }
+
+  const incrementDate = (e: React.MouseEvent<SVGAElement>) => {
+    e.stopPropagation();
+    const newDate = dayjs(date || new Date()).add(1, "day").toDate();
+    handleSetDate(newDate);
+  };
+
+  const decrementDate = (e: React.MouseEvent<SVGAElement>) => {
+    e.stopPropagation();
+    const newDate = dayjs(date || new Date()).subtract(1, "day").toDate();
+    handleSetDate(newDate);
+  };
+
   return (
     <nav className="relative z-30 h-16 min-h-16 w-full px-5 text-gray-500 shadow-md">
       <div className="flex h-full flex-1 items-center justify-between">
         <div className="flex items-center justify-center gap-7">
           <img src={Logo} alt="logo" className="w-36" />
           <CustomDatePicker
-            date={date}
+            date={date || new Date()}
             setDate={handleSetDate}
             toggleButton={
               <div className="flex items-center justify-center gap-5">
-                <FaChevronLeft />
+                <FaChevronLeft className="cursor-pointer" onClick={decrementDate} />
                 <span>
                   {dayjs(date || new Date()).format("DD MMM YYYY")}
                 </span>
-                <FaChevronRight />
+                <FaChevronRight className="cursor-pointer" onClick={incrementDate} />
               </div>
             }
           />

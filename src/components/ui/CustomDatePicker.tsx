@@ -12,7 +12,7 @@ const CustomDatePicker = ({
   setDate
 }: {
   toggleButton: React.ReactNode;
-  date: string | Date,
+  date: string | Date | null,
   toggleClassName?: string,
   setDate: (arg0: string | Date)=>void
 }) => {
@@ -54,6 +54,11 @@ const CustomDatePicker = ({
       currentMonth === 11 ? prevYear + 1 : prevYear
     );
   };
+
+  const handleSetDate = (day: number) => {
+    setDate(`${currentYear}-${currentMonth + 1}-${day + 1}`)
+    setToggle(false);
+  }
 
   useEffect(() => {
     if (date) {
@@ -140,9 +145,7 @@ const CustomDatePicker = ({
             {[...Array(daysInMonths).keys()].map((day) => (
               <span
                 key={day}
-                onClick={() =>
-                  setDate(`${currentYear}-${currentMonth + 1}-${day + 1}`)
-                }
+                onClick={()=>handleSetDate(day)}
                 className={cn(
                   "flex h-8 w-full cursor-pointer items-center justify-center rounded-full text-center text-xs font-medium hover:bg-primary/20",
                   {

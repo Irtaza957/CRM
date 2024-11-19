@@ -337,7 +337,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                               </button>
                             </div>
                           </div>
-                          {!["1","2"].includes(data?.status_id || '') &&
+                          {data?.team?.length &&
                           <>
                           <div className="mt-2.5 grid w-full grid-cols-4 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
                             <p className="col-span-1 w-full text-left">Team</p>

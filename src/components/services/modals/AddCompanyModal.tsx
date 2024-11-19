@@ -117,6 +117,7 @@ const AddCompanyModal = ({
       formData.append("email", data.email);
       formData.append("working_hours", data.working_hours);
       formData.append("area_id", String(area?.id));
+      formData.append("emirate_id", String(emirate?.id));
       formData.append("address", data.address);
 
       let response;
@@ -171,13 +172,14 @@ const AddCompanyModal = ({
       setValue("working_hours", companyData?.working_hours);
       setValue("address", companyData?.address);
 
-      const selectedBusiness = businesses?.find(
-        (a) => a.name === selectedCompany?.business?.trim()
-      );
-      setSelectedBusiness({id: selectedBusiness?.id || '', name: selectedBusiness?.name || ''})
+      console.log(selectedCompany?.business, 'selectedCompany?.business')   
+      // const selectedBusiness = businesses?.find(
+      //   (a) => a.name === selectedCompany?.business?.trim()
+      // );
+      setSelectedBusiness([])
 
       const selectedArea = areas?.find(
-        (a) => a.area_id === companyData?.area_id
+        (a) => a.id == companyData?.area_id
       );
       if (selectedArea) {
         setArea({id: selectedArea.area_id, name: selectedArea.name});
