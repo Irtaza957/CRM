@@ -11,12 +11,16 @@ import { toast } from "sonner";
 import CustomToast from "../../ui/CustomToast";
 import ImageUploader from "../../ui/ImageUploader";
 import { useUpdateBusinessMutation } from "../../../store/services/business";
+import { FiEdit } from "react-icons/fi";
 
 interface NewBusinessModalProps {
   open: boolean;
   selectedBusiness: BusinessProps | null;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   refetch?: () => void;
+  isView: boolean;
+  setIsView: React.Dispatch<React.SetStateAction<boolean>>;
+  isApp: boolean;
 }
 
 const businessSchema = z.object({
@@ -30,6 +34,9 @@ const NewBusinessModal = ({
   setOpen,
   selectedBusiness,
   refetch,
+  isView,
+  setIsView,
+  isApp
 }: NewBusinessModalProps) => {
   const [icon, setIcon] = useState<File | string | null>(null);
   const [thumbnail, setThumbnail] = useState<File | string | null>(null);
@@ -49,11 +56,8 @@ const NewBusinessModal = ({
   });
 
   const handleClose = () => {
+    resetState();
     setOpen(false);
-    reset();
-    setIcon(null);
-    setThumbnail(null);
-    setCover(null);
   };
 
   const onSubmit = async (data: any) => {
@@ -67,10 +71,10 @@ const NewBusinessModal = ({
       formData.append("cover", cover || '');
 
       let response;
-      if(selectedBusiness?.id){
+      if (selectedBusiness?.id) {
         formData.append("id", selectedBusiness?.id);
         response = await updateBusiness(formData);
-      }else{
+      } else {
         response = await createBusiness(formData);
       }
 
@@ -119,7 +123,8 @@ const NewBusinessModal = ({
   }
 
   useEffect(() => {
-    if(!open){
+    if (!open) {
+      console.log('open', open)
       resetState();
     }
   }, [open]);
@@ -139,8 +144,16 @@ const NewBusinessModal = ({
     <Modal open={open} setOpen={setOpen} className="w-[95%] lg:max-w-3xl">
       <div className="flex h-auto w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-white">
         <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white">
-          <h1 className="text-xl font-medium">{selectedBusiness?.id ? 'Update Business' : 'Add Business'}</h1>
-          <IoClose onClick={handleClose} className="h-8 w-8 cursor-pointer" />
+          <h1 className="text-xl font-medium">{isView ? 'View Business' : selectedBusiness?.id ? 'Update Business' : 'Add Business'}</h1>
+          <div className="flex items-center justify-center gap-2">
+            {(isView && !isApp) && (
+              <FiEdit
+                onClick={() => setIsView(false)}
+                className="h-6 w-6 cursor-pointer text-white"
+              />
+            )}
+            <IoClose onClick={handleClose} className="h-8 w-8 cursor-pointer" />
+          </div>
         </div>
 
         <div
@@ -149,17 +162,19 @@ const NewBusinessModal = ({
           <div className="flex w-full gap-5">
             <CustomInput
               name="code"
-              label="Code"
+              label="Business Code"
               register={register}
               errorMsg={errors?.code?.message}
               placeholder="Enter business code"
+              disabled={isView}
             />
             <CustomInput
               name="name"
-              label="Name"
+              label="Business Name"
               register={register}
               errorMsg={errors?.name?.message}
               placeholder="Enter business name"
+              disabled={isView}
             />
           </div>
 
@@ -172,6 +187,7 @@ const NewBusinessModal = ({
               rows={8}
               className="w-full rounded-lg bg-gray-100 p-3 text-xs text-grey100"
               placeholder="Enter business description"
+              disabled={isView}
             />
             {errors?.description?.message && (
               <p className="w-full text-left text-xs text-red-500">
@@ -188,17 +204,20 @@ const NewBusinessModal = ({
               <ImageUploader
                 label="Icon"
                 setImage={setIcon}
-                link={selectedBusiness?.icon ? `https://crm.fandcproperties.ru${selectedBusiness?.icon}` : ''}
+                link={icon ? `https://crm.fandcproperties.ru${icon}` : ''}
+                disabled={isView}
               />
               <ImageUploader
                 label="Thumbnail"
                 setImage={setThumbnail}
-                link={selectedBusiness?.thumbnail ? `https://crm.fandcproperties.ru${selectedBusiness?.thumbnail}` : ''}
+                link={thumbnail ? `https://crm.fandcproperties.ru${thumbnail}` : ''}
+                disabled={isView}
               />
               <ImageUploader
                 label="Cover Image"
                 setImage={setCover}
-                link={selectedBusiness?.cover_image ? `https://crm.fandcproperties.ru${selectedBusiness?.cover_image}` : ''}
+                link={cover ? `https://crm.fandcproperties.ru${cover}` : ''}
+                disabled={isView}
               />
             </div>
           </div>
@@ -209,12 +228,14 @@ const NewBusinessModal = ({
               handleClick={handleClose}
               style="bg-danger"
             />
-            <CustomButton
-              name={selectedBusiness?.id ? "Update" : "Save"}
-              handleClick={handleSubmit(onSubmit)}
-              loading={isLoading || updateLoading}
-              disabled={isLoading || updateLoading}
-            />
+            {!isView && (
+              <CustomButton
+                name={selectedBusiness?.id ? "Update" : "Save"}
+                handleClick={handleSubmit(onSubmit)}
+                loading={isLoading || updateLoading}
+                disabled={isLoading || updateLoading}
+              />
+            )}
           </div>
         </div>
       </div>

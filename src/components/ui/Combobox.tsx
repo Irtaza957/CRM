@@ -5,6 +5,7 @@ import { ReactNode, useRef, useState } from "react";
 import { cn } from "../../utils/helpers";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 import { FieldError, FieldErrorsImpl, Merge } from "react-hook-form";
+import { IoClose } from "react-icons/io5";
 
 interface ComboboxProps {
   icon?: ReactNode;
@@ -15,7 +16,7 @@ interface ComboboxProps {
   toggleClassName?: string;
   listItemClassName?: string;
   options?: ListOptionProps[];
-  value: ListOptionProps | null | [];
+  value: ListOptionProps | ListOptionProps[] | null | [];
   defaultIconClassName?: string;
   searchInputClassName?: string;
   searchInputPlaceholder?: string;
@@ -25,6 +26,7 @@ interface ComboboxProps {
   isFilter?: boolean;
   disabled?: boolean;
   isMultiSelect?: boolean;
+  isRemoveAllow?: boolean;
   setValue?: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
   handleSelect?: (arg0: ListOptionProps) => void;
   errorMsg?: string | FieldError | Merge<FieldError, FieldErrorsImpl>;
@@ -52,19 +54,12 @@ const Combobox = ({
   isMultiSelect = false,
   handleSelect,
   errorMsg,
+  isRemoveAllow
 }: ComboboxProps) => {
   const [toggle, setToggle] = useState(false);
   const [query, setQuery] = useState<string>("");
   const ComboboxRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(ComboboxRef, () => setToggle(false));
-
-  // const handleToggle = (dropdownValue: ListOptionProps) => {
-  //   if (isFilter && value?.id === dropdownValue?.id) {
-  //     handleSelect && handleSelect({ id: 0, name: "" });
-  //   } else {
-  //     handleSelect && handleSelect(dropdownValue);
-  //   }
-  // };
 
   const handleClick = (item: ListOptionProps) => {
     if (isMultiSelect) {
@@ -72,7 +67,7 @@ const Combobox = ({
       if (selected?.find((selectedItem) => selectedItem.id === item.id)) {
         selected = selected.filter((selectedItem) => selectedItem.id !== item.id);
       } else {
-        selected = [...(selected || []), {id: item.id, name: item.name}];
+        selected = [...(selected || []), { id: item.id, name: item.name }];
       }
       setValue?.(selected as any);
       handleSelect?.(selected as any);
@@ -92,6 +87,10 @@ const Combobox = ({
     return (value as ListOptionProps)?.id === item.id;
   };
 
+  const handleRemoveValue=(e: React.MouseEvent<SVGAElement>)=>{
+    e.stopPropagation()
+    handleClick({id: '', name: ''})
+  }
   return (
     <div
       ref={ComboboxRef}
@@ -114,17 +113,24 @@ const Combobox = ({
         )}
         disabled={disabled}
       >
-         <span className={`${isMultiSelect ? "flex flex-wrap gap-1" : "truncate"}`}>
+        <span className={`${isMultiSelect ? "flex flex-wrap gap-1" : "truncate"}`}>
           {isMultiSelect && (value as ListOptionProps[])?.length
             ? (value as ListOptionProps[])?.map((item: ListOptionProps) => item.name).join(", ") ||
-              placeholder
+            placeholder
             : (value as ListOptionProps)?.name || placeholder}
         </span>
-        {icon ? (
-          icon
-        ) : (
-          <LuChevronsUpDown className={cn(defaultIconClassName)} />
-        )}
+        <div className="flex items-center">
+          {(isRemoveAllow && (isMultiSelect ? Array.isArray(value) && value.length : (value as ListOptionProps)?.id)) &&
+          <IoClose
+            onClick={(e: React.MouseEvent<SVGAElement>)=>handleRemoveValue(e)}
+            className="h-4 w-4 cursor-pointer"
+          />}
+          {icon ? (
+            icon
+          ) : (
+            <LuChevronsUpDown className={cn(defaultIconClassName)} />
+          )}
+        </div>
       </button>
       <div
         className={cn(

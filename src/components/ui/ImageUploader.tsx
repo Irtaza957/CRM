@@ -7,10 +7,11 @@ import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 interface ImageUploaderProps {
   label: string;
   link?: string | undefined;
+  disabled?: boolean;
   setImage: Dispatch<SetStateAction<File | string | null>>;
 }
 
-const ImageUploader = ({ link, label, setImage }: ImageUploaderProps) => {
+const ImageUploader = ({ link, label, setImage, disabled }: ImageUploaderProps) => {
   const [src, setSrc] = useState<string>("");
   const [_, setIsDragOver] = useState<boolean>(false);
 
@@ -54,6 +55,7 @@ const ImageUploader = ({ link, label, setImage }: ImageUploaderProps) => {
         onDropAccepted={onDropAccepted}
         onDragEnter={() => setIsDragOver(true)}
         onDragLeave={() => setIsDragOver(false)}
+        disabled={disabled}
       >
         {({ getRootProps, getInputProps }) => (
           <div

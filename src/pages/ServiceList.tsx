@@ -8,20 +8,16 @@ import BusinessDropdown from "../components/services/dropdowns/Business";
 import NewServiceModal from "../components/services/modals/NewServiceModal";
 import { useFetchCompaniesQuery } from "../store/services/company";
 import { useFetchServicesQuery } from "../store/services/service";
-// import { useFetchCustomersMutation } from "../store/services/customer";
 import { useFetchAllCategoriesQuery } from "../store/services/categories";
 import Table from "../components/services/Table";
-// import AddCustomerModal from "../components/booking/modals/AddCustomerModal";
-// import { useSelector } from "react-redux";
-// import { RootState } from "../store";
 import * as XLSX from "xlsx";
-import UpdateService from "../components/services/forms/update/UpdateService";
 import { useFetchBusinessesQuery } from "../store/services/service";
 import NewBusinessModal from "../components/services/modals/NewBusinessModal";
 import BranchDropdown from "../components/services/dropdowns/Branch";
 import { useFetchBranchesQuery } from "../store/services/filters";
 import AddCompanyModal from "../components/services/modals/AddCompanyModal";
 import AddBranchModal from "../components/services/modals/AddBranchModal";
+import { useLocation } from "react-router-dom";
 
 const ServiceList = () => {
   const [search, setSearch] = useState("");
@@ -34,9 +30,8 @@ const ServiceList = () => {
   // const [selectedCustomer, setSelectedCustomer] =
   //   useState<CustomerProps | null>(null);
   const [selectedCategory, setSelectedCategory] =
-    useState<CategoryAllListProps | null>(null);
+    useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [update, setUpdate] = useState(false);
   const [id, setID] = useState("");
   const [openBusinessModal, setOpenBusinessModal] = useState(false);
   const [selectedBusiness, setSelectedBusiness] =
@@ -51,7 +46,9 @@ const ServiceList = () => {
   const [selectedBranch, setSelectedBranch] = useState<BranchProps | null>(
     null
   );
-
+  const [isView, setIsView] = useState(false)
+  const { pathname } = useLocation()
+  const isApp = pathname.includes('app')
   // const { user } = useSelector((state: RootState) => state.global);
 
   // const [fetchCustomers, { isLoading: customerLoading }] =
@@ -77,11 +74,17 @@ const ServiceList = () => {
     refetch: refetchServices,
     isFetching: servicesFetching,
     isError: servicesError
-  } = useFetchServicesQuery(serviceQueryParams, { skip: !shouldFetchServices });
+  } = useFetchServicesQuery(serviceQueryParams, {
+    skip: !shouldFetchServices,
+    refetchOnMountOrArgChange: true
+  });
 
   const { data: branches, isFetching: branchFetching, refetch: refetchBranches } = useFetchBranchesQuery(
     branchQueryParams,
-    { skip: !shouldFetchBranches }
+    {
+      skip: !shouldFetchBranches,
+      refetchOnMountOrArgChange: true
+    }
   );
   const {
     data: categoriesData,
@@ -90,16 +93,21 @@ const ServiceList = () => {
     isError: categoryError
   } = useFetchAllCategoriesQuery(categoryQueryParams, {
     skip: !shouldFetchCategories,
+    refetchOnMountOrArgChange: true
   });
 
   const { data: companiesData, isFetching: fetchingCompanies, refetch: refetchCompanies } =
-    useFetchCompaniesQuery(companyQueryParams, { skip: !shouldFetchCompanies });
+    useFetchCompaniesQuery(companyQueryParams, {
+      skip: !shouldFetchCompanies,
+      refetchOnMountOrArgChange: true
+    });
   const {
     data: businessData,
     isFetching: businessLoading,
     refetch: refetchBusinesses,
   } = useFetchBusinessesQuery(businessQueryParams, {
     skip: !shouldFetchBusinesses,
+    refetchOnMountOrArgChange: true
   });
 
   const { data: categoriesDropdownData, refetch: refetchCategoriesDropdown } = useFetchAllCategoriesQuery({});
@@ -107,19 +115,6 @@ const ServiceList = () => {
   const { data: branchesDropodwnData, refetch: refetchBranchesDropdown } = useFetchBranchesQuery(null);
 
   const { data: companiesDropdownData, refetch: refetchCompaniesDropdown } = useFetchCompaniesQuery(null);
-
-  // const addButtonText =
-  //   lastFilter === "business"
-  //     ? "Add Company"
-  //     : lastFilter === "company"
-  //       ? "Add Branch"
-  //       : lastFilter === "sub_category"
-  //         ? "Add Service"
-  //         : lastFilter === "category"
-  //           ? "Add Sub Category"
-  //           : lastFilter === "branch"
-  //             ? "Add Category"
-  //             : "Add Business";
 
   const handleAddModal = () => {
     if (lastFilter === "category") {
@@ -156,12 +151,15 @@ const ServiceList = () => {
   //   setCustomers(response?.data?.data || []);
   // };
 
-  const handleEdit = (row: any) => {
+  const handleEdit = (row: any, isView?: boolean) => {
+    if (isView) {
+      setIsView(true)
+    }
     if (lastFilter === "category") {
       setID(row.service_id);
-      setUpdate(true);
+      setUpload(true);
     } else if (lastFilter === "branch") {
-      setSelectedCategory(row);
+      setSelectedCategory(row?.category_id);
       setUpload(true);
     } else if (lastFilter === "business") {
       setSelectedCompany({ id: row?.id, business: row?.business });
@@ -174,12 +172,6 @@ const ServiceList = () => {
       setOpenBusinessModal(true);
     }
   };
-
-  useEffect(() => {
-    if (!upload) {
-      setSelectedCategory(null);
-    }
-  }, [upload]);
 
   const filteredData = useMemo(() => {
     const lowercasedSearch = search.toLowerCase();
@@ -194,13 +186,13 @@ const ServiceList = () => {
     }
     switch (lastItem) {
       case "business":
-        return companiesData?.filter(item=>item.name.toLowerCase().includes(lowercasedSearch));
+        return companiesData?.filter(item => item.name.toLowerCase().includes(lowercasedSearch));
       case "company":
-        return branches?.filter(item=>item.name.toLowerCase().includes(lowercasedSearch));
+        return branches?.filter(item => item.name.toLowerCase().includes(lowercasedSearch));
       case "branch":
         return categoriesData?.filter(item => item.category_name.toLowerCase().includes(lowercasedSearch));
       case "category":
-        return servicesData?.filter(item=>item.service_name.toLowerCase().includes(lowercasedSearch));
+        return servicesData?.filter(item => item.service_name.toLowerCase().includes(lowercasedSearch));
       default:
         return [];
     }
@@ -230,7 +222,12 @@ const ServiceList = () => {
       removeFilter(String(value.id) + "-branch");
     } else {
       setBranch(value);
-      addFilter("branch", String(value.id) + "-branch");
+      if (value?.id) {
+        addFilter("branch", String(value.id) + "-branch");
+      } else {
+        const temp: FilterType[] = filterArray.filter((item) => item.name !== "branch");
+        setFilterArray(temp);
+      }
     }
   };
 
@@ -240,7 +237,12 @@ const ServiceList = () => {
       removeFilter(String(value.id) + "-company");
     } else {
       setProvider(value);
-      addFilter("company", String(value.id) + "-company");
+      if (value?.id) {
+        addFilter("company", String(value.id) + "-company");
+      } else {
+        const temp: FilterType[] = filterArray.filter((item) => item.name !== "company");
+        setFilterArray(temp);
+      }
     }
   };
 
@@ -250,7 +252,12 @@ const ServiceList = () => {
       removeFilter(String(value.id) + "-business");
     } else {
       setBusiness(value);
-      addFilter("business", String(value.id) + "-business");
+      if (value?.id) {
+        addFilter("business", String(value.id) + "-business");
+      } else {
+        const temp: FilterType[] = filterArray.filter((item) => item.name !== "business");
+        setFilterArray(temp);
+      }
     }
   };
 
@@ -260,10 +267,13 @@ const ServiceList = () => {
       removeFilter(String(value.id) + "-category");
     } else {
       setCategory(value);
-      const temp: FilterType[] = filterArray.filter((item) => item.name !== "category");
-      setFilterArray(temp);
       setSubCategory(null);
-      addFilter("category", String(value.id) + "-category");
+      if (value?.id) {
+        addFilter("category", String(value.id) + "-category");
+      } else {
+        const temp: FilterType[] = filterArray.filter((item) => item.name !== "category");
+        setFilterArray(temp);
+      }
     }
   };
 
@@ -273,10 +283,13 @@ const ServiceList = () => {
       removeFilter(String(value.id) + "-category");
     } else {
       setSubCategory(value);
-      const temp: FilterType[] = filterArray.filter((item) => item.name !== "category");
-      setFilterArray(temp);
       setCategory(null);
-      addFilter("category", String(value.id) + "-category");
+      if (value?.id) {
+        addFilter("category", String(value.id) + "-category");
+      } else {
+        const temp: FilterType[] = filterArray.filter((item) => item.name !== "category");
+        setFilterArray(temp);
+      }
     }
   };
 
@@ -296,16 +309,39 @@ const ServiceList = () => {
   }
 
   useEffect(() => {
-    if(!openBranchModal){
+    if (!upload) {
+      setSelectedCategory(null);
+      setID("");
+    }
+  }, [upload]);
+
+  useEffect(() => {
+    if (!openBranchModal) {
       setSelectedBranch(null);
+      setIsView(false)
     }
   }, [openBranchModal]);
 
   useEffect(() => {
-    if(!openCompanyModal){
+    if (!openCompanyModal) {
       setSelectedCompany(null);
+      setIsView(false)
     }
   }, [openCompanyModal]);
+
+  useEffect(() => {
+    if (!openBusinessModal) {
+      setSelectedBusiness(null);
+      setIsView(false)
+    }
+  }, [openBusinessModal]);
+
+  useEffect(() => {
+    if (!upload) {
+      setSelectedCategory(null);
+      setIsView(false)
+    }
+  }, [upload]);
 
   return (
     <>
@@ -318,12 +354,9 @@ const ServiceList = () => {
             refetchBusinesses && refetchBusinesses();
           }
         }}
-      />
-      <UpdateService
-        id={id}
-        open={update}
-        setOpen={setUpdate}
-        refetch={refetchServices}
+        isView={isView}
+        setIsView={() => setIsView(false)}
+        isApp={isApp}
       />
       <NewServiceModal
         selectedCategory={selectedCategory}
@@ -333,6 +366,10 @@ const ServiceList = () => {
         refetchServices={refetchServices}
         setOpen={setUpload}
         type={filterArray[filterArray.length - 1]?.name}
+        isView={isView}
+        setIsView={setIsView}
+        selectedServiceId={id}
+        isApp={isApp}
       />
       {/* <AddCustomerModal
         userId={user!.id}
@@ -350,18 +387,24 @@ const ServiceList = () => {
         selectedCompany={selectedCompany}
         businesses={businessData}
         refetch={handleRefetchCompanies}
+        isView={isView}
+        setIsView={setIsView}
+        isApp={isApp}
       />
       <AddBranchModal
         open={openBranchModal}
         setOpen={setOpenBranchModal}
         selectedBranch={selectedBranch}
         refetch={handleRefetchBranches}
+        isView={isView}
+        setIsView={setIsView}
+        isApp={isApp}
       />
       <div className="flex w-full gap-3 min-h-screen">
         <div className="flex h-full w-full flex-col items-start justify-start">
           <div className="mb-5 grid w-full grid-cols-12 gap-2.5">
             {/* Filters */}
-            <div className="col-span-12 xl:col-span-7 grid grid-cols-5 gap-2.5">
+            <div className={`col-span-12 grid grid-cols-5 gap-2.5 ${isApp ? 'xl:col-span-9' : 'xl:col-span-7'}`}>
               <BusinessDropdown
                 business={business}
                 businesses={businessData}
@@ -375,12 +418,13 @@ const ServiceList = () => {
                 handleSelect={handleSelectCompanyFilter}
                 placeholder="Company"
                 mainClassName="w-full"
-                toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
+                toggleClassName={`w-full shadow-md p-3 rounded-lg text-xs bg-white ${!provider?.id && 'text-gray-500'}`}
                 listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                 icon={<div><TiArrowSortedDown className="size-5" /></div>}
                 searchInputPlaceholder="Search..."
                 searchInputClassName="p-1.5 text-xs"
+                isRemoveAllow={true}
               />
               <BranchDropdown
                 branchesData={branchesDropodwnData?.map((item) => {
@@ -399,9 +443,10 @@ const ServiceList = () => {
                 searchInputPlaceholder="Search..."
                 searchInputClassName="p-1.5 text-xs"
                 icon={<div><TiArrowSortedDown className="size-5" /></div>}
-                toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
+                toggleClassName={`w-full shadow-md p-3 rounded-lg text-xs bg-white ${!category?.id && 'text-gray-500'}`}
                 listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                isRemoveAllow={true}
               />
               <Combobox
                 options={categoriesDropdownData
@@ -420,9 +465,10 @@ const ServiceList = () => {
                     <TiArrowSortedDown className="size-5" />
                   </div>
                 }
-                toggleClassName="w-full shadow-md px-2 py-3 rounded-lg text-xs bg-white whitespace-nowrap"
+                toggleClassName={`w-full shadow-md px-2 py-3 rounded-lg text-xs bg-white whitespace-nowrap ${!subCategory?.id && 'text-gray-500'}`}
                 listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                isRemoveAllow={true}
               />
             </div>
 
@@ -439,31 +485,34 @@ const ServiceList = () => {
             </div>
 
             {/* Add Button */}
-            <div className="col-span-2 xl:col-span-1">
-              <button
-                onClick={handleAddModal}
-                className="h-full w-full whitespace-nowrap rounded-lg bg-primary px-3 py-3 text-sm font-semibold text-white"
-              >
-                Add New
-              </button>
-            </div>
-
-            {/* Upload Button */}
-            <div className="col-span-2 xl:col-span-1">
-              <button
-                onClick={handleUploadClick}
-                className="h-full w-full whitespace-nowrap rounded-lg bg-secondary py-3 text-sm font-semibold text-white"
-              >
-                Upload
-              </button>
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept=".xlsx, .csv"
-                onChange={handleFileChange}
-                style={{ display: "none" }}
-              />
-            </div>
+            {!isApp && (
+              <>
+                <div className="col-span-2 xl:col-span-1">
+                  <button
+                    onClick={handleAddModal}
+                    className="h-full w-full whitespace-nowrap rounded-lg bg-primary px-3 py-3 text-sm font-semibold text-white"
+                  >
+                    Add New
+                  </button>
+                </div>
+                {/* Upload Button */}
+                <div className="col-span-2 xl:col-span-1">
+                  <button
+                    onClick={handleUploadClick}
+                    className="h-full w-full whitespace-nowrap rounded-lg bg-secondary py-3 text-sm font-semibold text-white"
+                  >
+                    Upload
+                  </button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept=".xlsx, .csv"
+                    onChange={handleFileChange}
+                    style={{ display: "none" }}
+                  />
+                </div>
+              </>
+            )}
           </div>
 
           {/* Table */}
@@ -480,6 +529,7 @@ const ServiceList = () => {
             refetchServices={refetchServices}
             refetchCategories={refetch}
             filterArray={filterArray}
+            isApp={isApp}
           />
         </div>
       </div>

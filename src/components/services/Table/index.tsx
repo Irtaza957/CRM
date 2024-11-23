@@ -24,7 +24,8 @@ interface TableProps {
   isLoading: boolean;
   data: any;
   filterArray: FilterType[];
-  handleEdit?: (arg0: any) => void;
+  isApp: boolean;
+  handleEdit?: (arg0: any, arg1?: boolean) => void;
   refetchServices?: () => void;
   refetchCategories?: () => void;
 }
@@ -42,6 +43,7 @@ const Table = ({
   handleEdit,
   refetchServices,
   refetchCategories,
+  isApp
 }: TableProps) => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState<ListOptionProps | null>({
@@ -121,6 +123,13 @@ const Table = ({
     }
   };
 
+  const handleClick = (row: any, isView?: boolean) => {
+    if(isView){
+      handleEdit && handleEdit(row, true);
+    }else{
+      handleEdit && handleEdit(row);
+    }
+  };
   return (
     <>
       <div className="w-full xl:h-[calc(100vh-220px)]">
@@ -172,10 +181,11 @@ const Table = ({
                     .map((row: DataProps, idx: number) => (
                       <tr
                         key={idx}
-                        title="Click to Edit"
-                        className={cn("h-12 bg-white text-gray-500", {
+                        title="Click to View"
+                        className={cn("h-12 bg-white text-gray-500 cursor-pointer", {
                           "bg-[#F3F5F9]": idx % 2 !== 0,
                         })}
+                        onClick={() => handleClick(row, true)}
                       >
                         <td className="px-3">
                           <span className="text-xs">{idx + 1}</span>
@@ -217,10 +227,15 @@ const Table = ({
                                   handleStatusToggle(row);
                                 }}
                               />
-                            <FiEdit
-                              onClick={() => handleEdit && handleEdit(row)}
+                            {!isApp && (
+                              <FiEdit
+                                onClick={(e) => {
+                                e.stopPropagation();
+                                handleClick(row)
+                              }}
                               className="col-span-1 h-6 w-6 cursor-pointer rounded-md bg-red-500 p-1 text-white"
-                            />
+                              />
+                            )}
                           </div>
                         </td>
                       </tr>

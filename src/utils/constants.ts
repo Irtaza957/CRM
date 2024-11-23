@@ -6,7 +6,7 @@
 // import Accounts from "../assets/icons/sidebar/accounts.svg";
 // import Requests from "../assets/icons/sidebar/requests.svg";
 import Bookings from "../assets/icons/sidebar/bookings.svg";
-// import AppPanel from "../assets/icons/sidebar/app_panel.svg";
+import AppPanel from "../assets/icons/sidebar/app_panel.svg";
 // import Customers from "../assets/icons/sidebar/customers.svg";
 // import Dashboard from "../assets/icons/sidebar/dashboard.svg";
 // import Marketing from "../assets/icons/sidebar/marketing.svg";
@@ -552,12 +552,20 @@ export const sidebarItems = [
   //   icon: Accounts,
   //   link: "/accounts",
   // },
-  // {
-  //   id: 14,
-  //   name: "App Panel",
-  //   icon: AppPanel,
-  //   link: "/app-panel",
-  // },
+  {
+    id: 14,
+    name: "App Panel",
+    icon: AppPanel,
+    link: "#",
+    subItems: [
+      {
+        id: 1,
+        name: "Services List",
+        icon: ServiceList,
+        link: "/app/services",
+      },
+    ],
+  },
   // {
   //   id: 15,
   //   name: "Website Panel",
@@ -772,10 +780,10 @@ export const businessColumns = [
     id: 4,
     name: "Total Companies",
     key: "total_companies",
-  }
+  },
 ];
 
-export const companyColumns=[
+export const companyColumns = [
   {
     id: 1,
     name: "Name",
@@ -801,17 +809,22 @@ export const companyColumns=[
     name: "Total Branches",
     key: "total_branches",
   },
-]
+];
 
-export const branchColumns=[
+export const branchColumns = [
   {
     id: 1,
     name: "Name",
     key: "name",
-  }, 
+  },
   {
     id: 2,
     name: "Company",
     key: "company",
-  }, 
-]
+  },
+];
+
+export const companyTypes = [
+  { id: "0", name: "Mainland" },
+  { id: "1", name: "Freezone" },
+];

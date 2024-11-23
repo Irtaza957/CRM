@@ -41,6 +41,14 @@ const App = () => {
           }
         />
         <Route
+          path="app/services"
+          element={
+            <RouteGuard>
+              <ServiceList />
+            </RouteGuard>
+          }
+        />
+        <Route
           path="categories"
           element={
             <RouteGuard>

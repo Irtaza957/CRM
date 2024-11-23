@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { IoClose } from "react-icons/io5";
+import { IoClose, IoCalendarOutline } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { RiArrowDownSLine } from "react-icons/ri";
 import Modal from "../../ui/Modal";
@@ -18,14 +18,22 @@ import {
   usePostCompanyMutation,
   useUpdateCompanyMutation,
 } from "../../../store/services/company";
-import { emirates } from "../../../utils/constants";
+import { companyTypes, emirates } from "../../../utils/constants";
+import CustomDatePicker from "../../ui/CustomDatePicker";
+import dayjs from "dayjs";
+import Upload from "../../../assets/icons/upload.svg";
+import UploadCompanyDocumentsModal from "./UploadCompanyDocumentsModal";
+import { FiEdit } from "react-icons/fi";
 
 interface AddCompanyModalProps {
   open: boolean;
-  selectedCompany: {id: string, business: string} | null;
+  selectedCompany: { id: string; business: string } | null;
   businesses?: BusinessProps[];
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  refetch: ()=>void
+  refetch: () => void;
+  isView: boolean;
+  setIsView: React.Dispatch<React.SetStateAction<boolean>>;
+  isApp?: boolean;
 }
 
 const companySchema = z.object({
@@ -37,7 +45,7 @@ const companySchema = z.object({
   email: z.string().email("Invalid email"),
   working_hours: z.string().min(1, "Working hours are required"),
   area_id: z.string().optional(),
-  address: z.string().min(1, "Address is required"),
+  address: z.string().min(1, "Address is required")
 });
 
 const AddCompanyModal = ({
@@ -45,23 +53,32 @@ const AddCompanyModal = ({
   setOpen,
   selectedCompany,
   businesses,
-  refetch
+  refetch,
+  isView,
+  setIsView,
+  isApp
 }: AddCompanyModalProps) => {
   const { user } = useSelector((state: RootState) => state.global);
   const [area, setArea] = useState<ListOptionProps | null>(null);
   const [emirate, setEmirate] = useState<ListOptionProps | null>(null);
   const { data: areas } = useFetchAreasQuery(emirate?.id, {
-    skip: !emirate?.id
+    skip: !emirate?.id,
   });
   const [createCompany, { isLoading }] = usePostCompanyMutation();
   const [updateCompany, { isLoading: updateLoading }] =
     useUpdateCompanyMutation();
-  const [selectedBusiness, setSelectedBusiness] =
-    useState<ListOptionProps | []>([]);
+  const [selectedBusiness, setSelectedBusiness] = useState<
+    ListOptionProps | ListOptionProps[] | []
+  >([]);
   const { data: companyData } = useFetchCompanyQuery(selectedCompany?.id, {
     skip: !selectedCompany?.id,
-    refetchOnMountOrArgChange: true
+    refetchOnMountOrArgChange: true,
   });
+  const [registeredDate, setRegisteredDate] = useState<string | Date>(
+    new Date()
+  );
+  const [companyType, setCompanyType] = useState<ListOptionProps | null>(null);
+  const [showUploadModal, setShowUploadModal] = useState(false);
 
   const {
     register,
@@ -84,30 +101,34 @@ const AddCompanyModal = ({
 
   const handleClose = () => {
     setOpen(false);
-    resetState()
+    resetState();
   };
 
   const resetState = () => {
     reset({
-      code: '',
-      name: '',
-      license: '',
-      industry: '',
-      phone: '',
-      email: '',
-      working_hours: '',
-      address: '',
+      code: "",
+      name: "",
+      license: "",
+      industry: "",
+      phone: "",
+      email: "",
+      working_hours: "",
+      address: "",
+      registered_date: "",
     });
     setArea(null);
     setEmirate(null);
-    setSelectedBusiness([])
-  }
+    setSelectedBusiness([]);
+    setCompanyType(null);
+  };
 
   const onSubmit = async (data: any) => {
     try {
       const formData = new FormData();
       formData.append("user_id", String(user?.id));
-      const businessString = (selectedBusiness as ListOptionProps[])?.map(business => business.id).join(',');
+      const businessString = (selectedBusiness as ListOptionProps[])
+        ?.map((business) => business.id)
+        .join(",");
       formData.append("business", businessString);
       formData.append("code", data.code);
       formData.append("name", data.name);
@@ -119,6 +140,11 @@ const AddCompanyModal = ({
       formData.append("area_id", String(area?.id));
       formData.append("emirate_id", String(emirate?.id));
       formData.append("address", data.address);
+      formData.append(
+        "license_date",
+        dayjs(registeredDate).format("YYYY-MM-DD")
+      );
+      formData.append("company_type", String(companyType?.name || ""));
 
       let response;
       if (selectedCompany?.id) {
@@ -146,7 +172,7 @@ const AddCompanyModal = ({
             message={`Company ${selectedCompany?.id ? "updated" : "created"} successfully`}
           />
         ));
-        refetch()
+        refetch();
         handleClose();
       }
     } catch (error) {
@@ -163,7 +189,7 @@ const AddCompanyModal = ({
 
   useEffect(() => {
     if (selectedCompany?.id) {
-      setValue("code", companyData?.code || '');
+      setValue("code", companyData?.code || "");
       setValue("name", companyData?.name);
       setValue("license", companyData?.license);
       setValue("industry", companyData?.industry);
@@ -171,37 +197,55 @@ const AddCompanyModal = ({
       setValue("email", companyData?.email);
       setValue("working_hours", companyData?.working_hours);
       setValue("address", companyData?.address);
+      setValue("registered_date", companyData?.license_date);
+      const selectedBusiness = businesses
+        ?.filter((a) => companyData?.businesses?.some((b) => b.business_id === a.id))
+        ?.map((item) => ({ id: item.id, name: item.name }));
 
-      console.log(selectedCompany?.business, 'selectedCompany?.business')   
-      // const selectedBusiness = businesses?.find(
-      //   (a) => a.name === selectedCompany?.business?.trim()
-      // );
-      setSelectedBusiness([])
-
-      const selectedArea = areas?.find(
-        (a) => a.id == companyData?.area_id
-      );
-      if (selectedArea) {
-        setArea({id: selectedArea.area_id, name: selectedArea.name});
-        setValue("area_id", String(selectedArea.area_id));
+      if (selectedBusiness?.length) {
+        setSelectedBusiness(selectedBusiness);
+      }
+      setRegisteredDate(companyData?.license_date || '')
+      const selectedCompanyType = companyTypes?.find(item => item.name === companyData?.company_type)
+      setCompanyType(selectedCompanyType || null)
+      if(companyData?.emirate_id){
+        setEmirate(emirates?.find(item => item.id == Number(companyData?.emirate_id)) || null)
       }
     }
   }, [companyData, open]);
 
   useEffect(() => {
-    if(!open) {
-      resetState()
+    if(areas?.length && companyData?.area_id){
+    const selectedArea = areas?.find((a) => a.id == companyData?.area_id);
+    if (selectedArea) {
+      setArea({ id: selectedArea.area_id, name: selectedArea.name });
+      setValue("area_id", String(selectedArea.area_id));
+      }
     }
-  }, [open])
+  }, [areas])
+
+  useEffect(() => {
+    if (!open) {
+      resetState();
+    }
+  }, [open]);
 
   return (
     <Modal open={open} setOpen={setOpen} className="w-[95%] lg:max-w-3xl">
       <div className="flex h-auto w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-white">
         <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white">
           <h1 className="text-xl font-medium">
-            {selectedCompany?.id ? "Update Company" : "Add Company"}
+            {isView ? "View Company" : selectedCompany?.id ? "Update Company" : "Add Company"}
           </h1>
-          <IoClose onClick={handleClose} className="h-8 w-8 cursor-pointer" />
+          <div className="flex items-center justify-center gap-2">
+            {(isView && !isApp) && (
+              <FiEdit
+                onClick={() => setIsView(false)}
+                className="h-6 w-6 cursor-pointer text-white"
+              />
+            )}
+            <IoClose onClick={handleClose} className="h-8 w-8 cursor-pointer" />
+          </div>
         </div>
 
         <div className="h-full max-h-[70vh] w-full gap-5 overflow-y-scroll p-5">
@@ -220,6 +264,7 @@ const AddCompanyModal = ({
               isSearch={false}
               errorMsg={errors?.business?.message}
               isMultiSelect={true}
+              disabled={isView}
             />
             <CustomInput
               name="industry"
@@ -227,12 +272,13 @@ const AddCompanyModal = ({
               register={register}
               errorMsg={errors?.industry?.message}
               placeholder="Enter industry"
+              disabled={isView}
             />
             <Combobox
               value={emirate}
               options={emirates}
               handleSelect={(value: ListOptionProps) => setEmirate(value)}
-              label="Emirate"
+              label="Registered Emirates"
               placeholder="Select Emirate"
               mainClassName="w-full"
               toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
@@ -240,10 +286,15 @@ const AddCompanyModal = ({
               listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               icon={<RiArrowDownSLine className="size-5 text-grey100" />}
               isSearch={false}
+              disabled={isView}
             />
             <Combobox
               value={area}
-              options={areas?.map(area=> { return {id: area.id || '', name: area.name || ''}}) || []}
+              options={
+                areas?.map((area) => {
+                  return { id: area.id || "", name: area.name || "" };
+                }) || []
+              }
               handleSelect={handleSelectArea}
               label="Area"
               placeholder="Select Area"
@@ -254,21 +305,37 @@ const AddCompanyModal = ({
               icon={<RiArrowDownSLine className="size-5 text-grey100" />}
               isSearch={false}
               errorMsg={errors?.area_id?.message}
-              disabled={!emirate?.id}
+              disabled={!emirate?.id || isView}
             />
             <CustomInput
               name="code"
-              label="Code"
+              label="Company Code"
               register={register}
               errorMsg={errors?.code?.message}
               placeholder="Enter code"
+              disabled={isView}
             />
             <CustomInput
               name="name"
-              label="Name"
+              label="Company Name"
               register={register}
               errorMsg={errors?.name?.message}
               placeholder="Enter name"
+              disabled={isView}
+            />
+            <Combobox
+              options={companyTypes}
+              value={companyType}
+              handleSelect={(value: ListOptionProps) => setCompanyType(value)}
+              label="Company Type"
+              placeholder="Select Company Type"
+              mainClassName="w-full"
+              toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+              listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+              icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+              isSearch={false}
+              disabled={isView}
             />
             <CustomInput
               name="phone"
@@ -276,6 +343,7 @@ const AddCompanyModal = ({
               register={register}
               errorMsg={errors?.phone?.message}
               placeholder="Enter phone"
+              disabled={isView}
             />
             <CustomInput
               name="email"
@@ -283,20 +351,43 @@ const AddCompanyModal = ({
               register={register}
               errorMsg={errors?.email?.message}
               placeholder="Enter email"
+              disabled={isView}
             />
             <CustomInput
               name="license"
-              label="License"
+              label="Trade License"
               register={register}
               errorMsg={errors?.license?.message}
               placeholder="Enter license"
+              disabled={isView}
             />
+            <div className="flex w-full flex-col">
+              <label className="mb-1 w-full text-left text-xs font-medium text-grey100">
+                Registered Date
+              </label>
+              <CustomDatePicker
+                date={registeredDate}
+                setDate={setRegisteredDate}
+                toggleButton={
+                  <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-3 text-xs font-medium text-grey100">
+                    <p className="whitespace-nowrap">
+                      {dayjs(registeredDate).format("DD MMM YYYY")}
+                    </p>
+                    <div>
+                      <IoCalendarOutline className="h-5 w-5 text-grey100" />
+                    </div>
+                  </div>
+                }
+                disabled={isView}
+              />
+            </div>
             <CustomInput
               name="working_hours"
               label="Working Hours"
               register={register}
               errorMsg={errors?.working_hours?.message}
               placeholder="09:00 - 17:00"
+              disabled={isView}
             />
           </div>
 
@@ -310,8 +401,9 @@ const AddCompanyModal = ({
             <textarea
               {...register("address")}
               rows={2}
-              className="w-full rounded-lg bg-gray-100 p-3 text-base  text-xs text-grey100"
+              className="w-full rounded-lg bg-gray-100 p-3 text-xs text-grey100"
               placeholder="Enter address"
+              disabled={isView}
             />
             {errors?.address?.message && (
               <p className="w-full text-left text-xs text-red-500">
@@ -320,21 +412,44 @@ const AddCompanyModal = ({
             )}
           </div>
 
+          <div className="col-span-2 flex w-full flex-col items-start justify-start gap-2.5">
+            <label className="w-full text-left text-xs font-medium text-grey100">
+              Documents
+            </label>
+            <button
+              onClick={() => setShowUploadModal(true)}
+              className="flex w-full max-w-[100px] cursor-pointer flex-col items-center justify-center gap-5 rounded-lg border-2 border-dashed border-[#D9D9D9] bg-[#F5F6FA] py-5"
+              disabled={isView}
+            >
+              <img src={Upload} alt="upload-icon" className="size-8" />
+              <p className="text-center text-xs font-medium text-grey100">
+                Upload Documents
+              </p>
+            </button>
+          </div>
+
           <div className="col-span-2 flex w-full items-end justify-end gap-3">
             <CustomButton
               name="Cancel"
               handleClick={handleClose}
               style="bg-danger"
             />
-            <CustomButton
-              name={selectedCompany?.id ? "Update" : "Save"}
-              handleClick={handleSubmit(onSubmit)}
-              loading={isLoading || updateLoading}
-              disabled={isLoading || updateLoading}
-            />
+            {!isView && (
+              <CustomButton
+                name={selectedCompany?.id ? "Update" : "Save"}
+                handleClick={handleSubmit(onSubmit)}
+                loading={isLoading || updateLoading}
+                disabled={isLoading || updateLoading}
+              />
+            )}
           </div>
         </div>
       </div>
+
+      <UploadCompanyDocumentsModal
+        open={showUploadModal}
+        setOpen={setShowUploadModal}
+      />
     </Modal>
   );
 };

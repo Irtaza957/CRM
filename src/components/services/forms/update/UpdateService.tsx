@@ -16,15 +16,18 @@ import { RootState } from "../../../../store";
 import CustomInput from "../../../ui/CustomInput";
 import CustomToast from "../../../ui/CustomToast";
 import ImageUploader from "../../../ui/ImageUploader";
+import { FiEdit } from "react-icons/fi";
 
 interface UpdateServiceModalProps {
   id: string;
   open: boolean;
+  isView?: boolean;
   setOpen: Dispatch<SetStateAction<boolean>>;
   refetch: ()=>void
+  setIsView: Dispatch<SetStateAction<boolean>>;
 }
 
-const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) => {
+const UpdateService = ({ id, open, isView, setOpen, refetch, setIsView }: UpdateServiceModalProps) => {
   const [vat, setVat] = useState("");
   const [code, setCode] = useState("");
   const [size, setSize] = useState("");
@@ -155,13 +158,18 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
       <div className="flex w-full flex-col items-center justify-center">
         <div className="flex w-full items-center justify-between rounded-t-lg bg-primary px-5 py-2.5 text-white">
           <h1 className="text-xl font-medium">Update Service</h1>
-          <IoClose
-            onClick={() => {
+          <div className="flex items-center justify-center gap-2">
+            {isView && (
+              <FiEdit
+                onClick={() => setIsView(false)}
+                className="h-6 w-6 cursor-pointer text-white"
+              />
+            )}
+            <IoClose onClick={() => {
               setOpen(false);
               clearForm();
-            }}
-            className="h-8 w-8 cursor-pointer"
-          />
+            }} className="h-8 w-8 cursor-pointer" />
+          </div>
         </div>
         <form
           onSubmit={(e) => {
@@ -191,6 +199,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
                 toggleClassName="w-full p-3 rounded-lg text-xs bg-gray-100"
                 listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
                 listItemClassName="w-full text-left text-black px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                disabled={isView}
               />
             </div>
           )}
@@ -200,6 +209,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
             value={vat}
             setter={setVat}
             placeholder="VAT"
+            disabled={isView}
           />
           <CustomInput
             type="text"
@@ -207,6 +217,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
             value={code}
             setter={setCode}
             placeholder="Code"
+            disabled={isView}
           />
           <CustomInput
             type="number"
@@ -214,6 +225,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
             setter={setSize}
             placeholder="Size"
             label="Size (in mL.)"
+            disabled={isView}
           />
           <CustomInput
             type="text"
@@ -221,6 +233,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
             label="Duration"
             setter={setDuration}
             placeholder="Duration"
+            disabled={isView}
           />
           <CustomInput
             type="number"
@@ -228,6 +241,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
             setter={setPriceVat}
             label="Price with VAT"
             placeholder="Price with VAT"
+            disabled={isView}
           />
           <CustomInput
             type="number"
@@ -235,6 +249,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
             setter={setPriceNoVat}
             label="Price without VAT"
             placeholder="Price without VAT"
+            disabled={isView}
           />
           <CustomInput
             type="text"
@@ -242,6 +257,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
             label="Service Name"
             setter={setServiceName}
             placeholder="Service Name"
+            disabled={isView}
           />
           <CustomInput
             type="text"
@@ -249,6 +265,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
             label="Response Time"
             setter={setResponseTime}
             placeholder="Response Time"
+            disabled={isView}
           />
           <div className="col-span-1 flex w-full flex-col items-start justify-start gap-1">
             <label
@@ -257,7 +274,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
             >
               Service Color
             </label>
-            <input value={color} onChange={(e) => setColor(e.target.value)}  type="color" className="p-1 h-10 w-14 block bg-white border border-gray-200 cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700" id="hs-color-input" title="Choose your color"></input>
+            <input value={color} disabled={isView} onChange={(e) => setColor(e.target.value)}  type="color" className="p-1 h-10 w-14 block bg-white border border-gray-200 cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700" id="hs-color-input" title="Choose your color"></input>
           </div>
           <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-1">
             <label htmlFor="Description" className="w-full text-left">
@@ -267,7 +284,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
               rows={8}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded-lg bg-gray-100 p-3 capitalize text-xs text-grey100"
+              className="w-full rounded-lg bg-gray-100 p-3 capitalize text-xs text-grey100 disabled:opacity-50 disabled:pointer-events-none"
             />
           </div>
           <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-2.5">
@@ -279,6 +296,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
                 link={serviceDetails?.thumbnail ? `https://crm.fandcproperties.ru${serviceDetails?.thumbnail}` : ''}
                 label="Thumbnail"
                 setImage={setThumbnail}
+                disabled={isView}
               />
               <ImageUploader
                 link={
@@ -286,6 +304,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
                 }
                 label="Cover Image"
                 setImage={setCoverImage}
+                disabled={isView}
               />
             </div>
           </div>
@@ -301,6 +320,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
             >
               Cancel
             </button>
+            {!isView &&
             <button
               type="submit"
               disabled={creating}
@@ -314,7 +334,7 @@ const UpdateService = ({ id, open, setOpen, refetch }: UpdateServiceModalProps) 
               ) : (
                 "Update"
               )}
-            </button>
+            </button>}
           </div>
         </form>
       </div>

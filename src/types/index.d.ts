@@ -33,10 +33,14 @@ declare type NewServiceModalProps = {
   width?: string;
   companiesData?: CompanyListProps[];
   children?: React.ReactNode;
-  selectedCategory?: CategoryAllListProps | null;
+  selectedCategory?: string | null;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   refetch: () => void;
   refetchServices: () => void;
+  isView: boolean;
+  selectedServiceId: string;
+  isApp?: boolean;
+  setIsView: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 declare type BookingListProps = {
@@ -54,7 +58,7 @@ declare type CustomInputProps = {
   value?: string | number | null;
   setter?: React.Dispatch<React.SetStateAction>;
   className?: string;
-  label: string;
+  label?: string;
   register?: UseFormRegister<FormDataProps>;
   name?: string;
   errorMsg?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
@@ -405,6 +409,14 @@ declare type CategoryListProps = {
   category_name: string;
 };
 
+declare type BundleProps = {
+  name: string;
+  bundle?: string;
+  price_without_vat: string;
+  price_with_vat: string;
+  vat_value: string;
+};
+
 declare type ServiceDetailProps = {
   id: string;
   category_id: string;
@@ -431,6 +443,11 @@ declare type ServiceDetailProps = {
   created_at: string;
   last_updated: string;
   parent_id: string;
+  promotional_price_without_vat: string;
+  promotional_price_with_vat: string;
+  promotional_price_vat_value: string;
+  bundles: BundleProps[];
+  vitamins: VitaminOption[];
 };
 
 declare type CategoryAllListProps = {
@@ -450,6 +467,8 @@ declare type CategoryAllListProps = {
   active: string;
   duration?: string;
   tagline?: string;
+  allow_bundles?: string;
+  allow_vitamins?: string;
 };
 
 declare type BusinessProps = {
@@ -497,6 +516,9 @@ declare type CategoryDetailProps = {
   lng: string;
   logo: string;
   company: string;
+  allow_bundles: string;
+  allow_vitamins: string;
+  bundles: {bundle: string}[];
 };
 
 declare type CompanyListProps = {
@@ -522,6 +544,11 @@ declare type CompanyDetailProps = {
   working_hours: string;
   area_id: string;
   address: string;
+  company_type?: string;
+  registered_date?: string;
+  license_date?: string;
+  businesses?: {business_id: string}[]
+  emirate_id?: string;
 };
 
 declare type BusinessListProps = {
@@ -622,7 +649,8 @@ declare type BranchProps = {
   working_hours: string;
   address: string;
   area_id: string;
-  emirate_id: string
+  emirate_id: string,
+  registered_date?: Date
 };
 
 declare type StatusProps = {

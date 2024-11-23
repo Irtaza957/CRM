@@ -1,4 +1,3 @@
-
 import { cn } from "../../utils/helpers";
 import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 
@@ -9,12 +8,14 @@ const CustomDatePicker = ({
   toggleButton,
   date,
   toggleClassName,
-  setDate
+  setDate,
+  disabled
 }: {
   toggleButton: React.ReactNode;
-  date: string | Date | null,
-  toggleClassName?: string,
-  setDate: (arg0: string | Date)=>void
+  date: string | Date | null;
+  toggleClassName?: string;
+  disabled?: boolean;
+  setDate: (arg0: string | Date) => void;
 }) => {
   const months = [
     "January",
@@ -56,9 +57,9 @@ const CustomDatePicker = ({
   };
 
   const handleSetDate = (day: number) => {
-    setDate(`${currentYear}-${currentMonth + 1}-${day + 1}`)
+    setDate(`${currentYear}-${currentMonth + 1}-${day + 1}`);
     setToggle(false);
-  }
+  };
 
   useEffect(() => {
     if (date) {
@@ -72,14 +73,21 @@ const CustomDatePicker = ({
       ref={dateRef}
       className="relative col-span-1 flex w-full flex-col items-start justify-start"
     >
-      <div className="w-full cursor-pointer" onClick={() => setToggle(!toggle)}>
+      <button
+        type="button"
+        className="w-full"
+        disabled={disabled}
+        onClick={() => setToggle(!toggle)}
+      >
         {toggleButton}
-      </div>
+      </button>
       {toggle && (
-        <div className={cn(
-          "absolute right-0 top-[40px] z-[20] flex flex-col items-center justify-center gap-2.5 rounded-lg border bg-white p-2.5",
-          toggleClassName
-          )}>
+        <div
+          className={cn(
+            "absolute right-0 top-[40px] z-[20] flex flex-col items-center justify-center gap-2.5 rounded-lg border bg-white p-2.5",
+            toggleClassName
+          )}
+        >
           <div className="flex w-full items-center justify-between gap-5">
             <select
               value={months[currentMonth]}
@@ -145,7 +153,7 @@ const CustomDatePicker = ({
             {[...Array(daysInMonths).keys()].map((day) => (
               <span
                 key={day}
-                onClick={()=>handleSetDate(day)}
+                onClick={() => handleSetDate(day)}
                 className={cn(
                   "flex h-8 w-full cursor-pointer items-center justify-center rounded-full text-center text-xs font-medium hover:bg-primary/20",
                   {

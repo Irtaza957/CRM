@@ -67,8 +67,8 @@ export const serviceApi = api.injectEndpoints({
       }) => response.data,
     }),
     fetchCategoryList: build.query({
-      query: () => ({
-        url: "/categories",
+      query: (id) => ({
+        url: `/categories${id ? `?company_id=${id}` : ''}`,
         method: "GET",
       }),
       transformResponse: (response: {
@@ -152,6 +152,28 @@ export const serviceApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
+    categoryBundle: build.mutation({
+      query: (id) => ({
+        url: `categories/bundles?id=${id}`,
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: {bundle: string}[];
+      }) => response.data,
+    }),
+    serviceVitamin: build.mutation({
+      query: () => ({
+        url: `services/vitamins`,
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: {bundle: string}[];
+      }) => response.data,
+    }),
   }),
 });
 
@@ -169,4 +191,6 @@ export const {
   useFetchBusinessesQuery,
   useFetchAddressAreasQuery,
   useCreateBusinessMutation,
+  useCategoryBundleMutation,
+  useServiceVitaminMutation
 } = serviceApi;

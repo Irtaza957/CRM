@@ -1,26 +1,48 @@
 import { toast } from "sonner";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { LuLoader2 } from "react-icons/lu";
 import { TiArrowSortedDown } from "react-icons/ti";
 
 import {
   usePostServiceMutation,
-  useFetchCategoryListQuery,
+  useCategoryBundleMutation,
+  useFetchServiceQuery,
+  useUpdateServiceMutation,
+  useServiceVitaminMutation,
 } from "../../../../store/services/service";
 import Combobox from "../../../ui/Combobox";
 import { RootState } from "../../../../store";
 import CustomInput from "../../../ui/CustomInput";
 import CustomToast from "../../../ui/CustomToast";
 import ImageUploader from "../../../ui/ImageUploader";
+import CustomButton from "../../../ui/CustomButton";
+import { useFetchAllCategoriesQuery } from "../../../../store/services/categories";
+import ColorPicker from "../../../ui/ColorPicker";
 
 interface AddServiceProps {
   provider: string | number;
   business: string | number;
+  selectedServiceId: string;
+  open: boolean;
   refetch: () => void;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setProvider: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
 }
-const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) => {
+
+interface VitaminOption {
+  name: string;
+  selected: boolean;
+}
+
+const AddService = ({
+  provider,
+  business,
+  selectedServiceId,
+  open,
+  refetch,
+  setOpen,
+  setProvider,
+}: AddServiceProps) => {
   const [vat, setVat] = useState("");
   const [code, setCode] = useState("");
   const [size, setSize] = useState("");
@@ -33,12 +55,34 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
   const [serviceName, setServiceName] = useState("");
   const [description, setDescription] = useState("");
   const [responseTime, setResponseTime] = useState("");
-  const { data, isLoading } = useFetchCategoryListQuery({}, { skip: !open });
+  const [promotionalPrice, setPromotionalPrice] = useState("");
+  const [promotionalPriceVat, setPromotionalPriceVat] = useState("");
+  const [promotionalPriceNoVat, setPromotionalPriceNoVat] = useState("");
+  const [bundles, setBundles] = useState<BundleProps[]>([]);
   const [thumbnail, setThumbnail] = useState<File | string | null>(null);
   const [coverImage, setCoverImage] = useState<File | string | null>(null);
   const { user } = useSelector((state: RootState) => state.global);
   const [postService, { isLoading: creating }] = usePostServiceMutation();
-
+  const [categoryBundle] = useCategoryBundleMutation();
+  const [serviceVitamin] = useServiceVitaminMutation();
+  const [serviceDetails, setServiceDetails] = useState<ServiceDetailProps | null>(null)
+  const { data, isLoading } = useFetchAllCategoriesQuery(
+    [
+      { name: "company", id: `${provider}-company` },
+      { name: "business", id: `${business}-business` },
+    ],
+    {
+      skip: !provider,
+      refetchOnMountOrArgChange: true,
+    }
+  );
+  const { data: serviceData } = useFetchServiceQuery(selectedServiceId, {
+    skip: !selectedServiceId,
+    refetchOnMountOrArgChange: true,
+  });
+  const [updateService, { isLoading: updating }] = useUpdateServiceMutation();
+  const [vitamins, setVitamins] = useState<VitaminOption[]>([]);
+console.log(vitamins, 'vitaminsvitamins')
   const clearForm = () => {
     setVat("");
     setCode("");
@@ -53,7 +97,14 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
     setResponseTime("");
     setCoverImage(null);
     setSelectedCategory(null);
+    setBundles([]);
+    setPromotionalPrice("");
+    setPromotionalPriceVat("");
+    setPromotionalPriceNoVat("");
+    setVitamins([]);
+    setServiceDetails(null)
   };
+
 
   const handleSubmit = async () => {
     const formData = new FormData();
@@ -73,16 +124,31 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
     formData.append("color", color);
     formData.append("thumbnail", thumbnail!);
     formData.append("cover_image", coverImage!);
+    formData.append("promotional_price_without_vat", promotionalPriceNoVat);
+    formData.append("promotional_vat_amount", promotionalPrice);
+    formData.append("promotional_price_with_vat", promotionalPriceVat);
+    formData.append("bundles", JSON.stringify(bundles));
+    const selectedVitamins = vitamins
+      .filter((v) => v.selected)
+      .map((v) => v.name)
+      .join(",");
+    formData.append("vitamins", selectedVitamins);
 
     try {
-      const data = await postService(formData);
+      let data;
+      if (selectedServiceId) {
+        formData.append("service_id", selectedServiceId);
+        data = await updateService(formData);
+      } else {
+        data = await postService(formData);
+      }
       if (data.error) {
         toast.custom((t) => (
           <CustomToast
             t={t}
             type="error"
             title="error"
-            message="Couldn't Create Service. Please Try Again!"
+            message={`Couldn't ${selectedServiceId ? "Update" : "Create"} Service. Please Try Again!`}
           />
         ));
       } else {
@@ -91,7 +157,7 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
             t={t}
             type="success"
             title="success"
-            message="Created Service Successfully!"
+            message={`Service ${selectedServiceId ? "Updated" : "Created"} Successfully!`}
           />
         ));
         refetch();
@@ -104,19 +170,127 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
           t={t}
           type="error"
           title="error"
-          message="Couldn't Create Subcategory. Please Try Again!"
+          message={`Couldn't ${selectedServiceId ? "Update" : "Create"} Service. Please Try Again!`}
         />
       ));
     }
   };
 
+  const getVitamins = async (selectVitamins?: VitaminOption[]) => {
+    try {
+      const response: any = await serviceVitamin({});
+      const vitaminOptions = response?.data?.map(
+        (vitamin: VitaminOption) => ({
+          name: vitamin.name,
+          selected: selectVitamins?.some(item => item.name === vitamin.name) || false,
+        })
+      );
+      setVitamins(vitaminOptions || []);
+    } catch (error) {
+      console.log(error, "error");
+    }
+  }
+
+  const handleCategorySelect = async (option: ListOptionProps) => {
+    setSelectedCategory(option);
+    const selectedCategory = data?.find(
+      (category: CategoryListProps) => category.category_id === option.id
+    );
+    if (selectedCategory?.allow_vitamins === "1") {
+      getVitamins()
+    } else {
+      setVitamins([]);
+    }
+    if (selectedCategory?.allow_bundles === "1") {
+      try {
+        const response = await categoryBundle(selectedCategory?.category_id);
+        const bundles = response?.data?.map((bundle) => ({
+          name: bundle.bundle,
+          price_without_vat: "",
+          price_with_vat: "",
+          vat_value: "",
+        }));
+        if (bundles) {
+          setBundles(bundles);
+        }
+      } catch (error) {
+        console.log(error, "error");
+      }
+    } else {
+      setBundles([]);
+    }
+  };
+
+  useEffect(() => {
+    if (serviceData) {
+      setServiceDetails(serviceData)
+    }
+  }, [serviceData])
+  useEffect(() => {
+    if (serviceDetails?.id && open) {
+      setProvider(
+        serviceDetails?.company_id
+          ? { id: serviceDetails?.company_id, name: "" }
+          : null
+      );
+      setVat(serviceDetails?.vat_value || "");
+      setPriceNoVat(serviceDetails?.price_without_vat || "");
+      setPriceVat(serviceDetails?.price_with_vat || "");
+      setCode(serviceDetails?.code || "");
+      setServiceName(serviceDetails?.name || "");
+      setDuration(serviceDetails?.duration || "");
+      setResponseTime(serviceDetails?.response_time || "");
+      setDescription(serviceDetails?.description || "");
+      setPromotionalPriceNoVat(
+        serviceDetails?.promotional_price_without_vat || ""
+      );
+      setPromotionalPrice(serviceDetails?.promotional_price_vat_value || "");
+      setPromotionalPriceVat(serviceDetails?.promotional_price_with_vat || "");
+      setSize(serviceDetails?.size || "");
+      setThumbnail(serviceDetails?.thumbnail || null);
+      setCoverImage(serviceDetails?.cover_image || null);
+      const tempBundles: BundleProps[] = (
+        serviceDetails?.bundles as BundleProps[]
+      )?.map((item: BundleProps) => ({
+        name: item.bundle || "",
+        price_without_vat: item.price_without_vat,
+        price_with_vat: item.price_with_vat,
+        vat_value: item.vat_value,
+      }));
+      setBundles(tempBundles || []);
+      if (serviceDetails?.vitamins.length) {
+        getVitamins(serviceDetails?.vitamins)
+      }else{
+        setVitamins([])
+      }
+    }
+  }, [serviceDetails, open]);
+
+  useEffect(() => {
+    if (data && selectedServiceId) {
+      const selectedCategory = data?.find(
+        (category: CategoryListProps) =>
+          category.category_id === serviceDetails?.category_id
+      );
+      setSelectedCategory(
+        selectedCategory
+          ? {
+            id: selectedCategory.category_id,
+            name: selectedCategory.category_name,
+          }
+          : null
+      );
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (!open) {
+      clearForm();
+    }
+  }, [open]);
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleSubmit();
-      }}
-      className="grid w-full grid-cols-2 gap-5"
+    <div
+      className={`grid w-full grid-cols-2 gap-5 ${selectedServiceId && "mt-6"}`}
     >
       {!isLoading && (
         <div className="col-span-1 flex w-full flex-col items-center justify-center gap-1">
@@ -127,10 +301,13 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
             Parent Category
           </label>
           <Combobox
-            options={data!}
+            options={data?.map((item: CategoryListProps) => ({
+              id: item.category_id,
+              name: item.category_name,
+            }))}
             value={selectedCategory}
             placeholder="Parent Category"
-            setValue={setSelectedCategory}
+            handleSelect={handleCategorySelect}
             mainClassName="col-span-1 w-full"
             searchInputPlaceholder="Search..."
             searchInputClassName="p-1.5 text-xs"
@@ -139,12 +316,13 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
             toggleClassName="w-full p-3 rounded-lg text-xs bg-gray-100"
             listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
             listItemClassName="w-full text-left text-black px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+            disabled={!provider}
           />
         </div>
       )}
       <CustomInput
         type="text"
-        label="Code"
+        label="ServiceCode"
         value={code}
         setter={setCode}
         placeholder="Code"
@@ -193,27 +371,125 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
       />
       <CustomInput
         type="number"
+        value={promotionalPriceNoVat}
+        setter={setPromotionalPriceNoVat}
+        label="Promotional price without VAT"
+        placeholder="Promotional price without VAT"
+      />
+      <CustomInput
+        type="number"
+        value={promotionalPrice}
+        setter={setPromotionalPrice}
+        label="Promotional price"
+        placeholder="Promotional price"
+      />
+      <CustomInput
+        type="number"
+        value={promotionalPriceVat}
+        setter={setPromotionalPriceVat}
+        label="Promotional price with VAT"
+        placeholder="Promotional price with VAT"
+      />
+      {bundles?.map((bundle) => (
+        <>
+          <CustomInput
+            type="number"
+            value={bundle.price_without_vat}
+            setter={(value) =>
+              setBundles(
+                bundles.map((b) =>
+                  b.name === bundle.name
+                    ? { ...b, price_without_vat: value }
+                    : b
+                )
+              )
+            }
+            placeholder={`${bundle.name}'s promortional price without VAT`}
+            label={`${bundle.name}'s promortional price without VAT`}
+          />
+          <CustomInput
+            type="number"
+            value={bundle.vat_value}
+            setter={(value) =>
+              setBundles(
+                bundles.map((b) =>
+                  b.name === bundle.name ? { ...b, vat_value: value } : b
+                )
+              )
+            }
+            placeholder={`${bundle.name}'s promortional price`}
+            label={`${bundle.name}'s promortional price`}
+          />
+          <CustomInput
+            type="number"
+            value={bundle.price_with_vat}
+            setter={(value) =>
+              setBundles(
+                bundles.map((b) =>
+                  b.name === bundle.name ? { ...b, price_with_vat: value } : b
+                )
+              )
+            }
+            placeholder={`${bundle.name}'s promortional price with VAT`}
+            label={`${bundle.name}'s promortional price with VAT`}
+          />
+        </>
+      ))}
+      <CustomInput
+        type="number"
         value={size}
         setter={setSize}
         placeholder="Size"
         label="Size (in mL.)"
       />
-      <div className="col-span-1 flex w-full flex-col items-start justify-start gap-1">
-        <label
-          htmlFor="Service Color"
-          className="w-full text-left text-xs text-gray-500"
-        >
-          Service Color
-        </label>
-        <input
-          value={color}
-          onChange={(e) => setColor(e.target.value)}
-          type="color"
-          className="block h-10 w-14 cursor-pointer rounded-lg border border-gray-200 bg-white p-1 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900"
-          id="hs-color-input"
-          title="Choose your color"
-        ></input>
-      </div>
+      <ColorPicker label="Service Color" value={color} setter={setColor} />
+      {vitamins.length > 0 && (
+        <div className="col-span-2 mb-4 flex flex-col gap-2">
+          <label className="text-left font-medium">Vitamins</label>
+          <div className="flex flex-col gap-4">
+            {vitamins.map((vitamin, index) => (
+              <div key={index} className="flex items-center gap-4">
+                <span className="min-w-[120px] text-sm">{vitamin.name}</span>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name={`vitamin-${vitamin.name}`}
+                      checked={vitamin.selected}
+                      onChange={() => {
+                        setVitamins(
+                          vitamins.map((v, i) =>
+                            i === index ? { ...v, selected: true } : v
+                          )
+                        );
+                      }}
+                      className="custom-radio"
+                    />
+                    <span>Yes</span>
+                  </label>
+
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name={`vitamin-${vitamin.name}`}
+                      checked={!vitamin.selected}
+                      onChange={() => {
+                        setVitamins(
+                          vitamins.map((v, i) =>
+                            i === index ? { ...v, selected: false } : v
+                          )
+                        );
+                      }}
+                      className="custom-radio"
+                    />
+                    <span>No</span>
+                  </label>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-1">
         <label htmlFor="Description" className="w-full text-left">
           Description
@@ -222,7 +498,7 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
           rows={8}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="w-full rounded-lg bg-gray-100 p-3 capitalize text-xs text-grey100"
+          className="w-full rounded-lg bg-gray-100 p-3 text-xs capitalize text-grey100"
         />
       </div>
       <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-2.5">
@@ -230,27 +506,44 @@ const AddService = ({ provider, business, refetch, setOpen }: AddServiceProps) =
           Image Gallery
         </h1>
         <div className="grid w-full grid-cols-6 gap-6">
-          <ImageUploader label="Thumbnail" setImage={setThumbnail} />
-          <ImageUploader label="Cover Image" setImage={setCoverImage} />
+          <ImageUploader
+            label="Thumbnail"
+            setImage={setThumbnail}
+            link={
+              serviceDetails?.thumbnail
+                ? serviceDetails?.thumbnail.startsWith("http")
+                  ? serviceDetails?.thumbnail
+                  : `https://crm.fandcproperties.ru${serviceDetails?.thumbnail}`
+                : ""
+            }
+          />
+          <ImageUploader
+            label="Cover Image"
+            setImage={setCoverImage}
+            link={
+              serviceDetails?.cover_image
+                ? serviceDetails?.cover_image.startsWith("http")
+                  ? serviceDetails?.cover_image
+                  : `https://crm.fandcproperties.ru${serviceDetails?.cover_image}`
+                : ""
+            }
+          />
         </div>
       </div>
-      <div className="col-span-2 flex w-full items-end justify-end">
-        <button
-          type="submit"
-          disabled={creating}
-          className="place-self-end rounded-lg bg-primary px-10 py-2 text-white"
-        >
-          {creating ? (
-            <div className="flex w-full items-center justify-center gap-2">
-              <LuLoader2 className="animate-spin" />
-              <span>Please Wait...</span>
-            </div>
-          ) : (
-            "Save"
-          )}
-        </button>
+      <div className="col-span-2 flex w-full items-end justify-end gap-3">
+        <CustomButton
+          name="Cancel"
+          handleClick={() => setOpen(false)}
+          style="bg-danger"
+        />
+        <CustomButton
+          name={selectedServiceId ? "Update" : "Save"}
+          handleClick={handleSubmit}
+          loading={creating || updating}
+          disabled={creating || updating}
+        />
       </div>
-    </form>
+    </div>
   );
 };
 

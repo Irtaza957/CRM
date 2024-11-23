@@ -4,7 +4,7 @@ export const categoryApi = api.injectEndpoints({
   endpoints: (build) => ({
     fetchCategory: build.query({
       query: (id) => ({
-        url: `/categories?id=${id}`,
+        url: `/categories?id=${id || ""}`,
         method: "GET",
       }),
       transformResponse: (response: {

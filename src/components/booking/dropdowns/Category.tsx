@@ -4,6 +4,7 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 import { cn } from "../../../utils/helpers";
 import { useOnClickOutside } from "../../../hooks/useOnClickOutside";
 import { FaCheck } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 interface ComboboxProps {
   icon?: ReactNode;
   placeholder: string;
@@ -15,6 +16,7 @@ interface ComboboxProps {
   defaultIconClassName?: string;
   searchInputClassName?: string;
   searchInputPlaceholder: string;
+  isRemoveAllow?: boolean;
   data?: CategoryAllListProps[];
   setValue?: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
   handleSelectCategoryFilter?: (value: ListOptionProps) => void;
@@ -33,6 +35,7 @@ const CategoryDropdown = ({
   searchInputClassName,
   searchInputPlaceholder,
   data,
+  isRemoveAllow,
   handleSelectCategoryFilter,
 }: ComboboxProps) => {
   const [toggle, setToggle] = useState(false);
@@ -55,6 +58,14 @@ const CategoryDropdown = ({
     }
   }, [data]);
 
+  const handleClick=(item: ListOptionProps)=>{
+    handleSelectCategoryFilter ? handleSelectCategoryFilter(item) : setValue && setValue(item);
+  }
+
+  const handleRemoveValue=(e: React.MouseEvent<SVGAElement>)=>{
+    e.stopPropagation()
+    handleClick({id: '', name: ''})
+  }
   return (
     <div
       ref={ComboboxRef}
@@ -71,12 +82,19 @@ const CategoryDropdown = ({
           toggleClassName
         )}
       >
-        <span className="truncate">{value ? value.name : placeholder}</span>
+        <span className="truncate">{value?.name ? value.name : placeholder}</span>
+        <div className="flex items-center">
+        {(isRemoveAllow && value?.id) &&
+          <IoClose
+            onClick={handleRemoveValue}
+            className="h-4 w-4 cursor-pointer"
+          />}
         {icon ? (
           icon
         ) : (
           <LuChevronsUpDown className={cn(defaultIconClassName)} />
         )}
+        </div>
       </button>
       <div
         className={cn(
@@ -114,7 +132,7 @@ const CategoryDropdown = ({
                 <div
                   key={item.id}
                   onClick={() => {
-                    handleSelectCategoryFilter ? handleSelectCategoryFilter(item) : setValue && setValue(item);
+                    handleClick(item)
                     setToggle(false);
                   }}
                   className={cn(
@@ -144,7 +162,7 @@ const CategoryDropdown = ({
             <div
               key={item.id}
               onClick={() => {
-                handleSelectCategoryFilter ? handleSelectCategoryFilter(item) : setValue && setValue(item);
+                handleClick(item)
                 setToggle(false);
               }}
               className={cn(

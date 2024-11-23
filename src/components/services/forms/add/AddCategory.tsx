@@ -1,39 +1,55 @@
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { LuLoader2 } from "react-icons/lu";
 import { RootState } from "../../../../store";
 import CustomInput from "../../../ui/CustomInput";
 import CustomToast from "../../../ui/CustomToast";
 import ImageUploader from "../../../ui/ImageUploader";
 import { useCreateCategoryMutation } from "../../../../store/services/service";
 import { useUpdateCategoryMutation } from "../../../../store/services/categories";
+import Combobox from "../../../ui/Combobox";
+import { TiArrowSortedDown } from "react-icons/ti";
+import { GoPlusCircle } from "react-icons/go"
+import { IoCloseCircleOutline } from "react-icons/io5";
+import CustomButton from "../../../ui/CustomButton";
+import ColorPicker from "../../../ui/ColorPicker";
 
-interface AddCategoryProps{
+interface AddCategoryProps {
   provider: string | number;
   open?: boolean;
   business: string | number;
-  selectedCategory?: CategoryAllListProps | null;
+  isView: boolean;
+  selectedCategory?: CategoryDetailProps | null;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  refetch: ()=>void
+  refetch: () => void;
 }
-const AddCategory = ({open, setOpen, provider, business, selectedCategory, refetch}: AddCategoryProps) => {
-  const [tagline, setTagline] = useState("");
-  const [duration, setDuration] = useState("");
+const AddCategory = ({
+  open,
+  setOpen,
+  provider,
+  business,
+  isView,
+  selectedCategory,
+  refetch,
+}: AddCategoryProps) => {
   const [color, setColor] = useState("#000000");
+  const [providesVitamins, setProvidesVitamins] = useState<ListOptionProps | null>(null);
+  const [allowBundles, setAllowBundles] = useState<ListOptionProps | null>(null);
   const [description, setDescription] = useState("");
   const [icon, setIcon] = useState<File | string | null>(null);
   const [categoryCode, setCategoryCode] = useState("");
   const [categoryName, setCategoryName] = useState("");
   const [thumbnail, setThumbnail] = useState<File | null | string>(null);
   const [coverImage, setCoverImage] = useState<File | string | null>(null);
+  const [additionalInputs, setAdditionalInputs] = useState<{ [key: string]: string }[]>([
+    { key: "", value: "" },
+  ]);
   const { user } = useSelector((state: RootState) => state.global);
   const [createCategory, { isLoading }] = useCreateCategoryMutation();
-  const [updateCategory, { isLoading: updateLoading }] = useUpdateCategoryMutation();
+  const [updateCategory, { isLoading: updateLoading }] =
+    useUpdateCategoryMutation();
 
   const clearForm = () => {
-    setTagline("");
-    setDuration("");
     setColor("#000000");
     setDescription("");
     setIcon(null);
@@ -42,31 +58,34 @@ const AddCategory = ({open, setOpen, provider, business, selectedCategory, refet
     setThumbnail(null);
     setCoverImage(null);
     setIcon(null);
+    setAdditionalInputs([{ key: "", value: "" }]);
   };
 
   const handleCategorySubmit = async () => {
     const formData = new FormData();
-    formData.append("business_id", String(business || ''));
-    formData.append("company_id", String(provider || ''));
+    formData.append("business_id", String(business || ""));
+    formData.append("company_id", String(provider || ""));
     formData.append("parent_id", "0");
     formData.append("code", categoryCode);
     formData.append("color", color);
     formData.append("category_name", categoryName);
-    formData.append("tagline", tagline);
     formData.append("description", description);
     formData.append("icon", icon!);
     formData.append("thumbnail", thumbnail!);
     formData.append("cover_image", coverImage!);
-    formData.append("duration", duration);
     formData.append("user_id", `${user?.id}`);
-    
-    let data
+    formData.append("allow_bundles", String(allowBundles?.id));
+    formData.append("allow_vitamins", String(providesVitamins?.id));
+    const bundles = additionalInputs.map((input) => input.value).filter((value) => value !== "").join(",");
+    formData.append("bundles", bundles);
+
+    let data;
     try {
-      if(selectedCategory?.category_id){
+      if (selectedCategory?.category_id) {
         formData.append("id", `${selectedCategory?.category_id}`);
         data = await updateCategory(formData);
-      }else{
-         data = await createCategory(formData);
+      } else {
+        data = await createCategory(formData);
       }
       if (data.error) {
         toast.custom((t) => (
@@ -86,9 +105,9 @@ const AddCategory = ({open, setOpen, provider, business, selectedCategory, refet
             message="Created Category Successfully!"
           />
         ));
-        refetch()
+        refetch();
         clearForm();
-        setOpen(false)
+        setOpen(false);
       }
     } catch (error) {
       toast.custom((t) => (
@@ -102,38 +121,43 @@ const AddCategory = ({open, setOpen, provider, business, selectedCategory, refet
     }
   };
 
-  useEffect(()=>{
-    if(selectedCategory?.category_id){
-      setCategoryCode(selectedCategory?.code)
-      setCategoryName(selectedCategory?.category_name)
-      setColor(selectedCategory?.color)
-      setCoverImage(selectedCategory?.cover_image || null)
-      setThumbnail(selectedCategory?.thumbnail)
-      setDescription(selectedCategory?.description)
-      setDuration(selectedCategory?.duration || '')
-      setTagline(selectedCategory?.tagline || '')
-    }
-  },[selectedCategory, open])
+  const handleAddInput = () => {
+    setAdditionalInputs((prev) => [...prev, { key: "", value: "" }]);
+  }
 
-  useEffect(()=>{
-    if(!open){
-      setCategoryCode('')
-      setCategoryName('')
-      setColor('')
-      setCoverImage(null)
-      setThumbnail(null)
-      setIcon(null)
-      setDescription('')
-      setTagline('')
-      setDuration('')
+  const handleRemoveInput = (index: number) => {
+    setAdditionalInputs((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  useEffect(() => {
+    console.log(selectedCategory, 'selectedCategoryselectedCategory');
+    if (selectedCategory?.category_id) {
+      setCategoryCode(selectedCategory?.code);
+      setCategoryName(selectedCategory?.category_name);
+      setColor(selectedCategory?.color);
+      setCoverImage(selectedCategory?.cover_image || null);
+      setThumbnail(selectedCategory?.thumbnail);
+      setDescription(selectedCategory?.description);
+      setProvidesVitamins({ id: selectedCategory?.allow_vitamins, name: selectedCategory?.allow_vitamins === '1' ? 'Yes' : 'No' });
+      setAllowBundles({ id: selectedCategory?.allow_bundles, name: selectedCategory?.allow_bundles === '1' ? 'Yes' : 'No' });
+      setAdditionalInputs(selectedCategory?.bundles?.map((bundle: {bundle: string}) => ({ key: "", value: bundle.bundle })));
     }
-  },[open])
+  }, [selectedCategory, open]);
+
+  useEffect(() => {
+    if (!open) {
+      setCategoryCode("");
+      setCategoryName("");
+      setColor("");
+      setCoverImage(null);
+      setThumbnail(null);
+      setIcon(null);
+      setDescription("");
+      setAdditionalInputs([{ key: "", value: "" }]);
+    }
+  }, [open]);
   return (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        handleCategorySubmit();
-      }}
+    <div
       className="grid w-full grid-cols-2 gap-5"
     >
       <CustomInput
@@ -142,6 +166,7 @@ const AddCategory = ({open, setOpen, provider, business, selectedCategory, refet
         value={categoryCode}
         setter={setCategoryCode}
         placeholder="Name"
+        disabled={isView}
       />
       <CustomInput
         type="text"
@@ -149,30 +174,83 @@ const AddCategory = ({open, setOpen, provider, business, selectedCategory, refet
         value={categoryName}
         setter={setCategoryName}
         placeholder="Name"
+        disabled={isView}
       />
-      <CustomInput
-        type="text"
-        label="Duration"
-        value={duration}
-        setter={setDuration}
-        placeholder="30 - 45 Minutes"
-      />
-      <CustomInput
-        type="text"
-        label="Tagline"
-        value={tagline}
-        setter={setTagline}
-        placeholder="Name"
-      />
-      <div className="col-span-1 flex w-full flex-col items-start justify-start gap-1">
+      <ColorPicker label="Category Color" value={color} setter={setColor} />
+      <div className="col-span-1 flex w-full flex-col items-center justify-center gap-1">
         <label
-          htmlFor="Category Color"
+          htmlFor="Parent Category"
           className="w-full text-left text-xs text-gray-500"
         >
-          Category Color
+          Provides Vitamins
         </label>
-        <input value={color} onChange={(e) => setColor(e.target.value)}  type="color" className="p-1 h-10 w-14 block bg-white border border-gray-200 cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700" id="hs-color-input" title="Choose your color"></input>
+        <Combobox
+          options={[{ id: 1, name: 'Yes' }, { id: 0, name: 'No' }]}
+          value={providesVitamins}
+          placeholder="Provides Vitamins"
+          setValue={setProvidesVitamins}
+          mainClassName="col-span-1 w-full"
+          defaultSelectedIconClassName="size-4"
+          icon={<TiArrowSortedDown className="size-5" />}
+          toggleClassName="w-full p-3 rounded-lg text-xs bg-gray-100"
+          listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
+          listItemClassName="w-full text-left text-black px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+          disabled={isView}
+          isSearch={false}
+        />
       </div>
+      <div className="col-span-1 flex w-full flex-col items-center justify-center gap-1">
+        <label
+          htmlFor="Parent Category"
+          className="w-full text-left text-xs text-gray-500"
+        >
+          Allow Bundles
+        </label>
+        <Combobox
+          options={[{ id: 1, name: 'Yes' }, { id: 0, name: 'No' }]}
+          value={allowBundles}
+          placeholder="Allow Bundles"
+          setValue={setAllowBundles}
+          mainClassName="col-span-1 w-full"
+          defaultSelectedIconClassName="size-4"
+          icon={<TiArrowSortedDown className="size-5" />}
+          toggleClassName="w-full p-3 rounded-lg text-xs bg-gray-100"
+          listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
+          listItemClassName="w-full text-left text-black px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+          disabled={isView}
+          isSearch={false}
+        />
+      </div>
+      {allowBundles?.id == 1 && (
+        <div className="col-span-2">
+          {additionalInputs.map((input, index) => (
+          <div key={index} className="col-span-1 flex w-full items-center gap-3">
+            <CustomInput
+              type="text"
+              value={input.value}
+              setter={(value) => {
+                const updatedInputs = [...additionalInputs];
+                updatedInputs[index].value = value;
+                setAdditionalInputs(updatedInputs);
+              }}
+              placeholder="Enter additional info"
+              disabled={isView}
+            />
+            {index < additionalInputs.length - 1 && (
+              <div onClick={() => handleRemoveInput(index)} className="cursor-pointer">
+                <IoCloseCircleOutline className="size-5 text-gray-500" />
+              </div>
+            )}
+            {index === additionalInputs.length - 1 && (
+              <div onClick={handleAddInput} className="cursor-pointer">
+                <GoPlusCircle className="size-5 text-gray-500" />
+              </div>
+            )}
+          </div>
+          ))}
+        </div>
+      )}
+
       <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-1">
         <label htmlFor="Description" className="w-full text-left">
           Description
@@ -182,6 +260,7 @@ const AddCategory = ({open, setOpen, provider, business, selectedCategory, refet
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full rounded-lg bg-gray-100 p-3 capitalize"
+          disabled={isView}
         />
       </div>
       <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-2.5">
@@ -189,28 +268,54 @@ const AddCategory = ({open, setOpen, provider, business, selectedCategory, refet
           Image Gallery
         </h1>
         <div className="grid w-full grid-cols-6 gap-6">
-          <ImageUploader link={selectedCategory?.icon ? `https://crm.fandcproperties.ru${selectedCategory?.icon}` : ''} label="Icon" setImage={setIcon} />
-          <ImageUploader link={selectedCategory?.thumbnail ? `https://crm.fandcproperties.ru${selectedCategory?.thumbnail}` : ''}  label="Thumbnail" setImage={setThumbnail} />
-          <ImageUploader link={selectedCategory?.cover_image ? `https://crm.fandcproperties.ru${selectedCategory?.cover_image}` : ''}  label="Cover Image" setImage={setCoverImage} />
+          <ImageUploader
+            link={
+              selectedCategory?.icon
+                ? `https://crm.fandcproperties.ru${selectedCategory?.icon}`
+                : ""
+            }
+            label="Icon"
+            setImage={setIcon}
+            disabled={isView}
+          />
+          <ImageUploader
+            link={
+              selectedCategory?.thumbnail
+                ? `https://crm.fandcproperties.ru${selectedCategory?.thumbnail}`
+                : ""
+            }
+            label="Thumbnail"
+            setImage={setThumbnail}
+            disabled={isView}
+          />
+          <ImageUploader
+            link={
+              selectedCategory?.cover_image
+                ? `https://crm.fandcproperties.ru${selectedCategory?.cover_image}`
+                : ""
+            }
+            label="Cover Image"
+            setImage={setCoverImage}
+            disabled={isView}
+          />
         </div>
       </div>
-      <div className="col-span-2 flex w-full items-end justify-end">
-        <button
-          type="submit"
-          disabled={isLoading || updateLoading}
-          className="place-self-end rounded-lg bg-primary px-10 py-2 text-white"
-        >
-          {isLoading || updateLoading ? (
-            <div className="flex w-full items-center justify-center gap-2">
-              <LuLoader2 className="animate-spin" />
-              <span>Please Wait...</span>
-            </div>
-          ) : (
-            selectedCategory?.category_id ? "Update" : "Save"
-          )}
-        </button>
+      <div className="col-span-2 flex gap-3 w-full items-end justify-end">
+        <CustomButton
+          name="Cancel"
+          handleClick={() => setOpen(false)}
+          style="bg-danger"
+        />
+        {!isView && (
+          <CustomButton
+            name={selectedCategory?.category_id ? "Update" : "Save"}
+            handleClick={handleCategorySubmit}
+            loading={isLoading || updateLoading}
+            disabled={isLoading || updateLoading}
+          />
+        )}
       </div>
-    </form>
+    </div>
   );
 };
 
