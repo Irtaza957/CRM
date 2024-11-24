@@ -18,6 +18,8 @@ import { useFetchBranchesQuery } from "../store/services/filters";
 import AddCompanyModal from "../components/services/modals/AddCompanyModal";
 import AddBranchModal from "../components/services/modals/AddBranchModal";
 import { useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
 
 const ServiceList = () => {
   const [search, setSearch] = useState("");
@@ -49,6 +51,7 @@ const ServiceList = () => {
   const [isView, setIsView] = useState(false)
   const { pathname } = useLocation()
   const isApp = pathname.includes('app')
+  const {sidebar} = useSelector((state: RootState) => state.global);
   // const { user } = useSelector((state: RootState) => state.global);
 
   // const [fetchCustomers, { isLoading: customerLoading }] =
@@ -402,9 +405,9 @@ const ServiceList = () => {
       />
       <div className="flex w-full gap-3 min-h-screen">
         <div className="flex h-full w-full flex-col items-start justify-start">
-          <div className="mb-5 grid w-full grid-cols-12 gap-2.5">
+          <div className={`mb-5 grid w-full grid-cols-12 ${sidebar ? 'gap-1.5' : 'gap-2.5'}`}>
             {/* Filters */}
-            <div className={`col-span-12 grid grid-cols-5 gap-2.5 ${isApp ? 'xl:col-span-9' : 'xl:col-span-7'}`}>
+            <div className={`col-span-12 grid grid-cols-5 ${isApp ? 'xl:col-span-9' : 'xl:col-span-7'} ${sidebar ? 'gap-1.5' : 'gap-2.5'}`}>
               <BusinessDropdown
                 business={business}
                 businesses={businessData}
@@ -473,7 +476,7 @@ const ServiceList = () => {
             </div>
 
             {/* Search Bar */}
-            <div className="col-span-8 xl:col-span-3 flex h-full w-full items-center justify-center gap-2.5 rounded-lg bg-white px-3.5 text-gray-500">
+            <div className={`xl:col-span-3 flex h-full w-full items-center justify-center gap-2.5 rounded-lg bg-white px-3.5 text-gray-500 ${isApp ? 'col-span-12' : 'col-span-8'}`}>
               <input
                 type="text"
                 value={search}
@@ -490,7 +493,7 @@ const ServiceList = () => {
                 <div className="col-span-2 xl:col-span-1">
                   <button
                     onClick={handleAddModal}
-                    className="h-full w-full whitespace-nowrap rounded-lg bg-primary px-3 py-3 text-sm font-semibold text-white"
+                    className={`h-full w-full whitespace-nowrap rounded-lg bg-primary text-sm font-semibold text-white ${sidebar ? 'px-2' : 'px-3'}`}
                   >
                     Add New
                   </button>

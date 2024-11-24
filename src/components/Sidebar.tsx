@@ -13,7 +13,7 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { sidebar } = useSelector((state: RootState) => state.global);
-  const [isAppPanelOpen, setIsAppPanelOpen] = useState(true);
+  const [isAppPanelOpen, setIsAppPanelOpen] = useState(false);
 
   const handleToggle = () => {
     dispatch(toggleSidebar());
