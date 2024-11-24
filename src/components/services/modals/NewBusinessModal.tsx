@@ -68,7 +68,7 @@ const NewBusinessModal = ({
       formData.append("description", data.description);
       formData.append("icon", icon || '');
       formData.append("thumbnail", thumbnail || '');
-      formData.append("cover", cover || '');
+      formData.append("cover_image", cover || '');
 
       let response;
       if (selectedBusiness?.id) {
@@ -124,7 +124,6 @@ const NewBusinessModal = ({
 
   useEffect(() => {
     if (!open) {
-      console.log('open', open)
       resetState();
     }
   }, [open]);
@@ -204,19 +203,19 @@ const NewBusinessModal = ({
               <ImageUploader
                 label="Icon"
                 setImage={setIcon}
-                link={icon ? `https://crm.fandcproperties.ru${icon}` : ''}
+                link={selectedBusiness?.icon ? `https://crm.fandcproperties.ru${selectedBusiness?.icon}` : ''}
                 disabled={isView}
               />
               <ImageUploader
                 label="Thumbnail"
                 setImage={setThumbnail}
-                link={thumbnail ? `https://crm.fandcproperties.ru${thumbnail}` : ''}
+                link={selectedBusiness?.thumbnail ? `https://crm.fandcproperties.ru${selectedBusiness?.thumbnail}` : ''}
                 disabled={isView}
               />
               <ImageUploader
                 label="Cover Image"
                 setImage={setCover}
-                link={cover ? `https://crm.fandcproperties.ru${cover}` : ''}
+                link={selectedBusiness?.cover_image ? `https://crm.fandcproperties.ru${selectedBusiness?.cover_image}` : ''}
                 disabled={isView}
               />
             </div>

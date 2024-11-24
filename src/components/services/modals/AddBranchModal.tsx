@@ -151,6 +151,9 @@ const AddBranchModal = ({
       setValue("email", selectedBranch.email);
       setValue("working_hours", selectedBranch.working_hours);
       setValue("address", selectedBranch.address);
+      setValue("registered_date", selectedBranch?.license_date);
+      const selectedCompanyType = companyTypes?.find(item => item.name === selectedBranch?.company_type)
+      setCompanyType(selectedCompanyType || null)
       if (selectedBranch.registered_date) {
         setRegisteredDate(dayjs(selectedBranch.registered_date).toDate());
       }

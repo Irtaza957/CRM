@@ -290,7 +290,7 @@ console.log(vitamins, 'vitaminsvitamins')
   }, [open]);
   return (
     <div
-      className={`grid w-full grid-cols-2 gap-5 ${selectedServiceId && "mt-6"}`}
+      className={`grid w-full grid-cols-3 gap-5 ${selectedServiceId && "mt-6"}`}
     >
       {!isLoading && (
         <div className="col-span-1 flex w-full flex-col items-center justify-center gap-1">
@@ -490,7 +490,7 @@ console.log(vitamins, 'vitaminsvitamins')
           </div>
         </div>
       )}
-      <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-1">
+      <div className="col-span-3 flex w-full flex-col items-center justify-center space-y-1">
         <label htmlFor="Description" className="w-full text-left">
           Description
         </label>
@@ -501,7 +501,7 @@ console.log(vitamins, 'vitaminsvitamins')
           className="w-full rounded-lg bg-gray-100 p-3 text-xs capitalize text-grey100"
         />
       </div>
-      <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-2.5">
+      <div className="col-span-3 flex w-full flex-col items-center justify-center space-y-2.5">
         <h1 className="w-full text-left text-base font-bold text-primary">
           Image Gallery
         </h1>
@@ -530,7 +530,7 @@ console.log(vitamins, 'vitaminsvitamins')
           />
         </div>
       </div>
-      <div className="col-span-2 flex w-full items-end justify-end gap-3">
+      <div className="col-span-3 flex w-full items-end justify-end gap-3">
         <CustomButton
           name="Cancel"
           handleClick={() => setOpen(false)}

@@ -86,7 +86,7 @@ const NewServiceModal = ({
   }, [categoryData, open]);
 
   useEffect(()=>{
-    if(companyOptions && categoryData?.category_id){
+    if(companyOptions && categoryData?.company_id){
       const selectedCompany = companyOptions?.find(
         (item) => item?.id === categoryData?.company_id
       );
@@ -113,7 +113,7 @@ const NewServiceModal = ({
   }, [categoryData]);
 
   return (
-    <Modal open={open} setOpen={setOpen} className="w-[95%] lg:max-w-3xl">
+    <Modal open={open} setOpen={setOpen} className="w-[95%] lg:max-w-4xl">
       <div className="flex h-auto w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-white">
         <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white">
           <h1 className="text-xl font-medium">

@@ -651,6 +651,8 @@ declare type BranchProps = {
   area_id: string;
   emirate_id: string,
   registered_date?: Date
+  company_type?: string;
+  license_date?: string;
 };
 
 declare type StatusProps = {

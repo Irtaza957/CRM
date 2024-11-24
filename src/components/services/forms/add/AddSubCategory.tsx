@@ -174,7 +174,7 @@ const AddSubCategory = ({provider, business, selectedSubCategory, isView, setOpe
 
   return (
     <div
-      className="grid w-full grid-cols-2 gap-5"
+      className="grid w-full grid-cols-3 gap-5"
     >
       {!fetching && (
         <div className="col-span-1 flex w-full flex-col items-center justify-center gap-1">
@@ -291,7 +291,7 @@ const AddSubCategory = ({provider, business, selectedSubCategory, isView, setOpe
           ))}
         </div>
       )}
-      <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-1">
+      <div className="col-span-3 flex w-full flex-col items-center justify-center space-y-1">
         <label htmlFor="Description" className="w-full text-left">
           Description
         </label>
@@ -303,7 +303,7 @@ const AddSubCategory = ({provider, business, selectedSubCategory, isView, setOpe
           disabled={isView}
         />
       </div>
-      <div className="col-span-2 flex w-full flex-col items-center justify-center space-y-2.5">
+      <div className="col-span-3 flex w-full flex-col items-center justify-center space-y-2.5">
         <h1 className="w-full text-left text-base font-bold text-primary">
           Image Gallery
         </h1>
@@ -319,7 +319,7 @@ const AddSubCategory = ({provider, business, selectedSubCategory, isView, setOpe
             label="Cover Image" setImage={setCoverImage} disabled={isView} />
         </div>
       </div>
-      <div className="col-span-2 flex gap-3 w-full items-end justify-end">
+      <div className="col-span-3 flex gap-3 w-full items-end justify-end">
         <CustomButton
           name="Cancel"
           handleClick={() => setOpen(false)}
