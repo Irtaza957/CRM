@@ -20,13 +20,14 @@ import { useFetchAllCategoriesQuery } from "../../../../store/services/categorie
 import ColorPicker from "../../../ui/ColorPicker";
 
 interface AddServiceProps {
-  provider: string | number;
-  business: string | number;
+  provider?: string | number;
+  business?: string | number;
   selectedServiceId: string;
-  open: boolean;
-  refetch: () => void;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setProvider: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
+  open?: boolean;
+  isApp?: boolean;
+  refetch?: () => void;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  setProvider?: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
 }
 
 interface VitaminOption {
@@ -39,6 +40,7 @@ const AddService = ({
   business,
   selectedServiceId,
   open,
+  isApp,
   refetch,
   setOpen,
   setProvider,
@@ -160,8 +162,8 @@ console.log(vitamins, 'vitaminsvitamins')
             message={`Service ${selectedServiceId ? "Updated" : "Created"} Successfully!`}
           />
         ));
-        refetch();
-        setOpen(false);
+        refetch && refetch();
+        setOpen && setOpen(false);
         clearForm();
       }
     } catch (error) {
@@ -227,8 +229,9 @@ console.log(vitamins, 'vitaminsvitamins')
     }
   }, [serviceData])
   useEffect(() => {
+    console.log(serviceDetails, 'serviceDetailsserviceDetails')
     if (serviceDetails?.id && open) {
-      setProvider(
+      setProvider && setProvider(
         serviceDetails?.company_id
           ? { id: serviceDetails?.company_id, name: "" }
           : null
@@ -316,7 +319,7 @@ console.log(vitamins, 'vitaminsvitamins')
             toggleClassName="w-full p-3 rounded-lg text-xs bg-gray-100"
             listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
             listItemClassName="w-full text-left text-black px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-            disabled={!provider}
+            disabled={!provider || isApp}
           />
         </div>
       )}
@@ -326,6 +329,7 @@ console.log(vitamins, 'vitaminsvitamins')
         value={code}
         setter={setCode}
         placeholder="Code"
+        disabled={isApp}
       />
       <CustomInput
         type="text"
@@ -333,6 +337,7 @@ console.log(vitamins, 'vitaminsvitamins')
         label="Service Name"
         setter={setServiceName}
         placeholder="Service Name"
+        disabled={isApp}
       />
       <CustomInput
         type="text"
@@ -340,6 +345,7 @@ console.log(vitamins, 'vitaminsvitamins')
         label="Duration"
         setter={setDuration}
         placeholder="Duration"
+        disabled={isApp}
       />
       <CustomInput
         type="text"
@@ -347,6 +353,7 @@ console.log(vitamins, 'vitaminsvitamins')
         label="Response Time"
         setter={setResponseTime}
         placeholder="Response Time"
+        disabled={isApp}
       />
       <CustomInput
         type="number"
@@ -354,6 +361,7 @@ console.log(vitamins, 'vitaminsvitamins')
         setter={setPriceNoVat}
         label="Price without VAT"
         placeholder="Price without VAT"
+        disabled={isApp}
       />
       <CustomInput
         type="number"
@@ -361,6 +369,7 @@ console.log(vitamins, 'vitaminsvitamins')
         value={vat}
         setter={setVat}
         placeholder="VAT"
+        disabled={isApp}
       />
       <CustomInput
         type="number"
@@ -368,6 +377,7 @@ console.log(vitamins, 'vitaminsvitamins')
         setter={setPriceVat}
         label="Price with VAT"
         placeholder="Price with VAT"
+        disabled={isApp}
       />
       <CustomInput
         type="number"
@@ -375,6 +385,7 @@ console.log(vitamins, 'vitaminsvitamins')
         setter={setPromotionalPriceNoVat}
         label="Promotional price without VAT"
         placeholder="Promotional price without VAT"
+        disabled={isApp}
       />
       <CustomInput
         type="number"
@@ -382,6 +393,7 @@ console.log(vitamins, 'vitaminsvitamins')
         setter={setPromotionalPrice}
         label="Promotional price"
         placeholder="Promotional price"
+        disabled={isApp}
       />
       <CustomInput
         type="number"
@@ -389,6 +401,7 @@ console.log(vitamins, 'vitaminsvitamins')
         setter={setPromotionalPriceVat}
         label="Promotional price with VAT"
         placeholder="Promotional price with VAT"
+        disabled={isApp}
       />
       {bundles?.map((bundle) => (
         <>
@@ -406,6 +419,7 @@ console.log(vitamins, 'vitaminsvitamins')
             }
             placeholder={`${bundle.name}'s promortional price without VAT`}
             label={`${bundle.name}'s promortional price without VAT`}
+            disabled={isApp}
           />
           <CustomInput
             type="number"
@@ -419,6 +433,7 @@ console.log(vitamins, 'vitaminsvitamins')
             }
             placeholder={`${bundle.name}'s promortional price`}
             label={`${bundle.name}'s promortional price`}
+            disabled={isApp}
           />
           <CustomInput
             type="number"
@@ -432,6 +447,7 @@ console.log(vitamins, 'vitaminsvitamins')
             }
             placeholder={`${bundle.name}'s promortional price with VAT`}
             label={`${bundle.name}'s promortional price with VAT`}
+            disabled={isApp}
           />
         </>
       ))}
@@ -441,8 +457,9 @@ console.log(vitamins, 'vitaminsvitamins')
         setter={setSize}
         placeholder="Size"
         label="Size (in mL.)"
-      />
-      <ColorPicker label="Service Color" value={color} setter={setColor} />
+        disabled={isApp}
+        />
+      <ColorPicker label="Service Color" value={color} setter={setColor} disabled={isApp} />
       {vitamins.length > 0 && (
         <div className="col-span-2 mb-4 flex flex-col gap-2">
           <label className="text-left font-medium">Vitamins</label>
@@ -455,6 +472,7 @@ console.log(vitamins, 'vitaminsvitamins')
                     <input
                       type="radio"
                       name={`vitamin-${vitamin.name}`}
+                      disabled={isApp}
                       checked={vitamin.selected}
                       onChange={() => {
                         setVitamins(
@@ -473,6 +491,7 @@ console.log(vitamins, 'vitaminsvitamins')
                       type="radio"
                       name={`vitamin-${vitamin.name}`}
                       checked={!vitamin.selected}
+                      disabled={isApp}
                       onChange={() => {
                         setVitamins(
                           vitamins.map((v, i) =>
@@ -499,6 +518,7 @@ console.log(vitamins, 'vitaminsvitamins')
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           className="w-full rounded-lg bg-gray-100 p-3 text-xs capitalize text-grey100"
+          disabled={isApp}
         />
       </div>
       <div className="col-span-3 flex w-full flex-col items-center justify-center space-y-2.5">
@@ -516,6 +536,7 @@ console.log(vitamins, 'vitaminsvitamins')
                   : `https://crm.fandcproperties.ru${serviceDetails?.thumbnail}`
                 : ""
             }
+            disabled={isApp}
           />
           <ImageUploader
             label="Cover Image"
@@ -527,21 +548,25 @@ console.log(vitamins, 'vitaminsvitamins')
                   : `https://crm.fandcproperties.ru${serviceDetails?.cover_image}`
                 : ""
             }
+            disabled={isApp}
           />
         </div>
       </div>
       <div className="col-span-3 flex w-full items-end justify-end gap-3">
+        {!isApp &&  <>
         <CustomButton
           name="Cancel"
-          handleClick={() => setOpen(false)}
+          handleClick={() => setOpen?.(false)}
           style="bg-danger"
         />
         <CustomButton
           name={selectedServiceId ? "Update" : "Save"}
           handleClick={handleSubmit}
           loading={creating || updating}
-          disabled={creating || updating}
-        />
+          disabled={creating || updating || isApp}
+          />
+          </>
+        }
       </div>
     </div>
   );

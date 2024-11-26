@@ -54,6 +54,9 @@ const Table = ({
   const [updateCategoryStatus] = useUpdateCategoryStatusMutation();
 
   const getColumns = () => {
+    if(isApp){
+      return serviceColumns;
+    }
     const lastFilter = filterArray[filterArray.length - 1]?.name;
     switch (lastFilter) {
       case "business":
@@ -71,7 +74,12 @@ const Table = ({
 
   const handleStatusToggle = async (row: any) => {
     try {
-      const lastFilter = filterArray[filterArray.length - 1]?.name;
+      let lastFilter
+      if(isApp){
+        lastFilter="category"
+      }else{
+        lastFilter = filterArray[filterArray.length - 1]?.name;
+      }
       if(lastFilter !== "category" && lastFilter !== "branch"){
        return 
       }

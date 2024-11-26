@@ -704,3 +704,29 @@ declare type FilterType={
   name: string;
   id: string
 }
+
+declare type CouponProps={
+  coupon_id: string
+  name: string
+  code: string
+  discount_value: string
+  total_redeems: string
+  expiry_date: string
+  discount_type: string
+}
+
+declare type BannerProps={
+  banner_id: string
+  title: string
+  link_data: string
+  description: string
+  type: string
+  link_to: string
+  image: string
+}
+
+declare type FAQProps={
+  faq_id: string
+  question: string
+  answer: string
+}

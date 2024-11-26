@@ -9,6 +9,9 @@ import Businesses from "./pages/Businesses";
 import ServiceList from "./pages/ServiceList";
 import RouteGuard from "./components/RouteGuard";
 import { Route, Routes } from "react-router-dom";
+import Coupons from "./pages/Coupons";
+import Banners from "./pages/Banners";
+import AppPanelServices from "./pages/AppPanelServices";
 
 const App = () => {
   return (
@@ -41,14 +44,6 @@ const App = () => {
           }
         />
         <Route
-          path="app/services"
-          element={
-            <RouteGuard>
-              <ServiceList />
-            </RouteGuard>
-          }
-        />
-        <Route
           path="categories"
           element={
             <RouteGuard>
@@ -69,6 +64,54 @@ const App = () => {
           element={
             <RouteGuard>
               <Businesses />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="app/services"
+          element={
+            <RouteGuard>
+              <AppPanelServices />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="app/banners"
+          element={
+            <RouteGuard>
+              <Banners />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="app/coupons"
+          element={
+            <RouteGuard>
+              <Coupons />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="dripHub/services"
+          element={
+            <RouteGuard>
+              <AppPanelServices />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="dripHub/banners"
+          element={
+            <RouteGuard>
+              <Banners />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="dripHub/coupons"
+          element={
+            <RouteGuard>
+              <Coupons />
             </RouteGuard>
           }
         />

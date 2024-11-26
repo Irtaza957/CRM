@@ -564,6 +564,44 @@ export const sidebarItems = [
         icon: ServiceList,
         link: "/app/services",
       },
+      {
+        id: 1,
+        name: "Banners",
+        icon: ServiceList,
+        link: "/app/banners",
+      },
+      {
+        id: 1,
+        name: "Coupons",
+        icon: ServiceList,
+        link: "/app/coupons",
+      },
+    ],
+  },
+  {
+    id: 15,
+    name: "Drip Hub Panel",
+    icon: AppPanel,
+    link: "#",
+    subItems: [
+      {
+        id: 1,
+        name: "Services List",
+        icon: ServiceList,
+        link: "/dripHub/services",
+      },
+      {
+        id: 1,
+        name: "Banners",
+        icon: ServiceList,
+        link: "/dripHub/banners",
+      },
+      {
+        id: 1,
+        name: "Coupons",
+        icon: ServiceList,
+        link: "/dripHub/coupons",
+      },
     ],
   },
   // {
@@ -827,4 +865,11 @@ export const branchColumns = [
 export const companyTypes = [
   { id: "0", name: "Mainland" },
   { id: "1", name: "Freezone" },
+];
+
+export const bannerColumns = [
+  { id: 1, name: "Title", key: "title" },
+  { id: 2, name: "Description", key: "description" },
+  { id: 3, name: "Type", key: "type" },
+  { id: 4, name: "Link To", key: "link_to" },
 ];

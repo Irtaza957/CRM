@@ -5,9 +5,10 @@ import { useOnClickOutside } from '../../hooks/useOnClickOutside';
 interface ColorPickerProps {
   label?: string;
   value: string;
+  disabled?: boolean;
   setter: (value: string) => void;
 }
-const ColorPicker = ({ label, value, setter }: ColorPickerProps) => {
+const ColorPicker = ({ label, value, disabled, setter }: ColorPickerProps) => {
   const [showPicker, setShowPicker] = useState(false)
   const userRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(userRef, () => setShowPicker(false));
@@ -24,16 +25,17 @@ const ColorPicker = ({ label, value, setter }: ColorPickerProps) => {
       >
         {label}
       </label>
-      <div
+      <button
         className='w-full cursor-pointer rounded-lg border border-gray-200 p-2 h-10'
         onClick={() => setShowPicker(!showPicker)}
+        disabled={disabled}
       >
         <div
           style={{
             backgroundColor: value || '#000000'
           }}
           className='w-full h-full'></div>
-      </div>
+      </button>
       {showPicker && (
         <div className='absolute -top-[290px] left-0 w-full h-full z-10'>
           <SketchPicker
