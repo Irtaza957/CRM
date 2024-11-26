@@ -554,7 +554,7 @@ export const sidebarItems = [
   // },
   {
     id: 14,
-    name: "App Panel",
+    name: "City Doctor App Panel",
     icon: AppPanel,
     link: "#",
     subItems: [

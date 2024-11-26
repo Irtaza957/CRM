@@ -43,7 +43,7 @@ const Sidebar = () => {
       className={cn(
         "bg-main hidden max-h-screen w-20 flex-col overflow-y-auto transition-[width] md:flex",
         {
-          "w-60": sidebar,
+          "w-68": sidebar,
         }
       )}
     >
@@ -80,7 +80,7 @@ const Sidebar = () => {
                   />
                   {sidebar && (
                     <div className="flex w-full items-center justify-between gap-2">
-                      <span className="flex-1 text-left font-semibold">
+                      <span className="flex-1 text-left font-semibold whitespace-nowrap">
                         {item.name}
                       </span>
                       {item.subItems?.length && (
