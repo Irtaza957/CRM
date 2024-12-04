@@ -206,6 +206,46 @@ export const bookingApi = api.injectEndpoints({
         },
       }),
     }),
+    fetchBookingSources: build.query({
+      query: () => ({
+        url: `/booking/sources`,
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: {source_id: string, source: string}[];
+      }) => {
+        const formatted = response.data.map((item) => {
+          return {
+            id: item.source_id,
+            name: item.source,
+          };
+        });
+
+        return formatted;
+      },
+    }),
+    fetchBookingChannels: build.query({
+      query: () => ({
+        url: `/booking/channels`,
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: {channel_id: string, channel: string}[];
+      }) => {
+        const formatted = response.data.map((item) => {
+          return {
+            id: item.channel_id,
+            name: item.channel,
+          };
+        });
+
+        return formatted;
+      },
+    }),
   }),
 });
 
@@ -228,5 +268,7 @@ export const {
   useAssignTeamMemberMutation,
   useUpdateCustomerMutation,
   useFetchNationalityQuery,
-  useFetchAreasQuery
+  useFetchAreasQuery,
+  useFetchBookingSourcesQuery,
+  useFetchBookingChannelsQuery,
 } = bookingApi;

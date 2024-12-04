@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { FaCheckCircle } from "react-icons/fa";
 import { IoMdCloseCircle } from "react-icons/io";
@@ -85,10 +85,9 @@ const Table = () => {
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
-  const { date } = useSelector((state: RootState) => state.global);
+  const { date } = useSelector((state: RootState) => state.app);
   const { data, isLoading } = useFetchBookingsQuery(
-    dayjs(date).format("YYYY-MM-DD")
-  );
+    dayjs(date || new Date()).format("YYYY-MM-DD"));
 
   const handleEditBooking=(id: string)=>{
     setOpen(true)
@@ -98,7 +97,7 @@ const Table = () => {
     <>
       <ViewBookingModal id={id} open={update} setOpen={setUpdate} />
       <NewBookingModal selectedBooking={selectedBooking || ""} open={open} setOpen={setOpen} />
-      <div className="mt-5 h-[calc(100vh-385px)] w-full lg:h-[calc(100vh-275px)] xl:h-[calc(100vh-220px)]">
+      <div className="mt-5 h-[calc(100vh-385px)] w-full lg:h-[calc(100vh-275px)] xl:h-[calc(100vh-270px)]">
         <div className="h-full w-full overflow-hidden rounded-t-lg border">
           <div className="no-scrollbar h-full overflow-y-scroll">
             <table className="relative w-full min-w-full">

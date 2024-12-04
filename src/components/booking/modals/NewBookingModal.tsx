@@ -12,7 +12,10 @@ import {
   useFetchBookingsQuery,
   useCreateBookingMutation,
   useFetchCategoriesMutation,
-  useFetchBookingDetailsQuery
+  useFetchBookingDetailsQuery,
+  useDeleteAttachmentMutation,
+  useFetchBookingSourcesQuery,
+  useFetchBookingChannelsQuery
 } from "../../../store/services/booking";
 import {
   useFetchCustomerFamilyMutation,
@@ -34,7 +37,6 @@ import {
 } from "react-icons/io5";
 import {
   FaRegEdit,
-  FaRegClock,
   FaChevronLeft,
   FaRegTrashAlt,
   FaChevronRight,
@@ -51,15 +53,17 @@ import { LuLoader2, LuUser2 } from "react-icons/lu";
 import { TiArrowSortedDown, TiDocumentText } from "react-icons/ti";
 import AddAddressModal from "./AddAddressModal";
 import CustomButton from "../../ui/CustomButton";
-import { setDate } from "../../../store/slices/global";
+import { setDate } from "../../../store/slices/app";
 import BookingHistoryModal from "./BookingHistoryModal";
 import AddCustomerModal from "./AddCustomerModal";
 import AddFamilyMemberModal from "./AddFamilyMemberModal";
 import AddMedicalDetailModal from "./AddMedicalDetailModal";
 import EditServiceModal from "./EditServiceModal";
 import UploadAttachmentModal from "./UploadAttachmentModal";
-import { useFetchUsersByRolesQuery } from "../../../store/services/filters";
-import DeleteAttachmentModal from "./DeleteAttachmentModal";
+import { useFetchBranchesQuery, useFetchUsersByRolesQuery } from "../../../store/services/filters";
+import DeleteModal from "./DeleteModal";
+import { RiArrowDownSLine } from "react-icons/ri";
+import { useFetchCompaniesQuery } from "../../../store/services/company";
 
 interface NewBookingModal {
   selectedBooking?: string | null;
@@ -90,10 +94,10 @@ const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
                 <p className="w-full overflow-hidden truncate text-left">
                   {booking.consultation_team.length !== 0
                     ? booking.consultation_team
-                        .map((member) => {
-                          return member.name;
-                        })
-                        .join(" - ")
+                      .map((member) => {
+                        return member.name;
+                      })
+                      .join(" - ")
                     : "N/A"}
                 </p>
               </div>
@@ -108,10 +112,10 @@ const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
                 <span className="w-full overflow-hidden truncate text-left">
                   {booking.consultation_team.length !== 0
                     ? booking.consultation_team
-                        .map((member) => {
-                          return member.name;
-                        })
-                        .join(" - ")
+                      .map((member) => {
+                        return member.name;
+                      })
+                      .join(" - ")
                     : "N/A"}
                 </span>
               </div>
@@ -149,6 +153,10 @@ const NewBookingModal = ({
   const [scheduleTime, setScheduleTime] = useState<ListOptionProps | null>(
     null
   );
+  const [source, setSource] = useState<ListOptionProps | null>(null);
+  const [channel, setChannel] = useState<ListOptionProps | null>(null);
+  const [company, setCompany] = useState<ListOptionProps | null>(null);
+  const [branch, setBranch] = useState<ListOptionProps | null>(null);
   const [scheduleDate, setScheduleDate] = useState<Date | string>(new Date());
   const [deliveryNotes, setDeliveryNotes] = useState("");
   const [fetchFamily] = useFetchCustomerFamilyMutation();
@@ -157,11 +165,12 @@ const NewBookingModal = ({
   >([]);
   const [fetchAddresses] = useFetchCustomerAddressesMutation();
   const [family, setFamily] = useState<FamilyProps[] | null>([]);
-  const { user, date } = useSelector((state: RootState) => state.global);
+  const { user } = useSelector((state: RootState) => state.global);
+  const { date } = useSelector((state: RootState) => state.app);
   const [fetchAttachments] = useFetchCustomerAttachmentsMutation();
   const [addresses, setAddresses] = useState<AddressProps[] | null>([]);
   const [category, setCategory] = useState<ListOptionProps | null>(null);
-  const { data, refetch } = useFetchBookingsQuery(dayjs(date).format("YYYY-MM-DD"));
+  const { data, refetch } = useFetchBookingsQuery(dayjs(date || new Date()).format("YYYY-MM-DD"));
   const [profession, setProfession] = useState<ListOptionProps | null>(null);
   const [createBooking, { isLoading: creating }] = useCreateBookingMutation();
   const [selectedUser, setSelectedUser] = useState<CustomerProps | null>(null);
@@ -182,7 +191,7 @@ const NewBookingModal = ({
   const [history, setHistory] = useState(false);
   const [openDeleteAttachmentModal, setOpenDeleteAttachmentModal] =
     useState(false);
-  const [deleteAttachment, setDeleteAttachment] = useState<AttachmentProps | null>(null);
+  const [deleteBookingAttachment, setDeleteAttachment] = useState<AttachmentProps | null>(null);
 
   const [fetchCategories] = useFetchCategoriesMutation();
   const { data: professions } = useFetchUsersByRolesQuery({});
@@ -193,6 +202,20 @@ const NewBookingModal = ({
       refetchOnMountOrArgChange: true,
     }
   );
+  const [deleteAttachment, { isLoading: deleteLoading }] = useDeleteAttachmentMutation();
+  const { data: companiesDropdownData } = useFetchCompaniesQuery([]);
+  const { data: branchesDropodwnData } = useFetchBranchesQuery([{name: 'company', id: `${company?.id}-company`}], {
+    skip: !company?.id,
+    refetchOnMountOrArgChange: true,
+  });
+  const { data: bookingSourcesData } = useFetchBookingSourcesQuery({}, {
+    skip: !open,
+    refetchOnMountOrArgChange: true,
+  });
+  const { data: bookingChannelsData } = useFetchBookingChannelsQuery({}, {
+    skip: !open,
+    refetchOnMountOrArgChange: true,
+  });
 
   const dispatch = useDispatch();
 
@@ -285,7 +308,10 @@ const NewBookingModal = ({
     urlencoded.append("customer_id", selectedUser!.customer_id);
     urlencoded.append("family_member_id", String(selectedFamily));
     urlencoded.append("address_id", String(address));
-    urlencoded.append("booking_source_id", "1");
+    urlencoded.append("booking_source_id", String(source?.id || ""));
+    urlencoded.append("booking_channel_id", String(channel?.id || ""));
+    urlencoded.append("company_id", String(company?.id || ""));
+    urlencoded.append("branch_id", String(branch?.id || ""));
     urlencoded.append("partner_id", "1");
     urlencoded.append("firstname", selectedUser!.firstname);
     urlencoded.append("lastname", selectedUser!.lastname);
@@ -310,10 +336,10 @@ const NewBookingModal = ({
     );
     urlencoded.append("discount_value", `${discount.value || '0.00'}`);
     urlencoded.append("discount_type", `${discount.type === 'percent' ? discount.type : 'fixed'}`);
-    if(discount.type==='aed'){
+    if (discount.type === 'aed') {
       urlencoded.append("discount", `${discount.value || '0.00'}`);
-    }else{
-      const total=calculateBookingCost(selectedServices!).grand_total
+    } else {
+      const total = calculateBookingCost(selectedServices!).grand_total
       urlencoded.append("discount", `${(total - Math.round(total - total * (discount.value / 100))) || '0.00'}`);
     }
     urlencoded.append(
@@ -328,7 +354,7 @@ const NewBookingModal = ({
       "services",
       JSON.stringify(
         selectedServices?.map((item) => {
-          const disc=item.discount_type==='aed' ? item.discount_value : Number(item.price_without_vat) - Math.round(Number(item.price_without_vat) - Number(item.price_without_vat) * (Number(item.discount_value) / 100))
+          const disc = item.discount_type === 'aed' ? item.discount_value : Number(item.price_without_vat) - Math.round(Number(item.price_without_vat) - Number(item.price_without_vat) * (Number(item.discount_value) / 100))
           return {
             service_id: item.service_id,
             qty: item.qty,
@@ -420,13 +446,13 @@ const NewBookingModal = ({
       const temp = selectedServices?.map((service) =>
         service.service_id === selectedService
           ? {
-              ...service,
-              discount: String(discount.total),
-              total: String(discount.total),
-              discount_value: String(discount.value),
-              new_price: String(discount.newPrice),
-              discount_type: discount.type,
-            }
+            ...service,
+            discount: String(discount.total),
+            total: String(discount.total),
+            discount_value: String(discount.value),
+            new_price: String(discount.newPrice),
+            discount_type: discount.type,
+          }
           : service
       );
       setSelectedServices(temp);
@@ -482,10 +508,10 @@ const NewBookingModal = ({
     window.open(`https://crm.fandcproperties.ru${url}`, "_blank");
   };
 
-  const handleSelectUser=()=>{
+  const handleSelectUser = () => {
     setSelectedServices([])
   }
-  
+
   const incrementDate = (e: React.MouseEvent<SVGAElement>) => {
     e.stopPropagation();
     const newDate = dayjs(date || new Date()).add(1, "day").toDate();
@@ -496,6 +522,41 @@ const NewBookingModal = ({
     e.stopPropagation();
     const newDate = dayjs(date || new Date()).subtract(1, "day").toDate();
     handleSetDate(newDate);
+  };
+
+  const handleDeleteAttachment = async () => {
+    try {
+      if (deleteBookingAttachment) {
+        const formData = new FormData();
+        formData.append("file_name", deleteBookingAttachment?.file_name);
+        formData.append("file_type", deleteBookingAttachment?.file_type);
+        formData.append("attachment_id", deleteBookingAttachment?.attachment_id);
+        const response = await deleteAttachment(formData);
+        if (response?.error) {
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="error"
+              title="Error"
+              message={`Something Went Wrong!`}
+            />
+          ));
+        } else {
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="success"
+              title="Success"
+              message={`Attachment Deleted Successfully!`}
+            />
+          ));
+          getAttachments(deleteBookingAttachment?.customer_id || "");
+          setOpenDeleteAttachmentModal(false);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   useEffect(() => {
@@ -519,14 +580,14 @@ const NewBookingModal = ({
     }
   }, [selectedUser]);
 
-  useEffect(()=>{
-    if(!selectedService?.length){
+  useEffect(() => {
+    if (!selectedService?.length) {
       setDiscount({
         type: "aed",
         value: 0,
       });
     }
-  },[selectedService])
+  }, [selectedService])
   useEffect(() => {
     getCategories();
   }, []);
@@ -628,7 +689,7 @@ const NewBookingModal = ({
                 toggleButton={
                   <div className="flex h-12 w-full items-center text-sm xl:text-base lg:gap-1 xl:gap-4 text-gray-500">
                     <FaChevronLeft className="cursor-pointer" onClick={decrementDate} />
-                    {dayjs(date).format("DD MMM YYYY")}
+                    {dayjs(date || new Date()).format("DD MMM YYYY")}
                     <FaChevronRight className="cursor-pointer" onClick={incrementDate} />
                   </div>
                 }
@@ -872,59 +933,59 @@ const NewBookingModal = ({
                       />
                     </div>
                     <div className="w-full overflow-auto">
-                    <div className="grid w-full grid-cols-5 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
-                      <div className="col-span-1 w-full">Name</div>
-                      <div className="col-span-1 w-full">DOB</div>
-                      <div className="col-span-1 w-full">Gender</div>
-                      <div className="col-span-1 w-full">Relation</div>
-                      <div className="col-span-1 w-full">Actions</div>
-                    </div>
-                    {family?.length &&
-                      family?.map((member, idx) => (
-                        <div
-                          key={member.family_member_id}
-                          className={cn(
-                            "grid w-full grid-cols-5 gap-2.5 bg-gray-100 p-2.5 text-xs text-gray-500",
-                            {
-                              "bg-white": member.family_member_id % 2 !== 0,
-                              "border-b": idx === family.length - 1,
-                            }
-                          )}
-                        >
-                          <div className="col-span-1 w-full overflow-hidden truncate">
-                            {member.firstname}&nbsp;{member.lastname}
-                          </div>
-                          <div className="col-span-1 w-full overflow-hidden truncate">
-                            {dayjs(member.date_of_birth).format("DD-MM-YYYY")}
-                          </div>
-                          <div className="col-span-1 w-full capitalize">
-                            {member.gender==='undefined' ? 'N/A' : member.gender}
-                          </div>
-                          <div className="col-span-1 w-full">
-                            {member.relationship==='undefined' ? 'N/A' : member.relationship}
-                          </div>
-                          <div className="col-span-1 gap-1 flex w-full items-center justify-between">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleEditFamilymemberClick(member)
+                      <div className="grid w-full grid-cols-5 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
+                        <div className="col-span-1 w-full">Name</div>
+                        <div className="col-span-1 w-full">DOB</div>
+                        <div className="col-span-1 w-full">Gender</div>
+                        <div className="col-span-1 w-full">Relation</div>
+                        <div className="col-span-1 w-full">Actions</div>
+                      </div>
+                      {family?.length &&
+                        family?.map((member, idx) => (
+                          <div
+                            key={member.family_member_id}
+                            className={cn(
+                              "grid w-full grid-cols-5 gap-2.5 bg-gray-100 p-2.5 text-xs text-gray-500",
+                              {
+                                "bg-white": member.family_member_id % 2 !== 0,
+                                "border-b": idx === family.length - 1,
                               }
-                            >
-                              <FaRegEdit className="h-5 w-5" />
-                            </button>
-                            <button
-                              onClick={() =>
-                                handleSelectFamily(member?.family_member_id)
-                              }
-                              className={`rounded-md px-1 py-0.5 text-[10px] text-white ${selectedFamily === member?.family_member_id ? "bg-red-500" : "bg-primary"}`}
-                            >
-                              {selectedFamily === member?.family_member_id
-                                ? "Remove"
-                                : "Book"}
-                            </button>
+                            )}
+                          >
+                            <div className="col-span-1 w-full overflow-hidden truncate">
+                              {member.firstname}&nbsp;{member.lastname}
+                            </div>
+                            <div className="col-span-1 w-full overflow-hidden truncate">
+                              {dayjs(member.date_of_birth).format("DD-MM-YYYY")}
+                            </div>
+                            <div className="col-span-1 w-full capitalize">
+                              {member.gender === 'undefined' ? 'N/A' : member.gender}
+                            </div>
+                            <div className="col-span-1 w-full">
+                              {member.relationship === 'undefined' ? 'N/A' : member.relationship}
+                            </div>
+                            <div className="col-span-1 gap-1 flex w-full items-center justify-between">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleEditFamilymemberClick(member)
+                                }
+                              >
+                                <FaRegEdit className="h-5 w-5" />
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleSelectFamily(member?.family_member_id)
+                                }
+                                className={`rounded-md px-1 py-0.5 text-[10px] text-white ${selectedFamily === member?.family_member_id ? "bg-red-500" : "bg-primary"}`}
+                              >
+                                {selectedFamily === member?.family_member_id
+                                  ? "Remove"
+                                  : "Book"}
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ))}
                     </div>
                   </div>
                   <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
@@ -1057,19 +1118,19 @@ const NewBookingModal = ({
                         <div className="col-span-1 flex w-full items-center justify-end">
                           {service?.qty
                             ? Math.round(
-                                parseFloat(
-                                  service.total ||
-                                    service.price_without_vat ||
-                                    "0"
-                                ) * service!.qty
-                              )
+                              parseFloat(
+                                service.total ||
+                                service.price_without_vat ||
+                                "0"
+                              ) * service!.qty
+                            )
                             : Math.round(
-                                parseFloat(
-                                  service.total ||
-                                    service.price_without_vat ||
-                                    "0"
-                                )
-                              )}
+                              parseFloat(
+                                service.total ||
+                                service.price_without_vat ||
+                                "0"
+                              )
+                            )}
                         </div>
                         <div
                           onClick={() => handleEditService(service?.service_id)}
@@ -1192,10 +1253,73 @@ const NewBookingModal = ({
                         placeholder="Select Time"
                         mainClassName="w-full"
                         toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
-                        listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
                         listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                        icon={<FaRegClock className="h-5 w-5 text-grey100" />}
+                        icon={<RiArrowDownSLine className="h-5 w-5 text-grey100" />}
                         isSearch={false}
+                      />
+                    </div>
+                    <div className="grid w-full grid-cols-2 gap-2.5">
+                      <Combobox
+                        value={source}
+                        options={bookingSourcesData}
+                        handleSelect={(value) => setSource(value)}
+                        label="Select Source"
+                        placeholder="Select Source"
+                        mainClassName="w-full"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                        icon={<RiArrowDownSLine className="h-5 w-5 text-grey100" />}
+                        isSearch={false}
+                      />
+                      <Combobox
+                        value={channel}
+                        options={bookingChannelsData}
+                        handleSelect={(value) => setChannel(value)}
+                        label="Select Channel"
+                        placeholder="Select Channel"
+                        mainClassName="w-full"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                        icon={<RiArrowDownSLine className="h-5 w-5 text-grey100" />}
+                        isSearch={false}
+                      />
+                    </div>
+                    <div className="grid w-full grid-cols-2 gap-2.5">
+                      <Combobox
+                        value={company}
+                        options={companiesDropdownData?.map((item) => ({
+                          id: item.id,
+                          name: item.name,
+                        }))}
+                        handleSelect={(value) => setCompany(value)}
+                        label="Select Company"
+                        placeholder="Select Company"
+                        mainClassName="w-full"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                        icon={<RiArrowDownSLine className="h-5 w-5 text-grey100" />}
+                        isSearch={false}
+                      />
+                      <Combobox
+                        value={branch}
+                        options={branchesDropodwnData?.map((item) => ({
+                          id: item.branch_id,
+                          name: item.name,
+                        }))}
+                        handleSelect={(value) => setBranch(value)}
+                        label="Select Branch"
+                        placeholder="Select Branch"
+                        mainClassName="w-full"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                        icon={<RiArrowDownSLine className="h-5 w-5 text-grey100" />}
+                        isSearch={false}
+                        disabled={!company?.id}
                       />
                     </div>
                   </div>
@@ -1324,11 +1448,12 @@ const NewBookingModal = ({
           setOpen={setOpenUploadAttachment}
           getAttachments={getAttachments}
         />
-        <DeleteAttachmentModal
+        <DeleteModal
+          title="Delete Attachment"
           open={openDeleteAttachmentModal}
           setOpen={setOpenDeleteAttachmentModal}
-          attachment={deleteAttachment}
-          getAttachments={getAttachments}
+          deleteLoading={deleteLoading}
+          handleDelete={handleDeleteAttachment}
         />
       </Modal>
     </>

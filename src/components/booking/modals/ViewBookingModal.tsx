@@ -337,7 +337,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                               </button>
                             </div>
                           </div>
-                          {data?.team?.length &&
+                          {data?.team?.length ?
                           <>
                           <div className="mt-2.5 grid w-full grid-cols-4 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
                             <p className="col-span-1 w-full text-left">Team</p>
@@ -403,7 +403,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                               </div>
                             </div>
                           ))}
-                          </>}
+                          </>: null}
                         </div>
                         {/* )} */}
                         {/* Booking Instructions */}
@@ -599,6 +599,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                               <input
                                 type="text"
                                 placeholder={data?.booking_source}
+                                value={data?.booking_source}
                                 className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
                                 disabled={!editing}
                               />
@@ -641,6 +642,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                               <input
                                 type="text"
                                 placeholder={data?.branch}
+                                value={data?.branch}
                                 className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
                                 disabled={!editing}
                               />

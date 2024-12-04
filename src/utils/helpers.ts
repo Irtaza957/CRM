@@ -102,3 +102,10 @@ export const groupAndCountItems = (
 
   return Array.from(resultMap.values());
 };
+
+export const getFilterQuery = (query: { name: string; id: string, value: string }[]) => {
+  return query?.map(
+    (filter: { name: string; id: string, value: string }) =>
+      `${encodeURIComponent(filter.name)}_id=${encodeURIComponent((filter?.id || filter?.value)?.split("-")[0])}`
+  ).join("&");
+}

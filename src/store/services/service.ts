@@ -1,3 +1,4 @@
+import { getFilterQuery } from "../../utils/helpers";
 import { api } from "./api";
 
 export const serviceApi = api.injectEndpoints({
@@ -15,19 +16,9 @@ export const serviceApi = api.injectEndpoints({
     }),
     fetchServices: build.query({
       query: (query) => {
-        let queryString = "";
-        if (query?.length) {
-          queryString =
-            "?" +
-            query
-              ?.map(
-                (filter: { name: string; id: string }) =>
-                  `${encodeURIComponent(filter.name)}_id=${encodeURIComponent(filter.id?.split("-")[0])}`
-              )
-              .join("&");
-        }
+        const queryString = getFilterQuery(query);
         return {
-          url: `/services${queryString}`,
+          url: `/services?${queryString}`,
           method: "GET",
         };
       },
@@ -68,7 +59,7 @@ export const serviceApi = api.injectEndpoints({
     }),
     fetchCategoryList: build.query({
       query: (id) => ({
-        url: `/categories${id ? `?company_id=${id}` : ''}`,
+        url: `/categories${id ? `?company_id=${id}` : ""}`,
         method: "GET",
       }),
       transformResponse: (response: {
@@ -160,7 +151,7 @@ export const serviceApi = api.injectEndpoints({
       transformResponse: (response: {
         success: number;
         error: string;
-        data: {bundle: string}[];
+        data: { bundle: string }[];
       }) => response.data,
     }),
     serviceVitamin: build.mutation({
@@ -171,8 +162,196 @@ export const serviceApi = api.injectEndpoints({
       transformResponse: (response: {
         success: number;
         error: string;
-        data: {bundle: string}[];
+        data: { bundle: string }[];
       }) => response.data,
+    }),
+    fetchSections: build.query({
+      query: (id) => ({
+        url: `/services/sections?service_id=${id}`,
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: { name: string; description: string }[];
+      }) => response.data,
+    }),
+    fetchRelatedServices: build.query({
+      query: (id) => ({
+        url: `/services/related_services?service_id=${id}`,
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: {
+          code: string;
+          name: string;
+          price_with_vat: string;
+          promotional_price_with_vat: string;
+        }[];
+      }) => response.data,
+    }),
+    createSection: build.mutation({
+      query: (data) => ({
+        url: "/services/sections",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    updateSection: build.mutation({
+      query: (data) => ({
+        url: "/services/update_section",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    createRelatedSection: build.mutation({
+      query: (data) => ({
+        url: "/services/related_services",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    addFAQ: build.mutation({
+      query: (data) => ({
+        url: "/services/faqs",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    updateFAQ: build.mutation({
+      query: (data) => ({
+        url: "/services/update_faq",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    addReview: build.mutation({
+      query: (data) => ({
+        url: "/services/reviews",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    updateReview: build.mutation({
+      query: (data) => ({
+        url: "/services/update_review",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    fetchFAQs: build.query({
+      query: (serviceId) => ({
+        url: `/services/faqs?service_id=${serviceId}`,
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: FAQProps[];
+      }) => response.data,
+    }),
+    fetchReviews: build.query({
+      query: (serviceId) => ({
+        url: `/services/reviews?service_id=${serviceId}`,
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: ReviewProps[];
+      }) => response.data,
+    }),
+    fetchHomeSections: build.query({
+      query: (query) => {
+        let queryString = "";
+        if (query?.length) {
+          queryString =
+            "?" +
+            query
+              ?.map(
+                (filter: { name: string; id: string }) =>
+                  `${encodeURIComponent(filter.name)}_id=${encodeURIComponent(filter.id?.split("-")[0])}`
+              )
+              .join("&");
+        }
+        return {
+          url: `/home${queryString}`,
+          method: "GET",
+        };
+      },
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: HomeSectionProps[];
+      }) => response.data,
+    }),
+    updateHomeSection: build.mutation({
+      query: (data) => ({
+        url: "/home/update",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    addHomeSection: build.mutation({
+      query: (data) => ({
+        url: "/home",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    deleteSection: build.mutation({
+      query: (id) => ({
+        url: `/services/sections?id=${id}`,
+        method: "DELETE",
+      }),
+    }),
+    updateSectionStatus: build.mutation({
+      query: (data) => ({
+        url: "/services/active_section",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    deleteReview: build.mutation({
+      query: (id) => ({
+        url: `/services/reviews?id=${id}`,
+        method: "DELETE",
+      }),
+    }),
+    updateReviewStatus: build.mutation({
+      query: (data) => ({
+        url: "/services/active_review",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    deleteFAQ: build.mutation({
+      query: (id) => ({
+        url: `/services/faqs?id=${id}`,
+        method: "DELETE",
+      }),
+    }),
+    updateFAQStatus: build.mutation({
+      query: (data) => ({
+        url: "/services/active_faq",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    deleteHomeSection: build.mutation({
+      query: (id) => ({
+        url: `/home?id=${id}`,
+        method: "DELETE",
+      }),
+    }),
+    updateHomeSectionStatus: build.mutation({
+      query: (data) => ({
+        url: "/home/active",
+        method: "POST",
+        body: data,
+      }),
     }),
   }),
 });
@@ -189,8 +368,30 @@ export const {
   useUpdateCategoryStatusMutation,
   useUpdateServicesStatusMutation,
   useFetchBusinessesQuery,
-  useFetchAddressAreasQuery,
   useCreateBusinessMutation,
   useCategoryBundleMutation,
-  useServiceVitaminMutation
+  useServiceVitaminMutation,
+  useFetchAddressAreasQuery,
+  useFetchSectionsQuery,
+  useCreateSectionMutation,
+  useUpdateSectionMutation,
+  useFetchRelatedServicesQuery,
+  useCreateRelatedSectionMutation,
+  useAddFAQMutation,
+  useUpdateFAQMutation,
+  useAddReviewMutation,
+  useUpdateReviewMutation,
+  useFetchFAQsQuery,
+  useFetchReviewsQuery,
+  useFetchHomeSectionsQuery,
+  useUpdateHomeSectionMutation,
+  useAddHomeSectionMutation,
+  useDeleteSectionMutation,
+  useUpdateSectionStatusMutation,
+  useDeleteReviewMutation,
+  useUpdateReviewStatusMutation,
+  useDeleteFAQMutation,
+  useUpdateFAQStatusMutation,
+  useDeleteHomeSectionMutation,
+  useUpdateHomeSectionStatusMutation
 } = serviceApi;

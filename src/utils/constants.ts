@@ -13,6 +13,7 @@ import AppPanel from "../assets/icons/sidebar/app_panel.svg";
 import ServiceList from "../assets/icons/sidebar/service_list.svg";
 // import WebsitePanel from "../assets/icons/sidebar/website_panel.svg";
 // import CustomerRatings from "../assets/icons/sidebar/customer_ratings.svg";
+import SmallUpDownArrow from "../assets/icons/small-updown-arrow.svg";
 
 export const emirates = [
   {
@@ -554,55 +555,9 @@ export const sidebarItems = [
   // },
   {
     id: 14,
-    name: "City Doctor App Panel",
+    name: "Apps Panel",
     icon: AppPanel,
-    link: "#",
-    subItems: [
-      {
-        id: 1,
-        name: "Services List",
-        icon: ServiceList,
-        link: "/app/services",
-      },
-      {
-        id: 1,
-        name: "Banners",
-        icon: ServiceList,
-        link: "/app/banners",
-      },
-      {
-        id: 1,
-        name: "Coupons",
-        icon: ServiceList,
-        link: "/app/coupons",
-      },
-    ],
-  },
-  {
-    id: 15,
-    name: "Drip Hub Panel",
-    icon: AppPanel,
-    link: "#",
-    subItems: [
-      {
-        id: 1,
-        name: "Services List",
-        icon: ServiceList,
-        link: "/dripHub/services",
-      },
-      {
-        id: 1,
-        name: "Banners",
-        icon: ServiceList,
-        link: "/dripHub/banners",
-      },
-      {
-        id: 1,
-        name: "Coupons",
-        icon: ServiceList,
-        link: "/dripHub/coupons",
-      },
-    ],
+    link: "/app/services",
   },
   // {
   //   id: 15,
@@ -873,3 +828,131 @@ export const bannerColumns = [
   { id: 3, name: "Type", key: "type" },
   { id: 4, name: "Link To", key: "link_to" },
 ];
+
+export const bannerTypes = [
+  { id: "horizontal", name: "Horizontal" },
+  { id: "vertical", name: "Vertical" },
+];
+
+export const linkToOptions = [
+  { id: "categories_page", name: "Categories Page" },
+  { id: "services_page", name: "Services Page" },
+  { id: "service_detail_page", name: "Service Detail Page" },
+];
+
+export const discountTypes = [
+  { id: "percent", name: "Percentage" },
+  { id: "fixed", name: "Fixed" },
+];
+
+export const appPanelTabs = ["Services", "Home Sections", "Banners", "Coupons"];
+
+export const homeSectionsHeaders = [
+  { label: "#", key: "id", sortable: true, sortIcon: SmallUpDownArrow },
+  {
+    label: "Category Name",
+    key: "name",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Total Rows",
+    key: "total_rows",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Total Services",
+    key: "total_services",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  { label: "Quick Actions", key: "actions", sortable: false },
+];
+
+export const servicesHeaders = [
+  { label: "#", key: "service_id", sortable: true, sortIcon: SmallUpDownArrow },
+  {
+    label: "Category Name",
+    key: "category_name",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Service Name",
+    key: "service_name",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Company Name",
+    key: "providor",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Selling Price",
+    key: "price_with_vat",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  { label: "Quick Actions", key: "actions", sortable: false },
+];
+
+export const bannersHeaders = [
+  { label: "#", key: "banner_id", sortable: true, sortIcon: SmallUpDownArrow },
+  { label: "Image", key: "image", sortable: true, sortIcon: SmallUpDownArrow },
+  { label: "Page", key: "page", sortable: true, sortIcon: SmallUpDownArrow },
+  { label: "Place", key: "place", sortable: true, sortIcon: SmallUpDownArrow },
+  { label: "Title", key: "title", sortable: true, sortIcon: SmallUpDownArrow },
+  {
+    label: "Link To",
+    key: "link_to",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  { label: "Quick Actions", key: "actions", sortable: false },
+];
+
+export const couponsHeaders = [
+  { label: "#", key: "coupon_id", sortable: true, sortIcon: SmallUpDownArrow },
+  { label: "Name", key: "name", sortable: true, sortIcon: SmallUpDownArrow },
+  { label: "code", key: "code", sortable: true, sortIcon: SmallUpDownArrow },
+  {
+    label: "Discount Type",
+    key: "discount_type",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Discount Value",
+    key: "discount_value",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Expiry Date",
+    key: "expiry_date",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Total Redeems",
+    key: "total_redeems",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  { label: "Quick Actions", key: "actions", sortable: false },
+];
+
+export const pageOptions = [
+  { id: "home", name: "Home" },
+  { id: "offers", name: "Offers" },
+];
+
+export const placeOptions = [
+  { id: "top", name: "Top" },
+  { id: "bottom", name: "Bottom" },
+  { id: "middle", name: "Middle" },
+];
+

@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { api } from "./services/api";
 import globalReducer from "./slices/global";
+import appReducer from "./slices/app";
 import storage from "redux-persist/lib/storage";
 import { configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
@@ -15,6 +16,7 @@ const store = configureStore({
     [api.reducerPath]: api.reducer,
     // @ts-ignore
     global: persistReducer(persistConfig, globalReducer),
+    app: appReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ serializableCheck: false }).concat(api.middleware),

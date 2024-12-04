@@ -13,7 +13,7 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const { pathname } = useLocation();
   const { sidebar } = useSelector((state: RootState) => state.global);
-  const [openPanels, setOpenPanels] = useState<Record<string, boolean>>({});
+  const [selectedTab, setSelectedTab] = useState<number | null>(null);
 
   const handleToggle = () => {
     dispatch(toggleSidebar());
@@ -25,16 +25,13 @@ const Sidebar = () => {
   ) => {
     if (item.link === "#") {
       e.preventDefault();
-      setOpenPanels((prev) => ({
-        ...prev,
-        [item.id]: !prev[item.id],
-      }));
+      setSelectedTab(item.id);
     }
   };
 
-  const isParentActive = (item: (typeof sidebarItems)[0]) => {
-    return item.subItems?.length
-      ? item.subItems?.some((subItem) => pathname.startsWith(subItem.link))
+  const isParentActive = (item: {link: string, subItems: {link: string}[]}) => {
+    return item?.subItems?.length
+      ? item?.subItems?.some((subItem) => pathname.startsWith(subItem.link))
       : pathname.startsWith(item.link);
   };
 
@@ -43,7 +40,7 @@ const Sidebar = () => {
       className={cn(
         "bg-main hidden max-h-screen w-20 flex-col overflow-y-auto transition-[width] md:flex",
         {
-          "w-68": sidebar,
+          "w-56": sidebar,
         }
       )}
     >
@@ -83,17 +80,17 @@ const Sidebar = () => {
                       <span className="flex-1 text-left font-semibold whitespace-nowrap">
                         {item.name}
                       </span>
-                      {item.subItems?.length && (
+                      {item?.subItems?.length && (
                         <RiArrowDropDownLine
-                          className={`size-8 ${openPanels[item.id] ? "rotate-180" : "rotate-0"}`}
+                          className={`size-8 ${selectedTab === item.id ? "rotate-180" : "rotate-0"}`}
                         />
                       )}
                     </div>
                   )}
                 </Link>
-                {item.subItems?.length && sidebar && openPanels[item.id] && (
+                {item?.subItems?.length && sidebar && selectedTab === item.id  && (
                   <ul className="bg-darkprimary/50">
-                    {item.subItems?.map((subItem) => (
+                    {item?.subItems?.map((subItem) => (
                       <li
                         key={subItem.id}
                         className={cn(

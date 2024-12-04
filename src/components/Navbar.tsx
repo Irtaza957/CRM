@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { MdOutlineMessage } from "react-icons/md";
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { setDate } from "../store/slices/global";
+import { setDate } from "../store/slices/app";
 import dayjs from "dayjs";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
@@ -18,7 +18,8 @@ const Navbar = () => {
   const [search, setSearch] = useState("");
   const [isLogout, setIsLogout] = useState(false);
 
-  const { user, date } = useSelector((state: RootState) => state.global);
+  const { user } = useSelector((state: RootState) => state.global);
+  const { date } = useSelector((state: RootState) => state.app);
   const userRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(userRef, () => setIsLogout(false));
   const dispatch = useDispatch();

@@ -9,7 +9,8 @@ interface SwitchProps {
 const Switch: React.FC<SwitchProps> = ({ checked = false, onChange }) => {
   const [toggle, setToggle] = useState(checked);
 
-  const handleToggle = () => {
+  const handleToggle = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
     const newValue = !toggle;
     setToggle(newValue);
     onChange?.(newValue); // Call the onChange prop if provided

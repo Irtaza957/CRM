@@ -17,6 +17,7 @@ import { RootState } from "../../../store";
 import { FiEdit } from "react-icons/fi";
 import dayjs from "dayjs";
 import CustomDatePicker from "../../ui/CustomDatePicker";
+import { discountTypes } from "../../../utils/constants";
 
 interface AddCouponModalProps {
   open: boolean;
@@ -25,12 +26,9 @@ interface AddCouponModalProps {
   refetch: () => void;
   isView?: boolean;
   setIsView?: React.Dispatch<React.SetStateAction<boolean>>;
+  businessId: string | number | null;
+  companyId: string | number | null;
 }
-
-const discountTypes = [
-  { id: 1, name: "percent", label: "Percentage" },
-  { id: 2, name: "fixed", label: "Fixed Amount" },
-];
 
 const AddCouponModal = ({
   open,
@@ -39,6 +37,8 @@ const AddCouponModal = ({
   refetch,
   isView,
   setIsView,
+  businessId,
+  companyId
 }: AddCouponModalProps) => {
   const [discountType, setDiscountType] = useState<ListOptionProps | null>(
     null
@@ -80,10 +80,10 @@ const AddCouponModal = ({
       formData.append("code", data.code);
       formData.append("expiry_date", dayjs(expiryDate).format("YYYY-MM-DD"));
       formData.append("total_redeems", data.total_redeems);
-      formData.append("discount_type", discountType?.name || "");
+      formData.append("discount_type", String(discountType?.id));
       formData.append("discount_value", data.discount_value);
-      formData.append("company_id", "1"); // Replace with actual company_id
-      formData.append("business_id", "1"); // Replace with actual business_id
+      formData.append("company_id", String(companyId));
+      formData.append("business_id", String(businessId));
       formData.append("user_id", String(user?.id));
 
       let response;
@@ -136,7 +136,7 @@ const AddCouponModal = ({
       setExpiryDate(selectedCoupon.expiry_date);
 
       const selectedType = discountTypes.find(
-        (type) => type.name === selectedCoupon.discount_type
+        (type) => type.id === selectedCoupon.discount_type
       );
       if (selectedType) {
         setDiscountType(selectedType);
@@ -186,29 +186,6 @@ const AddCouponModal = ({
               placeholder="Enter coupon code"
               disabled={isView}
             />
-            <Combobox
-              options={discountTypes}
-              value={discountType}
-              handleSelect={(value: ListOptionProps) => setDiscountType(value)}
-              label="Discount Type"
-              placeholder="Select Discount Type"
-              mainClassName="w-full"
-              toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
-              listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
-              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-              icon={<RiArrowDownSLine className="size-5 text-grey100" />}
-              isSearch={false}
-              disabled={isView}
-            />
-            <CustomInput
-              name="discount_value"
-              label="Discount Value"
-              register={register}
-              errorMsg={errors?.discount_value?.message}
-              placeholder={`Enter discount ${discountType?.name === "percent" ? "percentage" : "amount"}`}
-              type="number"
-              disabled={isView}
-            />
             <div className="flex w-full flex-col">
               <label className="mb-1 w-full text-left text-xs font-medium text-grey100">
                 Expiry Date
@@ -238,9 +215,32 @@ const AddCouponModal = ({
               type="number"
               disabled={isView}
             />
+            <Combobox
+              options={discountTypes}
+              value={discountType}
+              handleSelect={(value: ListOptionProps) => setDiscountType(value)}
+              label="Discount Type"
+              placeholder="Select Discount Type"
+              mainClassName="w-full"
+              toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+              listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+              icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+              isSearch={false}
+              disabled={isView}
+            />
+            <CustomInput
+              name="discount_value"
+              label="Discount Value"
+              register={register}
+              errorMsg={errors?.discount_value?.message}
+              placeholder={`Enter discount ${discountType?.name === "percent" ? "percentage" : "amount"}`}
+              type="number"
+              disabled={isView}
+            />
           </div>
 
-          <div className="mt-5 flex w-full items-end justify-end gap-3">
+          <div className="mt-8 flex w-full items-end justify-end gap-3">
             <CustomButton
               name="Cancel"
               handleClick={handleClose}

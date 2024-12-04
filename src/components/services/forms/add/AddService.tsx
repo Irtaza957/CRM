@@ -84,7 +84,6 @@ const AddService = ({
   });
   const [updateService, { isLoading: updating }] = useUpdateServiceMutation();
   const [vitamins, setVitamins] = useState<VitaminOption[]>([]);
-console.log(vitamins, 'vitaminsvitamins')
   const clearForm = () => {
     setVat("");
     setCode("");
@@ -104,7 +103,7 @@ console.log(vitamins, 'vitaminsvitamins')
     setPromotionalPriceVat("");
     setPromotionalPriceNoVat("");
     setVitamins([]);
-    setServiceDetails(null)
+    // setServiceDetails(null)
   };
 
 
@@ -229,8 +228,7 @@ console.log(vitamins, 'vitaminsvitamins')
     }
   }, [serviceData])
   useEffect(() => {
-    console.log(serviceDetails, 'serviceDetailsserviceDetails')
-    if (serviceDetails?.id && open) {
+    if (serviceDetails?.id) {
       setProvider && setProvider(
         serviceDetails?.company_id
           ? { id: serviceDetails?.company_id, name: "" }
@@ -288,12 +286,12 @@ console.log(vitamins, 'vitaminsvitamins')
 
   useEffect(() => {
     if (!open) {
-      clearForm();
+      // clearForm();
     }
   }, [open]);
   return (
     <div
-      className={`grid w-full grid-cols-3 gap-5 ${selectedServiceId && "mt-6"}`}
+      className={`grid w-full grid-cols-3 gap-5 ${selectedServiceId && "mt-4"}`}
     >
       {!isLoading && (
         <div className="col-span-1 flex w-full flex-col items-center justify-center gap-1">

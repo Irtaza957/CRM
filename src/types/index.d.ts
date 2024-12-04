@@ -704,7 +704,20 @@ declare type FilterType={
   name: string;
   id: string
 }
+declare type ReviewProps={
+  review_id?: string;
+  customer_id: string;
+  review: string;
+  description: string;
+  service_id: string;
+}
 
+declare type SectionProps={
+  id?: string;
+  name: string;
+  description: string;
+  rows: string;
+}
 declare type CouponProps={
   coupon_id: string
   name: string
@@ -723,10 +736,42 @@ declare type BannerProps={
   type: string
   link_to: string
   image: string
+  page: string
+  place: string
 }
 
 declare type FAQProps={
   faq_id: string
   question: string
   answer: string
+  id: string
 }
+
+declare type HomeSectionProps={
+  id: string
+  name: string
+  total_rows: string,
+  total_services: string
+  services: {id: string}[]
+}
+
+declare type BannerProps={
+  banner_id: string
+  title: string
+  description: string
+  image: string
+  link_to: string
+  link_data: string
+  type: string
+}
+
+declare type CouponProps={
+  coupon_id: string
+  name: string
+  code: string
+  discount_type: string
+  discount_value: string
+  expiry_date: string
+  total_redeems: string
+}
+
