@@ -64,8 +64,8 @@ const AddHomeSection = ({
         resolver: zodResolver(companySchema),
     });
 
-    const handleSelectServices = (value: ListOptionProps[]) => {
-        setSelectedServices(value);
+    const handleSelectServices = (value: ListOptionProps | ListOptionProps[]) => {
+        setSelectedServices(value as ListOptionProps[]);
     };
 
     const handleClose = () => {

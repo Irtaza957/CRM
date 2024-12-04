@@ -53,7 +53,7 @@ const Sidebar = () => {
       <div className="relative z-30 hidden h-full bg-primary text-white transition-[width] md:block">
         <div className="relative z-20 h-full overflow-hidden">
           <ul className="flex w-full flex-col">
-            {sidebarItems.map((item) => (
+            {sidebarItems.map((item: any) => (
               <li key={item.id} className="w-full">
                 <Link
                   to={item.link}
@@ -90,7 +90,7 @@ const Sidebar = () => {
                 </Link>
                 {item?.subItems?.length && sidebar && selectedTab === item.id  && (
                   <ul className="bg-darkprimary/50">
-                    {item?.subItems?.map((subItem) => (
+                    {item?.subItems?.map((subItem: any) => (
                       <li
                         key={subItem.id}
                         className={cn(
