@@ -308,8 +308,19 @@ const LeadsList = () => {
 
         {leadsData?.map((item, index) => (
           <div key={index} className="flex  items-center gap-4 bg-white rounded-2xl px-3 xl:px-4 py-3 border border-[#E3E3E3]">
-            <div className={`bg-[${index===0 ? "#FFE59E" : index===1 ? "#50C878" : index===2 ? "#C8DEFF" : "#FF9898"}] rounded-full p-2 xl:p-4 flex items-center justify-center`}>
+            <div className={cn(
+                `rounded-full p-2 xl:p-4 flex items-center justify-center`,
+                {
+                "bg-[#FFE59E]": index === 0,
+                "bg-[#50C878]": index === 1,
+                "bg-[#C8DEFF]": index === 2,
+                "bg-[#FF9898]": index === 3
+              }
+
+
+            )}>
               <img src={index % 2 === 0 ? LeadsIconBlack : LeadsIcon} alt="leads" className="size-8 xl:size-10" />
+
             </div>
             <div>
               <p className="font-bold text-xl xl:text-2xl text-black">{item?.number}</p>
