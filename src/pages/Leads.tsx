@@ -26,7 +26,6 @@ import LeadAssignModal from "../components/leads/LeadAssignModal";
 import LeadDeleteModal from "../components/leads/LeadDeleteModal";
 import CustomDatePicker from "../components/ui/CustomDatePicker";
 import { MdOutlineCalendarMonth } from "react-icons/md";
-import dayjs from "dayjs";
 
 const dummyData = [
   {
