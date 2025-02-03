@@ -63,6 +63,7 @@ declare type CustomInputProps = {
   name?: string;
   errorMsg?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
   disabled?: boolean;
+  isRequired?: boolean;
 };
 
 declare type FormDataProps = {
@@ -775,3 +776,6 @@ declare type CouponProps={
   total_redeems: string
 }
 
+declare type LeadProps={
+  id: string
+}

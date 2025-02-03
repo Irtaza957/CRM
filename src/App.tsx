@@ -7,6 +7,8 @@ import Dashboard from "./pages/Dashboard";
 import Categories from "./pages/Categories";
 import Businesses from "./pages/Businesses";
 import ServiceList from "./pages/ServiceList";
+import Leads from "./pages/Leads";
+import LeadDetails from "./pages/LeadDetails";
 import RouteGuard from "./components/RouteGuard";
 import { Route, Routes } from "react-router-dom";
 import AppPanelServices from "./pages/AppPanelServices";
@@ -38,6 +40,22 @@ const App = () => {
           element={
             <RouteGuard>
               <ServiceList />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="leads"
+          element={
+            <RouteGuard>
+              <Leads />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="lead/details"
+          element={
+            <RouteGuard>
+              <LeadDetails />
             </RouteGuard>
           }
         />

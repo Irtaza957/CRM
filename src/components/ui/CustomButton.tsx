@@ -7,6 +7,7 @@ interface CustomButton {
   loading?: boolean;
   disabled?: boolean;
   handleClick: (e?: React.MouseEvent<HTMLButtonElement>) => void;
+  icon?: React.ReactNode;
 }
 const CustomButton = ({
   name,
@@ -14,6 +15,7 @@ const CustomButton = ({
   loading,
   disabled,
   handleClick,
+  icon
 }: CustomButton) => {
   return (
     <button
@@ -30,7 +32,10 @@ const CustomButton = ({
           <span>Please Wait...</span>
         </div>
       ) : (
-        name
+        <div className={`${icon ? "flex items-center justify-between gap-4" : ""}`}>
+          {name}
+          {icon && icon}
+        </div>
       )}
     </button>
   );

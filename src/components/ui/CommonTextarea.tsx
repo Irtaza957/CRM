@@ -12,7 +12,7 @@ interface CommonTextareaProps {
 
 const CommonTextarea = ({ register, errors, name, placeholder, title, disabled, rows }: CommonTextareaProps) => {
     return (
-        <div className="col-span-2 my-7 flex w-full flex-col items-center justify-center space-y-1">
+        <div className="col-span-2 my-4 flex w-full flex-col items-center justify-center space-y-1">
             <label
                 htmlFor="address"
                 className="w-full text-left text-xs font-medium text-grey100"

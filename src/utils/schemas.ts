@@ -128,3 +128,75 @@ export const familyMemberSchema = z
       });
     }
   });
+
+  export const leadAssignSchema = z.object({
+    agent: z.object({
+      id: z.number(),
+      name: z.string(),
+      list: z.array(z.object({
+        id: z.number(),
+        name: z.string(),
+      }))
+    }).refine((val) => val.id !== undefined && val.name.trim() !== "", {
+      message: "agent is required",
+    }),
+  })
+
+  export const addLeadSchema = z.object({
+    client_name: z.string().min(1, "Client Name is required"),
+    client_phone: z.string().min(1, "Phone is required"),
+    nationality: z.object({
+      id: z.number(),
+      name: z.string(),
+      list: z.array(z.object({
+        id: z.number(),
+        name: z.string(),
+      }))
+    }).refine((val) => val.id !== undefined && val.name.trim() !== "", {
+      message: "Nationality is required",
+    }),
+    priority: z.object({
+      id: z.number(),
+      name: z.string(),
+      list: z.array(z.object({
+        id: z.number(),
+        name: z.string(),
+      }))
+    }).refine((val) => val.id !== undefined && val.name.trim() !== "", {
+      message: "Priority is required",
+    }),
+    client_email: z.string().email().optional(),
+    source: z.object({
+      id: z.number(),
+      name: z.string(),
+      list: z.array(z.object({
+        id: z.number(),
+        name: z.string(),
+      }))
+    }).optional(),
+    channel: z.object({
+      id: z.number(),
+      name: z.string(),
+      list: z.array(z.object({
+        id: z.number(),
+        name: z.string(),
+      }))
+    }).optional(),
+    language: z.object({
+      id: z.number(),
+      name: z.string(),
+      list: z.array(z.object({
+        id: z.number(),
+        name: z.string(),
+      }))
+    }).optional(),
+    contact: z.object({
+      id: z.number(),
+      name: z.string(),
+      list: z.array(z.object({
+        id: z.number(),
+        name: z.string(),
+      }))
+    }).optional(),
+    notes: z.string().optional(),
+  });

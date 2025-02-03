@@ -10,7 +10,13 @@ export default {
         danger: "#e62626",
         grey: "#F5F6FA",
         grey50: "#D9D9D9",
-        grey100: "#858688"
+        grey100: "#858688",
+        grey150: "#F3F5F9",
+        grey200: "#6F727B",
+        grey250: "#A7B0C4",
+        red100: '#F0422C',
+        green100: '#50C878',
+        blue100: '#3384FC'
       },
       animation: {
         fadeDots: "fadeDots .8s infinite",

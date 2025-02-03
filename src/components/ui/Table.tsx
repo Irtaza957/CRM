@@ -14,11 +14,12 @@ interface TableProps {
   headers: Header[];
   rows: Array<Record<string, any>>;
   className?: string;
-  renderActions?: (row: Record<string, any>) => React.ReactNode;
+  renderActions?: (row: Record<string, any>, rowIndex?: number) => React.ReactNode;
   handleRowClick?: (row: Record<string, any>) => void;
+  renderCustomColumn?: (key: string, value: any, row: Record<string, any>) => React.ReactNode;
 }
 
-const Table: React.FC<TableProps> = ({ headers, rows, renderActions, className = "", handleRowClick }) => {
+const Table: React.FC<TableProps> = ({ headers, rows, renderActions, className = "", handleRowClick, renderCustomColumn }) => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState<ListOptionProps | null>({
     id: 2,
@@ -26,7 +27,7 @@ const Table: React.FC<TableProps> = ({ headers, rows, renderActions, className =
   });
   return (
     <>
-      <div className={`h-full w-full overflow-hidden rounded-t-lg border ${className}`}>
+      <div className={`h-full w-full overflow-hidden rounded-lg border mb-1.5 shadow-lg ${className}`}>
         <div className="no-scrollbar h-full overflow-y-scroll">
           <table className="relative w-full min-w-full">
             <thead className="sticky top-0 z-[1] bg-primary text-left text-white shadow-md">
@@ -38,7 +39,7 @@ const Table: React.FC<TableProps> = ({ headers, rows, renderActions, className =
                       }`}
                   >
                     <div
-                      className={`flex ${header.key === "actions" ? "justify-center" : "justify-start"
+                      className={`flex gap-2 mr-1 ${header.key === "actions" ? "justify-center" : "justify-start"
                         } items-center w-full`}
                     >
                       <span className={cn("flex-1 text-left font-bold", header.label==='Quick Actions' && 'text-center')}>
@@ -60,7 +61,7 @@ const Table: React.FC<TableProps> = ({ headers, rows, renderActions, className =
                 <tr
                   key={rowIndex}
                   title="Click to View"
-                  className={`h-12 text-gray-500 cursor-pointer ${rowIndex % 2 === 0 ? "bg-[#F3F5F9]" : "bg-white"
+                  className={`h-12 text-gray-500 cursor-pointer ${rowIndex % 2 !== 0 ? "bg-[#F3F5F9]" : "bg-white"
                     }`}
                 >
                   {headers.map((header, colIndex) => (
@@ -68,13 +69,15 @@ const Table: React.FC<TableProps> = ({ headers, rows, renderActions, className =
                       
                       {header.key === "actions" ? (
                         <div className="flex justify-center gap-5">
-                          {renderActions && renderActions(row)}
+                          {renderActions && renderActions(row, rowIndex)}
                         </div>
-                      ) : (
+                      )  : renderCustomColumn && renderCustomColumn(header.key, row[header.key], row) ? (
+                        renderCustomColumn(header.key, row[header.key], row)
+                      ) :(
                         header.key==='image' ? (
                           <img src={row[header.key]?.includes('http') ? row[header.key] : `${import.meta.env.VITE_BASE_URL}/${row[header.key]}`} alt={row.title} className="w-8 h-8 object-cover rounded-full" />
                         ) : (
-                          <span className="text-xs" dangerouslySetInnerHTML={{ __html: row[header.key] }}></span>
+                          <span className="text-xs whitespace-nowrap" dangerouslySetInnerHTML={{ __html: row[header.key] }}></span>
                         )
                       )}
                     </td>
@@ -90,7 +93,7 @@ const Table: React.FC<TableProps> = ({ headers, rows, renderActions, className =
         </div>
       </div>
       {/* Pagination */}
-      <div className="flex w-full items-center justify-between rounded-b-lg border-x border-b bg-white p-2.5">
+      <div className="flex w-full items-center justify-between rounded-lg border-x border bg-white p-2.5">
         {rows && (
           <>
             <div className="flex w-full flex-1 items-center justify-start gap-3">

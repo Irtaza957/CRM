@@ -30,6 +30,8 @@ interface ComboboxProps {
   setValue?: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
   handleSelect?: (arg0: ListOptionProps) => void;
   errorMsg?: string | FieldError | Merge<FieldError, FieldErrorsImpl>;
+  isRequired?: boolean;
+  onChange?: (value: ListOptionProps | null) => void;
 }
 
 const Combobox = ({
@@ -54,7 +56,9 @@ const Combobox = ({
   isMultiSelect = false,
   handleSelect,
   errorMsg,
-  isRemoveAllow
+  isRemoveAllow,
+  isRequired,
+  onChange,
 }: ComboboxProps) => {
   const [toggle, setToggle] = useState(false);
   const [query, setQuery] = useState<string>("");
@@ -65,7 +69,9 @@ const Combobox = ({
     if (isMultiSelect) {
       let selected: ListOptionProps[] | null = value as ListOptionProps[];
       if (selected?.find((selectedItem) => selectedItem.id === item.id)) {
-        selected = selected.filter((selectedItem) => selectedItem.id !== item.id);
+        selected = selected.filter(
+          (selectedItem) => selectedItem.id !== item.id
+        );
       } else {
         selected = [...(selected || []), { id: item.id, name: item.name }];
       }
@@ -74,9 +80,10 @@ const Combobox = ({
     } else {
       setValue?.(item);
       handleSelect?.(item);
+      onChange?.(item);
       setToggle(false);
     }
-  }
+  };
 
   const isSelected = (item: ListOptionProps) => {
     if (isMultiSelect && (value as ListOptionProps[])?.length) {
@@ -87,10 +94,10 @@ const Combobox = ({
     return (value as ListOptionProps)?.id === item.id;
   };
 
-  const handleRemoveValue=(e: React.MouseEvent<SVGAElement>)=>{
-    e.stopPropagation()
-    handleClick({id: '', name: ''})
-  }
+  const handleRemoveValue = (e: React.MouseEvent<SVGAElement>) => {
+    e.stopPropagation();
+    handleClick({ id: "", name: "" });
+  };
   return (
     <div
       ref={ComboboxRef}
@@ -102,29 +109,41 @@ const Combobox = ({
       {label && (
         <label className="mb-0.5 w-full text-left text-xs font-medium text-grey100">
           {label}
+          {isRequired && <span>*</span>}
         </label>
       )}
       <button
         type="button"
         onClick={() => setToggle(!toggle)}
         className={cn(
-          `flex items-center justify-between space-x-3 ${disabled && "opacity-50"}`,
+          `flex items-center justify-between space-x-3 ${errorMsg && "border border-[#FF1C1C] !bg-[#FFEBEB] !text-[#FF0000]"} ${disabled && "opacity-50"}`,
           toggleClassName
         )}
         disabled={disabled}
       >
-        <span className={`${isMultiSelect ? "flex flex-wrap gap-1" : "truncate"}`}>
+        <span
+          className={`${isMultiSelect ? "flex flex-wrap gap-1" : `truncate`}`}
+        >
           {isMultiSelect && (value as ListOptionProps[])?.length
-            ? (value as ListOptionProps[])?.map((item: ListOptionProps) => item.name).join(", ") ||
-            placeholder
-            : (value as ListOptionProps)?.name || placeholder}
+            ? (value as ListOptionProps[])
+                ?.map((item: ListOptionProps) => item.name)
+                .join(", ") ||
+              (typeof errorMsg === "string" ? errorMsg : placeholder)
+            : (value as ListOptionProps)?.name ||
+              (typeof errorMsg === "string" ? errorMsg : placeholder)}
         </span>
         <div className="flex items-center">
-          {(isRemoveAllow && (isMultiSelect ? Array.isArray(value) && value.length : (value as ListOptionProps)?.id)) &&
-          <IoClose
-            onClick={(e: React.MouseEvent<SVGAElement>)=>handleRemoveValue(e)}
-            className="h-4 w-4 cursor-pointer"
-          />}
+          {isRemoveAllow &&
+            (isMultiSelect
+              ? Array.isArray(value) && value.length
+              : (value as ListOptionProps)?.id) && (
+              <IoClose
+                onClick={(e: React.MouseEvent<SVGAElement>) =>
+                  handleRemoveValue(e)
+                }
+                className="h-4 w-4 cursor-pointer"
+              />
+            )}
           {icon ? (
             icon
           ) : (
@@ -212,9 +231,6 @@ const Combobox = ({
           </p>
         )}
       </div>
-      {errorMsg && (
-        <p className="mt-1 text-xs text-red-500">*{errorMsg as string}</p>
-      )}
     </div>
   );
 };

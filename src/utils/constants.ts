@@ -11,6 +11,7 @@ import AppPanel from "../assets/icons/sidebar/app_panel.svg";
 // import Dashboard from "../assets/icons/sidebar/dashboard.svg";
 // import Marketing from "../assets/icons/sidebar/marketing.svg";
 import ServiceList from "../assets/icons/sidebar/service_list.svg";
+import Leads from "../assets/icons/sidebar/leads.svg";
 // import WebsitePanel from "../assets/icons/sidebar/website_panel.svg";
 // import CustomerRatings from "../assets/icons/sidebar/customer_ratings.svg";
 import SmallUpDownArrow from "../assets/icons/small-updown-arrow.svg";
@@ -488,6 +489,12 @@ export const sidebarItems = [
   //   link: "/requests",
   // },
   {
+    id: 2,
+    name: "Leads",
+    icon: Leads,
+    link: "/leads",
+  },
+  {
     id: 3,
     name: "Bookings",
     icon: Bookings,
@@ -939,6 +946,61 @@ export const couponsHeaders = [
   {
     label: "Total Redeems",
     key: "total_redeems",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  { label: "Quick Actions", key: "actions", sortable: false },
+];
+
+export const leadsHeaders = [
+  { label: "Ref No.#", key: "ref", sortable: true, sortIcon: SmallUpDownArrow },
+  { label: "Client Name", key: "client_name", sortable: true, sortIcon: SmallUpDownArrow },
+  { label: "Email", key: "email", sortable: true, sortIcon: SmallUpDownArrow },
+  {
+    label: "Country",
+    key: "country",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Source",
+    key: "source",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Priority",
+    key: "priority",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Agent",
+    key: "agent",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Stage",
+    key: "stage",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Recieved At",
+    key: "recieved_at",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Assigned At",
+    key: "assigned_at",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Last Followup",
+    key: "followup",
     sortable: true,
     sortIcon: SmallUpDownArrow,
   },
