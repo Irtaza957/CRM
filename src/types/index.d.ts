@@ -43,7 +43,10 @@ declare type NewServiceModalProps = {
   setIsView: React.Dispatch<React.SetStateAction<boolean>>;
   handleAddItem?: () => void;
   addItemText?: string;
+  tab?: string;
+  setTab?: React.Dispatch<React.SetStateAction<string>>;
 };
+
 
 declare type BookingListProps = {
   id: number;

@@ -27,6 +27,7 @@ const ServiceList = () => {
   const [provider, setProvider] = useState<ListOptionProps | null>(null);
   const [category, setCategory] = useState<ListOptionProps | null>(null);
   const [subCategory, setSubCategory] = useState<ListOptionProps | null>(null);
+  const [tab, setTab] = useState<string>("Category");
   // const [customersData, setCustomers] = useState<CustomerProps[] | []>([]);
   // const [openCustomerModal, setOpenCustomerModal] = useState(false);
   // const [selectedCustomer, setSelectedCustomer] =
@@ -311,10 +312,17 @@ const ServiceList = () => {
     refetch && refetch();
   }
 
-  const handleAddCategory = () => {
+  const handleAddCategory = (isSubCategory?: boolean) => {
+    if (isSubCategory) {
+      setTab("Sub Category");
+    } else {
+      setTab("Category");
+    }
     addFilter("branch", "branch");
     setUpload(true);
+
   }
+
 
 
   useEffect(() => {
@@ -379,7 +387,10 @@ const ServiceList = () => {
         setIsView={setIsView}
         selectedServiceId={id}
         isApp={isApp}
+        tab={tab}
+        setTab={setTab}
       />
+
       {/* <AddCustomerModal
         userId={user!.id}
         customerId={selectedCustomer?.customer_id}
@@ -465,7 +476,7 @@ const ServiceList = () => {
                 listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                 isRemoveAllow={true}
-                handleAddItem={handleAddCategory}
+                handleAddItem={()=>handleAddCategory(false)}
                 addItemText="Add Category"
               />
               <Combobox
@@ -489,7 +500,7 @@ const ServiceList = () => {
                 listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                 isRemoveAllow={true}
-                handleAddItem={() => setUpload(true)}
+                handleAddItem={()=>handleAddCategory(true)}
                 addItemText="Add Sub Category"
               />
             </div>

@@ -23,12 +23,14 @@ const NewServiceModal = ({
   isView,
   selectedServiceId,
   setIsView,
-  isApp
+  isApp,
+  tab,
+  setTab
 }: NewServiceModalProps) => {
   const [business, setBusiness] = useState<ListOptionProps | null>(null);
   const [provider, setProvider] = useState<ListOptionProps | null>(null);
+
   const [companyOptions, setCompanyOptions] = useState<ListOptionProps[]>([]);
-  const [tab, setTab] = useState<string>("Category");
   const [categoryData, setCategoryData] = useState<CategoryDetailProps | null>(null);
 
   const { data: businesses } = useFetchBusinessesListQuery({});
@@ -101,16 +103,20 @@ const NewServiceModal = ({
       setBusiness(null);
       setProvider(null);
       setCategoryData(null);
+      setTab?.("Category");
     }
   }, [open]);
 
   useEffect(() => {
     if (categoryData?.parent_id && categoryData?.parent_id !== '0') {
-      setTab("Sub Category");
+      setTab?.("Sub Category");
     } else {
-      setTab("Category");
+      setTab?.("Category");
     }
+
   }, [categoryData]);
+
+  console.log(tab, 'tabtab')
 
   return (
     <Modal open={open} setOpen={setOpen} className="w-[95%] lg:max-w-4xl">
@@ -141,16 +147,17 @@ const NewServiceModal = ({
             !categoryData?.category_id && (
               <div className="sticky top-0 z-10 flex w-full items-center justify-start space-x-5 bg-white px-5 py-5">
                 <button
-                  onClick={() => setTab("Category")}
+                  onClick={() => setTab?.("Category")}
                   className={cn("rounded-lg border border-primary px-4 py-2", {
                     "bg-primary text-white": tab === "Category",
                     "bg-gray-100 text-primary": tab !== "Category",
                   })}
+
                 >
                   Category
                 </button>
                 <button
-                  onClick={() => setTab("Sub Category")}
+                  onClick={() => setTab?.("Sub Category")}
                   className={cn("rounded-lg border border-primary px-4 py-2", {
                     "bg-primary text-white": tab === "Sub Category",
                     "bg-gray-100 text-primary": tab !== "Sub Category",
