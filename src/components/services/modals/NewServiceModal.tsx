@@ -229,7 +229,9 @@ const NewServiceModal = ({
                 provider={provider?.id || ""}
                 business={business?.id || ""}
                 isView={isView}
+                open={open}
               />
+
             )}
             {type === "category" && (
               <AddService

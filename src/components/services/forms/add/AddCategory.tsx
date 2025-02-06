@@ -277,8 +277,10 @@ const AddCategory = ({
             label="Icon"
             setImage={setIcon}
             disabled={isView}
+            openModal={open}
           />
           <ImageUploader
+
             link={
               selectedCategory?.thumbnail
                 ? `https://crm.fandcproperties.ru${selectedCategory?.thumbnail}`
@@ -287,6 +289,7 @@ const AddCategory = ({
             label="Thumbnail"
             setImage={setThumbnail}
             disabled={isView}
+            openModal={open}
           />
           <ImageUploader
             link={
@@ -297,6 +300,7 @@ const AddCategory = ({
             label="Cover Image"
             setImage={setCoverImage}
             disabled={isView}
+            openModal={open}
           />
         </div>
       </div>

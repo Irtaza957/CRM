@@ -24,8 +24,10 @@ interface AddSubCategoryProps{
   selectedSubCategory?: CategoryDetailProps | null;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   refetch: ()=>void
+  open: boolean
 }
-const AddSubCategory = ({provider, business, selectedSubCategory, isView, setOpen, refetch}: AddSubCategoryProps) => {
+
+const AddSubCategory = ({provider, business, selectedSubCategory, isView, setOpen, refetch, open}: AddSubCategoryProps) => {
   const [tagline, setTagline] = useState("");
   const [duration, setDuration] = useState("");
   const [color, setColor] = useState("#000000");
@@ -310,13 +312,14 @@ const AddSubCategory = ({provider, business, selectedSubCategory, isView, setOpe
         <div className="grid w-full grid-cols-6 gap-6">
           <ImageUploader
             link={selectedSubCategory?.icon ? `https://crm.fandcproperties.ru${selectedSubCategory?.icon}` : ''}
-           label="Icon" setImage={setIcon} disabled={isView} />
+           label="Icon" setImage={setIcon} disabled={isView} openModal={open} />
           <ImageUploader 
             link={selectedSubCategory?.thumbnail ? `https://crm.fandcproperties.ru${selectedSubCategory?.thumbnail}` : ''}
-            label="Thumbnail" setImage={setThumbnail} disabled={isView} />
+            label="Thumbnail" setImage={setThumbnail} disabled={isView} openModal={open} />
+
           <ImageUploader 
             link={selectedSubCategory?.cover_image ? `https://crm.fandcproperties.ru${selectedSubCategory?.cover_image}` : ''}
-            label="Cover Image" setImage={setCoverImage} disabled={isView} />
+            label="Cover Image" setImage={setCoverImage} disabled={isView} openModal={open} />
         </div>
       </div>
       <div className="col-span-3 flex gap-3 w-full items-end justify-end">
