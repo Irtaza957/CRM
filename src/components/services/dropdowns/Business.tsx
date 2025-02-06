@@ -4,9 +4,12 @@ interface BusinessDropdownProps {
   business: ListOptionProps | null;
   businesses?: BusinessProps[];
   handleSelectBusinessFilter: (value: ListOptionProps) => void;
+  handleAddItem?: () => void;
+  addItemText?: string;
 }
 
-const BusinessDropdown = ({ business, businesses, handleSelectBusinessFilter }: BusinessDropdownProps) => {
+
+const BusinessDropdown = ({ business, businesses, handleSelectBusinessFilter, handleAddItem, addItemText }: BusinessDropdownProps) => {
 
   return (
     <Combobox
@@ -23,8 +26,11 @@ const BusinessDropdown = ({ business, businesses, handleSelectBusinessFilter }: 
       listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
       mainClassName="w-full"
       isRemoveAllow={true}
+      handleAddItem={handleAddItem}
+      addItemText={addItemText}
     />
   );
 };
+
 
 export default BusinessDropdown;

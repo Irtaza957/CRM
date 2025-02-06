@@ -103,7 +103,7 @@ const AddService = ({
     setPromotionalPriceVat("");
     setPromotionalPriceNoVat("");
     setVitamins([]);
-    // setServiceDetails(null)
+    setServiceDetails(null)
   };
 
 
@@ -259,7 +259,7 @@ const AddService = ({
         vat_value: item.vat_value,
       }));
       setBundles(tempBundles || []);
-      if (serviceDetails?.vitamins.length) {
+      if (serviceDetails?.vitamins.length && open) {
         getVitamins(serviceDetails?.vitamins)
       }else{
         setVitamins([])
@@ -286,12 +286,14 @@ const AddService = ({
 
   useEffect(() => {
     if (!open) {
-      // clearForm();
+      clearForm();
     }
   }, [open]);
+  console.log(coverImage, serviceDetails,serviceData, "coverImagecoverImage")
   return (
     <div
       className={`grid w-full grid-cols-3 gap-5 ${selectedServiceId && "mt-4"}`}
+
     >
       {!isLoading && (
         <div className="col-span-1 flex w-full flex-col items-center justify-center gap-1">
@@ -535,6 +537,7 @@ const AddService = ({
                 : ""
             }
             disabled={isApp}
+            openModal={open}
           />
           <ImageUploader
             label="Cover Image"
@@ -547,6 +550,7 @@ const AddService = ({
                 : ""
             }
             disabled={isApp}
+            openModal={open}
           />
         </div>
       </div>

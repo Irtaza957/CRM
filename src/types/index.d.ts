@@ -41,6 +41,8 @@ declare type NewServiceModalProps = {
   selectedServiceId: string;
   isApp?: boolean;
   setIsView: React.Dispatch<React.SetStateAction<boolean>>;
+  handleAddItem?: () => void;
+  addItemText?: string;
 };
 
 declare type BookingListProps = {

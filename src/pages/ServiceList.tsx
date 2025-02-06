@@ -311,6 +311,12 @@ const ServiceList = () => {
     refetch && refetch();
   }
 
+  const handleAddCategory = () => {
+    addFilter("branch", "branch");
+    setUpload(true);
+  }
+
+
   useEffect(() => {
     if (!upload) {
       setSelectedCategory(null);
@@ -412,9 +418,12 @@ const ServiceList = () => {
                 business={business}
                 businesses={businessData}
                 handleSelectBusinessFilter={handleSelectBusinessFilter}
+                handleAddItem={() => setOpenBusinessModal(true)}
+                addItemText="Add Business"
               />
               <Combobox
                 value={provider}
+
                 options={companiesDropdownData?.map((item) => {
                   return { id: item.id, name: item.name };
                 })}
@@ -428,16 +437,22 @@ const ServiceList = () => {
                 searchInputPlaceholder="Search..."
                 searchInputClassName="p-1.5 text-xs"
                 isRemoveAllow={true}
+                handleAddItem={() => setOpenCompanyModal(true)}
+                addItemText="Add Company"
               />
               <BranchDropdown
+
                 branchesData={branchesDropodwnData?.map((item) => {
                   return { id: item?.branch_id, name: item?.name };
                 })}
                 branch={branch}
                 handleSelectBranch={handleSelectBranch}
+                handleAddItem={() => setOpenBranchModal(true)}
+                addItemText="Add Branch"
               />
               <CategoryDropdown
                 value={category}
+
                 placeholder="Category"
                 data={categoriesDropdownData?.filter(
                   (category) => category.parent_id === "0"
@@ -450,6 +465,8 @@ const ServiceList = () => {
                 listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                 isRemoveAllow={true}
+                handleAddItem={handleAddCategory}
+                addItemText="Add Category"
               />
               <Combobox
                 options={categoriesDropdownData
@@ -472,8 +489,11 @@ const ServiceList = () => {
                 listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
                 isRemoveAllow={true}
+                handleAddItem={() => setUpload(true)}
+                addItemText="Add Sub Category"
               />
             </div>
+
 
             {/* Search Bar */}
             <div className={`xl:col-span-3 flex h-full w-full items-center justify-center gap-2.5 rounded-lg bg-white px-3.5 text-gray-500 ${isApp ? 'col-span-12' : 'col-span-8'}`}>

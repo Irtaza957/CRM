@@ -5,11 +5,17 @@ import Combobox from "../../ui/Combobox";
 const BranchDropdown = ({
   branchesData,
   branch,
-  handleSelectBranch
+  handleSelectBranch,
+  handleAddItem,
+  addItemText
+
 }: {
   branchesData?: ListOptionProps[],
   branch: ListOptionProps | null,
-  handleSelectBranch: (ar0: ListOptionProps)=>void
+  handleSelectBranch: (ar0: ListOptionProps)=>void,
+  handleAddItem?: () => void,
+  addItemText?: string
+
 }) => {
   
   return (
@@ -27,7 +33,10 @@ const BranchDropdown = ({
       listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
       listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
       isRemoveAllow={true}
+      handleAddItem={handleAddItem}
+      addItemText={addItemText}
     />
+
   );
 };
 

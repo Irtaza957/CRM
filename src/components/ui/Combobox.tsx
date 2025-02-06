@@ -32,7 +32,10 @@ interface ComboboxProps {
   errorMsg?: string | FieldError | Merge<FieldError, FieldErrorsImpl>;
   isRequired?: boolean;
   onChange?: (value: ListOptionProps | null) => void;
+  handleAddItem?: () => void;
+  addItemText?: string;
 }
+
 
 const Combobox = ({
   icon,
@@ -59,6 +62,8 @@ const Combobox = ({
   isRemoveAllow,
   isRequired,
   onChange,
+  handleAddItem,
+  addItemText
 }: ComboboxProps) => {
   const [toggle, setToggle] = useState(false);
   const [query, setQuery] = useState<string>("");
@@ -173,9 +178,16 @@ const Combobox = ({
             )}
           />
         )}
+        {!!addItemText && (
+          <p className="text-xs font-semibold w-full text-left border-b px-3 py-1.5 hover:bg-primary/20 cursor-pointer space-x-1.5" onClick={handleAddItem}>
+            {addItemText}
+          </p>
+        )}
         {query ? (
           options?.filter((item) =>
+
             item.name.toLowerCase().includes(query.toLowerCase())
+
           ).length === 0 ? (
             <p className="w-full py-1.5 text-center text-xs font-semibold">
               No Results

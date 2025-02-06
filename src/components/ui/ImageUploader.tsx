@@ -9,9 +9,10 @@ interface ImageUploaderProps {
   link?: string | undefined;
   disabled?: boolean;
   setImage: Dispatch<SetStateAction<File | string | null>>;
+  openModal?: boolean;
 }
 
-const ImageUploader = ({ link, label, setImage, disabled }: ImageUploaderProps) => {
+const ImageUploader = ({ link, label, setImage, disabled, openModal }: ImageUploaderProps) => {
   const [src, setSrc] = useState<string>("");
   const [_, setIsDragOver] = useState<boolean>(false);
 
@@ -37,9 +38,19 @@ const ImageUploader = ({ link, label, setImage, disabled }: ImageUploaderProps) 
     setSrc(URL.createObjectURL(acceptedFiles[0]));
   };
 
+
   useEffect(() => {
-    setSrc(link!);
-  }, [link]);
+    if (link) {
+      setSrc(link);
+    } else {
+      setSrc("");
+    }
+
+    return () => {
+      setSrc("");
+    };
+  }, [link, openModal]);
+
 
   return (
     <div className="relative col-span-1 flex w-full flex-col items-start justify-start gap-2">

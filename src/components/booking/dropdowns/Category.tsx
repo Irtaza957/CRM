@@ -20,7 +20,10 @@ interface ComboboxProps {
   data?: CategoryAllListProps[];
   setValue?: React.Dispatch<React.SetStateAction<ListOptionProps | null>>;
   handleSelectCategoryFilter?: (value: ListOptionProps) => void;
+  handleAddItem?: () => void;
+  addItemText?: string;
 }
+
 
 const CategoryDropdown = ({
   icon,
@@ -37,9 +40,12 @@ const CategoryDropdown = ({
   data,
   isRemoveAllow,
   handleSelectCategoryFilter,
+  handleAddItem,
+  addItemText
 }: ComboboxProps) => {
   const [toggle, setToggle] = useState(false);
   const [query, setQuery] = useState<string>("");
+
   const ComboboxRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(ComboboxRef, () => setToggle(false));
   const [options, setOptions] = useState<ListOptionProps[]>([]);
@@ -116,6 +122,11 @@ const CategoryDropdown = ({
             searchInputClassName
           )}
         />
+        {!!addItemText && (
+          <p className="text-xs font-semibold w-full text-left border-b px-3 py-1.5 hover:bg-primary/20 cursor-pointer space-x-1.5" onClick={handleAddItem}>
+            {addItemText}
+          </p>
+        )}
         {query ? (
           options.filter((item) =>
             item.name.toLowerCase().includes(query.toLowerCase())

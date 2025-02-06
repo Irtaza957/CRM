@@ -109,7 +109,7 @@ const AddBranchModal = ({
         response = await createBranch(formData);
       }
 
-      if ("error" in response) {
+      if (response?.error) {
         toast.custom((t) => (
           <CustomToast
             t={t}
