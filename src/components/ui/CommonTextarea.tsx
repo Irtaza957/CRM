@@ -2,7 +2,7 @@ import { FieldErrors, FieldValues, UseFormRegister } from "react-hook-form";
 
 interface CommonTextareaProps {
     register: UseFormRegister<FieldValues>;
-    errors: FieldErrors<FieldValues>;
+    errors?: FieldErrors<FieldValues>;
     placeholder: string;
     title: string;
     disabled?: boolean;

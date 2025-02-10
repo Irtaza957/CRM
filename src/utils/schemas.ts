@@ -130,73 +130,72 @@ export const familyMemberSchema = z
   });
 
   export const leadAssignSchema = z.object({
+    // agent: z.object({
+    //   id: z.number().min(1, "Agent ID is required"),
+    //   name: z.string().min(1, "Agent is required"),
+    //   list: z.array(
+    //     z.object({
+    //       id: z.number(),
+    //       name: z.string(),
+    //     })
+    //   ).default([]),
+    // }),
     agent: z.object({
-      id: z.number(),
-      name: z.string(),
-      list: z.array(z.object({
-        id: z.number(),
-        name: z.string(),
-      }))
-    }).refine((val) => val.id !== undefined && val.name.trim() !== "", {
-      message: "agent is required",
+      id: z.union([z.string(), z.number()]), // Accept string or number
+      name: z.string().min(1, "Agent is required"),
+    }).refine((val) => val.id && val.name.trim() !== "", {
+      message: "Agent is required",
     }),
-  })
+    description: z.string().optional(),
+  });
+  
 
   export const addLeadSchema = z.object({
     client_name: z.string().min(1, "Client Name is required"),
     client_phone: z.string().min(1, "Phone is required"),
     nationality: z.object({
-      id: z.number(),
+      id: z.union([z.string(), z.number()]), // Accept string or number
       name: z.string(),
-      list: z.array(z.object({
-        id: z.number(),
-        name: z.string(),
-      }))
-    }).refine((val) => val.id !== undefined && val.name.trim() !== "", {
-      message: "Nationality is required",
-    }),
+    }).optional(),
     priority: z.object({
-      id: z.number(),
-      name: z.string(),
-      list: z.array(z.object({
-        id: z.number(),
-        name: z.string(),
-      }))
-    }).refine((val) => val.id !== undefined && val.name.trim() !== "", {
+      id: z.union([z.string(), z.number()]), // Accept string or number
+      name: z.string().min(1, "Priority is required"),
+    }).refine((val) => val.id && val.name.trim() !== "", {
       message: "Priority is required",
     }),
-    client_email: z.string().email().optional(),
+    client_email: z.string().email("Invalid email format").optional(),
     source: z.object({
-      id: z.number(),
-      name: z.string(),
-      list: z.array(z.object({
-        id: z.number(),
-        name: z.string(),
-      }))
+      id: z.union([z.string(), z.number()]).optional(), // Optional and accepts string or number
+      name: z.string().optional(),
     }).optional(),
     channel: z.object({
-      id: z.number(),
-      name: z.string(),
-      list: z.array(z.object({
-        id: z.number(),
-        name: z.string(),
-      }))
+      id: z.union([z.string(), z.number()]).optional(), // Optional and accepts string or number
+      name: z.string().optional(),
     }).optional(),
     language: z.object({
-      id: z.number(),
+      id: z.union([z.string(), z.number()]), // Accept string or number
       name: z.string(),
-      list: z.array(z.object({
-        id: z.number(),
-        name: z.string(),
-      }))
     }).optional(),
     contact: z.object({
-      id: z.number(),
+      id: z.union([z.string(), z.number()]), // Accept string or number
       name: z.string(),
-      list: z.array(z.object({
-        id: z.number(),
-        name: z.string(),
-      }))
     }).optional(),
     notes: z.string().optional(),
   });
+
+  export const leadDetailSchema = z.object({
+    channel: z.object({
+      id: z.union([z.string(), z.number()]), // Accept string or number
+      name: z.string().min(1, "Channel is required"),
+    }).refine((val) => val.id && val.name.trim() !== "", {
+      message: "Channel is required",
+    }),
+    stage: z.object({
+      id: z.union([z.string(), z.number()]), // Accept string or number
+      name: z.string().min(1, "Stage is required"),
+    }).refine((val) => val.id && val.name.trim() !== "", {
+      message: "Stage is required",
+    }),
+    description: z.string().optional(),
+  });
+  

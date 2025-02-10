@@ -620,6 +620,11 @@ declare type SourceProps = {
   source: string;
 };
 
+declare type LeadsSourceProps = {
+  id: string;
+  source: string;
+};
+
 declare type NationalityProps = {
   id: string;
   nationality: string;
@@ -783,4 +788,28 @@ declare type CouponProps={
 
 declare type LeadProps={
   id: string
+}
+
+declare type LeadsData={ 
+  client_name: string, 
+  phone: string, 
+  email: string, 
+  description: string, 
+  source: string, 
+  channel: string, 
+  stage: string, 
+  priority: string, 
+  contact_via: string, 
+  nationality: string, 
+  language: string,
+  agent?: string,
+  recieved_at?: string,
+  assigned_at?: string,
+  last_followup?: string,
+  reference_no?: string,
+  adname?: string,
+  campaign_name?: string,
+  page_link?: string,
+  form_name?: string,
+  stage_id?: string,
 }

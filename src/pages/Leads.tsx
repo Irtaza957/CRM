@@ -1,13 +1,7 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { HiMagnifyingGlass } from "react-icons/hi2";
 
 import Combobox from "../components/ui/Combobox";
-import { useFetchCompaniesQuery } from "../store/services/company";
-import { useFetchServicesQuery } from "../store/services/service";
-import { useFetchAllCategoriesQuery } from "../store/services/categories";
-import { useFetchBusinessesQuery } from "../store/services/service";
-import { useFetchBranchesQuery } from "../store/services/filters";
-import Table from "../components/ui/Table";
 import { leadsHeaders } from "../utils/constants";
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
@@ -26,88 +20,12 @@ import LeadAssignModal from "../components/leads/LeadAssignModal";
 import LeadDeleteModal from "../components/leads/LeadDeleteModal";
 import CustomDatePicker from "../components/ui/CustomDatePicker";
 import { MdOutlineCalendarMonth } from "react-icons/md";
-
-const dummyData = [
-  {
-    ref: "54621",
-    client_name: "Tareq Ibrahim",
-    email: "myemail@example.com",
-    country: "Pakistan",
-    source: "Google",
-    priority: "High",
-    agent: "Gamal Mustafa",
-    stage: "Assigned",
-    recieved_at: "12:15 PM",
-    assigned_at: "01:15 PM",
-    followup: "12:15 PM",
-  },
-  {
-    ref: "54621",
-    client_name: "Tareq Ibrahim",
-    email: "myemail@example.com",
-    country: "Pakistan",
-    source: "WhatsApp",
-    priority: "Medium",
-    agent: "Gamal Mustafa",
-    stage: "Assigned",
-    recieved_at: "12:15 PM",
-    assigned_at: "01:15 PM",
-    followup: "12:15 PM",
-  },
-  {
-    ref: "54621",
-    client_name: "Tareq Ibrahim",
-    email: "myemail@example.com",
-    country: "Pakistan",
-    source: "Google",
-    priority: "High",
-    agent: "Gamal Mustafa",
-    stage: "Assigned",
-    recieved_at: "12:15 PM",
-    assigned_at: "01:15 PM",
-    followup: "12:15 PM",
-  },
-  {
-    ref: "54621",
-    client_name: "Tareq Ibrahim",
-    email: "myemail@example.com",
-    country: "Pakistan",
-    source: "WhatsApp",
-    priority: "Medium",
-    agent: "Gamal Mustafa",
-    stage: "Assigned",
-    recieved_at: "12:15 PM",
-    assigned_at: "01:15 PM",
-    followup: "12:15 PM",
-  },
-  {
-    ref: "54621",
-    client_name: "Tareq Ibrahim",
-    email: "myemail@example.com",
-    country: "Pakistan",
-    source: "Google",
-    priority: "High",
-    agent: "Gamal Mustafa",
-    stage: "Assigned",
-    recieved_at: "12:15 PM",
-    assigned_at: "01:15 PM",
-    followup: "12:15 PM",
-  },
-  {
-    ref: "54621",
-    client_name: "Tareq Ibrahim",
-    email: "myemail@example.com",
-    country: "Pakistan",
-    source: "WhatsApp",
-    priority: "Medium",
-    agent: "Gamal Mustafa",
-    stage: "Assigned",
-    recieved_at: "12:15 PM",
-    assigned_at: "01:15 PM",
-    followup: "12:15 PM",
-  }
-]
-
+import { useDeleteLeadMutation, useFetchLeadChannelsQuery, useFetchLeadSourcesQuery, useFetchLeadsQuery, useFetchLeadStagesQuery, useFetchUsersQuery } from "../store/services/leads";
+import dayjs from "dayjs";
+import { toast } from "sonner";
+import CustomToast from "../components/ui/CustomToast";
+import { useFetchNationalityQuery } from "../store/services/booking";
+import ServerPaginatedTable from "../components/ui/ServerPaginatedTable";
 const leadsData = [
   {
     name: 'Total Leads',
@@ -130,79 +48,131 @@ const leadsData = [
     color: '#FF9898'
   },
 ]
+
 const LeadsList = () => {
   const [search, setSearch] = useState("");
-  const filterArray:FilterType[]=[]
   const [isView, setIsView] = useState(false)
   const [openAddLeadModal, setOpenAddLeadModal] = useState(false)
   const [openLeadAssignModal, setOpenLeadAssignModal] = useState(false)
   const [openLeadDeleteModal, setOpenLeadDeleteModal] = useState(false)
-  const [date, setDate] = useState<string | Date>(new Date())
-
-  const navigate = useNavigate();
-
-  const lastFilter = filterArray[filterArray.length - 1]?.name;
-
-  const shouldFetchBusinesses = filterArray.length === 0;
-  const shouldFetchCompanies = lastFilter === "business";
-  const shouldFetchBranches = lastFilter === "company";
-  const shouldFetchCategories = lastFilter === "branch";
-  const shouldFetchServices = lastFilter === "category";
-
-  const businessQueryParams = shouldFetchBusinesses ? filterArray : null;
-  const companyQueryParams = shouldFetchCompanies ? filterArray : null;
-  const branchQueryParams = shouldFetchBranches ? filterArray : null;
-  const categoryQueryParams = shouldFetchCategories ? filterArray : null;
-  const serviceQueryParams = shouldFetchServices ? filterArray : null;
-
-  const {
-    data: servicesData,
-  } = useFetchServicesQuery(serviceQueryParams, {
-    skip: !shouldFetchServices,
-    refetchOnMountOrArgChange: true
+  const [selectedLead, setSelectedLead] = useState<string | null>(null)
+  const [page, setPage] = useState(0)
+  const [limit, setLimit] = useState<ListOptionProps | null>({
+    id: 1,
+    name: "5",
   });
 
-  const { data: branches } = useFetchBranchesQuery(
-    branchQueryParams,
+  const [date, setDate] = useState<string | Date>(new Date())
+  const navigate = useNavigate();
+  const [filters, setFilters] = useState<{
+    source: ListOptionProps,
+    channel: ListOptionProps,
+    nationality: ListOptionProps,
+    stage: ListOptionProps,
+    agent: ListOptionProps
+  }>({
+    source: {id: '', name: ''},
+    channel: {id: '', name: ''},
+    nationality: {id: '', name: ''},
+    stage: {id: '', name: ''},
+    agent: {id: '', name: ''}
+  })
+
+  const { data: nationalities } = useFetchNationalityQuery({});
+
+  const { data: stagesData } = useFetchLeadStagesQuery({})
+
+  const {data: users} = useFetchUsersQuery({})
+
+    const { data: sources } = useFetchLeadSourcesQuery(
+    {},
     {
-      skip: !shouldFetchBranches,
-      refetchOnMountOrArgChange: true
+      skip: !open,
+      refetchOnMountOrArgChange: true,
     }
   );
-  const {
-    data: categoriesData
-  } = useFetchAllCategoriesQuery(categoryQueryParams, {
-    skip: !shouldFetchCategories,
-    refetchOnMountOrArgChange: true
+
+  const { data: channels } = useFetchLeadChannelsQuery({}, {
+    skip: !open,
+    refetchOnMountOrArgChange: true,
   });
 
-  const { data: companiesData } =
-    useFetchCompaniesQuery(companyQueryParams, {
-      skip: !shouldFetchCompanies,
-      refetchOnMountOrArgChange: true
-    });
   const {
-    data: businessData,
-  } = useFetchBusinessesQuery(businessQueryParams, {
-    skip: !shouldFetchBusinesses,
-    refetchOnMountOrArgChange: true
+    data: leads,
+    refetch: refetchLeads
+  } = useFetchLeadsQuery({ 
+    start_date: dayjs(date).format("YYYY-MM-DD"), 
+    end_date: "2025-02-20", 
+    limit: Number(limit?.name), 
+    offset: page, 
+    source: filters.source.id, 
+    channel: filters.channel.id, 
+    nationality: filters.nationality.id, 
+    stage: filters.stage.id, 
+    agent: filters.agent.id,
+    search: search
   });
+
+  const [deleteLead, { isLoading: isDeleting }] = useDeleteLeadMutation();
 
   const handleAddModal = () => {
+    setSelectedLead(null)
     setIsView(false)
     setOpenAddLeadModal(true)
   };
 
-  const handleEdit = (row: any, isView?: boolean) => {
-    console.log(row)
+
+  const handleEdit = (row: any, e: React.MouseEvent<SVGAElement>) => {
+    e.stopPropagation()
+    setSelectedLead(row?.lead_id)
     setOpenAddLeadModal(true)
-    if (isView) {
-      setIsView(true)
-    }
+    setIsView(false)
   };
 
-  const renderCustomColumn = (key: string, value: any) => {
-    if (key === "priority") {
+  const handleView = (row: any) => {
+    setSelectedLead(row?.lead_id)
+    setOpenAddLeadModal(true)
+    setIsView(true)
+  };
+
+
+  const renderCustomColumn = (key: string, value: any, row: any) => {
+    if (key === "agent") {
+      return (
+        <span className="text-xs whitespace-nowrap">
+          {row?.firstname ? row?.firstname + ' ' + row?.lastname : '-'}
+        </span>
+      );
+    }
+    else if (key === "received_at") {
+      return (
+        <span className="text-xs whitespace-nowrap">
+          {dayjs(value).format("hh:mm A")}
+        </span>
+      );
+    }
+    else if (key === "assigned_at") {
+      return (
+        <span className="text-xs whitespace-nowrap">
+          {value ? dayjs(value).format("hh:mm A") : '-'}
+        </span>
+      );
+    }
+    else if (key === "nationality") {
+      return (
+        <span className="text-xs whitespace-nowrap">
+          {nationalities?.find((item: any) => item?.id == value)?.name}
+        </span>
+      );
+    }
+    else if (key === "last_followup") {
+      return (
+        <span className="text-xs whitespace-nowrap">
+          {dayjs(value).format("hh:mm A")}
+        </span>
+      );
+    }
+    else if (key === "priority") {
       return (
         <span className={`px-2 py-1 block text-center rounded-md text-white text-xs ${value === "High" ? "bg-red100" : value === "Medium" ? "bg-[#FFA63E]" : "bg-green100"}`}>
           {value}
@@ -225,75 +195,47 @@ const LeadsList = () => {
     return null;
   };
 
-  const filteredData = useMemo(() => {
-    return dummyData
-    // const lowercasedSearch = search.toLowerCase();
-    // const lastItem = filterArray[filterArray.length - 1]?.name;
-
-    // if (filterArray?.length === 0) {
-    //   return businessData?.filter(
-    //     (business) =>
-    //       business.name.toLowerCase().includes(lowercasedSearch) ||
-    //       business.code.toLowerCase().includes(lowercasedSearch)
-    //   );
-    // }
-    // switch (lastItem) {
-    //   case "business":
-    //     return companiesData?.filter(item => item.name.toLowerCase().includes(lowercasedSearch));
-    //   case "company":
-    //     return branches?.filter(item => item.name.toLowerCase().includes(lowercasedSearch));
-    //   case "branch":
-    //     return categoriesData?.filter(item => item.category_name.toLowerCase().includes(lowercasedSearch));
-    //   case "category":
-    //     return servicesData?.filter(item => item.service_name.toLowerCase().includes(lowercasedSearch));
-    //   default:
-    //     return [];
-    // }
-  }, [
-    search,
-    servicesData,
-    categoriesData,
-    companiesData,
-    businessData,
-    branches,
-  ]);
-
-  const handleAssignModal = (e: React.MouseEvent<SVGAElement>) => {
+  const handleAssignModal = (e: React.MouseEvent<SVGAElement>, row: { lead_id: string }) => {
     e.stopPropagation()
+    setSelectedLead(row?.lead_id)
     setOpenLeadAssignModal(true)
   }
 
-  const handleDeleteModal = (e: React.MouseEvent<SVGAElement>) => {
+
+  const handleDeleteModal = (e: React.MouseEvent<SVGAElement>, row: { lead_id: string }) => {
     e.stopPropagation()
+    setSelectedLead(row?.lead_id)
     setOpenLeadDeleteModal(true)
   }
 
-  const handleViewDetail = (e: React.MouseEvent<SVGAElement>) => {
+
+  const handleViewDetail = (e: React.MouseEvent<SVGAElement>, row: { lead_id: string }) => {
     e.stopPropagation()
-    navigate(`/lead/details`)
+    navigate(`/lead/${row?.lead_id}`)
   }
+
   const renderActions = (row: any, rowIndex?: number) => (
 
 
     <div className="flex gap-2 justify-end mr-2">
 
       <IoEyeOutline
-        onClick={handleViewDetail}
+        onClick={(e: React.MouseEvent<SVGAElement>) => handleViewDetail(e, row)}
         className={cn("col-span-1 h-6 w-6 cursor-pointer rounded-md bg-grey150 p-1 text-[#9FA2AA]", {
           "bg-white": rowIndex && rowIndex % 2 === 0
         })}
       />
       <FiEdit
-        onClick={()=>handleEdit(row)}
+        onClick={(e: React.MouseEvent<SVGAElement>) => handleEdit(row, e)}
         className="col-span-1 h-6 w-6 cursor-pointer rounded-md bg-green100 p-1 text-white"
       />
       <RiDeleteBin6Line
-        onClick={handleDeleteModal}
+        onClick={(e: React.MouseEvent<SVGAElement>) => handleDeleteModal(e, row)}
         className="col-span-1 h-6 w-6 cursor-pointer rounded-md bg-red-500 p-1 text-white"
       />
       <IoPersonAddOutline
 
-        onClick={handleAssignModal}
+        onClick={(e: React.MouseEvent<SVGAElement>) => handleAssignModal(e, row)}
         className="col-span-1 h-6 w-6 cursor-pointer rounded-md bg-[#009AE2] p-1 text-white"
       />
     </div>
@@ -302,15 +244,66 @@ const LeadsList = () => {
   const handleSetDate = (date: string | Date) => {
     setDate(date)
   }
+
+  const handleDeleteLead = async () => {
+    try {
+      const response = await deleteLead(selectedLead)
+      if (response?.error) {
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="error"
+            title="Error"
+            message="Couldn't delete lead. Please try again!"
+          />
+        ));
+      } else {
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="success"
+            title="Success"
+            message="Lead deleted successfully!"
+          />
+        ));
+        refetchLeads()
+        setOpenLeadDeleteModal(false)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+
+  const handleFilter = (name: string, value: ListOptionProps) => {
+    if(name === 'source'){
+      setFilters({ ...filters, source: value })
+    }
+    else if(name === 'channel'){
+      setFilters({ ...filters, channel: value })
+    }
+    else if(name === 'nationality'){
+      setFilters({ ...filters, nationality: value })
+    }
+    else if(name === 'stage'){
+      setFilters({ ...filters, stage: value })
+    }
+    else if(name === 'agent'){
+      setFilters({ ...filters, agent: value })
+    }
+  }
+
+
   return (
     <>
       <div className="gap-2 xl:gap-3 mb-2 grid grid-cols-4">
 
+
         {leadsData?.map((item, index) => (
           <div key={index} className="flex  items-center gap-4 bg-white rounded-2xl px-3 xl:px-4 py-3 border border-[#E3E3E3]">
             <div className={cn(
-                `rounded-full p-2 xl:p-4 flex items-center justify-center`,
-                {
+              `rounded-full p-2 xl:p-4 flex items-center justify-center`,
+              {
                 "bg-[#FFE59E]": index === 0,
                 "bg-[#50C878]": index === 1,
                 "bg-[#C8DEFF]": index === 2,
@@ -331,7 +324,7 @@ const LeadsList = () => {
       </div>
       <div className="flex w-full gap-3 min-h-screen">
         <div className="flex h-full w-full flex-col items-start justify-start">
-          <div className={`bg-white px-3 py-2 gap-2 2xl:gap-4 rounded-[14px] grid grid-cols-6 xl:grid-cols-5 2xl:grid-cols-12 w-full mb-2`}>
+          <div className={`bg-white px-3 py-2 gap-2 2xl:gap-4 rounded-[14px] grid grid-cols-5 xl:grid-cols-5 2xl:grid-cols-12 w-full mb-2`}>
             <div className={`col-span-2 2xl:col-span-3 relative flex h-full w-full items-center justify-center gap-2.5 rounded-lg bg-grey150 px-3.5 text-gray-500`}>
               <input
                 type="text"
@@ -343,12 +336,13 @@ const LeadsList = () => {
               <HiMagnifyingGlass className="size-5 absolute left-3" />
             </div>
             <Combobox
-              value={null}
-              options={[{ id: 1, name: 'Option 1' }, { id: 2, name: 'Option 2' }]}
-              handleSelect={() => { }}
+              value={filters.source}
+              options={sources}
+              handleSelect={(item) => handleFilter('source', item)}
               placeholder="All Source"
               mainClassName="w-full"
               toggleClassName={`w-full px-3 py-2 rounded-[10px] text-xs text-grey200 bg-grey150`}
+
               listClassName="w-full top-10 max-h-52 border rounded-lg z-20 bg-white"
               listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               icon={<div><IoIosArrowDown className="size-5 fill-grey200" /></div>}
@@ -357,12 +351,13 @@ const LeadsList = () => {
               isRemoveAllow={true}
             />
             <Combobox
-              value={null}
-              options={[{ id: 1, name: 'Option 1' }, { id: 2, name: 'Option 2' }]}
-              handleSelect={() => { }}
+              value={filters.channel}
+              options={channels}
+              handleSelect={(item) => handleFilter('channel', item)}
               placeholder="All Channel"
               mainClassName="w-full"
               toggleClassName={`w-full px-3 py-2 rounded-[10px] text-xs text-grey200 bg-grey150`}
+
               listClassName="w-full top-10 max-h-52 border rounded-lg z-20 bg-white"
               listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               icon={<div><IoIosArrowDown className="size-5 fill-grey200" /></div>}
@@ -371,9 +366,9 @@ const LeadsList = () => {
               isRemoveAllow={true}
             />
             <Combobox
-              value={null}
-              options={[{ id: 1, name: 'Option 1' }, { id: 2, name: 'Option 2' }]}
-              handleSelect={() => { }}
+              value={filters.nationality}
+              options={nationalities?.map((item: any) => ({ id: item?.name, name: item?.name })) || []}
+              handleSelect={(item) => handleFilter('nationality', item)}
               placeholder="Country"
               mainClassName="w-full"
               toggleClassName={`w-full px-3 py-2 rounded-[10px] text-xs text-grey200 bg-grey150`}
@@ -385,9 +380,9 @@ const LeadsList = () => {
               isRemoveAllow={true}
             />
             <Combobox
-              value={null}
-              options={[{ id: 1, name: 'Option 1' }, { id: 2, name: 'Option 2' }]}
-              handleSelect={() => { }}
+              value={filters.stage}
+              options={stagesData}
+              handleSelect={(item) => handleFilter('stage', item)}
               placeholder="All Stages"
               mainClassName="w-full"
               toggleClassName={`w-full px-3 py-2 rounded-[10px] text-xs text-grey200 bg-grey150`}
@@ -399,9 +394,9 @@ const LeadsList = () => {
               isRemoveAllow={true}
             />
             <Combobox
-              value={null}
-              options={[{ id: 1, name: 'Option 1' }, { id: 2, name: 'Option 2' }]}
-              handleSelect={() => { }}
+              value={filters.agent}
+              options={users}
+              handleSelect={(item) => handleFilter('agent', item)}
               placeholder="All Agents"
               mainClassName="w-full"
               toggleClassName={`w-full px-3 py-2 rounded-[10px] text-xs text-grey200 bg-grey150`}
@@ -417,63 +412,77 @@ const LeadsList = () => {
               handleClick={() => { }}
               style="bg-grey150 text-sm text-grey200 h-full px-3 rounded-[10px]"
               icon={<div><GoDownload className="w-6 h-6 text-grey250 font-bold" /></div>}
-            />  
-            
-            <CustomDatePicker
-              date={date}
-              setDate={handleSetDate}
-              toggleClassName="top-[44px]"
-              toggleButton={
-                <CustomButton
-                  name={'Date'}
-                  handleClick={() => { }}
-                  style="bg-grey150 text-sm text-grey200 h-full px-3 rounded-[10px] w-full"
-                  icon={<div><MdOutlineCalendarMonth className="w-6 h-6 text-grey250 font-bold" /></div>}
-
-                />
-
-              }
             />
-            <div className="2xl:col-span-2 2xl:flex 2xl:justify-end w-full">
+
+            <div className="w-full 2xl:col-span-2">
+              <CustomDatePicker
+                date={date}
+                setDate={handleSetDate}
+                toggleClassName="top-[44px]"
+                toggleButton={
+                  <CustomButton
+                    name={dayjs(date).format("DD-MM-YYYY")}
+                    handleClick={() => { }}
+                    style="bg-grey150 text-sm text-grey200 h-full px-3 rounded-[10px] w-full"
+                    icon={<div><MdOutlineCalendarMonth className="w-6 h-6 text-grey250 font-bold" /></div>}
+
+                  />
+
+                }
+              />
+            </div>
+            <div className="2xl:flex 2xl:justify-end w-full">
               <CustomButton
                 name="Create"
                 handleClick={handleAddModal}
-                style="bg-primary text-sm font-semibold text-white h-full px-3 rounded-[10px] xl:w-full 2xl:w-auto"
+                style="bg-primary w-full text-sm font-semibold text-white h-full px-3 rounded-[10px] xl:w-full 2xl:w-auto"
                 icon={<div><IoAdd className="w-6 h-6 text-[#FFFFFF]" /></div>}
               />
             </div>
           </div>
           <AddLeadModal
-            selectedLead={null}
+            selectedLeadId={selectedLead}
             open={openAddLeadModal}
             setOpen={setOpenAddLeadModal}
-            refetch={()=>{}}
+            refetch={refetchLeads}
             isView={isView}
             setIsView={setIsView}
+            nationalities={nationalities}
+            sources={sources}
+            channels={channels}
           />
           <LeadAssignModal
             selectedLead={null}
+
             open={openLeadAssignModal}
             setOpen={setOpenLeadAssignModal}
-            refetch={()=>{}}
-            // isView={isView}
-            // setIsView={setIsView}
+            refetch={refetchLeads}
+            selectedLeadId={selectedLead}
           />
           <LeadDeleteModal
             open={openLeadDeleteModal}
             setOpen={setOpenLeadDeleteModal}
+            handleConfirm={handleDeleteLead}
+            loadingButton={isDeleting}
           />
 
           <div className="w-full xl:h-[calc(100vh-350px)]">
-            <Table
+            <ServerPaginatedTable
               headers={leadsHeaders}
-              rows={filteredData || []}
+              rows={leads?.leads || []}
               renderActions={renderActions}
-              handleRowClick={(row) => handleEdit(row, true)}
+              handleRowClick={(row) => handleView(row)}
               renderCustomColumn={renderCustomColumn}
+              totalPages={leads?.total_pages}
+              page={page}
+              setPage={setPage}
+              limit={limit}
+              setLimit={setLimit}
             />
           </div>
         </div>
+
+
       </div>
     </>
   );

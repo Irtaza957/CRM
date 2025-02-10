@@ -52,7 +52,7 @@ const App = () => {
           }
         />
         <Route
-          path="lead/details"
+          path="lead/:id"
           element={
             <RouteGuard>
               <LeadDetails />

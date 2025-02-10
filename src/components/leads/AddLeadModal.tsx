@@ -8,40 +8,53 @@ import Combobox from "../ui/Combobox";
 import { toast } from "sonner";
 import CustomToast from "../ui/CustomToast";
 import {
-  usePostCouponMutation,
-  useUpdateCouponMutation,
-} from "../../store/services/coupons";
+  useFetchLeadByIdQuery,
+  usePostLeadMutation,
+  useUpdateLeadMutation,
+} from "../../store/services/leads";
 import { RiArrowDownSLine } from "react-icons/ri";
-import { useSelector } from "react-redux";
-import { RootState } from "../../store";
 import { FiEdit } from "react-icons/fi";
-import { sources } from "../../utils/constants";
 import CommonTextarea from "../ui/CommonTextarea";
 import CustomPhoneInput from "../ui/CustomPhoneInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addLeadSchema } from "../../utils/schemas";
+import { contactVia, languages, priorities } from "../../utils/constants";
 
 interface AddLeadModalProps {
   open: boolean;
-  selectedLead: LeadProps | null;
+  selectedLeadId: string | null;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   refetch: () => void;
   isView?: boolean;
   setIsView?: React.Dispatch<React.SetStateAction<boolean>>;
+  nationalities?: ListOptionProps[];
+  sources?: ListOptionProps[];
+  channels?: ListOptionProps[];
 }
+
+
+
 
 const AddLeadModal = ({
   open,
   setOpen,
-  selectedLead,
+  selectedLeadId,
   refetch,
   isView,
-  setIsView
+  setIsView,
+  nationalities,
+  sources,
+  channels
 }: AddLeadModalProps) => {
-  const { user } = useSelector((state: RootState) => state.global);
-  const [createCoupon, { isLoading }] = usePostCouponMutation();
-  const [updateCoupon, { isLoading: updateLoading }] =
-    useUpdateCouponMutation();
+  const [createlead, { isLoading }] = usePostLeadMutation();
+  const [updatelead, { isLoading: updateLoading }] = useUpdateLeadMutation();
+
+  const {
+    data: leadDetails,
+  } = useFetchLeadByIdQuery(selectedLeadId, {
+    skip: !selectedLeadId || !open,
+    refetchOnMountOrArgChange: true,
+  });
 
   const {
     register,
@@ -49,52 +62,52 @@ const AddLeadModal = ({
     reset,
     control,
     formState: { errors },
+    setValue,
   } = useForm({
     resolver: zodResolver(addLeadSchema),
     mode: "all",
   });
   const resetState = () => {
     reset({
-      client_name: '',
-      client_phone: '',
+      client_name: "",
+      client_phone: "",
       nationality: { id: 0, name: "", list: [] },
       priority: { id: 0, name: "", list: [] },
-      client_email: '',
+      client_email: "",
       source: { id: 0, name: "", list: [] },
       channel: { id: 0, name: "", list: [] },
       language: { id: 0, name: "", list: [] },
       contact: { id: 0, name: "", list: [] },
-      notes: '',
+      notes: "",
     });
-  }
+  };
 
   const handleClose = () => {
     setOpen(false);
-    resetState()
+    resetState();
   };
 
   const onSubmit = async (data: any) => {
     try {
       const formData = new URLSearchParams();
+      formData.append("source_id", data.source.id);
+      formData.append("channel_id", data.channel.id);
       formData.append("client_name", data.client_name);
-      formData.append("client_phone", data.client_phone);
+      formData.append("phone", data.client_phone);
+      formData.append("email", data.client_email);
       formData.append("nationality", data.nationality.id);
-      formData.append("priority", data.priority.id);
-      formData.append("client_email", data.client_email);
-      formData.append("source", data.source.id);
-      formData.append("channel", data.channel.id);
       formData.append("language", data.language.id);
-      formData.append("contact", data.contact.id);
-      formData.append("notes", data.notes);
-      formData.append("user_id", String(user?.id));
-
+      formData.append("priority", data.priority.id);
+      formData.append("contact_via", data.contact.id);
+      formData.append("description", data.notes);
       let response;
-      if (selectedLead?.id) {
-        formData.append("lead_id", selectedLead.id);
-        response = await updateCoupon(formData);
+      if (selectedLeadId) {
+        formData.append("lead_id", selectedLeadId);
+        response = await updatelead(formData);
       } else {
-        response = await createCoupon(formData);
+        response = await createlead(formData);
       }
+
 
       if ("error" in response) {
         toast.custom((t) => (
@@ -102,7 +115,7 @@ const AddLeadModal = ({
             t={t}
             type="error"
             title="Error"
-            message={`Failed to ${selectedLead?.id ? "update" : "create"} lead`}
+            message={`Failed to ${selectedLeadId ? "update" : "create"} lead`}
           />
         ));
       } else {
@@ -111,7 +124,7 @@ const AddLeadModal = ({
             t={t}
             type="success"
             title="Success"
-            message={`Lead ${selectedLead?.id ? "updated" : "created"} successfully`}
+            message={`Lead ${selectedLeadId ? "updated" : "created"} successfully`}
           />
         ));
         refetch();
@@ -130,19 +143,43 @@ const AddLeadModal = ({
   };
 
   useEffect(() => {
-    if (!open) {
-      resetState()
+    if (leadDetails) {
+      setValue("client_name", leadDetails.client_name);
+      setValue("client_phone", leadDetails.phone);
+      setValue("client_email", leadDetails.email);
+      setValue("notes", leadDetails.description);
+
+      const selectedSource = sources?.find((source: any) => source.name === leadDetails.source);
+      const selectedChannel = channels?.find((channel: any) => channel.name === leadDetails.channel);
+      const selectedNationality = nationalities?.find((nationality: any) => nationality.id == leadDetails.nationality);
+      const selectedLanguage = languages?.find((source: any) => source.id === leadDetails.language);
+      const selectedPriority = priorities?.find((source: any) => source.id === leadDetails.priority);
+      const selectedContact= contactVia?.find((source: any) => source.id === leadDetails.contact_via);
+      setValue("source", selectedSource);
+      setValue("channel", selectedChannel);
+      setValue("nationality", selectedNationality);
+      setValue("language", selectedLanguage);
+      setValue("priority", selectedPriority);
+      setValue("contact", selectedContact);
+
     }
-  }, [open])
+  }, [leadDetails, sources, channels, nationalities, open]);
+
+  useEffect(() => {
+    if (!open) {
+      resetState();
+    }
+  }, [open]);
 
   return (
     <Modal open={open} setOpen={setOpen} className="w-[95%] lg:max-w-4xl">
       <div className="flex h-auto w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-white">
         <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white">
           <h1 className="text-xl font-medium">
-            {selectedLead?.id ? "Update Lead" : "Add Lead"}
+            {selectedLeadId ? "Update Lead" : "Add Lead"}
           </h1>
           <div className="flex items-center justify-center gap-2">
+
             {isView && (
               <FiEdit
                 onClick={() => setIsView?.(false)}
@@ -180,7 +217,7 @@ const AddLeadModal = ({
               control={control}
               render={({ field }) => (
                 <Combobox
-                  options={sources}
+                  options={channels}
                   value={field.value}
                   onChange={field.onChange}
                   label="Channel"
@@ -200,7 +237,7 @@ const AddLeadModal = ({
               label="Name"
               register={register}
               errorMsg={errors?.client_name?.message}
-              placeholder="Enter coupon name"
+              placeholder="Enter name"
               disabled={isView}
               isRequired={true}
             />
@@ -227,7 +264,7 @@ const AddLeadModal = ({
               control={control}
               render={({ field }) => (
                 <Combobox
-                  options={sources}
+                  options={nationalities}
                   value={field.value}
                   onChange={field.onChange}
                   label="Nationality"
@@ -248,7 +285,7 @@ const AddLeadModal = ({
               control={control}
               render={({ field }) => (
                 <Combobox
-                  options={sources}
+                  options={languages}
                   value={field.value}
                   onChange={field.onChange}
                   label="Language"
@@ -268,7 +305,7 @@ const AddLeadModal = ({
               control={control}
               render={({ field }) => (
                 <Combobox
-                  options={sources}
+                  options={priorities}
                   value={field.value}
                   onChange={field.onChange}
                   label="Priority"
@@ -290,7 +327,7 @@ const AddLeadModal = ({
               control={control}
               render={({ field }) => (
                 <Combobox
-                  options={sources}
+                  options={contactVia}
                   value={field.value}
                   onChange={field.onChange}
                   label="Contact Via"
@@ -324,12 +361,13 @@ const AddLeadModal = ({
             />
             {!isView && (
               <CustomButton
-                name={selectedLead?.id ? "Update" : "Save"}
+                name={selectedLeadId ? "Update" : "Save"}
                 handleClick={handleSubmit(onSubmit)}
                 loading={isLoading || updateLoading}
                 disabled={isLoading || updateLoading}
               />
             )}
+
           </div>
         </div>
       </div>

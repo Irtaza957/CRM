@@ -242,6 +242,7 @@ const NewServiceModal = ({
                 selectedServiceId={selectedServiceId}
                 setProvider={setProvider}
                 open={open}
+                isApp={isView}
               />
             )}
           </div>

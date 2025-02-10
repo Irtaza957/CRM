@@ -2,7 +2,7 @@ import { LuLoader2 } from "react-icons/lu";
 import { cn } from "../../utils/helpers";
 
 interface CustomButton {
-  name: string;
+  name: string | React.ReactNode;
   style?: string;
   loading?: boolean;
   disabled?: boolean;

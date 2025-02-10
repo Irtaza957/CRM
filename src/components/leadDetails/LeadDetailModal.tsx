@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { IoClose } from "react-icons/io5";
 import Modal from "../ui/Modal";
 import CustomButton from "../ui/CustomButton";
@@ -7,36 +7,60 @@ import Combobox from "../ui/Combobox";
 import { toast } from "sonner";
 import CustomToast from "../ui/CustomToast";
 import { RiArrowDownSLine } from "react-icons/ri";
-import { sources } from "../../utils/constants";
 import CommonTextarea from "../ui/CommonTextarea";
+import { useFetchLeadStagesQuery, useMoveLeadMutation } from "../../store/services/leads";
+import { leadChannels } from "../../utils/constants";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { leadDetailSchema } from "../../utils/schemas";
 
 interface AddLeadModalProps {
   open: boolean;
-  selectedLead: LeadProps | null;
+  selectedLead: string | null;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   refetch: () => void;
   isView?: boolean;
   setIsView?: React.Dispatch<React.SetStateAction<boolean>>;
+  refetchLeadChat: () => void;
 }
 
-const AddLeadModal = ({
+const LeadDetailModal = ({
   open,
   setOpen,
   isView,
+  selectedLead,
+  refetch,
+  refetchLeadChat
 }: AddLeadModalProps) => {
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm();
+    control
+  } = useForm({
+    resolver: zodResolver(leadDetailSchema),
+    mode: "all",
+  });
+
+  const { data: stagesData } = useFetchLeadStagesQuery({})
+  const [moveLead, { isLoading }] = useMoveLeadMutation()
 
   const resetState = () => {
     reset({
-      total_redeems: "",
-      name: "",
-      code: "",
+      stage: {
+        id: "",
+        name: "",
+        list: []
+      },
+      channel: {
+        id: "",
+        name: "",
+        list: []
+      },
+      notes: "",
     });
+
+
   };
 
   const handleClose = () => {
@@ -46,16 +70,41 @@ const AddLeadModal = ({
 
   const onSubmit = async (data: any) => {
     try {
-      const formData = new URLSearchParams();
-      formData.append("name", data.name);
-      // formData.append("code", data.code);
-      // formData.append("expiry_date", dayjs(expiryDate).format("YYYY-MM-DD"));
-      // formData.append("total_redeems", data.total_redeems);
-      // formData.append("discount_type", String(discountType?.id));
-      // formData.append("discount_value", data.discount_value);
-      // formData.append("user_id", String(user?.id));
+      if (selectedLead) {
+        const formData = new URLSearchParams();
+        formData.append("stage_id", data.stage.id);
+        formData.append("lead_id", selectedLead);
+        formData.append("log_source", data.channel.id);
+        formData.append("notes", data.description);
+        const response = await moveLead(formData)
+
+        if (response.error) {
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="error"
+              title="Error"
+              message="Something went wrong!"
+            />
+          ));
+        } else {
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="success"
+              title="Success"
+              message="Lead moved successfully"
+            />
+          ));
+          handleClose()
+          refetchLeadChat()
+          refetch()
+        }
+      }
+
     } catch (error) {
       toast.custom((t) => (
+
         <CustomToast
           t={t}
           type="error"
@@ -82,20 +131,50 @@ const AddLeadModal = ({
           </div>
         </div>
         <div className="h-full max-h-[80vh] w-full overflow-y-scroll p-5">
-          <Combobox
-            options={sources}
-            value={null}
-            handleSelect={() => {}}
-            label="Lead Stage"
-            placeholder="Select Lead Stage"
-            mainClassName="w-full"
-            toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
-            listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
-            listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-            icon={<RiArrowDownSLine className="size-5 text-grey100" />}
-            isSearch={false}
-            disabled={isView}
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <Controller
+              name="stage"
+              control={control}
+              render={({ field }) => (
+                <Combobox
+                  options={stagesData}
+                  value={field.value}
+                  onChange={field.onChange}
+                  label="Lead Stage"
+                  placeholder="Select Lead Stage"
+                  mainClassName="w-full"
+                  toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+                  listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+                  isSearch={false}
+                  disabled={isView}
+                  errorMsg={errors?.stage?.message}
+                />
+              )}
+            />
+            <Controller
+              name="channel"
+              control={control}
+              render={({ field }) => (
+                <Combobox
+                  options={leadChannels}
+                  value={field.value}
+                  onChange={field.onChange}
+                  label="Channel"
+                  placeholder="Select Channel"
+                  mainClassName="w-full"
+                  toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+                  listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+                  isSearch={false}
+                  disabled={isView}
+                  errorMsg={errors?.channel?.message}
+                />
+              )}
+            />
+          </div>
           <CommonTextarea
             name="description"
             register={register}
@@ -112,7 +191,7 @@ const AddLeadModal = ({
               handleClick={handleClose}
               style="bg-danger"
             />
-            <CustomButton name="Move" handleClick={handleSubmit(onSubmit)} />
+            <CustomButton name="Move" handleClick={handleSubmit(onSubmit)} loading={isLoading} />
           </div>
         </div>
       </div>
@@ -120,4 +199,4 @@ const AddLeadModal = ({
   );
 };
 
-export default AddLeadModal;
+export default LeadDetailModal;

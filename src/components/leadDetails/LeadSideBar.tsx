@@ -2,63 +2,73 @@ import { useState } from "react";
 import IconArrowRight from ".././../assets/icons/arrowRight.svg";
 import { cn } from "../../utils/helpers";
 import LeadDetailModal from "./LeadDetailModal";
+import { useFetchNationalityQuery } from "../../store/services/booking";
+import dayjs from "dayjs";
 
-const LeadSideBar = () => {
-  const [tab, setTab] = useState("marketing");
+const LeadSideBar = ({id, leadData, refetchLead, refetchLeadChat}: {id: string, leadData?: LeadsData, refetchLead: () => void, refetchLeadChat: () => void}) => {
+  const [tab, setTab] = useState("client");
   const [openLeadModal, setOpenLeadModal] = useState(false)
 
+  const { data: nationalities } = useFetchNationalityQuery(
+    {},
+    {
+      skip: !open,
+      refetchOnMountOrArgChange: true,
+    }
+  );
   const clientDetail = [
-    { label: "Email", value: "mymail@gmail.com" },
-    { label: "County", value: "Indian" },
-    { label: "Source", value: "Google" },
-    { label: "Priority", value: "High" },
-    { label: "Agent", value: "Mehroof" },
-    { label: "Stage", value: "New Lead" },
-    { label: "Received at", value: "Jan 12, 10:45 am" },
-    { label: "Assigned at", value: "Jan 12, 10:47 am" },
-    { label: "Last Followup", value: "Jan 12, 10:50 am" },
+    { label: "Email", value: leadData?.email },
+    { label: "County", value: nationalities?.find(item => item.id == Number(leadData?.nationality))?.name },
+    { label: "Source", value: leadData?.source },
+    { label: "Priority", value: leadData?.priority },
+    { label: "Agent", value: leadData?.agent || '-' },
+    { label: "Stage", value: leadData?.stage },
+    { label: "Received at", value: leadData?.recieved_at || '-' },
+    { label: "Assigned at", value: leadData?.assigned_at || '-' },
+    { label: "Last Followup", value: leadData?.last_followup || '-' },
   ];
 
+
   const marketingDetail = [
-    { label: "Source", value: "Google" },
-    { label: "Channel", value: "WhatsApp" },
-    { label: "Ads Name", value: "CityDoctor 50% Off" },
-    { label: "Campaign", value: "CityDoctor50" },
+    { label: "Source", value: leadData?.source },
+    { label: "Channel", value: leadData?.channel },
+    { label: "Ads Name", value: leadData?.adname || '-' },
+    { label: "Campaign", value: leadData?.campaign_name || '-' },
     {
       label: "Page Link",
-      value: "https://citydoctor.ae/wp-content/uploads/2023/11/",
+      value: leadData?.page_link || '-' ,
     },
-    { label: "Form Name", value: "Popup 3" },
+
+    { label: "Form Name", value: leadData?.form_name || '-' },
   ];
 
   return (
     <>
       <LeadDetailModal
-        selectedLead={null}
+        selectedLead={id}
         open={openLeadModal}
         setOpen={setOpenLeadModal}
-        refetch={() => { }}
-      // isView={isView}
-      // setIsView={setIsView}
+        refetch={refetchLead}
+        refetchLeadChat={refetchLeadChat}
       />
       <div className="flex size-full flex-col">
         <div className="flex items-center justify-between border-b border-[#DBDBDB] px-6 py-4">
           <div>
-            <p className="text-lg xl:text-xl font-semibold text-[#656565]">Lead Details</p>
-            <span className="text-[#9FA2AA] text-sm">(Ref No. 54621)</span>
+            <p className="text-lg font-semibold text-[#656565]">Lead Details</p>
+            <span className="text-[#9FA2AA] text-xs">(Ref No. {leadData?.reference_no})</span>
           </div>
           <div>
             <div className="flex justify-end gap-2">
               <div className="flex flex-col items-end gap-1">
-                <span className="rounded-full bg-[#50C878] px-3 xl:px-5 py-1 text-sm text-white">
+                <span className="rounded-full bg-[#50C878] px-2 xl:px-5 py-1 text-sm text-white">
                   followup
                 </span>
                 <p className="text-xs text-[#9FA2AA] hidden xl:block">
                   Last Follow up at : Jan 12, 10:45 am
                 </p>
               </div>
-              <div onClick={() => setOpenLeadModal(true)} className="flex size-10 xl:size-11 cursor-pointer items-center justify-center rounded-full bg-[#126FAC]">
-                <img src={IconArrowRight} alt="" className="size-4 xl:size-5" />
+              <div onClick={() => setOpenLeadModal(true)} className="flex size-10 cursor-pointer items-center justify-center rounded-full bg-[#126FAC]">
+                <img src={IconArrowRight} alt="" className="size-4" />
               </div>
             </div>
             <p className="text-xs text-[#9FA2AA] xl:hidden">
@@ -71,8 +81,8 @@ const LeadSideBar = () => {
             <div className="flex items-center gap-6">
               <div className="size-[54px] rounded-full bg-[#F5F6FA]"></div>
               <div>
-                <h4 className="text-xl font-medium">Agent Name</h4>
-                <p className="text-[#656565] text-sm">Assigned at : Jan 12, 10:45 am</p>
+                <h4 className="text-lg font-medium">Agent Name</h4>
+                <p className="text-[#656565] text-xs">Assigned at : {leadData?.assigned_at ? dayjs(leadData?.assigned_at).format('DD MMM, HH:mm') : '-'}</p>
               </div>
             </div>
             <div>
@@ -95,7 +105,7 @@ const LeadSideBar = () => {
               <button
                 onClick={() => setTab("client")}
                 className={cn(
-                  "w-[calc(50%-4px)] rounded-xl py-3 font-semibold transition-all duration-200 ease-in-out",
+                  "w-[calc(50%-4px)] rounded-xl py-2 font-semibold transition-all duration-200 ease-in-out",
                   [
                     tab === "client"
                       ? "bg-[#126FAC] text-white"
@@ -108,7 +118,7 @@ const LeadSideBar = () => {
               <button
                 onClick={() => setTab("marketing")}
                 className={cn(
-                  "w-[calc(50%-4px)] rounded-xl py-3 font-semibold transition-all duration-200 ease-in-out",
+                  "w-[calc(50%-4px)] rounded-xl py-2 font-semibold transition-all duration-200 ease-in-out",
                   [
                     tab === "marketing"
                       ? "bg-[#126FAC] text-white"
@@ -119,7 +129,10 @@ const LeadSideBar = () => {
                 Marketing
               </button>
             </div>
-            <div className="flex-1 rounded-lg bg-[#F5F6FA] px-4 py-4">
+            <div className={cn(
+              "w-full rounded-lg bg-[#F5F6FA] px-4 py-4 overflow-auto mb-2",
+              tab === "client" && 'h-[calc(100vh-325px)]'
+            )}>
               {tab === "client" ? (
                 <div className="h-full space-y-[22px]">
                   {clientDetail.map((item, index) => (
@@ -128,7 +141,7 @@ const LeadSideBar = () => {
                       className="flex justify-between gap-6 text-[#656565]"
                     >
                       <div className="flex w-1/2 justify-between">
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-6 text-sm">
                           {/* <img src="" alt="" /> */}
                           {item.label}
                         </div>
@@ -140,12 +153,10 @@ const LeadSideBar = () => {
                   <div className="flex justify-between gap-6 text-[#656565]">
                     <div className="flex items-center gap-6">
                       {/* <img src="" alt="" /> */}
-                      <div className="">
-                        <p className="">Note</p>
-                        <p className="mt-[14px] text-sm">
-                          Lorem Ipsum is simply dummy text of the printing and
-                          typesetting industry. Lorem Ipsum has been the
-                          industry’s standard dummy text
+                      <div className="flex gap-2">
+                        <p className="">Note: </p>
+                        <p className="mt-0.5 text-sm">
+                          {leadData?.description}
                         </p>
                       </div>
                     </div>
@@ -159,7 +170,7 @@ const LeadSideBar = () => {
                       className="flex justify-between gap-6 text-[#656565]"
                     >
                       <div className="flex w-1/2 justify-between">
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-6 text-sm">
                           {/* <img src="" alt="" /> */}
                           {item.label}
                         </div>

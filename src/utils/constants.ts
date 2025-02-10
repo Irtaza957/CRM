@@ -953,12 +953,12 @@ export const couponsHeaders = [
 ];
 
 export const leadsHeaders = [
-  { label: "Ref No.#", key: "ref", sortable: true, sortIcon: SmallUpDownArrow },
+  { label: "Ref No.#", key: "reference_no", sortable: true, sortIcon: SmallUpDownArrow },
   { label: "Client Name", key: "client_name", sortable: true, sortIcon: SmallUpDownArrow },
   { label: "Email", key: "email", sortable: true, sortIcon: SmallUpDownArrow },
   {
     label: "Country",
-    key: "country",
+    key: "nationality",
     sortable: true,
     sortIcon: SmallUpDownArrow,
   },
@@ -988,7 +988,7 @@ export const leadsHeaders = [
   },
   {
     label: "Recieved At",
-    key: "recieved_at",
+    key: "received_at",
     sortable: true,
     sortIcon: SmallUpDownArrow,
   },
@@ -1000,7 +1000,7 @@ export const leadsHeaders = [
   },
   {
     label: "Last Followup",
-    key: "followup",
+    key: "last_followup",
     sortable: true,
     sortIcon: SmallUpDownArrow,
   },
@@ -1018,3 +1018,33 @@ export const placeOptions = [
   { id: "middle", name: "Middle" },
 ];
 
+export const contactVia = [
+  { id: 'WHATSAPP', name: 'Whatsapp' },
+  { id: 'CALL', name: 'Call' },
+  { id: 'EMAIL', name: 'Email' },
+]
+
+export const priorities = [
+  { id: 'High', name: 'High' },
+  { id: 'Medium', name: 'Medium' },
+  { id: 'Low', name: 'Low' }
+]
+
+export const languages = [
+  { id: 'English', name: 'English' },
+  { id: 'Russian', name: 'Russian' },
+  { id: 'Arabic', name: 'Arabic' },
+  { id: 'Turkish', name: 'Turkish' },
+  { id: 'French', name: 'French' },
+  { id: 'Hindi', name: 'Hindi' },
+  { id: 'Chinese', name: 'Chinese' },
+  { id: 'German', name: 'German' },
+]
+
+export const leadChannels=[
+  {id: 'CALL', name: 'Call'},
+  {id: 'WHATSAPP', name: 'Whatsapp'},
+  {id: 'EMAIL', name: 'Email'},
+  {id: 'MESSENGER', name: 'Messenger'},
+  {id: 'OTHER', name: 'Other'},
+]

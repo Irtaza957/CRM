@@ -43,7 +43,7 @@ const AddService = ({
   isApp,
   refetch,
   setOpen,
-  setProvider,
+  setProvider
 }: AddServiceProps) => {
   const [vat, setVat] = useState("");
   const [code, setCode] = useState("");
@@ -259,7 +259,7 @@ const AddService = ({
         vat_value: item.vat_value,
       }));
       setBundles(tempBundles || []);
-      if (serviceDetails?.vitamins.length && open) {
+      if (serviceDetails?.vitamins?.length && open) {
         getVitamins(serviceDetails?.vitamins)
       }else{
         setVitamins([])
@@ -460,7 +460,7 @@ const AddService = ({
         disabled={isApp}
         />
       <ColorPicker label="Service Color" value={color} setter={setColor} disabled={isApp} />
-      {vitamins.length > 0 && (
+      {vitamins?.length > 0 && (
         <div className="col-span-2 mb-4 flex flex-col gap-2">
           <label className="text-left font-medium">Vitamins</label>
           <div className="flex flex-col gap-4">

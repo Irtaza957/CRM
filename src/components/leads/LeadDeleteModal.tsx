@@ -5,11 +5,15 @@ import Iconbin from "../../assets/icons/icon-bin.svg";
 interface LeadDeleteModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  loadingButton?: boolean;
+  handleConfirm: () => void;
 }
 
 const LeadDeleteModal = ({
   open,
-  setOpen
+  setOpen,
+  loadingButton,
+  handleConfirm
 }: LeadDeleteModalProps) => {
   const handleClose = () => {
     setOpen(false);
@@ -25,7 +29,7 @@ const LeadDeleteModal = ({
           <div>
             <p>
               Are you sure want to <br />
-              delete this file?
+              delete this Lead?
             </p>
           </div>
           <div className="flex gap-3">
@@ -36,7 +40,8 @@ const LeadDeleteModal = ({
             />
             <CustomButton
               name="Delete"
-              handleClick={handleClose}
+              loading={loadingButton}
+              handleClick={handleConfirm}
               style="bg-danger px-10"
             />
           </div>
