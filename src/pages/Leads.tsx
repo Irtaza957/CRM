@@ -18,14 +18,13 @@ import AddLeadModal from "../components/leads/AddLeadModal";
 import { useNavigate } from "react-router-dom";
 import LeadAssignModal from "../components/leads/LeadAssignModal";
 import LeadDeleteModal from "../components/leads/LeadDeleteModal";
-import CustomDatePicker from "../components/ui/CustomDatePicker";
-import { MdOutlineCalendarMonth } from "react-icons/md";
 import { useDeleteLeadMutation, useFetchLeadChannelsQuery, useFetchLeadSourcesQuery, useFetchLeadsQuery, useFetchLeadStagesQuery, useFetchUsersQuery } from "../store/services/leads";
 import dayjs from "dayjs";
 import { toast } from "sonner";
 import CustomToast from "../components/ui/CustomToast";
 import { useFetchNationalityQuery } from "../store/services/booking";
 import ServerPaginatedTable from "../components/ui/ServerPaginatedTable";
+import DateRangePickerComponent from "../components/ui/DateRangeSelector";
 const leadsData = [
   {
     name: 'Total Leads',
@@ -61,8 +60,14 @@ const LeadsList = () => {
     id: 1,
     name: "5",
   });
+  const [date, setDate] = useState([
+    {
+      startDate: new Date(),
+      endDate: new Date(),
+      key: "selection",
+    },
+  ]);
 
-  const [date, setDate] = useState<string | Date>(new Date())
   const navigate = useNavigate();
   const [filters, setFilters] = useState<{
     source: ListOptionProps,
@@ -101,8 +106,8 @@ const LeadsList = () => {
     data: leads,
     refetch: refetchLeads
   } = useFetchLeadsQuery({ 
-    start_date: dayjs(date).format("YYYY-MM-DD"), 
-    end_date: "2025-02-20", 
+    start_date: dayjs(date[0].startDate).format("YYYY-MM-DD"), 
+    end_date: dayjs(date[0].endDate).format("YYYY-MM-DD"), 
     limit: Number(limit?.name), 
     offset: page, 
     source: filters.source.id, 
@@ -240,10 +245,6 @@ const LeadsList = () => {
       />
     </div>
   );
-
-  const handleSetDate = (date: string | Date) => {
-    setDate(date)
-  }
 
   const handleDeleteLead = async () => {
     try {
@@ -415,21 +416,7 @@ const LeadsList = () => {
             />
 
             <div className="w-full 2xl:col-span-2">
-              <CustomDatePicker
-                date={date}
-                setDate={handleSetDate}
-                toggleClassName="top-[44px]"
-                toggleButton={
-                  <CustomButton
-                    name={dayjs(date).format("DD-MM-YYYY")}
-                    handleClick={() => { }}
-                    style="bg-grey150 text-sm text-grey200 h-full px-3 rounded-[10px] w-full"
-                    icon={<div><MdOutlineCalendarMonth className="w-6 h-6 text-grey250 font-bold" /></div>}
-
-                  />
-
-                }
-              />
+              <DateRangePickerComponent range={date} setRange={setDate} />
             </div>
             <div className="2xl:flex 2xl:justify-end w-full">
               <CustomButton

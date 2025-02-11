@@ -88,3 +88,11 @@
 .custom-radio:hover {
   border-color: #6b7280; /* Add hover effect */
 }
+
+.no-sidebar .rdrDefinedRangesWrapper {
+  display: none; /* Hides the sidebar completely */
+}
+
+.no-sidebar .rdrDateRangePickerWrapper {
+  grid-template-columns: 1fr !important; /* Adjust the layout to use full width */
+}

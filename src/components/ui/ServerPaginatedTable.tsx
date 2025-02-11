@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Combobox from "./Combobox";
 import { cn } from "../../utils/helpers";
 import { FaChevronDown } from "react-icons/fa";
@@ -26,6 +26,9 @@ interface TableProps {
 
 const ServerPaginatedTable: React.FC<TableProps> = ({ headers, rows, renderActions, className = "", handleRowClick, renderCustomColumn, totalPages=0, page, setPage, limit, setLimit }) => {
 
+    useEffect(()=>{
+        setPage?.(0)
+    },[limit])
   return (
     <>
       <div className={`h-full w-full overflow-hidden rounded-lg border mb-1.5 shadow-lg ${className}`}>
@@ -55,10 +58,7 @@ const ServerPaginatedTable: React.FC<TableProps> = ({ headers, rows, renderActio
               </tr>
             </thead>
             <tbody>
-              {rows?.length > 0 ? rows?.slice(
-                totalPages * parseInt(limit?.name || "5") - parseInt(limit?.name || "5"),
-                totalPages * parseInt(limit?.name || "5")
-              ).map((row, rowIndex) => (
+              {rows?.length > 0 ? rows?.map((row, rowIndex) => (
                 <tr
                   key={rowIndex}
                   title="Click to View"
@@ -99,9 +99,6 @@ const ServerPaginatedTable: React.FC<TableProps> = ({ headers, rows, renderActio
           <>
             <div className="flex w-full flex-1 items-center justify-start gap-3">
               {(() => {
-                const totalPages = Math.ceil(
-                  rows?.length / parseInt(limit?.name || "5")
-                );
                 const maxVisibleButtons = 5;
                 const startPage = Math.max(
                   1,
@@ -144,11 +141,11 @@ const ServerPaginatedTable: React.FC<TableProps> = ({ headers, rows, renderActio
                     {pageNumbers.map((pageNumber) => (
                       <div
                         key={pageNumber}
-                        onClick={() => setPage?.(pageNumber)}
+                        onClick={() => setPage?.(pageNumber-1)}
                         className={cn(
                           "flex size-[31px] cursor-pointer items-center justify-center rounded-md bg-gray-100 text-xs text-black shadow-md",
                           {
-                            "bg-primary text-white": totalPages === pageNumber,
+                            "bg-primary text-white": page === pageNumber-1,
                           }
                         )}
                       >
@@ -177,12 +174,13 @@ const ServerPaginatedTable: React.FC<TableProps> = ({ headers, rows, renderActio
                 );
               })()}
             </div>
+            {totalPages > 0 && (
             <p className="mr-2.5 text-xs font-semibold">
-              Showing {totalPages} of&nbsp;
-              {Math.ceil(rows?.length / parseInt(limit?.name || "5"))}
-              &nbsp;Pages
-            </p>
-
+              Showing {page ? page + 1 : 1} of&nbsp;
+                {totalPages}
+                &nbsp;Pages
+              </p>
+            )}
           </>
         )}
         <Combobox
