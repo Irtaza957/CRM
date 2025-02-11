@@ -23,7 +23,7 @@ const DateRangePickerComponent = ({ range, setRange }: DateRangePickerComponentP
   return (
     <div ref={rangeRef} className="relative">
       <button
-        className="flex items-center justify-between w-full bg-grey150 text-sm text-grey200 h-[44px] px-3 rounded-[10px]"
+        className="flex items-center justify-between w-full bg-grey150 text-xs text-grey200 h-[44px] px-3 rounded-[10px]"
         onClick={() => setToggle(!toggle)}
       >
         <span>
