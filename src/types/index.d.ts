@@ -803,7 +803,7 @@ declare type LeadsData={
   nationality: string, 
   language: string,
   agent?: string,
-  recieved_at?: string,
+  received_at?: string,
   assigned_at?: string,
   last_followup?: string,
   reference_no?: string,

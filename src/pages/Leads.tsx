@@ -7,8 +7,6 @@ import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { IoAdd, IoEyeOutline, IoPersonAddOutline } from "react-icons/io5";
 import { cn } from "../utils/helpers";
-import WhatsappColored from "../assets/icons/whatsapp-colored.svg";
-import GoogleColored from "../assets/icons/colored-google.svg";
 import CustomButton from "../components/ui/CustomButton";
 import LeadsIcon from "../assets/icons/sidebar/leads.svg";
 import LeadsIconBlack from "../assets/icons/sidebar/leads-black.svg";
@@ -62,7 +60,7 @@ const LeadsList = () => {
   });
   const [date, setDate] = useState([
     {
-      startDate: new Date(),
+      startDate: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
       endDate: new Date(),
       key: "selection",
     },
@@ -76,20 +74,20 @@ const LeadsList = () => {
     stage: ListOptionProps,
     agent: ListOptionProps
   }>({
-    source: {id: '', name: ''},
-    channel: {id: '', name: ''},
-    nationality: {id: '', name: ''},
-    stage: {id: '', name: ''},
-    agent: {id: '', name: ''}
+    source: { id: '', name: '' },
+    channel: { id: '', name: '' },
+    nationality: { id: '', name: '' },
+    stage: { id: '', name: '' },
+    agent: { id: '', name: '' }
   })
 
   const { data: nationalities } = useFetchNationalityQuery({});
 
   const { data: stagesData } = useFetchLeadStagesQuery({})
 
-  const {data: users} = useFetchUsersQuery({})
+  const { data: users } = useFetchUsersQuery({})
 
-    const { data: sources } = useFetchLeadSourcesQuery(
+  const { data: sources } = useFetchLeadSourcesQuery(
     {},
     {
       skip: !open,
@@ -105,15 +103,15 @@ const LeadsList = () => {
   const {
     data: leads,
     refetch: refetchLeads
-  } = useFetchLeadsQuery({ 
-    start_date: dayjs(date[0].startDate).format("YYYY-MM-DD"), 
-    end_date: dayjs(date[0].endDate).format("YYYY-MM-DD"), 
-    limit: Number(limit?.name), 
-    offset: page, 
-    source: filters.source.id, 
-    channel: filters.channel.id, 
-    nationality: filters.nationality.id, 
-    stage: filters.stage.id, 
+  } = useFetchLeadsQuery({
+    start_date: dayjs(date[0].startDate).format("YYYY-MM-DD"),
+    end_date: dayjs(date[0].endDate).format("YYYY-MM-DD"),
+    limit: Number(limit?.name),
+    offset: page,
+    source: filters.source.id,
+    channel: filters.channel.id,
+    nationality: filters.nationality.id,
+    stage: filters.stage.id,
     agent: filters.agent.id,
     search: search
   });
@@ -142,7 +140,17 @@ const LeadsList = () => {
 
 
   const renderCustomColumn = (key: string, value: any, row: any) => {
-    if (key === "agent") {
+    if (key === "client_name") {
+      return (
+        <span className="flex flex-col text-xs whitespace-nowrap">
+          {value}
+          <span className="text-grey300 text-xs">
+            {row?.phone}
+          </span>
+        </span>
+      );
+    }
+    else if (key === "agent") {
       return (
         <span className="text-xs whitespace-nowrap">
           {row?.firstname ? row?.firstname + ' ' + row?.lastname : '-'}
@@ -186,14 +194,15 @@ const LeadsList = () => {
     }
     else if (key === "source") {
       return (
-        <span className={`flex -ml-2 items-center gap-1 text-xs ${value === "Google" && "text-blue100"}`}>
-          <img
+        <span className={`flex -ml-2 items-center gap-1 whitespace-nowrap text-xs ${value === "Google" && "text-blue100"}`}>
+          {/* <img
             src={value === "Google" ? GoogleColored : WhatsappColored}
             alt="icon"
             className={cn("size-[16px] p-0.5 rounded-md", {
               "bg-grey150": value === "Google"
             })}
-          />{value}
+          /> */}
+          {value}
         </span>
       );
     }
@@ -226,7 +235,7 @@ const LeadsList = () => {
 
       <IoEyeOutline
         onClick={(e: React.MouseEvent<SVGAElement>) => handleViewDetail(e, row)}
-        className={cn("col-span-1 h-6 w-6 cursor-pointer rounded-md bg-grey150 p-1 text-[#9FA2AA]", {
+        className={cn("col-span-1 h-6 w-6 cursor-pointer rounded-md bg-grey150 p-1 text-grey300", {
           "bg-white": rowIndex && rowIndex % 2 === 0
         })}
       />
@@ -277,19 +286,19 @@ const LeadsList = () => {
   }
 
   const handleFilter = (name: string, value: ListOptionProps) => {
-    if(name === 'source'){
+    if (name === 'source') {
       setFilters({ ...filters, source: value })
     }
-    else if(name === 'channel'){
+    else if (name === 'channel') {
       setFilters({ ...filters, channel: value })
     }
-    else if(name === 'nationality'){
+    else if (name === 'nationality') {
       setFilters({ ...filters, nationality: value })
     }
-    else if(name === 'stage'){
+    else if (name === 'stage') {
       setFilters({ ...filters, stage: value })
     }
-    else if(name === 'agent'){
+    else if (name === 'agent') {
       setFilters({ ...filters, agent: value })
     }
   }
@@ -298,8 +307,6 @@ const LeadsList = () => {
   return (
     <>
       <div className="gap-2 xl:gap-3 mb-2 grid grid-cols-4">
-
-
         {leadsData?.map((item, index) => (
           <div key={index} className="flex  items-center gap-4 bg-white rounded-2xl px-3 xl:px-4 py-3 border border-[#E3E3E3]">
             <div className={cn(
@@ -325,8 +332,8 @@ const LeadsList = () => {
       </div>
       <div className="flex w-full gap-3 min-h-screen">
         <div className="flex h-full w-full flex-col items-start justify-start">
-          <div className={`bg-white px-3 py-2 gap-2 2xl:gap-4 rounded-[14px] grid grid-cols-5 xl:grid-cols-5 2xl:grid-cols-12 w-full mb-2`}>
-            <div className={`col-span-2 2xl:col-span-3 relative flex h-full w-full items-center justify-center gap-2.5 rounded-lg bg-grey150 px-3.5 text-gray-500`}>
+          <div className={`bg-white px-2 py-2 gap-2 rounded-[14px] grid grid-cols-9 2xl:grid-cols-12 w-full mb-2`}>
+            <div className={`2xl:col-span-3 relative flex h-full w-full items-center justify-center gap-2.5 rounded-lg bg-grey150 px-3.5 text-gray-500`}>
               <input
                 type="text"
                 value={search}
@@ -342,8 +349,7 @@ const LeadsList = () => {
               handleSelect={(item) => handleFilter('source', item)}
               placeholder="All Source"
               mainClassName="w-full"
-              toggleClassName={`w-full px-3 py-2 rounded-[10px] text-xs text-grey200 bg-grey150`}
-
+              toggleClassName={`w-full px-3 py-3 rounded-[10px] text-xs text-grey200 bg-grey150`}
               listClassName="w-full top-10 max-h-52 border rounded-lg z-20 bg-white"
               listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               icon={<div><IoIosArrowDown className="size-5 fill-grey200" /></div>}
@@ -357,7 +363,7 @@ const LeadsList = () => {
               handleSelect={(item) => handleFilter('channel', item)}
               placeholder="All Channel"
               mainClassName="w-full"
-              toggleClassName={`w-full px-3 py-2 rounded-[10px] text-xs text-grey200 bg-grey150`}
+              toggleClassName={`w-full px-3 py-3 rounded-[10px] text-xs text-grey200 bg-grey150`}
 
               listClassName="w-full top-10 max-h-52 border rounded-lg z-20 bg-white"
               listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
@@ -372,7 +378,7 @@ const LeadsList = () => {
               handleSelect={(item) => handleFilter('nationality', item)}
               placeholder="Country"
               mainClassName="w-full"
-              toggleClassName={`w-full px-3 py-2 rounded-[10px] text-xs text-grey200 bg-grey150`}
+              toggleClassName={`w-full px-3 py-3 rounded-[10px] text-xs text-grey200 bg-grey150`}
               listClassName="w-full top-10 max-h-52 border rounded-lg z-20 bg-white"
               listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               icon={<div><IoIosArrowDown className="size-5 fill-grey200" /></div>}
@@ -386,7 +392,7 @@ const LeadsList = () => {
               handleSelect={(item) => handleFilter('stage', item)}
               placeholder="All Stages"
               mainClassName="w-full"
-              toggleClassName={`w-full px-3 py-2 rounded-[10px] text-xs text-grey200 bg-grey150`}
+              toggleClassName={`w-full px-3 py-3 rounded-[10px] text-xs text-grey200 bg-grey150`}
               listClassName="w-full top-10 max-h-52 border rounded-lg z-20 bg-white"
               listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               icon={<div><IoIosArrowDown className="size-5 fill-grey200" /></div>}
@@ -400,7 +406,7 @@ const LeadsList = () => {
               handleSelect={(item) => handleFilter('agent', item)}
               placeholder="All Agents"
               mainClassName="w-full"
-              toggleClassName={`w-full px-3 py-2 rounded-[10px] text-xs text-grey200 bg-grey150`}
+              toggleClassName={`w-full px-3 py-3 rounded-[10px] text-xs text-grey200 bg-grey150`}
               listClassName="w-full top-10 max-h-52 border rounded-lg z-20 bg-white"
               listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               icon={<div><IoIosArrowDown className="size-5 fill-grey200" /></div>}
@@ -408,21 +414,27 @@ const LeadsList = () => {
               searchInputClassName="p-1.5 text-xs"
               isRemoveAllow={true}
             />
-            <CustomButton
+            {/* <CustomButton
               name="Import"
               handleClick={() => { }}
               style="bg-grey150 text-sm text-grey200 h-full px-3 rounded-[10px]"
-              icon={<div><GoDownload className="w-6 h-6 text-grey250 font-bold" /></div>}
-            />
+              icon={<div><GoDownload className="w-5 h-5 text-grey250 font-bold" /></div>}
+            /> */}
 
             <div className="w-full 2xl:col-span-2">
               <DateRangePickerComponent range={date} setRange={setDate} />
             </div>
-            <div className="2xl:flex 2xl:justify-end w-full">
+            <div className="flex gap-2 justify-end w-full col-span-2">
+              <CustomButton
+                name="Import"
+                handleClick={() => { }}
+                style="bg-primary w-full text-sm font-semibold text-white h-full px-3 rounded-[10px] w-[80%] 2xl:w-auto"
+                icon={<div><GoDownload className="w-6 h-6 text-[#FFFFFF]" /></div>}
+              />
               <CustomButton
                 name="Create"
                 handleClick={handleAddModal}
-                style="bg-primary w-full text-sm font-semibold text-white h-full px-3 rounded-[10px] xl:w-full 2xl:w-auto"
+                style="bg-primary w-full text-sm font-semibold text-white h-full px-3 rounded-[10px] w-[80%] 2xl:w-auto"
                 icon={<div><IoAdd className="w-6 h-6 text-[#FFFFFF]" /></div>}
               />
             </div>
@@ -453,7 +465,7 @@ const LeadsList = () => {
             loadingButton={isDeleting}
           />
 
-          <div className="w-full xl:h-[calc(100vh-350px)]">
+          <div className="w-full xl:h-[calc(100vh-315px)]">
             <ServerPaginatedTable
               headers={leadsHeaders}
               rows={leads?.leads || []}

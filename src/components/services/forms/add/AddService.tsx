@@ -69,12 +69,13 @@ const AddService = ({
   const [serviceVitamin] = useServiceVitaminMutation();
   const [serviceDetails, setServiceDetails] = useState<ServiceDetailProps | null>(null)
   const { data, isLoading } = useFetchAllCategoriesQuery(
+    isApp ? [] : 
     [
       { name: "company", id: `${provider}-company` },
       { name: "business", id: `${business}-business` },
     ],
     {
-      skip: !provider,
+      ...(!isApp && { skip: !provider }),
       refetchOnMountOrArgChange: true,
     }
   );
@@ -228,6 +229,7 @@ const AddService = ({
     }
   }, [serviceData])
   useEffect(() => {
+    console.log(serviceDetails, 'serviceDetailsserviceDetails')
     if (serviceDetails?.id) {
       setProvider && setProvider(
         serviceDetails?.company_id
@@ -282,14 +284,15 @@ const AddService = ({
           : null
       );
     }
-  }, [data]);
+  }, [data, serviceDetails]);
 
   useEffect(() => {
     if (!open) {
-      clearForm();
+      if(!isApp){
+        clearForm();
+      }
     }
   }, [open]);
-  console.log(coverImage, serviceDetails,serviceData, "coverImagecoverImage")
   return (
     <div
       className={`grid w-full grid-cols-3 gap-5 ${selectedServiceId && "mt-4"}`}
@@ -417,8 +420,8 @@ const AddService = ({
                 )
               )
             }
-            placeholder={`${bundle.name}'s promortional price without VAT`}
-            label={`${bundle.name}'s promortional price without VAT`}
+            placeholder={`${bundle.name}'s price without VAT`}
+            label={`${bundle.name}'s price without VAT`}
             disabled={isApp}
           />
           <CustomInput
@@ -431,8 +434,8 @@ const AddService = ({
                 )
               )
             }
-            placeholder={`${bundle.name}'s promortional price`}
-            label={`${bundle.name}'s promortional price`}
+            placeholder={`${bundle.name}'s price`}
+            label={`${bundle.name}'s price`}
             disabled={isApp}
           />
           <CustomInput
@@ -445,8 +448,8 @@ const AddService = ({
                 )
               )
             }
-            placeholder={`${bundle.name}'s promortional price with VAT`}
-            label={`${bundle.name}'s promortional price with VAT`}
+            placeholder={`${bundle.name}'s price with VAT`}
+            label={`${bundle.name}'s price with VAT`}
             disabled={isApp}
           />
         </>

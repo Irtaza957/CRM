@@ -464,7 +464,7 @@ const AppPanelServices = () => {
                 <CustomButton
                   name={`Add New ${selectedTab === 'Home Sections' ? 'Section' : selectedTab === 'Coupons' ? 'Coupon' : 'Banner'}`}
                   handleClick={handleAddModal}
-                  style="font-medium text-base px-10 w-full"
+                  style="font-medium text-base px-10 max-w-6/12 whitespace-nowrap"
                 />
               </div>
             )}
@@ -474,7 +474,7 @@ const AppPanelServices = () => {
           >
             {/* Filters */}
             <div
-              className={`grid w-full ${sidebar ? "gap-1.5" : "gap-2.5"} col-span-8 ${selectedTab === 'Services' ? 'grid-cols-4' : 'grid-cols-2'}`}
+              className={`grid w-full ${sidebar ? "gap-1.5" : "gap-2.5"} ${selectedTab === 'Services' ? 'col-span-8 grid-cols-4' : 'col-span-4 grid-cols-2'}`}
             >
               <BusinessDropdown
                 business={business}
@@ -544,7 +544,7 @@ const AppPanelServices = () => {
               )}
             </div>
             <div
-              className={`col-span-4 flex h-full w-full items-center justify-center gap-2.5 rounded-lg bg-white px-3.5 text-gray-500`}
+              className={`${selectedTab === 'Services' ? 'col-span-4' : 'col-span-8'} flex h-full w-full items-center justify-center gap-2.5 rounded-lg bg-white px-3.5 text-gray-500`}
             >
               <input
                 type="text"

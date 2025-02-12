@@ -121,6 +121,7 @@ const ServiceList = () => {
   const { data: companiesDropdownData, refetch: refetchCompaniesDropdown } = useFetchCompaniesQuery(null);
 
   const handleAddModal = () => {
+    setID('')
     if (lastFilter === "category") {
       setUpload(true);
     } else if (lastFilter === "branch") {

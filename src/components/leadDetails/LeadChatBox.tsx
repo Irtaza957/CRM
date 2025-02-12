@@ -14,8 +14,11 @@ import { useMoveLeadMutation } from "../../store/services/leads";
 import CustomToast from "../ui/CustomToast";
 import { toast } from "sonner";
 import CustomButton from "../ui/CustomButton";
+import { FaFacebookMessenger, FaPhoneAlt } from "react-icons/fa";
+import { IoMail } from "react-icons/io5";
+import { BsThreeDots } from "react-icons/bs";
 
-const LeadChatBox = ({ id, clientName, leadChatData, stage_id, refetchLeadChat }: { id: string, clientName?: string, leadChatData?: any, stage_id?: string, refetchLeadChat: () => void }) => {
+const LeadChatBox = ({ id, clientName, leadChatData, stage_id, phoneNum, refetchLeadChat }: { id: string, clientName?: string, leadChatData?: any, stage_id?: string, phoneNum?: string, refetchLeadChat: () => void }) => {
   const [channel, setChannel] = useState({
     id: '',
     name: ''
@@ -24,10 +27,10 @@ const LeadChatBox = ({ id, clientName, leadChatData, stage_id, refetchLeadChat }
   const navigate = useNavigate();
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  const [moveLead, {isLoading}] = useMoveLeadMutation()
+  const [moveLead, { isLoading }] = useMoveLeadMutation()
 
   const handleBack = () => {
-    navigate('/leads');
+    navigate('/');
   }
 
   const handleSelectChannel = (value: any) => {
@@ -78,12 +81,10 @@ const LeadChatBox = ({ id, clientName, leadChatData, stage_id, refetchLeadChat }
     <div className="flex size-full flex-col overflow-hidden rounded-2xl border border-[#E3E3E3]">
       <div className="flex justify-between bg-white px-4 xl:px-6 py-4">
         <div className="flex items-center gap-2 xl:gap-5">
-          <div className="size-[40px] xl:size-[54px] overflow-hidden rounded-full bg-[#F5F6FA]">
-            {/* <img src="" alt="" /> */}
-          </div>
+          <div className="size-[40px] xl:size-[54px] overflow-hidden rounded-full bg-[#F5F6FA]" />
           <div className="">
             <h3 className="text-lg font-medium">{clientName || '-'}</h3>
-            <p className="text-[#9FA2AA] text-xs">+971 55 755 9446</p>
+            <p className="text-grey300 text-xs">{phoneNum || '-'}</p>
           </div>
         </div>
         <div className="flex items-center gap-5">
@@ -101,28 +102,47 @@ const LeadChatBox = ({ id, clientName, leadChatData, stage_id, refetchLeadChat }
       {/* chat */}
       <div className="w-full bg-[#F4F4F4] pb-[14px] pt-8 px-0 xl:px-6 relative">
         <div ref={chatContainerRef} className="flex flex-col gap-3 h-[calc(100vh-200px)] px-4 xl:px-0 pb-40 overflow-y-auto">
-          {leadChatData?.map((item: {sender_firstname: string, comments: string, created_at: string}, index: number) => (
+          {leadChatData?.map((item: { sender_firstname: string, comments: string, created_at: string, stage: string, receiver_image: string, source: string }, index: number) => (
             <div
               key={index}
               className={cn("flex w-[85%] xl:w-[60%] flex-col gap-3", {
                 "self-end": !item.sender_firstname,
               })}
             >
-              <div className="rounded-[22px] bg-white px-[18px] py-3">
-                {item.sender_firstname && (
-                  <p className="mb-2.5 w-fit rounded-full bg-[#50C878] px-4 py-1 text-sm text-white">
-                    followup
+              <div className="rounded-[22px] bg-white px-3 py-2">
+                <div className="flex items-center gap-2 mb-2">
+                  {!item?.receiver_image ? <div className="size-9 overflow-hidden rounded-full bg-[#F5F6FA]"></div> :
+                    <img src={item?.receiver_image} alt='' className="size-9 overflow-hidden rounded-full bg-[#F5F6FA]" />}
+                  <p className="w-fit rounded-full bg-[#50C878] px-3.5 py-0.5 text-sm text-white">
+                    {item?.stage}
                   </p>
-                )}
-                <div className="flex items-start gap-3">
-                  <img src={IconWhatsapp} alt="" className="size-9" />
-                  <p className="w-full text-xs">
+                </div>
+                <div className="flex items-start gap-2">
+                  {item?.source === 'WHATSAPP' ?
+                    <img src={IconWhatsapp} alt="" className="size-9" /> :
+                    <div className={cn(
+                      "w-10 h-9 flex items-center justify-center overflow-hidden rounded-full bg-[#ef4b65]",
+                      {
+                        "bg-[#ef4b65]": item?.source === 'CALL',
+                        "bg-[#4285f4]": item?.source === 'EMAIL' || item?.source === 'OTHER',
+                        "bg-[#d44abd]": item?.source === 'MESSENGER'
+                      }
+                      )}>
+                      {item?.source === 'CALL' ? 
+                        <FaPhoneAlt className="size-5" /> 
+                        : item?.source === 'EMAIL' ? <IoMail className="size-5 fill-white" /> 
+                        : item?.source === 'MESSENGER' ? <FaFacebookMessenger className="size-5 fill-white" />
+                        : <BsThreeDots className="size-5 fill-white" />
+                      }
+                    </div>
+                  }
+                  <p className="w-full text-xs mt-2">
                     {item.comments}
                   </p>
                 </div>
               </div>
               <p
-                className={cn("w-fit text-[#9FA2AA] text-sm", {
+                className={cn("w-fit text-grey300 text-sm", {
                   "self-end": item.sender_firstname,
                 })}
               >
@@ -161,9 +181,9 @@ const LeadChatBox = ({ id, clientName, leadChatData, stage_id, refetchLeadChat }
                 <img src={smileEmoji} alt="" className="size-6 cursor-pointer" />
                 <img src={paperClip} alt="" className="size-6 cursor-pointer" />
               </div>
-              <CustomButton 
-                name={<img src={sendMessage} alt="" />} 
-                handleClick={handleSendMessage} 
+              <CustomButton
+                name={<img src={sendMessage} alt="" />}
+                handleClick={handleSendMessage}
                 style='cursor-pointer rounded-lg bg-[#126FAC] px-6 py-2.5'
                 disabled={!message || !channel.id}
                 loading={isLoading}

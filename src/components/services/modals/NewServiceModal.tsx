@@ -116,18 +116,16 @@ const NewServiceModal = ({
 
   }, [categoryData]);
 
-  console.log(tab, 'tabtab')
-
   return (
     <Modal open={open} setOpen={setOpen} className="w-[95%] lg:max-w-4xl">
       <div className="flex h-auto w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-white">
         <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white">
           <h1 className="text-xl font-medium">
             {categoryData?.category_id ? (
-              `Edit ${tab === "Category" ? "Category" : "Sub Category"}`
+              `${isView ? 'View' : 'Edit'} ${tab === "Category" ? "Category" : "Sub Category"}`
             ) : (
               <>
-                {selectedServiceId ? 'Edit' : 'Add New'}{" "}
+                {selectedServiceId ? `${isView ? 'View' : 'Edit'}` : 'Add New'}{" "}
                 {type === "category"
                   ? "Service"
                   : type === "branch" ? (tab === "Category" ? "Category" : "Sub Category") : ''}

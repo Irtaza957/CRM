@@ -3,7 +3,6 @@ import Bookings from "./pages/Bookings";
 import NotFound from "./pages/NotFound";
 import Layout from "./components/Layout";
 import Companies from "./pages/Companies";
-import Dashboard from "./pages/Dashboard";
 import Categories from "./pages/Categories";
 import Businesses from "./pages/Businesses";
 import ServiceList from "./pages/ServiceList";
@@ -23,7 +22,7 @@ const App = () => {
           index
           element={
             <RouteGuard>
-              <Dashboard />
+              <Leads />
             </RouteGuard>
           }
         />
@@ -43,14 +42,14 @@ const App = () => {
             </RouteGuard>
           }
         />
-        <Route
+        {/* <Route
           path="leads"
           element={
             <RouteGuard>
               <Leads />
             </RouteGuard>
           }
-        />
+        /> */}
         <Route
           path="lead/:id"
           element={

@@ -5,7 +5,6 @@ import { useFetchLeadByIdQuery, useFetchLeadChatQuery } from "../store/services/
 
 const LeadDetails = () => {
   const { id } = useParams()
-
   
   const {
     data: leadData,
@@ -24,7 +23,7 @@ const LeadDetails = () => {
           <LeadSideBar id={id || ''} leadData={leadData} refetchLead={refetchLead}  refetchLeadChat={refetchLeadChat} />
         </div>
         <div className="w-[50%] xl:w-[60%]">
-          <LeadChatBox id={id || ''} leadChatData={leadChatData} stage_id={leadData?.stage_id} clientName={leadData?.client_name} refetchLeadChat={refetchLeadChat} />
+          <LeadChatBox id={id || ''} leadChatData={leadChatData} stage_id={leadData?.stage_id} clientName={leadData?.client_name} phoneNum={leadData?.phone} refetchLeadChat={refetchLeadChat} />
         </div>
       </div>
     </>

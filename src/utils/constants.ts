@@ -492,7 +492,7 @@ export const sidebarItems = [
     id: 2,
     name: "Leads",
     icon: Leads,
-    link: "/leads",
+    link: "/",
   },
   {
     id: 3,

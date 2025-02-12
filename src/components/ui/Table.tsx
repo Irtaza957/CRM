@@ -45,9 +45,9 @@ const Table: React.FC<TableProps> = ({ headers, rows, renderActions, className =
                       <span className={cn("flex-1 text-left font-bold", header.label==='Quick Actions' && 'text-center')}>
                         {header.label}
                       </span>
-                      {header.sortable && header.key !== "actions" && (
+                      {/* {header.sortable && header.key !== "actions" && (
                         <img src={header.sortIcon} alt={`${header.label}-sort`} />
-                      )}
+                      )} */}
                     </div>
                   </th>
                 ))}

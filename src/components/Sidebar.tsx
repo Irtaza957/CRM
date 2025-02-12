@@ -29,10 +29,11 @@ const Sidebar = () => {
     }
   };
 
-  const isParentActive = (item: {link: string, subItems: {link: string}[]}) => {
-    return item?.subItems?.length
-      ? item?.subItems?.some((subItem) => pathname.startsWith(subItem.link))
-      : pathname.startsWith(item.link);
+  const isParentActive = (item: { link: string, subItems: { link: string }[] }) => {
+    if (item?.subItems?.length) {
+      return item.subItems.some((subItem) => pathname.startsWith(subItem.link));
+    }
+    return item.link !== "/" ? pathname.startsWith(item.link) : pathname === item.link;
   };
 
   return (
