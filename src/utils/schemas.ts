@@ -130,16 +130,6 @@ export const familyMemberSchema = z
   });
 
   export const leadAssignSchema = z.object({
-    // agent: z.object({
-    //   id: z.number().min(1, "Agent ID is required"),
-    //   name: z.string().min(1, "Agent is required"),
-    //   list: z.array(
-    //     z.object({
-    //       id: z.number(),
-    //       name: z.string(),
-    //     })
-    //   ).default([]),
-    // }),
     agent: z.object({
       id: z.union([z.string(), z.number()]), // Accept string or number
       name: z.string().min(1, "Agent is required"),

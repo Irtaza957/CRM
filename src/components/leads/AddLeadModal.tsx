@@ -50,11 +50,13 @@ const AddLeadModal = ({
   const [updatelead, { isLoading: updateLoading }] = useUpdateLeadMutation();
 
   const {
-    data: leadDetails,
+    data: fetchedLeadDetails,
   } = useFetchLeadByIdQuery(selectedLeadId, {
     skip: !selectedLeadId || !open,
     refetchOnMountOrArgChange: true,
   });
+  
+  const leadDetails: LeadsData | undefined = selectedLeadId ? fetchedLeadDetails : undefined;
 
   const {
     register,
@@ -176,7 +178,7 @@ const AddLeadModal = ({
       <div className="flex h-auto w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-white">
         <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white">
           <h1 className="text-xl font-medium">
-            {selectedLeadId ? "Update Lead" : "Add Lead"}
+            {selectedLeadId ? `${isView ? 'View' : 'Update'} Lead` : "Add Lead"}
           </h1>
           <div className="flex items-center justify-center gap-2">
 
