@@ -556,7 +556,7 @@ const AppPanelServices = () => {
               <HiMagnifyingGlass className="size-7" />
             </div>
           </div>
-          <div className="w-full xl:h-[calc(100vh-260px)]">
+          <div className="w-full xl:h-[calc(100vh-250px)]">
             <Table
               headers={headers}
               rows={filteredData || []}

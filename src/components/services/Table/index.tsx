@@ -140,7 +140,7 @@ const Table = ({
   };
   return (
     <>
-      <div className="w-full xl:h-[calc(100vh-220px)]">
+      <div className="w-full xl:h-[calc(100vh-190px)]">
         <div className="h-full w-full overflow-hidden rounded-t-lg border">
           <div className="no-scrollbar h-full overflow-y-scroll">
             <table className="relative w-full min-w-full">

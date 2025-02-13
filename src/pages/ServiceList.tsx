@@ -423,7 +423,7 @@ const ServiceList = () => {
       />
       <div className="flex w-full gap-3 min-h-screen">
         <div className="flex h-full w-full flex-col items-start justify-start">
-          <div className={`mb-5 grid w-full grid-cols-12 ${sidebar ? 'gap-1.5' : 'gap-2.5'}`}>
+          <div className={`mb-3 grid w-full grid-cols-12 ${sidebar ? 'gap-1.5' : 'gap-2.5'}`}>
             {/* Filters */}
             <div className={`col-span-12 grid grid-cols-5 ${isApp ? 'xl:col-span-9' : 'xl:col-span-7'} ${sidebar ? 'gap-1.5' : 'gap-2.5'}`}>
               <BusinessDropdown

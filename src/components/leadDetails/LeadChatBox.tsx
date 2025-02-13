@@ -17,6 +17,7 @@ import CustomButton from "../ui/CustomButton";
 import { FaFacebookMessenger, FaPhoneAlt } from "react-icons/fa";
 import { IoMail } from "react-icons/io5";
 import { BsThreeDots } from "react-icons/bs";
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 
 const LeadChatBox = ({ id, clientName, leadChatData, stage_id, phoneNum, refetchLeadChat }: { id: string, clientName?: string, leadChatData?: any, stage_id?: string, phoneNum?: string, refetchLeadChat: () => void }) => {
   const [channel, setChannel] = useState({
@@ -24,6 +25,7 @@ const LeadChatBox = ({ id, clientName, leadChatData, stage_id, phoneNum, refetch
     name: ''
   })
   const [message, setMessage] = useState('')
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const navigate = useNavigate();
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -35,6 +37,10 @@ const LeadChatBox = ({ id, clientName, leadChatData, stage_id, phoneNum, refetch
 
   const handleSelectChannel = (value: any) => {
     setChannel(value)
+  }
+
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setMessage((prev) => prev + emojiData.emoji); // Append emoji to the message
   }
 
   const handleSendMessage = async () => {
@@ -178,8 +184,15 @@ const LeadChatBox = ({ id, clientName, leadChatData, stage_id, phoneNum, refetch
             ></textarea>
             <div className="flex justify-between items-center">
               <div className="flex gap-3">
-                <img src={smileEmoji} alt="" className="size-6 cursor-pointer" />
-                <img src={paperClip} alt="" className="size-6 cursor-pointer" />
+                <div className="relative">
+                <img src={smileEmoji} alt="" className="size-6 cursor-pointer" onClick={() => setShowEmojiPicker(false)} />
+                {showEmojiPicker && (
+                <div className="absolute bottom-10 left-0 z-50">
+                  <EmojiPicker onEmojiClick={handleEmojiClick} />
+                </div>
+                )}
+              </div>
+              <img src={paperClip} alt="" className="size-6 cursor-pointer" />
               </div>
               <CustomButton
                 name={<img src={sendMessage} alt="" />}

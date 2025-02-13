@@ -10,7 +10,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../store";
 import { useEffect } from "react";
 import { FiEdit } from "react-icons/fi";
-import CommonTextarea from "../../ui/CommonTextarea";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import he from "he";
 
 interface AddSectionModalProps {
   isOpen: boolean;
@@ -40,7 +42,9 @@ const AddSectionModal = ({
     reset,
     setValue,
     formState: { errors },
+    watch
   } = useForm();
+  const description = watch("description");
 
   const handleClose = () => {
     reset();
@@ -113,7 +117,7 @@ const AddSectionModal = ({
     if (selectedSection) {
       setValue("name", selectedSection.name)
       setValue("rows", selectedSection?.rows)
-      setValue("description", selectedSection.description)
+      setValue("description", he.decode(selectedSection.description))
     }
   }, [selectedSection])
 
@@ -139,27 +143,32 @@ const AddSectionModal = ({
           </div>
         </div>
 
-        <div className="h-full max-h-[70vh] w-full gap-5 overflow-y-scroll p-5">
+        <div className="h-full max-h-[70vh] w-full gap-4 overflow-y-scroll p-5">
           <div className="space-y-4">
-              <CustomInput
-                name="name"
-                label="Name"
-                register={register}
-                errorMsg={errors?.name?.message}
-                placeholder="Enter name..."
-                disabled={isView}
-              />
-              <CommonTextarea
-                name="description"
-                register={register}
-                errors={errors}
-                disabled={isView}
+            <CustomInput
+              name="name"
+              label="Name"
+              register={register}
+              errorMsg={errors?.name?.message}
+              placeholder="Enter name..."
+              disabled={isView}
+            />
+            <div>
+              <label
+                className="w-full text-left text-xs font-medium text-grey100 mb-2"
+              >
+                Description
+              </label>
+              <ReactQuill
+                value={description || ""}
+                onChange={(value) => setValue("description", value)}
+                readOnly={isView}
                 placeholder="Enter description..."
-                title="Description"
-                rows={6}
+                style={{ height: "100px" }}
               />
+            </div>
 
-            <div className="flex justify-end space-x-3 pt-8">
+            <div className="flex justify-end space-x-3 pt-14">
               <CustomButton
                 name="Cancel"
                 handleClick={handleClose}

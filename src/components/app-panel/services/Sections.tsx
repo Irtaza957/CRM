@@ -11,6 +11,7 @@ import { FaRegTrashAlt } from "react-icons/fa";
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
 import DeleteModal from "../../booking/modals/DeleteModal";
+import he from "he";
 
 const headers = [
   { label: "#", key: "id", sortable: true, sortIcon: SmallUpDownArrow },
@@ -158,6 +159,16 @@ const Sections = ({ selectedServiceId }: { selectedServiceId: string }) => {
       </div>
     );
   }
+
+   const renderCustomColumn = (key: string, value: any) => {
+    if (key === "description") {
+      return (
+          <div dangerouslySetInnerHTML={{ __html: he.decode(value) }} className="flex flex-col text-xs whitespace-nowrap">
+        </div>
+      );
+    }
+    return null;
+  };
   return (
     <div className="w-full">
       <div className="mb-3 flex justify-end">
@@ -169,6 +180,7 @@ const Sections = ({ selectedServiceId }: { selectedServiceId: string }) => {
           rows={serviceData || []} 
           renderActions={renderActions} 
           handleRowClick={(row) => handleEdit(row, true)}
+          renderCustomColumn={renderCustomColumn}
         />
       </div>
       <AddSectionModal
