@@ -12,7 +12,7 @@ export const leadsApi = api.injectEndpoints({
       transformResponse: (response: {
         success: number;
         error: string;
-        data: {leads: LeadsData[], total_pages: number};
+        data: {leads: LeadsData[], total_pages: number, total_records: number};
       }) => response.data,
     }),
     fetchLeadSources: build.query({

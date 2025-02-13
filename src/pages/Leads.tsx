@@ -23,28 +23,6 @@ import CustomToast from "../components/ui/CustomToast";
 import { useFetchNationalityQuery } from "../store/services/booking";
 import ServerPaginatedTable from "../components/ui/ServerPaginatedTable";
 import DateRangePickerComponent from "../components/ui/DateRangeSelector";
-const leadsData = [
-  {
-    name: 'Total Leads',
-    number: '45',
-    color: '#FFE59E'
-  },
-  {
-    name: 'Active Leads',
-    number: '23',
-    color: '#50C878'
-  },
-  {
-    name: 'Converted Leads',
-    number: '07',
-    color: '#C8DEFF'
-  },
-  {
-    name: 'Unsuccessful Leads',
-    number: '30',
-    color: '#FF9898'
-  },
-]
 
 const LeadsList = () => {
   const [search, setSearch] = useState("");
@@ -115,6 +93,29 @@ const LeadsList = () => {
     agent: filters.agent.id,
     search: search
   });
+
+  const leadsData = [
+    {
+      name: 'Total Leads',
+      number: leads?.total_records,
+      color: '#FFE59E'
+    },
+    {
+      name: 'Active Leads',
+      number: '23',
+      color: '#50C878'
+    },
+    {
+      name: 'Converted Leads',
+      number: '07',
+      color: '#C8DEFF'
+    },
+    {
+      name: 'Unsuccessful Leads',
+      number: '30',
+      color: '#FF9898'
+    },
+  ]
 
   const [deleteLead, { isLoading: isDeleting }] = useDeleteLeadMutation();
 
