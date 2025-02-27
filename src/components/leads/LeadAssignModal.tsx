@@ -56,6 +56,7 @@ const LeadAssignModal = ({
   };
 
   const onSubmit = async (data: any) => {
+    console.log(data, 'datadata')
     try {
       if(selectedLeadId){
         const formData = new URLSearchParams();

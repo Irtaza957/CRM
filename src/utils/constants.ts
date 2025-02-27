@@ -494,6 +494,12 @@ export const sidebarItems = [
     icon: Leads,
     link: "/",
   },
+  // {
+  //   id: 2,
+  //   name: "Lead New",
+  //   icon: Leads,
+  //   link: "/leadsNew",
+  // },
   {
     id: 3,
     name: "Bookings",
@@ -1048,3 +1054,29 @@ export const leadChannels=[
   {id: 'MESSENGER', name: 'Messenger'},
   {id: 'OTHER', name: 'Other'},
 ]
+
+export const modules = {
+  toolbar: [
+      [{ font: [] }], // Font selector
+      [{ header: [1, 2, 3, 4, 5, 6, false] }], // Header options
+      [{ size: ["small", false, "large", "huge"] }], // Font sizes
+      [{ align: [] }], // Align text
+      ["bold", "italic", "underline", "strike"], // Text styles
+      [{ color: [] }, { background: [] }], // Text color and background
+      [{ script: "sub" }, { script: "super" }], // Subscript/Superscript
+      [{ list: "ordered" }, { list: "bullet" }], // Lists
+      [{ indent: "-1" }, { indent: "+1" }], // Indentation
+      ["blockquote", "code-block"], // Quote and code block
+      ["link", "image", "video"], // Media attachments
+      ["clean"], // Remove formatting
+  ],
+};
+
+export const formats = [
+  "font", "header", "size", "align",
+  "bold", "italic", "underline", "strike",
+  "color", "background",
+  "script", "list", "indent",
+  "blockquote", "code-block",
+  "link", "image", "video"
+];

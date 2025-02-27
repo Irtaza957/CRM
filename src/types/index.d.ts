@@ -59,7 +59,7 @@ declare type BookingListProps = {
 
 declare type CustomInputProps = {
   type?: string;
-  placeholder: string;
+  placeholder?: string;
   value?: string | number | null;
   setter?: React.Dispatch<React.SetStateAction>;
   className?: string;

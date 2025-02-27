@@ -54,13 +54,13 @@ const CustomInput = ({
         disabled={disabled}
         onChange={handleChange}
         className={cn(
-          "flex w-full items-center justify-between rounded-lg py-3 px-3.5 text-xs text-gray-500 placeholder:capitalize",
-          className,
           [
             errorMsg
               ? "border border-[#FF1C1C] bg-[#FFEBEB] placeholder:text-[#FF0000]"
               : "bg-grey",
-          ]
+          ],
+          "flex w-full items-center justify-between rounded-lg py-3 px-3.5 text-xs text-gray-500 placeholder:capitalize",
+          className,
         )}
       />
     </div>

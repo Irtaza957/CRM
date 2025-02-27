@@ -6,11 +6,13 @@ import Companies from "./pages/Companies";
 import Categories from "./pages/Categories";
 import Businesses from "./pages/Businesses";
 import ServiceList from "./pages/ServiceList";
-import Leads from "./pages/Leads";
-import LeadDetails from "./pages/LeadDetails";
+import LeadsNew from "./pages/LeadsNew";
 import RouteGuard from "./components/RouteGuard";
 import { Route, Routes } from "react-router-dom";
 import AppPanelServices from "./pages/AppPanelServices";
+import NewLeadDetail from "./pages/NewLeadDetail";
+import LeadsList from "./pages/Leads";
+import LeadDetails from "./pages/LeadDetails";
 
 const App = () => {
   return (
@@ -22,7 +24,7 @@ const App = () => {
           index
           element={
             <RouteGuard>
-              <Leads />
+              <LeadsNew />
             </RouteGuard>
           }
         />
@@ -42,16 +44,24 @@ const App = () => {
             </RouteGuard>
           }
         />
-        {/* <Route
+        <Route
           path="leads"
           element={
             <RouteGuard>
-              <Leads />
+              <LeadsList />
             </RouteGuard>
           }
-        /> */}
+        />
         <Route
           path="lead/:id"
+          element={
+            <RouteGuard>
+              <NewLeadDetail />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="leads/:id"
           element={
             <RouteGuard>
               <LeadDetails />

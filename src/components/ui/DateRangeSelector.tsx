@@ -23,10 +23,10 @@ const DateRangePickerComponent = ({ range, setRange }: DateRangePickerComponentP
   return (
     <div ref={rangeRef} className="relative">
       <button
-        className="flex items-center justify-between w-full bg-grey150 text-xs text-grey200 h-[44px] px-3 rounded-[10px]"
+        className="flex items-center justify-between gap-2 w-full bg-grey150 text-xs text-grey200 h-[44px] px-3 rounded-[10px]"
         onClick={() => setToggle(!toggle)}
       >
-        <span>
+        <span className="whitespace-nowrap">
           {dayjs(range[0].startDate).format("DD-MM-YYYY")} -{" "}
           {dayjs(range[0].endDate).format("DD-MM-YYYY")}
         </span>
@@ -34,7 +34,7 @@ const DateRangePickerComponent = ({ range, setRange }: DateRangePickerComponentP
       </button>
 
       {toggle && (
-        <div className="absolute z-50 bg-white border rounded-lg shadow-md p-2 mt-1">
+        <div className="absolute z-50 bg-white border rounded-lg shadow-md p-2 mt-1 right-0 overflow-y-auto max-h-[300px]">
           <DateRangePicker
             onChange={handleSelect}
             // showSelectionPreview={true}

@@ -125,7 +125,6 @@ const LeadsList = () => {
     setOpenAddLeadModal(true)
   };
 
-
   const handleEdit = (row: any, e: React.MouseEvent<SVGAElement>) => {
     e.stopPropagation()
     setSelectedLead(row?.lead_id)
@@ -453,7 +452,6 @@ const LeadsList = () => {
           />
           <LeadAssignModal
             selectedLead={null}
-
             open={openLeadAssignModal}
             setOpen={setOpenLeadAssignModal}
             refetch={refetchLeads}

@@ -1,0 +1,7 @@
+<svg id="Group_42528" data-name="Group 42528" xmlns="http://www.w3.org/2000/svg" width="39" height="39" viewBox="0 0 39 39">
+  <g id="Ellipse_1470" data-name="Ellipse 1470" fill="#edfff0" stroke="#25d366" stroke-width="1">
+    <circle cx="19.5" cy="19.5" r="19.5" stroke="none"/>
+    <circle cx="19.5" cy="19.5" r="19" fill="none"/>
+  </g>
+  <path id="Check" d="M21.2,8.317a.737.737,0,0,0-1.037,0L9.794,18.62l-4.56-4.5a.737.737,0,0,0-1.037,0,.721.721,0,0,0,0,1.027l5.081,5.008a.745.745,0,0,0,1.037,0L21.2,9.343a.72.72,0,0,0,0-1.027C20.917,8.033,21.49,8.6,21.2,8.317Z" transform="translate(7.021 4.63)" fill="#25d366" fill-rule="evenodd"/>
+</svg>

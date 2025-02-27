@@ -22,9 +22,10 @@ interface TableProps {
   setPage?: (page: number) => void;
   limit?: ListOptionProps | null;
   setLimit: React.Dispatch<React.SetStateAction<ListOptionProps | null>>
+  showPagination?: boolean;
 }
 
-const ServerPaginatedTable: React.FC<TableProps> = ({ headers, rows, renderActions, className = "", handleRowClick, renderCustomColumn, totalPages=0, page, setPage, limit, setLimit }) => {
+const ServerPaginatedTable: React.FC<TableProps> = ({ headers, rows, renderActions, className = "", handleRowClick, renderCustomColumn, totalPages=0, page, setPage, limit, setLimit, showPagination=true }) => {
 
     useEffect(()=>{
         setPage?.(0)
@@ -94,6 +95,7 @@ const ServerPaginatedTable: React.FC<TableProps> = ({ headers, rows, renderActio
         </div>
       </div>
       {/* Pagination */}
+      {showPagination && (
       <div className="flex w-full items-center justify-between rounded-lg border-x border bg-white p-2.5">
         {rows && (
           <>
@@ -214,6 +216,7 @@ const ServerPaginatedTable: React.FC<TableProps> = ({ headers, rows, renderActio
           listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
         />
       </div>
+      )}
     </>
   );
 };
