@@ -27,7 +27,7 @@ const EmailTab = () => {
         setOpen={setOpenCreateMailModal}
       />
       <section className="flex h-full flex-col overflow-hidden rounded-xl">
-        <div className="flex items-center justify-between bg-[#F3F5F9] px-6 py-3 2xl:text-lg">
+        <div className="flex items-center justify-between bg-[#F3F5F9] px-6 py-3 2xl:text-lg font-medium">
           <p>Email</p>
           <button
             onClick={handleComposeMail}
@@ -41,7 +41,7 @@ const EmailTab = () => {
             <p
               onClick={() => setMailType("mails")}
               className={cn(
-                "w-fit cursor-pointer pb-1 transition-all duration-200 ease-in-out",
+                "w-fit cursor-pointer pb-1 transition-all duration-200 ease-in-out text-sm",
                 mailType === "mails" && "border-b-2 border-[#126FAC]"
               )}
             >
@@ -50,7 +50,7 @@ const EmailTab = () => {
             <p
               onClick={() => setMailType("scheduled")}
               className={cn(
-                "w-fit cursor-pointer pb-1 transition-all duration-200 ease-in-out",
+                "w-fit cursor-pointer pb-1 transition-all duration-200 ease-in-out text-sm",
                 mailType === "scheduled" && "border-b-2 border-[#126FAC]"
               )}
             >
@@ -59,7 +59,7 @@ const EmailTab = () => {
             <p
               onClick={() => setMailType("drafts")}
               className={cn(
-                "w-fit cursor-pointer pb-1 transition-all duration-200 ease-in-out",
+                "w-fit cursor-pointer pb-1 transition-all duration-200 ease-in-out text-sm",
                 mailType === "drafts" && "border-b-2 border-[#126FAC]"
               )}
             >
@@ -83,11 +83,11 @@ const EmailTab = () => {
                       <div className="size-5 rounded-md border border-[#9FA2AA] bg-white peer-checked:bg-[#126FAC]" />
                     </label>
                   </th>
-                  <th className="px-4 py-4 font-medium">Subject</th>
-                  <th className="px-4 py-4 font-medium">Date</th>
-                  <th className="px-4 py-4 font-medium">Source</th>
-                  <th className="px-4 py-4 font-medium">Sent By</th>
-                  <th className="px-4 py-4 font-medium">Status</th>
+                  <th className="px-4 py-4 font-medium text-sm">Subject</th>
+                  <th className="px-4 py-4 font-medium text-sm">Date</th>
+                  <th className="px-4 py-4 font-medium text-sm">Source</th>
+                  <th className="px-4 py-4 font-medium text-sm">Sent By</th>
+                  <th className="px-4 py-4 font-medium text-sm">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-x-[2px] divide-[#F3F5F9]">

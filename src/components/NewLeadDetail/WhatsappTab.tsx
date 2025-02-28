@@ -33,7 +33,7 @@ const WhatsappTab = () => {
       <FollowupModal open={openFolowup} setOpen={setOpenFollowup} />
 
       <section className="flex h-full flex-col overflow-hidden rounded-xl">
-        <div className="bg-[#F3F5F9] px-6 py-5 2xl:text-lg">Chat History</div>
+        <div className="bg-[#F3F5F9] px-6 py-5 2xl:text-lg font-medium">Chat History</div>
         <div className="relative flex flex-1 flex-col gap-3 overflow-y-auto overflow-x-hidden bg-[#F5F6FA]/40 px-3">
           <div className="flex flex-1 flex-col gap-10 overflow-y-auto p-3">
             {chatHistory.map((item) => (

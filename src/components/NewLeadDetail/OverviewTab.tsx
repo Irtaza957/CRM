@@ -25,7 +25,7 @@ const OverviewTab = () => {
       />
       <div>
         <div className="rounded-xl bg-[#fbfbfd] shadow-sm">
-          <div className="rounded-tl-lg rounded-tr-lg bg-grey150 p-4">
+          <div className="rounded-tl-lg font-medium rounded-tr-lg bg-grey150 p-4">
             Lead Information
           </div>
           <div className="flex items-center">
@@ -167,7 +167,7 @@ const OverviewTab = () => {
         </div>
         <div className="mt-4 rounded-lg border">
           <div className="flex items-center justify-between bg-grey150 p-4">
-            <h2 className="text-lg font-medium">Note</h2>
+            <h2 className="font-medium">Note</h2>
             {/* <button className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm"></button> */}
             <CustomButton
               name="Create Note"
@@ -211,7 +211,7 @@ const OverviewTab = () => {
         </div>
         <div className="mt-4 rounded-lg border">
           <div className="flex items-center justify-between bg-grey150 px-4 py-3">
-            <h2 className="text-lg font-medium">Attachments</h2>
+            <h2 className="font-medium">Attachments</h2>
             <CustomButton
               name="Attach"
               handleClick={() => {}}

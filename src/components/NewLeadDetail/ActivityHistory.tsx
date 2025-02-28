@@ -7,7 +7,7 @@ const ActivityHistory = () => {
   return (
     <>
       <section className="flex h-full flex-col overflow-hidden rounded-xl">
-        <div className="bg-[#F3F5F9] px-6 py-5 2xl:text-lg">History</div>
+        <div className="bg-[#F3F5F9] px-6 py-5 2xl:text-lg font-medium">History</div>
         <div className="flex-1 overflow-y-auto bg-[#F5F6FA]/40 p-6">
           <p className="2xl:text-lg mb-3">Timeline History</p>
           <div>

@@ -1,6 +1,9 @@
-import { IoClose } from "react-icons/io5";
+import { IoCalendarOutline, IoClose } from "react-icons/io5";
 import Modal from "../../ui/Modal";
 import CustomButton from "../../ui/CustomButton";
+import CustomDatePicker from "../../ui/CustomDatePicker";
+import dayjs from "dayjs";
+import { useState } from "react";
 
 const FollowupModal = ({
   open,
@@ -9,6 +12,8 @@ const FollowupModal = ({
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
+  const [followupDate, setFollowupDate] = useState<Date | null | string>(new Date());
+
   const handleClose = () => {
     setOpen(false);
   };
@@ -24,10 +29,20 @@ const FollowupModal = ({
         <div className="flex flex-col gap-5 px-6 py-6 text-[#656565]">
           <div className="flex flex-col gap-1">
             <span className="text-sm">Follow-Up Date</span>
-            <input
-              type="text"
-              placeholder="DD/MM/YYY"
-              className="w-full rounded-lg bg-[#F2F2F2] px-3 py-3"
+            <CustomDatePicker
+              date={followupDate}
+              setDate={setFollowupDate}
+              toggleClassName="w-full mt-1.5"
+              toggleButton={
+                <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-3 text-xs font-medium">
+                  <p className="whitespace-nowrap">
+                    {dayjs(followupDate).format("DD/MM/YYYY")}
+                  </p>
+                  <div>
+                    <IoCalendarOutline className="h-5 w-5 text-grey100" />
+                  </div>
+                </div>
+              }
             />
           </div>
           <div className="flex flex-col gap-1">
