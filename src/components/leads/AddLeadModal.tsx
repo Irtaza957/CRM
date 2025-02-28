@@ -18,7 +18,7 @@ import CommonTextarea from "../ui/CommonTextarea";
 import CustomPhoneInput from "../ui/CustomPhoneInput";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { addLeadSchema } from "../../utils/schemas";
-import { contactVia, languages, priorities } from "../../utils/constants";
+import { contactVia, genderOptions, languages, priorities } from "../../utils/constants";
 
 interface AddLeadModalProps {
   open: boolean;
@@ -55,7 +55,7 @@ const AddLeadModal = ({
     skip: !selectedLeadId || !open,
     refetchOnMountOrArgChange: true,
   });
-  
+
   const leadDetails: LeadsData | undefined = selectedLeadId ? fetchedLeadDetails : undefined;
 
   const {
@@ -81,6 +81,8 @@ const AddLeadModal = ({
       language: { id: 0, name: "", list: [] },
       contact: { id: 0, name: "", list: [] },
       notes: "",
+      service_interest: { id: 0, name: "", list: [] },
+      preferred_channel: { id: 0, name: "", list: [] },
     });
   };
 
@@ -156,7 +158,7 @@ const AddLeadModal = ({
       const selectedNationality = nationalities?.find((nationality: any) => nationality.id == leadDetails.nationality);
       const selectedLanguage = languages?.find((source: any) => source.id === leadDetails.language);
       const selectedPriority = priorities?.find((source: any) => source.id === leadDetails.priority);
-      const selectedContact= contactVia?.find((source: any) => source.id === leadDetails.contact_via);
+      const selectedContact = contactVia?.find((source: any) => source.id === leadDetails.contact_via);
       setValue("source", selectedSource);
       setValue("channel", selectedChannel);
       setValue("nationality", selectedNationality);
@@ -172,7 +174,6 @@ const AddLeadModal = ({
       resetState();
     }
   }, [open]);
-
   return (
     <Modal open={open} setOpen={setOpen} className="w-[95%] lg:max-w-4xl">
       <div className="flex h-auto w-full flex-col items-center justify-center overflow-hidden rounded-lg bg-white">
@@ -194,6 +195,158 @@ const AddLeadModal = ({
 
         <div className="h-full max-h-[80vh] w-full overflow-y-scroll p-5">
           <div className="grid grid-cols-3 gap-4">
+            <CustomInput
+              name="client_name"
+              label="Name"
+              register={register}
+              errorMsg={errors?.client_name?.message}
+              placeholder="Enter name"
+              disabled={isView}
+              isRequired={true}
+            />
+            <CustomPhoneInput
+              name="client_phone"
+              label="Phone Number"
+              register={register}
+              errorMsg={errors?.client_phone?.message}
+              isDisabled={isView || false}
+              isRequired={true}
+            />
+            <CustomInput
+              name="client_email"
+              label="Email"
+              register={register}
+              errorMsg={errors?.client_email?.message}
+              placeholder="Enter email"
+              disabled={isView}
+              type="email"
+              isRequired={true}
+            />
+            <Controller
+              name="service_interest"
+              control={control}
+              render={({ field }) => (
+                <Combobox
+                  options={priorities}
+                  value={field.value}
+                  onChange={field.onChange}
+                  label="Service Interest"
+                  placeholder="Select Service"
+                  mainClassName="w-full"
+                  toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+                  listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+                  isSearch={false}
+                  disabled={isView}
+                  errorMsg={errors?.service_interest?.message}
+                  isRequired={true}
+                />
+              )}
+            />
+            <Controller
+              name="emirate"
+              control={control}
+              render={({ field }) => (
+                <Combobox
+                  options={priorities}
+                  value={field.value}
+                  onChange={field.onChange}
+                  label="Emirate"
+                  placeholder="Select Emirate"
+                  mainClassName="w-full"
+                  toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+                  listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+                  isSearch={false}
+                  disabled={isView}
+                  errorMsg={errors?.emirate?.message}
+                  isRequired={true}
+                />
+              )}
+            />
+            <Controller
+              name="preferred_channel"
+              control={control}
+              render={({ field }) => (
+                <Combobox
+                  options={priorities}
+                  value={field.value}
+                  onChange={field.onChange}
+                  label="Preferred Communication Channel"
+                  placeholder="Select Channel"
+                  mainClassName="w-full"
+                  toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+                  listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+                  isSearch={false}
+                  disabled={isView}
+                />
+              )}
+            />
+            <Controller
+              name="gender"
+              control={control}
+              render={({ field }) => (
+                <Combobox
+                  options={genderOptions}
+                  value={field.value}
+                  onChange={field.onChange}
+                  label="Gender"
+                  placeholder="Select Gender"
+                  mainClassName="w-full"
+                  toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+                  listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+                  isSearch={false}
+                  disabled={isView}
+                />
+              )}
+            />
+            <Controller
+              name="language"
+              control={control}
+              render={({ field }) => (
+                <Combobox
+                  options={languages}
+                  value={field.value}
+                  onChange={field.onChange}
+                  label="Preferred Language"
+                  placeholder="Select Language"
+                  mainClassName="w-full"
+                  toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+                  listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+                  isSearch={false}
+                  disabled={isView}
+                />
+              )}
+            />
+            <Controller
+              name="nationality"
+              control={control}
+              render={({ field }) => (
+                <Combobox
+                  options={nationalities}
+                  value={field.value}
+                  onChange={field.onChange}
+                  label="Nationality"
+                  placeholder="Select Nationality"
+                  mainClassName="w-full"
+                  toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+                  listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+                  isSearch={false}
+                  disabled={isView}
+                  errorMsg={errors?.nationality?.message}
+                />
+              )}
+            />
             <Controller
               name="source"
               control={control}
@@ -234,64 +387,16 @@ const AddLeadModal = ({
                 />
               )}
             />
-            <CustomInput
-              name="client_name"
-              label="Name"
-              register={register}
-              errorMsg={errors?.client_name?.message}
-              placeholder="Enter name"
-              disabled={isView}
-              isRequired={true}
-            />
-            <CustomPhoneInput
-              name="client_phone"
-              label="Phone Number"
-              register={register}
-              errorMsg={errors?.client_phone?.message}
-              isDisabled={isView || false}
-              isRequired={true}
-            />
-            <CustomInput
-              name="client_email"
-              label="Email"
-              register={register}
-              errorMsg={errors?.client_email?.message}
-              placeholder="Enter email"
-              disabled={isView}
-              type="email"
-              isRequired={true}
-            />
             <Controller
-              name="nationality"
+              name="lead_type"
               control={control}
               render={({ field }) => (
                 <Combobox
-                  options={nationalities}
+                  options={priorities}
                   value={field.value}
                   onChange={field.onChange}
-                  label="Nationality"
-                  placeholder="Select Nationality"
-                  mainClassName="w-full"
-                  toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
-                  listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
-                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                  icon={<RiArrowDownSLine className="size-5 text-grey100" />}
-                  isSearch={false}
-                  disabled={isView}
-                  errorMsg={errors?.nationality?.message}
-                />
-              )}
-            />
-            <Controller
-              name="language"
-              control={control}
-              render={({ field }) => (
-                <Combobox
-                  options={languages}
-                  value={field.value}
-                  onChange={field.onChange}
-                  label="Language"
-                  placeholder="Select Language"
+                  label="Lead Type"
+                  placeholder="Company"
                   mainClassName="w-full"
                   toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
                   listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
@@ -302,7 +407,7 @@ const AddLeadModal = ({
                 />
               )}
             />
-            <Controller
+            {/* <Controller
               name="priority"
               control={control}
               render={({ field }) => (
@@ -343,7 +448,19 @@ const AddLeadModal = ({
                   disabled={isView}
                 />
               )}
-            />
+            /> */}
+            <label
+              htmlFor="high-priority"
+              className="flex cursor-pointer items-center gap-2 text-sm rounded-lg"
+            >
+              <input
+                id="high-priority"
+                type="checkbox"
+                className="peer hidden"
+              />
+              <span className="size-5 rounded-[5px] border border-[#9FA2AA] bg-white peer-checked:border-blue-500 peer-checked:bg-blue-500"></span>
+              High Priority
+            </label>
           </div>
           <CommonTextarea
             name="notes"

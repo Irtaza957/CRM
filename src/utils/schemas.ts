@@ -147,11 +147,35 @@ export const familyMemberSchema = z
       id: z.union([z.string(), z.number()]), // Accept string or number
       name: z.string(),
     }).optional(),
-    priority: z.object({
+    preferred_channel: z.object({
       id: z.union([z.string(), z.number()]), // Accept string or number
-      name: z.string().min(1, "Priority is required"),
+      name: z.string(),
+    }).optional(),
+    gender: z.object({
+      id: z.union([z.string(), z.number()]), // Accept string or number
+      name: z.string(),
+    }).optional(),
+    lead_type: z.object({
+      id: z.union([z.string(), z.number()]), // Accept string or number
+      name: z.string(),
+    }).optional(),
+    // priority: z.object({
+    //   id: z.union([z.string(), z.number()]), // Accept string or number
+    //   name: z.string().min(1, "Priority is required"),
+    // }).refine((val) => val.id && val.name.trim() !== "", {
+    //   message: "Priority is required",
+    // }),
+    service_interest: z.object({
+      id: z.union([z.string(), z.number()]), // Accept string or number
+      name: z.string().min(1, "Service Interest is required"),
     }).refine((val) => val.id && val.name.trim() !== "", {
-      message: "Priority is required",
+      message: "Service Interest is required",
+    }),
+    emirate: z.object({
+      id: z.union([z.string(), z.number()]), // Accept string or number
+      name: z.string().min(1, "Emirate is required"),
+    }).refine((val) => val.id && val.name.trim() !== "", {
+      message: "Emirate is required",
     }),
     client_email: z.string().email("Invalid email format").optional(),
     source: z.object({
