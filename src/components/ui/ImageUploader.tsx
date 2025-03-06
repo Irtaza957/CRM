@@ -19,17 +19,17 @@ const ImageUploader = ({ link, label, setImage, disabled, openModal }: ImageUplo
   const onDropRejected = (rejectedFiles: FileRejection[]) => {
     const [file] = rejectedFiles;
     setIsDragOver(false);
-    if (file.file.size <= 1 * 1024 * 1024) {
+    // if (file.file.size <= 1 * 1024 * 1024) {
       toast.error(`${file.file.type} is not supported.`, {
         description: "Please Choose a PNG, JPG or JPEG file instead.",
         className: "p-2 rounded-lg bg-red-500 text-white",
       });
-    } else {
-      toast.error("Image Size Exceeds 1MB", {
-        description: "Please Choose an Image <= 1MB instead.",
-        className: "p-2 rounded-lg bg-red-500 text-white",
-      });
-    }
+    // } else {
+    //   toast.error("Image Size Exceeds 1MB", {
+    //     description: "Please Choose an Image <= 1MB instead.",
+    //     className: "p-2 rounded-lg bg-red-500 text-white",
+    //   });
+    // }
   };
 
   const onDropAccepted = async (acceptedFiles: File[]) => {
@@ -61,7 +61,7 @@ const ImageUploader = ({ link, label, setImage, disabled, openModal }: ImageUplo
           "image/jpg": [".jpg"],
           "image/jpeg": [".jpeg"],
         }}
-        maxSize={1 * 1024 * 1024}
+        // maxSize={1 * 1024 * 1024}
         onDropRejected={onDropRejected}
         onDropAccepted={onDropAccepted}
         onDragEnter={() => setIsDragOver(true)}

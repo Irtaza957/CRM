@@ -55,7 +55,7 @@ const UploadAttachmentModal = ({ open, customerId, userId, setOpen, getAttachmen
     const onDropRejected = (rejectedFiles: FileRejection[]) => {
         const [file] = rejectedFiles;
         setIsDragOver(false);
-        if (file.file.size <= 1 * 1024 * 1024) {
+        // if (file.file.size <= 1 * 1024 * 1024) {
             toast.custom((t) => (
                 <CustomToast
                     t={t}
@@ -64,16 +64,16 @@ const UploadAttachmentModal = ({ open, customerId, userId, setOpen, getAttachmen
                     message="Please Choose a PNG, JPG or JPEG file instead."
                 />
             ));
-        } else {
-            toast.custom((t) => (
-                <CustomToast
-                    t={t}
-                    type="error"
-                    title={`${file.file.name} Image Size Exceeds 1MB`}
-                    message="Please Choose an Image <= 1MB instead."
-                />
-            ));
-        }
+        // } else {
+        //     toast.custom((t) => (
+        //         <CustomToast
+        //             t={t}
+        //             type="error"
+        //             title={`${file.file.name} Image Size Exceeds 1MB`}
+        //             message="Please Choose an Image <= 1MB instead."
+        //         />
+        //     ));
+        // }
     };
 
     const onDropAccepted = async (acceptedFiles: File[]) => {
@@ -141,7 +141,7 @@ const UploadAttachmentModal = ({ open, customerId, userId, setOpen, getAttachmen
                 </div>
                 <div className="flex w-full flex-col items-center justify-center gap-5 p-5">
                     <Dropzone
-                        maxSize={1 * 1024 * 1024}
+                        // maxSize={1 * 1024 * 1024}
                         accept={{
                             "image/png": [".png"],
                             "image/jpg": [".jpg"],
