@@ -68,12 +68,15 @@ const AddService = ({
   const [categoryBundle] = useCategoryBundleMutation();
   const [serviceVitamin] = useServiceVitaminMutation();
   const [serviceDetails, setServiceDetails] = useState<ServiceDetailProps | null>(null)
+  const [vatApplicable, setVatApplicable] = useState<ListOptionProps | null>(null)
+  const [promotionalVatApplicable, setPromotionalVatApplicable] = useState<ListOptionProps | null>(null)
+
   const { data, isLoading } = useFetchAllCategoriesQuery(
-    isApp ? [] : 
-    [
-      { name: "company", id: `${provider}-company` },
-      { name: "business", id: `${business}-business` },
-    ],
+    isApp ? [] :
+      [
+        { name: "company", id: `${provider}-company` },
+        { name: "business", id: `${business}-business` },
+      ],
     {
       ...(!isApp && { skip: !provider }),
       refetchOnMountOrArgChange: true,
@@ -263,7 +266,7 @@ const AddService = ({
       setBundles(tempBundles || []);
       if (serviceDetails?.vitamins?.length && open) {
         getVitamins(serviceDetails?.vitamins)
-      }else{
+      } else {
         setVitamins([])
       }
     }
@@ -288,11 +291,39 @@ const AddService = ({
 
   useEffect(() => {
     if (!open) {
-      if(!isApp){
+      if (!isApp) {
         clearForm();
       }
     }
   }, [open]);
+
+  useEffect(() => {
+    if (vatApplicable) {
+      if (vatApplicable.id === "1") {
+        const vatValue = Math.round(Number(priceNoVat) * (5 / 100))
+        setVat(String(vatValue))
+        setPriceVat(String((Number(priceNoVat) + vatValue)))
+      } else {
+        setVat("")
+        setPriceVat('')
+      }
+    }
+
+  }, [vatApplicable, priceNoVat])
+
+  useEffect(() => {
+    if (promotionalVatApplicable) {
+      if (promotionalVatApplicable.id === "1") {
+        const vatValue = Math.round(Number(promotionalPriceNoVat) * (5 / 100))
+        setPromotionalPrice(String(vatValue))
+        setPromotionalPriceVat(String((Number(promotionalPriceNoVat) + vatValue)))
+      } else {
+        setPromotionalPrice("")
+        setPromotionalPriceVat("")
+      }
+    }
+  }, [promotionalVatApplicable, promotionalPriceNoVat])
+
   return (
     <div
       className={`grid w-full grid-cols-3 gap-5 ${selectedServiceId && "mt-4"}`}
@@ -328,7 +359,7 @@ const AddService = ({
       )}
       <CustomInput
         type="text"
-        label="ServiceCode"
+        label="Service Code"
         value={code}
         setter={setCode}
         placeholder="Code"
@@ -360,6 +391,35 @@ const AddService = ({
       />
       <CustomInput
         type="number"
+        value={size}
+        setter={setSize}
+        placeholder="Size"
+        label="Size (in mL.)"
+        disabled={isApp}
+      />
+      <div className="col-span-1 flex w-full flex-col items-center justify-center gap-1">
+        <label
+          htmlFor="VAT Applicable"
+          className="w-full text-left text-xs text-gray-500"
+        >
+          VAT Applicable
+        </label>
+        <Combobox
+          options={[{ id: "1", name: "Yes" }, { id: "0", name: "No" }]}
+          value={vatApplicable}
+          placeholder="VAT Applicable"
+          handleSelect={(option) => setVatApplicable(option)}
+          mainClassName="col-span-1 w-full"
+          defaultSelectedIconClassName="size-4"
+          icon={<TiArrowSortedDown className="size-5" />}
+          toggleClassName="w-full p-3 rounded-lg text-xs bg-gray-100"
+          listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
+          listItemClassName="w-full text-left text-black px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+          isSearch={false}
+        />
+      </div>
+      <CustomInput
+        type="number"
         value={priceNoVat}
         setter={setPriceNoVat}
         label="Price without VAT"
@@ -382,6 +442,27 @@ const AddService = ({
         placeholder="Price with VAT"
         disabled={isApp}
       />
+      <div className="col-span-1 flex w-full flex-col items-center justify-center gap-1">
+        <label
+          htmlFor="VAT Applicable"
+          className="w-full text-left text-xs text-gray-500"
+        >
+          VAT Applicable
+        </label>
+        <Combobox
+          options={[{ id: "1", name: "Yes" }, { id: "0", name: "No" }]}
+          value={promotionalVatApplicable}
+          placeholder="Promotional VAT Applicable"
+          handleSelect={(option) => setPromotionalVatApplicable(option)}
+          mainClassName="col-span-1 w-full"
+          defaultSelectedIconClassName="size-4"
+          icon={<TiArrowSortedDown className="size-5" />}
+          toggleClassName="w-full p-3 rounded-lg text-xs bg-gray-100"
+          listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
+          listItemClassName="w-full text-left text-black px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+          isSearch={false}
+        />
+      </div>
       <CustomInput
         type="number"
         value={promotionalPriceNoVat}
@@ -454,14 +535,6 @@ const AddService = ({
           />
         </>
       ))}
-      <CustomInput
-        type="number"
-        value={size}
-        setter={setSize}
-        placeholder="Size"
-        label="Size (in mL.)"
-        disabled={isApp}
-        />
       <ColorPicker label="Service Color" value={color} setter={setColor} disabled={isApp} />
       {vitamins?.length > 0 && (
         <div className="col-span-2 mb-4 flex flex-col gap-2">
@@ -558,19 +631,19 @@ const AddService = ({
         </div>
       </div>
       <div className="col-span-3 flex w-full items-end justify-end gap-3">
-        {!isApp &&  <>
-        <CustomButton
-          name="Cancel"
-          handleClick={() => setOpen?.(false)}
-          style="bg-danger"
-        />
-        <CustomButton
-          name={selectedServiceId ? "Update" : "Save"}
-          handleClick={handleSubmit}
-          loading={creating || updating}
-          disabled={creating || updating || isApp}
+        {!isApp && <>
+          <CustomButton
+            name="Cancel"
+            handleClick={() => setOpen?.(false)}
+            style="bg-danger"
           />
-          </>
+          <CustomButton
+            name={selectedServiceId ? "Update" : "Save"}
+            handleClick={handleSubmit}
+            loading={creating || updating}
+            disabled={creating || updating || isApp}
+          />
+        </>
         }
       </div>
     </div>

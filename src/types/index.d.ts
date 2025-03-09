@@ -721,6 +721,7 @@ declare type ReviewProps={
   review: string;
   description: string;
   service_id: string;
+  customer_name: string;
 }
 
 declare type SectionProps={

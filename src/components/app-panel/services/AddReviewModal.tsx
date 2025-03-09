@@ -8,14 +8,14 @@ import {
   useAddReviewMutation,
   useUpdateReviewMutation,
 } from "../../../store/services/service";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store";
 import { toast } from "sonner";
 import CustomToast from "../../ui/CustomToast";
-import { RiArrowDownSLine } from "react-icons/ri";
-import Combobox from "../../ui/Combobox";
-import { useFetchCustomersMutation } from "../../../store/services/customer";
+// import { RiArrowDownSLine } from "react-icons/ri";
+// import Combobox from "../../ui/Combobox";
+// import { useFetchCustomersMutation } from "../../../store/services/customer";
 import { FiEdit } from "react-icons/fi";
 import CommonTextarea from "../../ui/CommonTextarea";
 
@@ -38,8 +38,8 @@ const AddReviewModal = ({
   isView,
   setIsView
 }: AddReviewModalProps) => {
-  const [customer, setCustomer] = useState<ListOptionProps | null>(null)
-  const [customersData, setCustomersData] = useState<ListOptionProps[] | []>([]);
+  // const [customer, setCustomer] = useState<ListOptionProps | null>(null)
+  // const [customersData, setCustomersData] = useState<ListOptionProps[] | []>([]);
   const {
     register,
     handleSubmit,
@@ -51,21 +51,22 @@ const AddReviewModal = ({
   const [addReview, {isLoading: isLoadingAdd}] = useAddReviewMutation();
   const [updateReview, {isLoading: isLoadingUpdate}] = useUpdateReviewMutation();
   const { user } = useSelector((state: RootState) => state.global);
-   const [fetchCustomers] =
-    useFetchCustomersMutation();
+  //  const [fetchCustomers] =
+  //   useFetchCustomersMutation();
 
   useEffect(() => {
     if (reviewData) {
       setValue("customer_id", reviewData.customer_id);
       setValue("review", reviewData.review);
+      setValue("customer_name", reviewData.customer_name);
       setValue("description", reviewData.description);
     }
   }, [reviewData, setValue]);
-  const getCustomers = async () => {
-    const response = await fetchCustomers({});
-    const temp=response?.data?.data?.map((item: CustomerProps)=> ({id: item.customer_id, name: item.full_name}))
-    setCustomersData(temp || []);
-  };
+  // const getCustomers = async () => {
+  //   const response = await fetchCustomers({});
+  //   const temp=response?.data?.data?.map((item: CustomerProps)=> ({id: item.customer_id, name: item.full_name}))
+  //   setCustomersData(temp || []);
+  // };
 
   const handleClose = () => {
     reset();
@@ -76,14 +77,14 @@ const AddReviewModal = ({
     reset({
       review: "",
       description: "",
+      customer_name: "",
     })
-    setCustomer(null)
   }
 
   const handleFormSubmit = async (data: any) => {
     try {
       const urlencoded = new URLSearchParams();
-      urlencoded.append("customer_id", '1');
+      urlencoded.append("customer_id", data.customer_name);
       urlencoded.append("review", data.review);
       urlencoded.append("description", data.description);
       urlencoded.append("user_id", String(user?.id || ''));
@@ -123,29 +124,23 @@ const AddReviewModal = ({
     }
   };
 
-  const handleSelectCustomer = (option: ListOptionProps) => {
-    setCustomer(option)
-  }
+  // const handleSelectCustomer = (option: ListOptionProps) => {
+  //   setCustomer(option)
+  // }
 
-  useEffect(()=>{
-    if(open){
-      getCustomers()
-    }
-  },[open])
+  // useEffect(()=>{
+  //   if(open){
+  //     getCustomers()
+  //   }
+  // },[open])
 
   useEffect(() => {
     if (reviewData) {
       setValue("review", reviewData.review)
       setValue("description", reviewData.description)
+      setValue("customer_name", reviewData.customer_name)
     }
   }, [reviewData, open])
-
-  useEffect(()=>{
-    if(customersData && reviewData?.customer_id){
-      const selectedCustomer=customersData.find(item=> item.id==reviewData.customer_id)
-      setCustomer(selectedCustomer || null)
-    }
-  },[customersData])
 
   useEffect(()=>{
     if(!open){
@@ -171,7 +166,7 @@ const AddReviewModal = ({
 
         <div className="h-full max-h-[70vh] w-full gap-5 overflow-y-scroll p-5">
           <div className="space-y-4">
-          <Combobox
+          {/* <Combobox
               options={customersData}
               value={customer}
               handleSelect={handleSelectCustomer}
@@ -182,6 +177,14 @@ const AddReviewModal = ({
               listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
               listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+              disabled={isView}
+            /> */}
+            <CustomInput
+              name="customer_name"
+              label="Customer"
+              register={register}
+              errorMsg={errors?.customer_name?.message}
+              placeholder="Enter Customer Name"
               disabled={isView}
             />
             <CustomInput
