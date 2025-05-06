@@ -1,17 +1,12 @@
 import { RootState } from "../store";
 import Logo from "../assets/img/logo.svg";
-import CustomDatePicker from "./ui/CustomDatePicker";
-
 import { useRef, useState } from "react";
 import { GoBell } from "react-icons/go";
 import { BsGear } from "react-icons/bs";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { MdOutlineMessage } from "react-icons/md";
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { setDate } from "../store/slices/app";
-import dayjs from "dayjs";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
 
 const Navbar = () => {
@@ -19,16 +14,16 @@ const Navbar = () => {
   const [isLogout, setIsLogout] = useState(false);
 
   const { user } = useSelector((state: RootState) => state.global);
-  const { date } = useSelector((state: RootState) => state.app);
+  // const { date } = useSelector((state: RootState) => state.app);
   const userRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(userRef, () => setIsLogout(false));
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
+  // const location = useLocation();
 
-  const handleSetDate = (date: string | Date) => {
-    dispatch(setDate(date));
-  };
+  // const handleSetDate = (date: string | Date) => {
+  //   dispatch(setDate(date));
+  // };
 
   const handleLogout = () => {
     ["date", "user", "sidebar"].forEach((key) => {
@@ -37,28 +32,28 @@ const Navbar = () => {
     navigate("/login");
   };
 
-  const incrementDate = (e: React.MouseEvent<SVGAElement>) => {
-    e.stopPropagation();
-    const newDate = dayjs(date || new Date())
-      .add(1, "day")
-      .toDate();
-    handleSetDate(newDate);
-  };
+  // const incrementDate = (e: React.MouseEvent<SVGAElement>) => {
+  //   e.stopPropagation();
+  //   const newDate = dayjs(date || new Date())
+  //     .add(1, "day")
+  //     .toDate();
+  //   handleSetDate(newDate);
+  // };
 
-  const decrementDate = (e: React.MouseEvent<SVGAElement>) => {
-    e.stopPropagation();
-    const newDate = dayjs(date || new Date())
-      .subtract(1, "day")
-      .toDate();
-    handleSetDate(newDate);
-  };
+  // const decrementDate = (e: React.MouseEvent<SVGAElement>) => {
+  //   e.stopPropagation();
+  //   const newDate = dayjs(date || new Date())
+  //     .subtract(1, "day")
+  //     .toDate();
+  //   handleSetDate(newDate);
+  // };
 
   return (
     <nav className="relative z-30 h-16 min-h-16 w-full px-5 text-gray-500 shadow-md">
       <div className="flex h-full flex-1 items-center justify-between">
         <div className="flex items-center justify-center gap-7">
           <img src={Logo} alt="logo" className="w-36" />
-          {location.pathname.includes("/bookings") && (
+          {/* {location.pathname.includes("/bookings") && (
             <CustomDatePicker
               date={date || new Date()}
               setDate={handleSetDate}
@@ -76,7 +71,7 @@ const Navbar = () => {
                 </div>
               }
             />
-          )}
+          )} */}
         </div>
         <div className="flex items-center justify-center gap-7">
           <div className="group flex items-center justify-center gap-2 rounded-full py-2 transition-all duration-150 ease-linear hover:bg-gray-100 hover:px-4">

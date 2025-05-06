@@ -11,11 +11,10 @@ import Combobox from "../../ui/Combobox";
 import {
   useFetchBookingsQuery,
   useCreateBookingMutation,
-  useFetchCategoriesMutation,
   useFetchBookingDetailsQuery,
   useDeleteAttachmentMutation,
   useFetchBookingSourcesQuery,
-  useFetchBookingChannelsQuery
+  useFetchBookingChannelsQuery,
 } from "../../../store/services/booking";
 import {
   useFetchCustomerFamilyMutation,
@@ -44,7 +43,7 @@ import {
 import dayjs from "dayjs";
 import { toast } from "sonner";
 import { FreeMode } from "swiper/modules";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { GoShareAndroid } from "react-icons/go";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -53,14 +52,16 @@ import { LuLoader2, LuUser2 } from "react-icons/lu";
 import { TiArrowSortedDown, TiDocumentText } from "react-icons/ti";
 import AddAddressModal from "./AddAddressModal";
 import CustomButton from "../../ui/CustomButton";
-import { setDate } from "../../../store/slices/app";
 import BookingHistoryModal from "./BookingHistoryModal";
 import AddCustomerModal from "./AddCustomerModal";
 import AddFamilyMemberModal from "./AddFamilyMemberModal";
 import AddMedicalDetailModal from "./AddMedicalDetailModal";
 import EditServiceModal from "./EditServiceModal";
 import UploadAttachmentModal from "./UploadAttachmentModal";
-import { useFetchBranchesQuery, useFetchUsersByRolesQuery } from "../../../store/services/filters";
+import {
+  useFetchBranchesQuery,
+  useFetchUsersByRolesQuery,
+} from "../../../store/services/filters";
 import DeleteModal from "./DeleteModal";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { useFetchCompaniesQuery } from "../../../store/services/company";
@@ -94,10 +95,10 @@ const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
                 <p className="w-full overflow-hidden truncate text-left">
                   {booking.consultation_team.length !== 0
                     ? booking.consultation_team
-                      .map((member) => {
-                        return member.name;
-                      })
-                      .join(" - ")
+                        .map((member) => {
+                          return member.name;
+                        })
+                        .join(" - ")
                     : "N/A"}
                 </p>
               </div>
@@ -112,10 +113,10 @@ const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
                 <span className="w-full overflow-hidden truncate text-left">
                   {booking.consultation_team.length !== 0
                     ? booking.consultation_team
-                      .map((member) => {
-                        return member.name;
-                      })
-                      .join(" - ")
+                        .map((member) => {
+                          return member.name;
+                        })
+                        .join(" - ")
                     : "N/A"}
                 </span>
               </div>
@@ -166,11 +167,13 @@ const NewBookingModal = ({
   const [fetchAddresses] = useFetchCustomerAddressesMutation();
   const [family, setFamily] = useState<FamilyProps[] | null>([]);
   const { user } = useSelector((state: RootState) => state.global);
-  const { date } = useSelector((state: RootState) => state.app);
+  const [date, setDate] = useState<Date | null>(null);
   const [fetchAttachments] = useFetchCustomerAttachmentsMutation();
   const [addresses, setAddresses] = useState<AddressProps[] | null>([]);
-  const [category, setCategory] = useState<ListOptionProps | null>(null);
-  const { data, refetch } = useFetchBookingsQuery(dayjs(date || new Date()).format("YYYY-MM-DD"));
+  // const [category, setCategory] = useState<ListOptionProps | null>(null);
+  const { data, refetch } = useFetchBookingsQuery(
+    dayjs(date || new Date()).format("YYYY-MM-DD")
+  );
   const [profession, setProfession] = useState<ListOptionProps | null>(null);
   const [createBooking, { isLoading: creating }] = useCreateBookingMutation();
   const [selectedUser, setSelectedUser] = useState<CustomerProps | null>(null);
@@ -185,15 +188,16 @@ const NewBookingModal = ({
   const [selectedService, setSelectedServiceModal] = useState<string | null>(
     null
   );
-  const [categories, setCategories] = useState<ListOptionProps[]>([]);
+  // const [categories, setCategories] = useState<ListOptionProps[]>([]);
   const [profesionsData, setProfesionsData] = useState<ListOptionProps[]>([]);
   const [bookingsData, setBookingsData] = useState<BookingProps[]>([]);
   const [history, setHistory] = useState(false);
   const [openDeleteAttachmentModal, setOpenDeleteAttachmentModal] =
     useState(false);
-  const [deleteBookingAttachment, setDeleteAttachment] = useState<AttachmentProps | null>(null);
+  const [deleteBookingAttachment, setDeleteAttachment] =
+    useState<AttachmentProps | null>(null);
 
-  const [fetchCategories] = useFetchCategoriesMutation();
+  // const [fetchCategories] = useFetchCategoriesMutation();
   const { data: professions } = useFetchUsersByRolesQuery({});
   const { data: bookingDetailData } = useFetchBookingDetailsQuery(
     selectedBooking,
@@ -202,30 +206,38 @@ const NewBookingModal = ({
       refetchOnMountOrArgChange: true,
     }
   );
-  const [deleteAttachment, { isLoading: deleteLoading }] = useDeleteAttachmentMutation();
+  const [deleteAttachment, { isLoading: deleteLoading }] =
+    useDeleteAttachmentMutation();
   const { data: companiesDropdownData } = useFetchCompaniesQuery([]);
-  const { data: branchesDropodwnData } = useFetchBranchesQuery([{name: 'company', id: `${company?.id}-company`}], {
-    skip: !company?.id,
-    refetchOnMountOrArgChange: true,
-  });
-  const { data: bookingSourcesData } = useFetchBookingSourcesQuery({}, {
-    skip: !open,
-    refetchOnMountOrArgChange: true,
-  });
-  const { data: bookingChannelsData } = useFetchBookingChannelsQuery({}, {
-    skip: !open,
-    refetchOnMountOrArgChange: true,
-  });
+  const { data: branchesDropodwnData } = useFetchBranchesQuery(
+    [{ name: "company", id: `${company?.id}-company` }],
+    {
+      skip: !company?.id,
+      refetchOnMountOrArgChange: true,
+    }
+  );
+  const { data: bookingSourcesData } = useFetchBookingSourcesQuery(
+    {},
+    {
+      skip: !open,
+      refetchOnMountOrArgChange: true,
+    }
+  );
+  const { data: bookingChannelsData } = useFetchBookingChannelsQuery(
+    {},
+    {
+      skip: !open,
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
-  const dispatch = useDispatch();
-
-  const getCategories = async () => {
-    const { data } = await fetchCategories(null);
-    const temp = data?.data?.map((item: CategoryListProps) => {
-      return { id: item?.category_id, name: item?.category_name };
-    });
-    setCategories(temp);
-  };
+  // const getCategories = async () => {
+  //   const { data } = await fetchCategories(null);
+  //   const temp = data?.data?.map((item: CategoryListProps) => {
+  //     return { id: item?.category_id, name: item?.category_name };
+  //   });
+  //   setCategories(temp);
+  // };
   const getAddresses = async (id: string) => {
     const { data } = await fetchAddresses(id);
     setAddresses(data!);
@@ -267,7 +279,9 @@ const NewBookingModal = ({
         const priceWithoutVAT =
           parseFloat(service.total || service?.price_without_vat || "0") *
           service.qty!;
-        const vatValue = parseFloat(service.vat_value || bookingDetailData?.vat_value || "0") * service.qty!;
+        const vatValue =
+          parseFloat(service.vat_value || bookingDetailData?.vat_value || "0") *
+          service.qty!;
 
         acc.subtotal += priceWithoutVAT;
         acc.total_vat += vatValue;
@@ -288,7 +302,7 @@ const NewBookingModal = ({
 
   const calculateDiscount = () => {
     const bookingCost = calculateBookingCost(selectedServices!);
-    console.log(bookingCost, 'bookingCostbookingCost')
+    console.log(bookingCost, "bookingCostbookingCost");
     if (isNaN(discount.value)) {
       return bookingCost.grand_total;
     }
@@ -334,13 +348,19 @@ const NewBookingModal = ({
       "sub_total",
       `${calculateBookingCost(selectedServices!).subtotal}`
     );
-    urlencoded.append("discount_value", `${discount.value || '0.00'}`);
-    urlencoded.append("discount_type", `${discount.type === 'percent' ? discount.type : 'fixed'}`);
-    if (discount.type === 'aed') {
-      urlencoded.append("discount", `${discount.value || '0.00'}`);
+    urlencoded.append("discount_value", `${discount.value || "0.00"}`);
+    urlencoded.append(
+      "discount_type",
+      `${discount.type === "percent" ? discount.type : "fixed"}`
+    );
+    if (discount.type === "aed") {
+      urlencoded.append("discount", `${discount.value || "0.00"}`);
     } else {
-      const total = calculateBookingCost(selectedServices!).grand_total
-      urlencoded.append("discount", `${(total - Math.round(total - total * (discount.value / 100))) || '0.00'}`);
+      const total = calculateBookingCost(selectedServices!).grand_total;
+      urlencoded.append(
+        "discount",
+        `${total - Math.round(total - total * (discount.value / 100)) || "0.00"}`
+      );
     }
     urlencoded.append(
       "vat_value",
@@ -354,14 +374,23 @@ const NewBookingModal = ({
       "services",
       JSON.stringify(
         selectedServices?.map((item) => {
-          const disc = item.discount_type === 'aed' ? item.discount_value : Number(item.price_without_vat) - Math.round(Number(item.price_without_vat) - Number(item.price_without_vat) * (Number(item.discount_value) / 100))
+          const disc =
+            item.discount_type === "aed"
+              ? item.discount_value
+              : Number(item.price_without_vat) -
+                Math.round(
+                  Number(item.price_without_vat) -
+                    Number(item.price_without_vat) *
+                      (Number(item.discount_value) / 100)
+                );
           return {
             service_id: item.service_id,
             qty: item.qty,
             price: item.price_without_vat,
             discount: disc || "0.00",
             discount_value: item.discount_value || "0.00",
-            discount_type: item.discount_type === 'percent' ? item.discount_type : 'fixed',
+            discount_type:
+              item.discount_type === "percent" ? item.discount_type : "fixed",
             total: item.discount || "0.00",
             new_price: item.new_price || "0.00",
           };
@@ -389,14 +418,14 @@ const NewBookingModal = ({
             message="Successfully Created Booking!"
           />
         ));
-        refetch()
-        setOpen(false)
-        setDeliveryNotes('')
-        setAddress(null)
-        setScheduleTime(null)
-        setScheduleDate(new Date())
-        setSelectedServices([])
-        setSelectedFamily(null)
+        refetch();
+        setOpen(false);
+        setDeliveryNotes("");
+        setAddress(null);
+        setScheduleTime(null);
+        setScheduleDate(new Date());
+        setSelectedServices([]);
+        setSelectedFamily(null);
       }
     } catch (error) {
       toast.custom((t) => (
@@ -432,8 +461,8 @@ const NewBookingModal = ({
     setOpenMedicalDetailsModal(!openMedicalDetailsModal);
   };
 
-  const handleSetDate = (date: string | Date) => {
-    dispatch(setDate(date));
+  const handleSetDate = (date: any) => {
+    setDate(date);
   };
 
   const handleEditService = (id: string) => {
@@ -446,32 +475,32 @@ const NewBookingModal = ({
       const temp = selectedServices?.map((service) =>
         service.service_id === selectedService
           ? {
-            ...service,
-            discount: String(discount.total),
-            total: String(discount.total),
-            discount_value: String(discount.value),
-            new_price: String(discount.newPrice),
-            discount_type: discount.type,
-          }
+              ...service,
+              discount: String(discount.total),
+              total: String(discount.total),
+              discount_value: String(discount.value),
+              new_price: String(discount.newPrice),
+              discount_type: discount.type,
+            }
           : service
       );
       setSelectedServices(temp);
     }
   };
 
-  const handleSelectCategoty = (value: ListOptionProps) => {
-    setCategory(value);
-    if (value?.name) {
-      const filteredBookings = bookingsData?.filter((booking) =>
-        booking?.categories?.some((cat) => cat.code === value.name)
-      );
-      setBookingsData(filteredBookings);
-    } else {
-      if (data) {
-        setBookingsData(data);
-      }
-    }
-  };
+  // const handleSelectCategoty = (value: ListOptionProps) => {
+  //   setCategory(value);
+  //   if (value?.name) {
+  //     const filteredBookings = bookingsData?.filter((booking) =>
+  //       booking?.categories?.some((cat) => cat.code === value.name)
+  //     );
+  //     setBookingsData(filteredBookings);
+  //   } else {
+  //     if (data) {
+  //       setBookingsData(data);
+  //     }
+  //   }
+  // };
 
   const handleSelectProfession = (value: ListOptionProps) => {
     setProfession(value);
@@ -509,18 +538,22 @@ const NewBookingModal = ({
   };
 
   const handleSelectUser = () => {
-    setSelectedServices([])
-  }
+    setSelectedServices([]);
+  };
 
   const incrementDate = (e: React.MouseEvent<SVGAElement>) => {
     e.stopPropagation();
-    const newDate = dayjs(date || new Date()).add(1, "day").toDate();
+    const newDate = dayjs(date || new Date())
+      .add(1, "day")
+      .toDate();
     handleSetDate(newDate);
   };
 
   const decrementDate = (e: React.MouseEvent<SVGAElement>) => {
     e.stopPropagation();
-    const newDate = dayjs(date || new Date()).subtract(1, "day").toDate();
+    const newDate = dayjs(date || new Date())
+      .subtract(1, "day")
+      .toDate();
     handleSetDate(newDate);
   };
 
@@ -530,7 +563,10 @@ const NewBookingModal = ({
         const formData = new FormData();
         formData.append("file_name", deleteBookingAttachment?.file_name);
         formData.append("file_type", deleteBookingAttachment?.file_type);
-        formData.append("attachment_id", deleteBookingAttachment?.attachment_id);
+        formData.append(
+          "attachment_id",
+          deleteBookingAttachment?.attachment_id
+        );
         const response = await deleteAttachment(formData);
         if (response?.error) {
           toast.custom((t) => (
@@ -587,10 +623,10 @@ const NewBookingModal = ({
         value: 0,
       });
     }
-  }, [selectedService])
-  useEffect(() => {
-    getCategories();
-  }, []);
+  }, [selectedService]);
+  // useEffect(() => {
+  //   getCategories();
+  // }, []);
 
   useEffect(() => {
     if (professions?.data?.doctors?.length) {
@@ -637,12 +673,12 @@ const NewBookingModal = ({
           discount_type: item?.discount_type,
           total: item?.total,
           new_price: item?.new_price,
-          price: item?.price
+          price: item?.price,
         };
       });
       setSelectedServices(temp);
       setDiscount({
-        type: bookingDetailData?.discount_type === 'fixed' ? 'aed' : 'percent',
+        type: bookingDetailData?.discount_type === "fixed" ? "aed" : "percent",
         value: Number(bookingDetailData?.discount_value),
       });
       setDeliveryNotes(bookingDetailData?.delivery_notes);
@@ -661,7 +697,7 @@ const NewBookingModal = ({
     if (!open) {
       setSelectedUser(null);
       setSelectedServices(null);
-      setEditMode(false)
+      setEditMode(false);
     }
   }, [open]);
 
@@ -675,11 +711,11 @@ const NewBookingModal = ({
       <Modal
         open={open}
         setOpen={setOpen}
-        className="h-[95%] w-full max-w-[95%] lg:max-w-[85%]"
+        className="h-[95%] w-full max-w-[95%]"
       >
         <div className="grid w-full grid-cols-3 divide-x overflow-hidden rounded-lg bg-gray-100">
           <div className="col-span-1 flex h-full flex-col overflow-auto border-r">
-            <div className="flex h-12 w-full items-center justify-between border-b bg-white px-2.5">
+            <div className="flex h-[70px] w-full items-center justify-between border-b bg-white px-2.5">
               <p className="mr-3 rounded-md bg-primary px-2.5 py-1 text-white lg:text-sm xl:text-base">
                 {dayNames[new Date(date || new Date()).getDay()]}
               </p>
@@ -687,10 +723,16 @@ const NewBookingModal = ({
                 date={date || new Date()}
                 setDate={handleSetDate}
                 toggleButton={
-                  <div className="flex h-12 w-full items-center text-sm xl:text-base lg:gap-1 xl:gap-4 text-gray-500">
-                    <FaChevronLeft className="cursor-pointer" onClick={decrementDate} />
+                  <div className="flex h-12 w-full items-center text-sm text-gray-500 lg:gap-1 xl:gap-4 xl:text-base">
+                    <FaChevronLeft
+                      className="cursor-pointer"
+                      onClick={decrementDate}
+                    />
                     {dayjs(date || new Date()).format("DD MMM YYYY")}
-                    <FaChevronRight className="cursor-pointer" onClick={incrementDate} />
+                    <FaChevronRight
+                      className="cursor-pointer"
+                      onClick={incrementDate}
+                    />
                   </div>
                 }
               />
@@ -701,7 +743,7 @@ const NewBookingModal = ({
               />
             </div>
             <div className="grid w-full grid-cols-2 items-center justify-center gap-2.5 border-b px-2.5 py-2.5">
-              <Combobox
+              {/* <Combobox
                 value={category}
                 options={categories}
                 isFilter={true}
@@ -714,18 +756,18 @@ const NewBookingModal = ({
                 toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
                 listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-              />
+              /> */}
               <Combobox
                 options={profesionsData}
                 value={profession}
                 isFilter={true}
-                placeholder="Profession"
+                placeholder="Professional"
                 handleSelect={handleSelectProfession}
                 searchInputPlaceholder="Search..."
                 searchInputClassName="p-1.5 text-xs"
                 defaultSelectedIconClassName="size-4"
                 icon={<TiArrowSortedDown className="size-5" />}
-                toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
+                toggleClassName="w-full p-3 rounded-lg text-xs bg-white"
                 listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               />
@@ -755,8 +797,8 @@ const NewBookingModal = ({
             )}
           </div>
           <div className="col-span-2 grid h-full w-full grid-cols-2 gap-x-2.5">
-            <div className="col-span-2 flex h-12 w-full items-center justify-between bg-primary px-2.5 text-white">
-              <p className="w-full text-left text-lg font-semibold">
+            <div className="col-span-2 flex h-[58px] w-full items-center justify-between bg-primary px-2.5 text-white">
+              <p className="w-full text-left text-lg font-semibold ml-5">
                 New Booking
               </p>
               <button type="button" onClick={() => setOpen(false)}>
@@ -775,15 +817,21 @@ const NewBookingModal = ({
                     <CustomButton
                       name="Add New"
                       handleClick={() => setOpenCustomerModal(true)}
+                      style="px-4"
                     />
                   ) : (
-                    <FaRegEdit
-                      onClick={handleEditClientClick}
-                      className="h-5 w-5 cursor-pointer text-gray-500"
-                    />
+                    <div className="py-2">
+                      <FaRegEdit
+                        onClick={handleEditClientClick}
+                        className="h-5 w-5 cursor-pointer text-gray-500"
+                      />
+                    </div>
                   )}
                 </div>
-                <AutoComplete handleSelectUser={handleSelectUser} setSelectedUser={setSelectedUser} />
+                <AutoComplete
+                  handleSelectUser={handleSelectUser}
+                  setSelectedUser={setSelectedUser}
+                />
               </div>
               {selectedUser && (
                 <>
@@ -806,7 +854,7 @@ const NewBookingModal = ({
                           <span className="w-full text-left text-xs text-gray-500">
                             {selectedUser.phone}
                           </span>
-                          <span className="w-full text-left text-xs text-gray-500 lg:truncate lg:max-w-20 xl:max-w-max">
+                          <span className="w-full text-left text-xs text-gray-500 lg:max-w-20 lg:truncate xl:max-w-max">
                             {selectedUser.email}
                           </span>
                         </div>
@@ -827,7 +875,7 @@ const NewBookingModal = ({
                         </span>
                       </div>
                     </div>
-                    <div className="flex w-full items-center justify-between border-b py-2.5">
+                    <div className="mt-6 flex w-full items-center justify-between border-b py-2.5">
                       <h1 className="text-left font-semibold text-primary">
                         Address Details
                       </h1>
@@ -836,15 +884,15 @@ const NewBookingModal = ({
                         className="h-5 w-5 cursor-pointer text-gray-500"
                       />
                     </div>
-                    <div className="mt-2.5 grid w-full grid-cols-2 gap-2.5 text-gray-500">
-                      {addresses?.length !== 0 &&
+                    <div className="mb-1.5 mt-4 grid w-full grid-cols-2 gap-2.5 text-gray-500">
+                      {addresses && addresses?.length !== 0 ?
                         addresses?.map((address) => (
                           <div
                             key={address.address_id}
                             className="col-span-1 flex w-full flex-col items-center justify-between space-y-1.5 rounded-lg border border-gray-200 bg-gray-100 p-2.5"
                           >
                             <div className="flex w-full items-center justify-between">
-                              <span className="font-bold capitalize text-primary truncate">
+                              <span className="truncate font-bold capitalize text-primary">
                                 {address.address_type}
                               </span>
                               <div className="flex items-center justify-end space-x-2.5">
@@ -871,11 +919,11 @@ const NewBookingModal = ({
                               {address.street},&nbsp;{address.extra_direction}
                             </span>
                           </div>
-                        ))}
+                        )): <p className="text-center text-xs text-gray-500">No Addresses Found!</p>}
                     </div>
                   </div>
                   <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
-                    <div className="flex w-full items-center justify-between border-b pb-2.5">
+                    <div className="flex w-full items-center justify-between border-b pb-3">
                       <h1 className="text-left font-semibold text-primary">
                         Medical Details
                       </h1>
@@ -884,6 +932,13 @@ const NewBookingModal = ({
                         className="h-5 w-5 cursor-pointer text-gray-500"
                       />
                     </div>
+                    {selectedUser.is_allergy === "0" &&
+                      selectedUser.is_medication === "0" &&
+                      selectedUser.is_medical_conition === "0" && (
+                        <p className="mt-2 text-center text-xs text-gray-500">
+                          No Medical Details Found!
+                        </p>
+                      )}
                     {selectedUser.is_allergy !== "0" && (
                       <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
                         <span className="text-xs text-primary">Allergies:</span>
@@ -923,7 +978,7 @@ const NewBookingModal = ({
                     )}
                   </div>
                   <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
-                    <div className="flex w-full items-center justify-between border-b pb-2.5">
+                    <div className="flex w-full items-center justify-between border-b pb-3">
                       <h1 className="text-left font-semibold text-primary">
                         Family Members
                       </h1>
@@ -940,7 +995,7 @@ const NewBookingModal = ({
                         <div className="col-span-1 w-full">Relation</div>
                         <div className="col-span-1 w-full">Actions</div>
                       </div>
-                      {family?.length &&
+                      {family?.length ? (
                         family?.map((member, idx) => (
                           <div
                             key={member.family_member_id}
@@ -959,12 +1014,26 @@ const NewBookingModal = ({
                               {dayjs(member.date_of_birth).format("DD-MM-YYYY")}
                             </div>
                             <div className="col-span-1 w-full capitalize">
-                              {member.gender === 'undefined' ? 'N/A' : member.gender}
+                              {member.gender === "undefined"
+                                ? "N/A"
+                                : member.gender}
                             </div>
                             <div className="col-span-1 w-full">
-                              {member.relationship === 'undefined' ? 'N/A' : member.relationship}
+                              {member.relationship === "undefined"
+                                ? "N/A"
+                                : member.relationship}
                             </div>
-                            <div className="col-span-1 gap-1 flex w-full items-center justify-between">
+                            <div className="col-span-1 flex w-full items-center justify-between gap-1.5">
+                              <button
+                                onClick={() =>
+                                  handleSelectFamily(member?.family_member_id)
+                                }
+                                className={`rounded-md px-2 py-0.5 text-[10px] text-white ${selectedFamily === member?.family_member_id ? "bg-red-500" : "bg-primary"}`}
+                              >
+                                {selectedFamily === member?.family_member_id
+                                  ? "Remove"
+                                  : "Book"}
+                              </button>
                               <button
                                 type="button"
                                 onClick={() =>
@@ -973,23 +1042,18 @@ const NewBookingModal = ({
                               >
                                 <FaRegEdit className="h-5 w-5" />
                               </button>
-                              <button
-                                onClick={() =>
-                                  handleSelectFamily(member?.family_member_id)
-                                }
-                                className={`rounded-md px-1 py-0.5 text-[10px] text-white ${selectedFamily === member?.family_member_id ? "bg-red-500" : "bg-primary"}`}
-                              >
-                                {selectedFamily === member?.family_member_id
-                                  ? "Remove"
-                                  : "Book"}
-                              </button>
                             </div>
                           </div>
-                        ))}
+                        ))
+                      ) : (
+                        <p className="mt-2 text-center text-xs text-gray-500">
+                          No Family Members Found!
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
-                    <div className="flex w-full items-center justify-between border-b pb-2.5">
+                    <div className="flex w-full items-center justify-between border-b pb-3">
                       <h1 className="text-left font-semibold text-primary">
                         Attachments
                       </h1>
@@ -998,7 +1062,7 @@ const NewBookingModal = ({
                         className="h-5 w-5 cursor-pointer text-gray-500"
                       />
                     </div>
-                    {attachments?.length !== 0 &&
+                    {attachments && attachments?.length !== 0 ? (
                       attachments?.map((attachment) => (
                         <div
                           key={attachment.attachment_id}
@@ -1035,7 +1099,12 @@ const NewBookingModal = ({
                             />
                           </div>
                         </div>
-                      ))}
+                      ))
+                    ) : (
+                      <p className="mt-2 text-center text-xs text-gray-500">
+                        No Attachments Found!
+                      </p>
+                    )}
                   </div>
                 </>
               )}
@@ -1046,10 +1115,11 @@ const NewBookingModal = ({
                   <h1 className="text-left font-semibold text-primary">
                     Services List
                   </h1>
+                  {!selectedUser && <div className="h-8" />}
                   {selectedUser && (
                     <button
                       onClick={() => setHistory(true)}
-                      className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
+                      className="rounded-md bg-primary px-4 py-2.5 text-xs text-white"
                     >
                       Booking History
                     </button>
@@ -1086,9 +1156,7 @@ const NewBookingModal = ({
                       >
                         <button
                           type="button"
-                          onClick={() =>
-                            removeSelectedService(idx)
-                          }
+                          onClick={() => removeSelectedService(idx)}
                         >
                           <IoClose className="h-5 w-5" />
                         </button>
@@ -1118,19 +1186,19 @@ const NewBookingModal = ({
                         <div className="col-span-1 flex w-full items-center justify-end">
                           {service?.qty
                             ? Math.round(
-                              parseFloat(
-                                service.total ||
-                                service.price_without_vat ||
-                                "0"
-                              ) * service!.qty
-                            )
-                            : Math.round(
-                              parseFloat(
-                                service.total ||
-                                service.price_without_vat ||
-                                "0"
+                                parseFloat(
+                                  service.total ||
+                                    service.price_without_vat ||
+                                    "0"
+                                ) * service!.qty
                               )
-                            )}
+                            : Math.round(
+                                parseFloat(
+                                  service.total ||
+                                    service.price_without_vat ||
+                                    "0"
+                                )
+                              )}
                         </div>
                         <div
                           onClick={() => handleEditService(service?.service_id)}
@@ -1144,10 +1212,12 @@ const NewBookingModal = ({
                       <div className="flex w-full items-center justify-end space-x-40 pr-5 text-xs text-gray-500">
                         <p>Subtotal</p>
                         <p>
-                          {Math.round(calculateBookingCost(selectedServices!).subtotal)}
+                          {Math.round(
+                            calculateBookingCost(selectedServices!).subtotal
+                          )}
                         </p>
                       </div>
-                      <div className="flex w-full items-center justify-end space-x-7 text-xs text-gray-500">
+                      <div className="flex w-full items-center justify-end space-x-[40px] text-xs text-gray-500">
                         <p>Discount</p>
                         <div className="flex h-[38px] items-center justify-center space-x-2.5 overflow-hidden rounded-lg border p-2.5">
                           <div
@@ -1190,13 +1260,13 @@ const NewBookingModal = ({
                           />
                         </div>
                       </div>
-                      <div className="flex w-full items-center justify-end space-x-36 pr-2.5 text-xs text-gray-500">
+                      <div className="flex w-full items-center justify-end space-x-[160px] pr-2.5 text-xs text-gray-500">
                         <p>VAT</p>
                         <p>
                           {calculateBookingCost(selectedServices!).total_vat}
                         </p>
                       </div>
-                      <div className="w-72 place-self-end border border-gray-300" />
+                      <div className="w-72 place-self-end border border-[#EFEFEF]" />
                       <div className="flex w-full items-center justify-end space-x-[105px] pr-2.5 font-bold text-gray-500">
                         <p>Grand Total</p>
                         <p>
@@ -1219,7 +1289,7 @@ const NewBookingModal = ({
                       value={deliveryNotes}
                       placeholder="Notes..."
                       onChange={(e) => setDeliveryNotes(e.target.value)}
-                      className="w-full rounded-lg bg-gray-100 p-3 text-xs placeholder:italic text-grey100"
+                      className="w-full rounded-lg bg-gray-100 p-3 text-xs text-grey100 placeholder:italic"
                     />
                   </div>
                   <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
@@ -1255,7 +1325,9 @@ const NewBookingModal = ({
                         toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
                         listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
                         listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                        icon={<RiArrowDownSLine className="h-5 w-5 text-grey100" />}
+                        icon={
+                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                        }
                         isSearch={false}
                       />
                     </div>
@@ -1270,7 +1342,9 @@ const NewBookingModal = ({
                         toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
                         listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
                         listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                        icon={<RiArrowDownSLine className="h-5 w-5 text-grey100" />}
+                        icon={
+                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                        }
                         isSearch={false}
                       />
                       <Combobox
@@ -1283,7 +1357,9 @@ const NewBookingModal = ({
                         toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
                         listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
                         listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                        icon={<RiArrowDownSLine className="h-5 w-5 text-grey100" />}
+                        icon={
+                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                        }
                         isSearch={false}
                       />
                     </div>
@@ -1301,7 +1377,9 @@ const NewBookingModal = ({
                         toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
                         listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
                         listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                        icon={<RiArrowDownSLine className="h-5 w-5 text-grey100" />}
+                        icon={
+                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                        }
                         isSearch={false}
                       />
                       <Combobox
@@ -1317,7 +1395,9 @@ const NewBookingModal = ({
                         toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
                         listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
                         listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                        icon={<RiArrowDownSLine className="h-5 w-5 text-grey100" />}
+                        icon={
+                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                        }
                         isSearch={false}
                         disabled={!company?.id}
                       />
@@ -1365,7 +1445,7 @@ const NewBookingModal = ({
                       <div
                         onClick={() => setPayment("cod")}
                         className={cn(
-                          "col-span-1 w-full cursor-pointer rounded-md border bg-gray-100 p-2.5 shadow-md",
+                          "col-span-1 w-full cursor-pointer rounded-md border bg-gray-100 p-2.5",
                           {
                             "border-primary text-primary": payment === "cod",
                           }
@@ -1378,7 +1458,7 @@ const NewBookingModal = ({
                       <div
                         onClick={() => setPayment("cdd")}
                         className={cn(
-                          "col-span-1 w-full cursor-pointer rounded-md border bg-gray-100 p-2.5 shadow-md",
+                          "col-span-1 w-full cursor-pointer rounded-md border bg-gray-100 p-2.5",
                           {
                             "border-primary text-primary": payment === "cdd",
                           }

@@ -77,7 +77,7 @@ const ServiceAutoComplete = ({
       <div className="w-full relative">
         <div
           className={cn(
-            "no-scrollbar absolute mt-1 left-0 z-10 flex max-h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
+            "no-scrollbar absolute mt-1 left-0 z-10 shadow-sm flex max-h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
             {
               hidden: query === "",
               "items-center justify-center": results?.length === 0 || isLoading,
@@ -87,17 +87,19 @@ const ServiceAutoComplete = ({
           {results?.length === 0 || isLoading ? (
             <LuLoader2 className="h-10 w-10 animate-spin text-secondary" />
           ) : (
-            results?.map((result) => (
+            results?.map((result, index) => (
               <div
                 key={result.service_id}
                 onClick={() => {
                   handleServiceSelection(result);
                 }}
                 className={cn(
-                  "flex w-full cursor-pointer flex-col items-center justify-center p-1.5 text-gray-500 hover:text-white",
+                  "flex w-full cursor-pointer flex-col items-center justify-center py-2.5 px-[18px] text-gray-500 hover:text-white border-b border-grey50 ",
                   {
                     "hover:bg-[#31B86A]": result.active === "1",
                     "hover:bg-[#E94235]": result.active === "0",
+                    "pb-3": index === results?.length - 1,
+                    "pt-3": index === 0,
                   }
                 )}
               >
@@ -105,9 +107,11 @@ const ServiceAutoComplete = ({
                   <p className="w-full text-left text-sm">
                     {result.category_code}:{result.service_name}
                   </p>
-                  <p className="text-right text-sm">AED&nbsp;{result.price_with_vat}</p>
                 </div>
-                <p className="w-full text-[10px]">CD - 105</p>
+                <div className="flex w-full items-center justify-center">
+                  <p className="w-full text-[10px]">{result?.code}</p>
+                  <p className="w-full text-[10px] flex justify-end px-1">AED&nbsp;{Math.floor(Number(result?.price_without_vat))}</p>
+                </div>
               </div>
             ))
           )}

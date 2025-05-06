@@ -6,14 +6,22 @@ import Combobox from "../components/ui/Combobox";
 import { TiArrowSortedDown } from "react-icons/ti";
 import BranchDropdown from "../components/services/dropdowns/Branch";
 import CategoryDropdown from "../components/booking/dropdowns/Category";
-import { useFetchBookingStatusesQuery, useFetchBranchesQuery, useFetchUsersByRolesQuery } from "../store/services/filters";
+import {
+  useFetchBookingStatusesQuery,
+  useFetchBranchesQuery,
+  useFetchUsersByRolesQuery,
+} from "../store/services/filters";
 import { useFetchAllCategoriesQuery } from "../store/services/categories";
 import { useFetchCompaniesQuery } from "../store/services/company";
 import { useFetchBusinessesQuery } from "../store/services/service";
 import { useFetchBookingSourcesQuery } from "../store/services/booking";
-import { paymentStatuses } from "../utils/constants";
+import { leadChannels, paymentStatuses } from "../utils/constants";
 import { setDate } from "../store/slices/app";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import CustomDatePicker from "../components/ui/CustomDatePicker";
+import dayjs from "dayjs";
+import { RootState } from "../store";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const Bookings = () => {
   const [add, setAdd] = useState(false);
@@ -24,12 +32,19 @@ const Bookings = () => {
   const [filterArray, setFilterArray] = useState<FilterType[]>([]);
   const [profesionsData, setProfesionsData] = useState<ListOptionProps[]>([]);
   const [source, setSource] = useState<ListOptionProps | null>(null);
+  const [channel, setChannel] = useState<ListOptionProps | null>(null);
   const [profession, setProfession] = useState<ListOptionProps | null>(null);
+  const [platform, setPlatform] = useState<ListOptionProps | null>(null);
   const { data: professions } = useFetchUsersByRolesQuery({});
   const { data: bookingSourcesData } = useFetchBookingSourcesQuery({});
-  const [bookingStatus, setBookingStatus] = useState<ListOptionProps | null>(null);
-  const [paymentStatus, setPaymentStatus] = useState<ListOptionProps | null>(null);
-  const dispatch = useDispatch()
+  const [bookingStatus, setBookingStatus] = useState<ListOptionProps | null>(
+    null
+  );
+  const [paymentStatus, setPaymentStatus] = useState<ListOptionProps | null>(
+    null
+  );
+  const { date } = useSelector((state: RootState) => state.app);
+  const dispatch = useDispatch();
 
   const lastFilter = filterArray[filterArray.length - 1]?.name;
 
@@ -44,30 +59,25 @@ const Bookings = () => {
   const branchQueryParams = shouldFetchBranches ? filterArray : null;
   const categoryQueryParams = shouldFetchCategories ? filterArray : null;
 
-  const { data: branches } = useFetchBranchesQuery(
-    branchQueryParams,
+  const { data: branches } = useFetchBranchesQuery(branchQueryParams, {
+    skip: !shouldFetchBranches,
+    refetchOnMountOrArgChange: true,
+  });
+  const { data: categoriesData } = useFetchAllCategoriesQuery(
+    categoryQueryParams,
     {
-      skip: !shouldFetchBranches,
-      refetchOnMountOrArgChange: true
+      skip: !shouldFetchCategories,
+      refetchOnMountOrArgChange: true,
     }
   );
-  const {
-    data: categoriesData
-  } = useFetchAllCategoriesQuery(categoryQueryParams, {
-    skip: !shouldFetchCategories,
-    refetchOnMountOrArgChange: true
-  });
 
-  const { data: companiesData } =
-    useFetchCompaniesQuery(companyQueryParams, {
-      skip: !shouldFetchCompanies,
-      refetchOnMountOrArgChange: true
-    });
-  const {
-    data: businessData
-  } = useFetchBusinessesQuery(businessQueryParams, {
+  const { data: companiesData } = useFetchCompaniesQuery(companyQueryParams, {
+    skip: !shouldFetchCompanies,
+    refetchOnMountOrArgChange: true,
+  });
+  const { data: businessData } = useFetchBusinessesQuery(businessQueryParams, {
     skip: !shouldFetchBusinesses,
-    refetchOnMountOrArgChange: true
+    refetchOnMountOrArgChange: true,
   });
   const { data: bookingStatuses } = useFetchBookingStatusesQuery({});
 
@@ -92,7 +102,9 @@ const Bookings = () => {
       if (value?.id) {
         addFilter("business", String(value.id) + "-business");
       } else {
-        const temp: FilterType[] = filterArray.filter((item) => item.name !== "business");
+        const temp: FilterType[] = filterArray.filter(
+          (item) => item.name !== "business"
+        );
         setFilterArray(temp);
       }
     }
@@ -107,7 +119,9 @@ const Bookings = () => {
       if (value?.id) {
         addFilter("branch", String(value.id) + "-branch");
       } else {
-        const temp: FilterType[] = filterArray.filter((item) => item.name !== "branch");
+        const temp: FilterType[] = filterArray.filter(
+          (item) => item.name !== "branch"
+        );
         setFilterArray(temp);
       }
     }
@@ -122,7 +136,9 @@ const Bookings = () => {
       if (value?.id) {
         addFilter("company", String(value.id) + "-company");
       } else {
-        const temp: FilterType[] = filterArray.filter((item) => item.name !== "company");
+        const temp: FilterType[] = filterArray.filter(
+          (item) => item.name !== "company"
+        );
         setFilterArray(temp);
       }
     }
@@ -137,10 +153,32 @@ const Bookings = () => {
       if (value?.id) {
         addFilter("category", String(value.id) + "-category");
       } else {
-        const temp: FilterType[] = filterArray.filter((item) => item.name !== "category");
+        const temp: FilterType[] = filterArray.filter(
+          (item) => item.name !== "category"
+        );
         setFilterArray(temp);
       }
     }
+  };
+
+  const handleSetDate = (date: string | Date) => {
+    dispatch(setDate(date));
+  };
+
+  const incrementDate = (e: React.MouseEvent<SVGAElement>) => {
+    e.stopPropagation();
+    const newDate = dayjs(date || new Date())
+      .add(1, "day")
+      .toDate();
+    handleSetDate(newDate);
+  };
+
+  const decrementDate = (e: React.MouseEvent<SVGAElement>) => {
+    e.stopPropagation();
+    const newDate = dayjs(date || new Date())
+      .subtract(1, "day")
+      .toDate();
+    handleSetDate(newDate);
   };
 
   useEffect(() => {
@@ -152,75 +190,15 @@ const Bookings = () => {
     }
   }, [professions]);
 
-  useEffect(()=>{
+  useEffect(() => {
     return () => {
-      dispatch(setDate(null))
-    }
-  },[])
+      dispatch(setDate(null));
+    };
+  }, []);
   return (
     <div className="flex h-full w-full flex-col items-start justify-start">
       <NewBookingModal open={add} setOpen={setAdd} />
-      {/* <div className="grid w-full grid-cols-4 gap-2.5 xl:grid-cols-8">
-        <CategoryDropdown
-          value={category}
-          placeholder="Category"
-          setValue={setCategory}
-          searchInputPlaceholder="Search..."
-          searchInputClassName="p-1.5 text-xs"
-          icon={<TiArrowSortedDown className="size-5" />}
-          toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-          listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
-          listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-        />
-        <SourceDropdown
-          icon={<TiArrowSortedDown className="size-5" />}
-          toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-          listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
-        />
-        <RegionDropdown
-          icon={<TiArrowSortedDown className="size-5" />}
-          toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-          listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
-        />
-        <ProviderDropdown
-          provider={provider}
-          setProvider={setProvider}
-          icon={<TiArrowSortedDown className="size-5" />}
-          toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-          listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
-        />
-        <ProfessionalDropdown
-          icon={<TiArrowSortedDown className="size-5" />}
-          toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
-          listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
-        />
-        <BookingStatusDropdown
-          searchInputPlaceholder="Search..."
-          searchInputClassName="p-1.5 text-xs"
-          icon={<TiArrowSortedDown className="size-5" />}
-          toggleClassName={`w-full shadow-md py-3 rounded-lg text-xs bg-white ${sidebar ? "px-1" : "px-3"}`}
-          listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
-          listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-          sidebar={sidebar}
-        />
-        <PaymentStatusDropdown
-          searchInputPlaceholder="Search..."
-          searchInputClassName="p-1.5 text-xs"
-          icon={<TiArrowSortedDown className="size-5" />}
-          toggleClassName={`w-full shadow-md py-3 rounded-lg text-xs bg-white whitespace-nowrap ${sidebar ? "px-1" : "px-3"}`}
-          listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
-          listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-          sidebar={sidebar}
-        />
-        <button
-          type="button"
-          onClick={() => setAdd(true)}
-          className="col-span-1 flex w-full cursor-pointer items-center justify-center rounded-lg bg-primary text-center text-sm font-semibold text-white shadow-md"
-        >
-          New Booking
-        </button>
-      </div> */}
-      <div className="grid w-full grid-cols-5 gap-3 mb-3">
+      <div className="mb-3 grid w-full grid-cols-6 gap-3">
         <BusinessDropdown
           business={business}
           businesses={businessData}
@@ -234,10 +212,14 @@ const Bookings = () => {
           handleSelect={handleSelectCompanyFilter}
           placeholder="Company"
           mainClassName="w-full"
-          toggleClassName={`w-full shadow-md p-3 rounded-lg text-xs bg-white ${!provider?.id && 'text-gray-500'}`}
+          toggleClassName={`w-full p-3 rounded-lg text-xs bg-white ${!provider?.id && "text-gray-500"}`}
           listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
           listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-          icon={<div><TiArrowSortedDown className="size-5" /></div>}
+          icon={
+            <div>
+              <TiArrowSortedDown className="size-5" />
+            </div>
+          }
           searchInputPlaceholder="Search..."
           searchInputClassName="p-1.5 text-xs"
           isRemoveAllow={true}
@@ -256,8 +238,12 @@ const Bookings = () => {
           handleSelectCategoryFilter={handleSelectCategoryFilter}
           searchInputPlaceholder="Search..."
           searchInputClassName="p-1.5 text-xs"
-          icon={<div><TiArrowSortedDown className="size-5" /></div>}
-          toggleClassName={`w-full shadow-md p-3 rounded-lg text-xs bg-white ${!category?.id && 'text-gray-500'}`}
+          icon={
+            <div>
+              <TiArrowSortedDown className="size-5" />
+            </div>
+          }
+          toggleClassName={`w-full p-3 rounded-lg text-xs bg-white ${!category?.id && "text-gray-500"}`}
           listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
           listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
           isRemoveAllow={true}
@@ -268,26 +254,70 @@ const Bookings = () => {
           handleSelect={(value) => setSource(value)}
           placeholder="Source"
           mainClassName="w-full"
-          toggleClassName={`w-full shadow-md p-3 rounded-lg text-xs bg-white ${!source?.id && 'text-gray-500'}`}
+          toggleClassName={`w-full p-3 rounded-lg text-xs bg-white ${!source?.id && "text-gray-500"}`}
           listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
           listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-          icon={<div><TiArrowSortedDown className="size-5" /></div>}
+          icon={
+            <div>
+              <TiArrowSortedDown className="size-5" />
+            </div>
+          }
+          searchInputPlaceholder="Search..."
+          searchInputClassName="p-1.5 text-xs"
+          isRemoveAllow={true}
+        />
+        <Combobox
+          value={channel}
+          options={leadChannels}
+          handleSelect={(value) => setChannel(value)}
+          placeholder="Channel"
+          mainClassName="w-full"
+          toggleClassName={`w-full p-3 rounded-lg text-xs bg-white ${!channel?.id && "text-gray-500"}`}
+          listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
+          listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+          icon={
+            <div>
+              <TiArrowSortedDown className="size-5" />
+            </div>
+          }
           searchInputPlaceholder="Search..."
           searchInputClassName="p-1.5 text-xs"
           isRemoveAllow={true}
         />
       </div>
-      <div className="grid w-full grid-cols-5 gap-3">
+      <div className="grid w-full grid-cols-6 gap-3">
         <Combobox
           value={profession}
           options={profesionsData}
           handleSelect={(value) => setProfession(value)}
-          placeholder="Profession"
+          placeholder="Platforms"
           mainClassName="w-full"
-          toggleClassName={`w-full shadow-md p-3 rounded-lg text-xs bg-white ${!profession?.id && 'text-gray-500'}`}
+          toggleClassName={`w-full p-3 rounded-lg text-xs bg-white ${!profession?.id && "text-gray-500"}`}
           listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
           listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-          icon={<div><TiArrowSortedDown className="size-5" /></div>}
+          icon={
+            <div>
+              <TiArrowSortedDown className="size-5" />
+            </div>
+          }
+          searchInputPlaceholder="Search..."
+          searchInputClassName="p-1.5 text-xs"
+          isRemoveAllow={true}
+        />
+        <Combobox
+          value={platform}
+          options={profesionsData}
+          handleSelect={(value) => setPlatform(value)}
+          placeholder="Professional"
+          mainClassName="w-full"
+          toggleClassName={`w-full p-3 rounded-lg text-xs bg-white ${!platform?.id && "text-gray-500"}`}
+          listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
+          listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+          icon={
+            <div>
+              <TiArrowSortedDown className="size-5" />
+            </div>
+          }
           searchInputPlaceholder="Search..."
           searchInputClassName="p-1.5 text-xs"
           isRemoveAllow={true}
@@ -300,10 +330,14 @@ const Bookings = () => {
           handleSelect={(value) => setBookingStatus(value)}
           placeholder="Booking Status"
           mainClassName="w-full"
-          toggleClassName={`w-full shadow-md p-3 rounded-lg text-xs bg-white ${!bookingStatus?.id && 'text-gray-500'}`}
+          toggleClassName={`w-full p-3 rounded-lg text-xs bg-white ${!bookingStatus?.id && "text-gray-500"}`}
           listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
           listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-          icon={<div><TiArrowSortedDown className="size-5" /></div>}
+          icon={
+            <div>
+              <TiArrowSortedDown className="size-5" />
+            </div>
+          }
           searchInputPlaceholder="Search..."
           searchInputClassName="p-1.5 text-xs"
           isRemoveAllow={true}
@@ -314,14 +348,37 @@ const Bookings = () => {
           handleSelect={(value) => setPaymentStatus(value)}
           placeholder="Payment Status"
           mainClassName="w-full"
-          toggleClassName={`w-full shadow-md p-3 rounded-lg text-xs bg-white ${!paymentStatus?.id && 'text-gray-500'}`}
+          toggleClassName={`w-full p-3 rounded-lg text-xs bg-white ${!paymentStatus?.id && "text-gray-500"}`}
           listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
           listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-          icon={<div><TiArrowSortedDown className="size-5" /></div>}
+          icon={
+            <div>
+              <TiArrowSortedDown className="size-5" />
+            </div>
+          }
           searchInputPlaceholder="Search..."
           searchInputClassName="p-1.5 text-xs"
           isRemoveAllow={true}
         />
+        <div className="rounded-lg bg-white flex items-center justify-center text-sm text-gray-500">
+          <CustomDatePicker
+            date={date || new Date()}
+            setDate={handleSetDate}
+            toggleButton={
+              <div className="flex items-center justify-center gap-4">
+                <FaChevronLeft
+                  className="cursor-pointer"
+                  onClick={decrementDate}
+                />
+                <span>{dayjs(date || new Date()).format("DD MMM YYYY")}</span>
+                <FaChevronRight
+                  className="cursor-pointer"
+                  onClick={incrementDate}
+                />
+              </div>
+            }
+          />
+        </div>
         <button
           type="button"
           onClick={() => setAdd(true)}

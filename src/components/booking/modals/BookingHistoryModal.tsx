@@ -27,7 +27,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="h-[90%] w-full max-w-[70%]"
+      className="h-[90%] w-full max-w-[90%] lg:max-w-[80%] xl:max-w-[70%]"
     >
       <div className="w-full h-full items-center justify-center overflow-hidden rounded-lg">
         <div className="flex w-full items-center justify-between overflow-hidden rounded-t-lg bg-primary px-5 py-2.5 text-white">
@@ -86,8 +86,9 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
               </div>}
           </div>
         </div>
-        <div className="no-scrollbar h-full overflow-y-scroll mt-3 pb-40">
-          <table className="relative w-full min-w-full">
+        <div className="border-t border-[#E3E3E3] mt-6 w-[95%] mx-auto"/>
+        <div className="no-scrollbar flex justify-center h-full overflow-y-scroll pb-40 mt-2.5">
+          <table className="relative w-full lg:w-[95%]">
             <thead className="sticky top-0  text-left text-white bg-white">
               <tr className="h-12 text-primary">
                 <th className="px-5 text-xs font-medium">
@@ -141,14 +142,14 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
                 </th>
                 <th className="px-5 text-xs font-medium">
                   <div className="flex w-full items-center justify-center gap-2.5">
-                    <span className="flex-1 text-left font-bold">
+                    <span className="flex-1 text-left font-bold whitespace-nowrap">
                       Created By
                     </span>
                   </div>
                 </th>
               </tr>
             </thead>
-              <tbody>
+              <tbody className="border">
               {historyData?.data?.length ? historyData?.data?.map((history: HistoryType, idx: number) => (
                 <tr
                   key={idx}
@@ -169,7 +170,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
                   >
                     {history?.categories?.length ? history?.categories?.map((item, index) => (
                       <div key={index} className="flex w-full items-start justify-start mb-1">
-                        {item?.code ? <span className="flex-1 text-left text-xs">{item?.code}</span> : " -"}
+                        {item?.code ? <span className="flex-1 text-left text-xs whitespace-nowrap">{item?.code}</span> : " -"}
                         {item?.color_code && <div className={`size-4 rounded-full bg-[${item?.color_code}]`}></div>}
                       </div>
                     )) : 'N/A'}

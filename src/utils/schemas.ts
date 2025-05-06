@@ -104,12 +104,6 @@ export const familyMemberSchema = z
         message: "Allergy description is required.",
         code: 'custom'
       });
-    } else if (data.allergies === "no") {
-      ctx.addIssue({
-        path: ["allergiesDesc"],
-        message: "",
-        code: 'custom'
-      });
     }
 
     if (data.medications === "yes" && !data.medicationsDesc) {

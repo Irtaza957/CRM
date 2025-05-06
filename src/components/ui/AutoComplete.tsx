@@ -43,9 +43,9 @@ const AutoComplete = ({ handleSelectUser, setSelectedUser }: AutoCompleteProps) 
         <input
           type="text"
           value={query}
-          placeholder="971563302017"
+          placeholder="Search By Mobile No/Customer Name"
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full bg-transparent text-xs placeholder:italic placeholder:text-gray-500"
+          className="w-full bg-transparent px-3 text-xs placeholder:italic placeholder:text-gray-500"
         />
         <HiMagnifyingGlass className="h-5 w-5" />
       </div>
@@ -62,7 +62,7 @@ const AutoComplete = ({ handleSelectUser, setSelectedUser }: AutoCompleteProps) 
           {results?.length === 0 || isLoading ? (
             <LuLoader2 className="h-10 w-10 animate-spin text-secondary" />
           ) : (
-            results?.map((result) => (
+            results?.map((result, index) => (
               <div
                 key={result.customer_id}
                 onClick={() => {
@@ -70,14 +70,17 @@ const AutoComplete = ({ handleSelectUser, setSelectedUser }: AutoCompleteProps) 
                   setSelectedUser(result);
                   handleSelectUser()
                 }}
-                className="flex w-full cursor-pointer flex-col items-center justify-center p-1.5 hover:bg-gray-100"
+                className={cn(
+                  "flex w-full cursor-pointer flex-col items-center justify-center py-1.5 px-[18px] hover:bg-[#31B86A] group",
+                  {
+                    "pb-2.5": index === results?.length - 1,
+                    "pt-2.5": index === 0,
+                  }
+                )}
               >
-                <p className="w-full text-left text-sm font-semibold text-black">
-                  {result.firstname}&nbsp;{result.lastname}
-                </p>
-                <p className="w-full text-left text-xs text-gray-500">
-                  {result.phone}
-                </p>
+                <span className="w-full text-left text-[13px] text-grey100 group-hover:text-white">
+                  {result.firstname}&nbsp;{result.lastname}&nbsp;&nbsp;{result.phone}
+                </span>
               </div>
             ))
           )}

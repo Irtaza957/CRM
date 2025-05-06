@@ -84,7 +84,7 @@ const CustomDatePicker = ({
       {toggle && (
         <div
           className={cn(
-            "absolute right-0 top-[40px] z-[20] flex flex-col items-center justify-center gap-2.5 rounded-lg border bg-white p-2.5",
+            "absolute right-0 top-[35px] z-[20] flex flex-col items-center justify-center gap-2.5 rounded-lg border bg-white p-2.5",
             toggleClassName
           )}
         >

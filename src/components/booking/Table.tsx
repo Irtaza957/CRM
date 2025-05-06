@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { FaCheckCircle } from "react-icons/fa";
 import { IoMdCloseCircle } from "react-icons/io";
@@ -10,71 +10,34 @@ import Loader from "../ui/Loader";
 import { RootState } from "../../store";
 import Combobox from "../../components/ui/Combobox";
 import Edit from "../../assets/icons/colored/edit.svg";
-import { cn, groupAndCountItems } from "../../utils/helpers";
+import { cn } from "../../utils/helpers";
 import ReAssign from "../../assets/icons/colored/re-assign.svg";
 import { useFetchBookingsQuery } from "../../store/services/booking";
-import SmallUpDownArrow from "../../assets/icons/small-updown-arrow.svg";
+import SmallUpDownArrow from "../../assets/icons/updown-arrow.svg";
 import PhoneColored from "../../assets/icons/colored/colored-phone-square.svg";
 import ViewBookingModal from "../../components/booking/modals/ViewBookingModal";
 import WhatsappColored from "../../assets/icons/colored/colored-whatsapp-square.svg";
 import NewBookingModal from "./modals/NewBookingModal";
 
 const columns = [
-  {
-    id: 1,
-    name: "#",
-  },
-  {
-    id: 2,
-    name: "Category",
-  },
-  {
-    id: 3,
-    name: "Source",
-  },
-  {
-    id: 4,
-    name: "Channel",
-  },
-  {
-    id: 5,
-    name: "Customer",
-  },
-  {
-    id: 6,
-    name: "Location",
-  },
-  {
-    id: 7,
-    name: "Schedule",
-  },
-  {
-    id: 8,
-    name: "Amount",
-  },
-  {
-    id: 9,
-    name: "Team",
-  },
-  {
-    id: 10,
-    name: "Booking Status",
-  },
-  {
-    id: 11,
-    name: "Payment Status",
-  },
-  {
-    id: 12,
-    name: "Created By",
-  },
-  {
-    id: 13,
-    name: "Actions",
-  },
+  { id: 1, name: "Ref. #", key: "booking_id" },
+  { id: 3, name: "Customer", key: "customer" },
+  { id: 5, name: "Source", key: "source" },
+  { id: 7, name: "Schedule", key: "schedule_date" },
+  { id: 6, name: "Location", key: "location" },
+  { id: 8, name: "Amount", key: "total" },
+  { id: 9, name: "Team", key: "team" },
+  { id: 10, name: "Booking Status", key: "booking_status" },
+  { id: 11, name: "Payment Status", key: "payment_status" },
+  { id: 12, name: "Created By", key: "created_at" },
+  { id: 13, name: "Actions", key: "actions" },
 ];
 
 const Table = () => {
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  } | null>(null);
   const [id, setID] = useState("");
   const [page, setPage] = useState(1);
   const [update, setUpdate] = useState(false);
@@ -87,29 +50,81 @@ const Table = () => {
 
   const { date } = useSelector((state: RootState) => state.app);
   const { data, isLoading } = useFetchBookingsQuery(
-    dayjs(date || new Date()).format("YYYY-MM-DD"));
+    dayjs(date || new Date()).format("YYYY-MM-DD")
+  );
 
-  const handleEditBooking=(id: string)=>{
-    setOpen(true)
-    setSelectedBooking(id)
-  }
+  const handleEditBooking = (id: string) => {
+    setOpen(true);
+    setSelectedBooking(id);
+  };
+
+  const handleSort = (key: string) => {
+    setSortConfig((prev) => {
+      if (prev?.key === key) {
+        // Toggle direction
+        return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
+      }
+      return { key, direction: "asc" };
+    });
+  };
+
+  const sortedData = useMemo(() => {
+    if (!data) return [];
+    console.log(sortConfig, data, "sortConfigsortConfig");
+    if (!sortConfig) return data;
+
+    const sorted = [...data].sort((a: any, b: any) => {
+      const aValue =
+        sortConfig.key === "booking_status"
+          ? a[sortConfig.key]?.name
+          : a[sortConfig.key];
+      const bValue =
+        sortConfig.key === "booking_status"
+          ? b[sortConfig.key]?.name
+          : b[sortConfig.key];
+      console.log(aValue, bValue, "a, b");
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    return sorted;
+  }, [data, sortConfig]);
+
   return (
     <>
       <ViewBookingModal id={id} open={update} setOpen={setUpdate} />
-      <NewBookingModal selectedBooking={selectedBooking || ""} open={open} setOpen={setOpen} />
+      <NewBookingModal
+        selectedBooking={selectedBooking || ""}
+        open={open}
+        setOpen={setOpen}
+      />
       <div className="mt-3 h-[calc(100vh-385px)] w-full lg:h-[calc(100vh-275px)] xl:h-[calc(100vh-245px)]">
         <div className="h-full w-full overflow-hidden rounded-t-lg border">
-          <div className="no-scrollbar h-full overflow-y-scroll">
+          <div className="no-scrollbar h-full overflow-y-scroll border-t-4 border-t-primary">
             <table className="relative w-full min-w-full">
-              <thead className="sticky top-0 bg-primary text-left text-white shadow-md">
+              <thead className="sticky top-0 border border-b-[#D9D9D9] bg-grey text-left text-primary">
                 <tr className="h-12">
                   {columns.map((column, idx) => (
-                    <th key={idx} className="border-x px-3 text-xs font-medium">
+                    <th
+                      key={idx}
+                      className="cursor-pointer border-x px-3 text-xs font-medium"
+                      onClick={() => handleSort(column.key)}
+                    >
                       <div className="flex w-full items-center justify-center gap-2.5">
-                        <span className="flex-1 text-left font-bold">
+                        <span className="flex-1 whitespace-nowrap text-left font-bold">
                           {column.name}
                         </span>
-                        <img src={SmallUpDownArrow} alt="small-updown-arrow" />
+                        {![
+                          "actions",
+                          "team",
+                        ].includes(column.key) && (
+                          <img
+                            src={SmallUpDownArrow}
+                            alt="small-updown-arrow"
+                          />
+                        )}
                       </div>
                     </th>
                   ))}
@@ -122,7 +137,7 @@ const Table = () => {
                 </div>
               ) : (
                 <tbody>
-                  {data
+                  {sortedData
                     ?.slice(
                       page * parseInt(limit!.name) - parseInt(limit!.name),
                       page * parseInt(limit!.name)
@@ -145,9 +160,9 @@ const Table = () => {
                             setUpdate(true);
                           }}
                         >
-                          <span className="text-xs">{idx + 1}</span>
+                          <span className="text-xs">{booking.booking_id}</span>
                         </td>
-                        <td
+                        {/* <td
                           className="px-3"
                           onClick={() => {
                             setID(booking.booking_id);
@@ -170,7 +185,7 @@ const Table = () => {
                               </div>
                             ))}
                           </div>
-                        </td>
+                        </td> */}
                         <td
                           className="px-3"
                           onClick={() => {
@@ -178,9 +193,26 @@ const Table = () => {
                             setUpdate(true);
                           }}
                         >
-                          <p className="w-full text-xs">{booking.source}</p>
+                          <div className="flex flex-col items-center justify-center min-w-[100px]">
+                            <p className="w-full overflow-hidden truncate text-xs">
+                              {booking.customer}
+                            </p>
+                            <p className="w-full text-xs">
+                              {booking.relationship}
+                            </p>
+                          </div>
                         </td>
                         <td
+                          className="px-3 text-xs"
+                          onClick={() => {
+                            setID(booking.booking_id);
+                            setUpdate(true);
+                          }}
+                        >
+                          <p className="w-full">{booking.source}</p>
+                          {!booking.channel ? "N/A" : booking.channel}
+                        </td>
+                        {/* <td
                           className="px-3"
                           onClick={() => {
                             setID(booking.booking_id);
@@ -190,7 +222,7 @@ const Table = () => {
                           <p className="w-full text-xs text-primary">
                             {!booking.channel ? "N/A" : booking.channel}
                           </p>
-                        </td>
+                        </td> */}
                         <td
                           className="px-3"
                           onClick={() => {
@@ -200,10 +232,10 @@ const Table = () => {
                         >
                           <div className="flex flex-col items-center justify-center">
                             <p className="w-full overflow-hidden truncate text-xs">
-                              {booking.customer}
+                              {dayjs(booking.schedule_date).format("DD/MM/YY")}
                             </p>
-                            <p className="w-full text-xs">
-                              {booking.relationship}
+                            <p className="w-full whitespace-nowrap text-xs">
+                              {booking.schedule_slot}
                             </p>
                           </div>
                         </td>
@@ -225,24 +257,6 @@ const Table = () => {
                             setUpdate(true);
                           }}
                         >
-                          <div className="flex flex-col items-center justify-center">
-                            <p className="w-full overflow-hidden truncate text-xs">
-                              {dayjs(booking.schedule_date).format(
-                                "DD MMM YYYY"
-                              )}
-                            </p>
-                            <p className="w-full text-xs whitespace-nowrap">
-                              {booking.schedule_slot}
-                            </p>
-                          </div>
-                        </td>
-                        <td
-                          className="px-3"
-                          onClick={() => {
-                            setID(booking.booking_id);
-                            setUpdate(true);
-                          }}
-                        >
                           <span className="w-full overflow-hidden truncate text-xs">
                             AED {booking.total}
                           </span>
@@ -254,25 +268,29 @@ const Table = () => {
                             setUpdate(true);
                           }}
                         >
-                          <div className="flex flex-col items-center justify-center">
-                            {booking.consultation_team.map((team, idx) => (
-                              <div
-                                key={idx}
-                                className="flex w-full items-center gap-1 text-left text-xs"
-                              >
-                                {team.is_accepted ? (
-                                  <FaCheckCircle className="text-green-500" />
-                                ) : team.rejected_at ? (
-                                  <IoMdCloseCircle className="text-red-500" />
-                                ) : (
-                                  <RiErrorWarningFill className="text-yellow-500" />
-                                )}
-                                &nbsp;
-                                <span className="flex-1 overflow-hidden truncate">
-                                  {team.name}
-                                </span>
-                              </div>
-                            ))}
+                          <div className="flex flex-col items-center justify-center gap-0.5">
+                            {booking.consultation_team?.length ? (
+                              booking.consultation_team.map((team, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex w-full items-center gap-1 text-left text-xs"
+                                >
+                                  {team.is_accepted ? (
+                                    <FaCheckCircle className="text-green-500" />
+                                  ) : team.rejected_at ? (
+                                    <IoMdCloseCircle className="text-red-500" />
+                                  ) : (
+                                    <RiErrorWarningFill className="text-yellow-500" />
+                                  )}
+                                  &nbsp;
+                                  <span className="flex-1 overflow-hidden truncate">
+                                    {team.name}
+                                  </span>
+                                </div>
+                              ))
+                            ) : (
+                              <p className="text-xs">N/A</p>
+                            )}
                           </div>
                         </td>
                         <td
@@ -305,7 +323,8 @@ const Table = () => {
                                 "bg-green-500":
                                   booking.payment_status === "Completed",
                                 "bg-red-500":
-                                  booking.payment_status === "Cancelled",
+                                  booking.payment_status === "Cancelled" ||
+                                  booking.payment_status === "FAILED",
                                 "bg-yellow-500":
                                   booking.payment_status === "Pending",
                               }
@@ -326,9 +345,10 @@ const Table = () => {
                               {booking.created_by}
                             </p>
                             <p className="w-full overflow-hidden truncate text-xs">
-                              {dayjs(booking.created_at).format(
-                                "DD MMM YYYY - HH:mm A"
-                              )}
+                              {dayjs(booking.created_at).format("DD/MM/YY")}
+                            </p>
+                            <p className="w-full overflow-hidden truncate text-xs">
+                              {dayjs(booking.created_at).format("HH:mm")}
                             </p>
                           </div>
                         </td>
@@ -353,7 +373,9 @@ const Table = () => {
                               src={Edit}
                               alt="icon"
                               className="size-[18px]"
-                              onClick={()=>handleEditBooking(booking?.booking_id)}
+                              onClick={() =>
+                                handleEditBooking(booking?.booking_id)
+                              }
                             />
                           </div>
                         </td>
@@ -399,7 +421,7 @@ const Table = () => {
                         <div
                           onClick={() => setPage(1)}
                           className={cn(
-                            "flex size-[31px] cursor-pointer items-center justify-center rounded-md bg-gray-100 text-xs text-black shadow-md",
+                            "flex size-[31px] cursor-pointer items-center justify-center rounded-md bg-gray-100 text-xs text-black",
                             {
                               "bg-primary text-white": page === 1,
                             }
