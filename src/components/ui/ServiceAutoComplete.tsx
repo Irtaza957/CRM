@@ -1,25 +1,27 @@
 import { cn } from "../../utils/helpers";
 import { useFetchServiceListMutation } from "../../store/services/service";
 
-import debounce from "lodash.debounce";
 import { LuLoader2 } from "react-icons/lu";
 import { HiMagnifyingGlass } from "react-icons/hi2";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import CustomToast from "./CustomToast";
 import { toast } from "sonner";
 
 interface AutoCompleteProps {
   selectedServices: ServiceProps[] | null;
   isCustomerSelected?: boolean;
+  open?: boolean;
   setSelectedServices: (arg0: ServiceProps[]) => void;
 }
 
 const ServiceAutoComplete = ({
   selectedServices,
   isCustomerSelected,
+  open,
   setSelectedServices,
 }: AutoCompleteProps) => {
   const [query, setQuery] = useState("");
+  const [services, setServices] = useState<ServiceProps[] | null>(null);
   const [getServices, { isLoading }] = useFetchServiceListMutation();
   const [results, setResults] = useState<ServiceProps[] | undefined>([]);
 
@@ -33,34 +35,40 @@ const ServiceAutoComplete = ({
           message="Please Select Customer!"
         />
       ));
-      return
+      return;
     }
     setQuery("");
-    const updatedServices = [...(selectedServices || []), { ...service, qty: 1 }];
+    const updatedServices = [
+      ...(selectedServices || []),
+      { ...service, qty: 1 },
+    ];
     setSelectedServices(updatedServices);
   };
 
-  const debouncedFetchData = useCallback(
-    debounce(async () => {
-      try {
-        const data = await getServices({});
-        const filtered = data?.data?.filter((item) =>
-          item.service_name.toLowerCase().includes(query.toLowerCase())
-        );
-        setResults(filtered);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    }, 1000),
-    [query]
-  );
+  useEffect(() => {
+    if (!query) {
+      setResults([]);
+      return;
+    }
+
+    const lowerQuery = query.toLowerCase();
+
+    const filtered = services?.filter(
+      (item) =>
+        item.service_name.toLowerCase().includes(lowerQuery) ||
+        item?.category_code?.toLowerCase().includes(lowerQuery)
+    );
+
+    setResults(filtered);
+  }, [query, services]);
 
   useEffect(() => {
-    debouncedFetchData();
-    return () => {
-      debouncedFetchData.cancel();
-    };
-  }, [query, debouncedFetchData]);
+    if (open) {
+      getServices({}).then((res) => {
+        setServices(res?.data || []);
+      });
+    }
+  }, [open]);
 
   return (
     <div className="relative flex w-full flex-col items-center justify-center">
@@ -74,18 +82,22 @@ const ServiceAutoComplete = ({
         />
         <HiMagnifyingGlass className="size-5" />
       </div>
-      <div className="w-full relative">
+      <div className="relative w-full">
         <div
           className={cn(
-            "no-scrollbar absolute mt-1 left-0 z-10 shadow-sm flex max-h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white",
+            "no-scrollbar absolute left-0 z-10 mt-1 flex max-h-[300px] w-full flex-col items-start justify-start overflow-auto rounded-lg border bg-white text-white shadow-sm",
             {
               hidden: query === "",
               "items-center justify-center": results?.length === 0 || isLoading,
             }
           )}
         >
-          {results?.length === 0 || isLoading ? (
+          {isLoading ? (
             <LuLoader2 className="h-10 w-10 animate-spin text-secondary" />
+          ) : results?.length === 0 ? (
+            <p className="text-center text-gray-500 text-xs p-2">
+              No Results Found!
+            </p>
           ) : (
             results?.map((result, index) => (
               <div
@@ -94,7 +106,7 @@ const ServiceAutoComplete = ({
                   handleServiceSelection(result);
                 }}
                 className={cn(
-                  "flex w-full cursor-pointer flex-col items-center justify-center py-2.5 px-[18px] text-gray-500 hover:text-white border-b border-grey50 ",
+                  "flex w-full cursor-pointer flex-col items-center justify-center border-b border-grey50 px-[18px] py-2.5 text-gray-500 hover:text-white",
                   {
                     "hover:bg-[#31B86A]": result.active === "1",
                     "hover:bg-[#E94235]": result.active === "0",
@@ -110,7 +122,9 @@ const ServiceAutoComplete = ({
                 </div>
                 <div className="flex w-full items-center justify-center">
                   <p className="w-full text-[10px]">{result?.code}</p>
-                  <p className="w-full text-[10px] flex justify-end px-1">AED&nbsp;{Math.floor(Number(result?.price_without_vat))}</p>
+                  <p className="flex w-full justify-end px-1 text-[10px]">
+                    AED&nbsp;{Math.floor(Number(result?.price_without_vat))}
+                  </p>
                 </div>
               </div>
             ))

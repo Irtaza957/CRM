@@ -14,8 +14,12 @@ import {
 import { useFetchAllCategoriesQuery } from "../store/services/categories";
 import { useFetchCompaniesQuery } from "../store/services/company";
 import { useFetchBusinessesQuery } from "../store/services/service";
-import { useFetchBookingSourcesQuery } from "../store/services/booking";
-import { leadChannels, paymentStatuses } from "../utils/constants";
+import {
+  useFetchBookingChannelsQuery,
+  useFetchBookingPlatformsQuery,
+  useFetchBookingSourcesQuery,
+} from "../store/services/booking";
+import { paymentStatuses } from "../utils/constants";
 import { setDate } from "../store/slices/app";
 import { useDispatch, useSelector } from "react-redux";
 import CustomDatePicker from "../components/ui/CustomDatePicker";
@@ -58,6 +62,9 @@ const Bookings = () => {
   const companyQueryParams = shouldFetchCompanies ? filterArray : null;
   const branchQueryParams = shouldFetchBranches ? filterArray : null;
   const categoryQueryParams = shouldFetchCategories ? filterArray : null;
+
+  const { data: bookingChannelsData } = useFetchBookingChannelsQuery({});
+  const { data: bookingPlatformsData } = useFetchBookingPlatformsQuery({});
 
   const { data: branches } = useFetchBranchesQuery(branchQueryParams, {
     skip: !shouldFetchBranches,
@@ -249,6 +256,25 @@ const Bookings = () => {
           isRemoveAllow={true}
         />
         <Combobox
+          value={platform}
+          options={bookingPlatformsData}
+          handleSelect={(value) => setPlatform(value)}
+          placeholder="Platforms"
+          mainClassName="w-full"
+          toggleClassName={`w-full p-3 rounded-lg text-xs bg-white ${!platform?.id && "text-gray-500"}`}
+          listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
+          listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+          icon={
+            <div>
+              <TiArrowSortedDown className="size-5" />
+            </div>
+          }
+          searchInputPlaceholder="Search..."
+          searchInputClassName="p-1.5 text-xs"
+          isRemoveAllow={true}
+        />
+
+        <Combobox
           value={source}
           options={bookingSourcesData}
           handleSelect={(value) => setSource(value)}
@@ -266,9 +292,11 @@ const Bookings = () => {
           searchInputClassName="p-1.5 text-xs"
           isRemoveAllow={true}
         />
+      </div>
+      <div className="grid w-full grid-cols-6 gap-3">
         <Combobox
           value={channel}
-          options={leadChannels}
+          options={bookingChannelsData}
           handleSelect={(value) => setChannel(value)}
           placeholder="Channel"
           mainClassName="w-full"
@@ -284,13 +312,12 @@ const Bookings = () => {
           searchInputClassName="p-1.5 text-xs"
           isRemoveAllow={true}
         />
-      </div>
-      <div className="grid w-full grid-cols-6 gap-3">
+
         <Combobox
           value={profession}
           options={profesionsData}
           handleSelect={(value) => setProfession(value)}
-          placeholder="Platforms"
+          placeholder="Professional"
           mainClassName="w-full"
           toggleClassName={`w-full p-3 rounded-lg text-xs bg-white ${!profession?.id && "text-gray-500"}`}
           listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
@@ -304,24 +331,7 @@ const Bookings = () => {
           searchInputClassName="p-1.5 text-xs"
           isRemoveAllow={true}
         />
-        <Combobox
-          value={platform}
-          options={profesionsData}
-          handleSelect={(value) => setPlatform(value)}
-          placeholder="Professional"
-          mainClassName="w-full"
-          toggleClassName={`w-full p-3 rounded-lg text-xs bg-white ${!platform?.id && "text-gray-500"}`}
-          listClassName="w-full top-[45px] max-h-52 border rounded-lg z-20 bg-white"
-          listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-          icon={
-            <div>
-              <TiArrowSortedDown className="size-5" />
-            </div>
-          }
-          searchInputPlaceholder="Search..."
-          searchInputClassName="p-1.5 text-xs"
-          isRemoveAllow={true}
-        />
+
         <Combobox
           value={bookingStatus}
           options={bookingStatuses?.map((item) => {
@@ -360,7 +370,7 @@ const Bookings = () => {
           searchInputClassName="p-1.5 text-xs"
           isRemoveAllow={true}
         />
-        <div className="rounded-lg bg-white flex items-center justify-center text-sm text-gray-500">
+        <div className="flex items-center justify-center rounded-lg bg-white text-sm text-gray-500">
           <CustomDatePicker
             date={date || new Date()}
             setDate={handleSetDate}

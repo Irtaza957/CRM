@@ -1130,6 +1130,7 @@ const NewBookingModal = ({
                     selectedServices={selectedServices}
                     setSelectedServices={setSelectedServices}
                     isCustomerSelected={!!selectedUser?.customer_id}
+                    open={open}
                   />
                 </div>
                 {selectedServices?.length ? (

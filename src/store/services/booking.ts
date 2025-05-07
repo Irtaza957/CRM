@@ -246,6 +246,26 @@ export const bookingApi = api.injectEndpoints({
         return formatted;
       },
     }),
+    fetchBookingPlatforms: build.query({
+      query: () => ({
+        url: `/booking/platforms`,
+        method: "GET",
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: {platform_id: string, platform: string}[];
+      }) => {
+        const formatted = response.data.map((item) => {
+          return {
+            id: item.platform_id,
+            name: item.platform,
+          };
+        });
+
+        return formatted;
+      },
+    }),
   }),
 });
 
@@ -271,4 +291,5 @@ export const {
   useFetchAreasQuery,
   useFetchBookingSourcesQuery,
   useFetchBookingChannelsQuery,
+  useFetchBookingPlatformsQuery,
 } = bookingApi;

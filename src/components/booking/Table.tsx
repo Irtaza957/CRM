@@ -439,7 +439,7 @@ const Table = () => {
                         key={pageNumber}
                         onClick={() => setPage(pageNumber)}
                         className={cn(
-                          "flex size-[31px] cursor-pointer items-center justify-center rounded-md bg-gray-100 text-xs text-black shadow-md",
+                          "flex size-[31px] cursor-pointer items-center justify-center rounded-md bg-gray-100 text-xs text-black",
                           {
                             "bg-primary text-white": page === pageNumber,
                           }
@@ -456,7 +456,7 @@ const Table = () => {
                         <div
                           onClick={() => setPage(totalPages)}
                           className={cn(
-                            "flex size-[31px] cursor-pointer items-center justify-center rounded-md bg-gray-100 text-xs text-black shadow-md",
+                            "flex size-[31px] cursor-pointer items-center justify-center rounded-md bg-gray-100 text-xs text-black",
                             {
                               "bg-primary text-white": page === totalPages,
                             }
