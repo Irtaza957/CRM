@@ -66,6 +66,8 @@ const AddCustomerModal = ({
     mode: "all",
   });
 
+  console.log(errors, 'errorserrorserrors')
+
   
   const isAllergy = watch("is_allergy");
   const isMedication = watch("is_medication");
@@ -401,7 +403,7 @@ const AddCustomerModal = ({
                 name="email"
                 label="Email"
                 placeholder="Email"
-                type="email"
+                type="text"
                 register={register}
                 errorMsg={errors?.email?.message}
               />

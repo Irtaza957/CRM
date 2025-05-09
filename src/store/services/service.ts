@@ -29,8 +29,8 @@ export const serviceApi = api.injectEndpoints({
       }) => response.data,
     }),
     fetchServiceList: build.mutation({
-      query: () => ({
-        url: "/services",
+      query: ({keyword}) => ({
+        url: `/services${keyword ? `?keyword=${keyword}` : ""}`,
         method: "GET",
       }),
       transformResponse: (response: {

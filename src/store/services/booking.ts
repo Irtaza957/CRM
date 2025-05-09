@@ -4,9 +4,36 @@ import { api } from "./api";
 export const bookingApi = api.injectEndpoints({
   endpoints: (build) => ({
     fetchBookings: build.query({
-      query: (date) => ({
-        url: `/booking?date=${date}`,
+      query: ({
+        date,
+        business_id,
+        company_id,
+        branch_id,
+        category_id,
+        platform_id,
+        channel_id,
+        source_id,
+        agent_id,
+        booking_status,
+        payment_status,
+        page, 
+      }) => ({
+        url: `/booking`,
         method: "GET",
+        params: {
+          date,
+          business_id,
+          company_id,
+          branch_id,
+          category_id,
+          platform_id,
+          channel_id,
+          source_id,
+          agent_id,
+          booking_status,
+          payment_status,
+          page,
+        },
       }),
       transformResponse: (response: {
         success: number;
@@ -214,7 +241,7 @@ export const bookingApi = api.injectEndpoints({
       transformResponse: (response: {
         success: number;
         error: string;
-        data: {source_id: string, source: string}[];
+        data: { source_id: string; source: string }[];
       }) => {
         const formatted = response.data.map((item) => {
           return {
@@ -234,7 +261,7 @@ export const bookingApi = api.injectEndpoints({
       transformResponse: (response: {
         success: number;
         error: string;
-        data: {channel_id: string, channel: string}[];
+        data: { channel_id: string; channel: string }[];
       }) => {
         const formatted = response.data.map((item) => {
           return {
@@ -254,7 +281,7 @@ export const bookingApi = api.injectEndpoints({
       transformResponse: (response: {
         success: number;
         error: string;
-        data: {platform_id: string, platform: string}[];
+        data: { platform_id: string; platform: string }[];
       }) => {
         const formatted = response.data.map((item) => {
           return {
@@ -262,7 +289,28 @@ export const bookingApi = api.injectEndpoints({
             name: item.platform,
           };
         });
-
+        return formatted;
+      },
+    }),
+    fetchBookingPartners: build.query({
+      query: (company_id: string) => ({
+        url: `/companies/partners`,
+        method: "GET",
+        params: {
+          company_id,
+        },
+      }),
+      transformResponse: (response: {
+        success: number;
+        error: string;
+        data: { partner_id: string; name: string }[];
+      }) => {
+        const formatted = response.data.map((item) => {
+          return {
+            id: item.partner_id,
+            name: item.name,
+          };
+        });
         return formatted;
       },
     }),
@@ -292,4 +340,5 @@ export const {
   useFetchBookingSourcesQuery,
   useFetchBookingChannelsQuery,
   useFetchBookingPlatformsQuery,
+  useFetchBookingPartnersQuery,
 } = bookingApi;

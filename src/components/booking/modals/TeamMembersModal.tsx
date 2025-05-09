@@ -16,9 +16,10 @@ interface TeamMembersModal {
     members?: Team[];
     showMembers?: boolean;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    refetch?: () => void;
 }
 
-const TeamMembersModal = ({ open, bookingId, members, showMembers, setOpen }: TeamMembersModal) => {
+const TeamMembersModal = ({ open, bookingId, members, showMembers, setOpen, refetch }: TeamMembersModal) => {
     const [dropdownsData, setDropdownsData] = useState({
         doctors: [],
         drivers: [],
@@ -111,6 +112,7 @@ const TeamMembersModal = ({ open, bookingId, members, showMembers, setOpen }: Te
                         />
                     ));
                     await fetchBookingDetails(bookingId);
+                    refetch && refetch()
                     closeModal()
                 }
             }

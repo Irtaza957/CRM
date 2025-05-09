@@ -69,6 +69,7 @@ declare type CustomInputProps = {
   errorMsg?: string | FieldError | Merge<FieldError, FieldErrorsImpl<any>>;
   disabled?: boolean;
   isRequired?: boolean;
+  isValidateEmail?: boolean;
 };
 
 declare type FormDataProps = {
@@ -226,7 +227,15 @@ declare type BookingDetailProps = {
     last_updated: string;
   };
   booking_source_id: string;
+  booking_channel_id: string;
+  booking_platform_id: string;
   booking_source: string;
+  booking_channel: string;
+  booking_platform: string;
+  company_id: string;
+  company: string;
+  business_id: string;
+  business: string;
   partner_id: string;
   partner: string;
   branch_id: string;

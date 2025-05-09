@@ -15,6 +15,7 @@ import {
   useDeleteAttachmentMutation,
   useFetchBookingSourcesQuery,
   useFetchBookingChannelsQuery,
+  useFetchBookingPartnersQuery,
 } from "../../../store/services/booking";
 import {
   useFetchCustomerFamilyMutation,
@@ -65,6 +66,8 @@ import {
 import DeleteModal from "./DeleteModal";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { useFetchCompaniesQuery } from "../../../store/services/company";
+import { useFetchBookingPlatformsQuery } from "../../../store/services/booking";
+import { useFetchBusinessesQuery } from "../../../store/services/service";
 
 interface NewBookingModal {
   selectedBooking?: string | null;
@@ -155,7 +158,10 @@ const NewBookingModal = ({
     null
   );
   const [source, setSource] = useState<ListOptionProps | null>(null);
+  const [platform, setPlatform] = useState<ListOptionProps | null>(null);
   const [channel, setChannel] = useState<ListOptionProps | null>(null);
+  const [partner, setPartner] = useState<ListOptionProps | null>(null);
+  const [business, setBusiness] = useState<ListOptionProps | null>(null);
   const [company, setCompany] = useState<ListOptionProps | null>(null);
   const [branch, setBranch] = useState<ListOptionProps | null>(null);
   const [scheduleDate, setScheduleDate] = useState<Date | string>(new Date());
@@ -172,7 +178,11 @@ const NewBookingModal = ({
   const [addresses, setAddresses] = useState<AddressProps[] | null>([]);
   // const [category, setCategory] = useState<ListOptionProps | null>(null);
   const { data, refetch } = useFetchBookingsQuery(
-    dayjs(date || new Date()).format("YYYY-MM-DD")
+    { date: dayjs(date || new Date()).format("YYYY-MM-DD") },
+    {
+      skip: !open,
+      refetchOnMountOrArgChange: true,
+    }
   );
   const [profession, setProfession] = useState<ListOptionProps | null>(null);
   const [createBooking, { isLoading: creating }] = useCreateBookingMutation();
@@ -190,7 +200,7 @@ const NewBookingModal = ({
   );
   // const [categories, setCategories] = useState<ListOptionProps[]>([]);
   const [profesionsData, setProfesionsData] = useState<ListOptionProps[]>([]);
-  const [bookingsData, setBookingsData] = useState<BookingProps[]>([]);
+  const [bookingsData, setBookingsData] = useState<any>([]);
   const [history, setHistory] = useState(false);
   const [openDeleteAttachmentModal, setOpenDeleteAttachmentModal] =
     useState(false);
@@ -199,6 +209,11 @@ const NewBookingModal = ({
 
   // const [fetchCategories] = useFetchCategoriesMutation();
   const { data: professions } = useFetchUsersByRolesQuery({});
+  const { data: bookingPlatformsData } = useFetchBookingPlatformsQuery({});
+  const { data: bookingPartnersData } = useFetchBookingPartnersQuery(String(company?.id || ""), {
+    skip: !company?.id,
+    refetchOnMountOrArgChange: true,
+  });
   const { data: bookingDetailData } = useFetchBookingDetailsQuery(
     selectedBooking,
     {
@@ -208,7 +223,11 @@ const NewBookingModal = ({
   );
   const [deleteAttachment, { isLoading: deleteLoading }] =
     useDeleteAttachmentMutation();
-  const { data: companiesDropdownData } = useFetchCompaniesQuery([]);
+  const { data: companiesDropdownData } = useFetchCompaniesQuery([{name: 'business', id: business?.id || ""}], {
+    skip: !business?.id,
+    refetchOnMountOrArgChange: true,
+  });
+  const { data: businessData } = useFetchBusinessesQuery([]);
   const { data: branchesDropodwnData } = useFetchBranchesQuery(
     [{ name: "company", id: `${company?.id}-company` }],
     {
@@ -219,14 +238,14 @@ const NewBookingModal = ({
   const { data: bookingSourcesData } = useFetchBookingSourcesQuery(
     {},
     {
-      skip: !open,
+      skip: !selectedServices?.length,
       refetchOnMountOrArgChange: true,
     }
   );
   const { data: bookingChannelsData } = useFetchBookingChannelsQuery(
     {},
     {
-      skip: !open,
+      skip: !selectedServices?.length,
       refetchOnMountOrArgChange: true,
     }
   );
@@ -279,12 +298,17 @@ const NewBookingModal = ({
         const priceWithoutVAT =
           parseFloat(service.total || service?.price_without_vat || "0") *
           service.qty!;
-        const vatValue =
-          parseFloat(service.vat_value || bookingDetailData?.vat_value || "0") *
-          service.qty!;
+        console.log(
+          bookingDetailData?.vat_value,
+          service.vat_value,
+          "service.vat_value"
+        );
+        // const vatValue =
+        //   parseFloat(service.vat_value || bookingDetailData?.vat_value || "0") *
+        //   service.qty!;
 
         acc.subtotal += priceWithoutVAT;
-        acc.total_vat += vatValue;
+        acc.total_vat = acc.subtotal * (5/100);
 
         return acc;
       },
@@ -300,22 +324,38 @@ const NewBookingModal = ({
     };
   };
 
-  const calculateDiscount = () => {
-    const bookingCost = calculateBookingCost(selectedServices!);
-    console.log(bookingCost, "bookingCostbookingCost");
-    if (isNaN(discount.value)) {
-      return bookingCost.grand_total;
-    }
+  // const calculateDiscount = () => {
+  //   const bookingCost = calculateBookingCost(selectedServices!);
+  //   console.log(bookingCost, "bookingCostbookingCost");
+  //   if (isNaN(discount.value)) {
+  //     return bookingCost.grand_total;
+  //   }
 
-    if (discount.type === "aed") {
-      return bookingCost.grand_total - discount.value;
-    } else {
-      return (
-        bookingCost.grand_total -
-        bookingCost.grand_total * (discount.value / 100)
-      );
+  //   if (discount.type === "aed") {
+  //     return bookingCost.grand_total - discount.value;
+  //   } else {
+  //     return (
+  //       bookingCost.grand_total -
+  //       bookingCost.grand_total * (discount.value / 100)
+  //     );
+  //   }
+  // };
+
+  const calculateVat=()=>{
+    const sub=calculateBookingCost(selectedServices!).subtotal
+    if(discount.type === "percent"){
+      return ((sub - sub * (discount.value / 100)) * (5/100))?.toFixed(2)
     }
-  };
+    return ((sub - discount.value) * (5/100))?.toFixed(2)
+  }
+
+  const calculateGrandTotal=()=>{
+    const sub=calculateBookingCost(selectedServices!).subtotal
+    if(discount.type === "percent"){
+      return Number(sub - sub * (discount.value / 100)) + Number(calculateVat())
+    }
+    return Number(sub - discount.value) + Number(calculateVat())
+  }
 
   const postBooking = async () => {
     const urlencoded = new URLSearchParams();
@@ -326,7 +366,9 @@ const NewBookingModal = ({
     urlencoded.append("booking_channel_id", String(channel?.id || ""));
     urlencoded.append("company_id", String(company?.id || ""));
     urlencoded.append("branch_id", String(branch?.id || ""));
-    urlencoded.append("partner_id", "1");
+    urlencoded.append("partner_id", String(partner?.id || '0'));
+    urlencoded.append("business_id", String(business?.id || ''));
+    urlencoded.append("booking_platform_id", String(platform?.id || ''));
     urlencoded.append("firstname", selectedUser!.firstname);
     urlencoded.append("lastname", selectedUser!.lastname);
     urlencoded.append("phone", selectedUser!.phone);
@@ -338,7 +380,11 @@ const NewBookingModal = ({
     urlencoded.append("delivery_notes", deliveryNotes);
     urlencoded.append(
       "payment_method",
-      payment === "cod" ? "Cash on Delivery" : "Card on Delivery"
+      payment === "cod"
+        ? "Cash on Delivery"
+        : payment === "online"
+        ? "Online Payment"
+        : "Card on Delivery"
     );
     urlencoded.append("payment_method_code", payment);
     urlencoded.append("payment_status", "pending");
@@ -364,38 +410,39 @@ const NewBookingModal = ({
     }
     urlencoded.append(
       "vat_value",
-      `${calculateBookingCost(selectedServices!).total_vat}`
+      calculateVat()
+      // `${calculateBookingCost(selectedServices!).total_vat}`
     );
     urlencoded.append(
       "total",
-      `${calculateBookingCost(selectedServices!).grand_total}`
+      calculateGrandTotal()?.toFixed(2)
     );
+    const services=selectedServices?.map((item) => {
+      const price=item.price_without_vat || item.price
+      const disc =
+        item.discount_type === "aed"
+          ? item.discount_value
+          : Number(price) -
+            Math.round(
+              Number(price) -
+                Number(price) *
+                  (Number(item.discount_value) / 100)
+            );
+      return {
+        service_id: item.service_id,
+        qty: item.qty,
+        price: price,
+        discount: disc || "0.00",
+        discount_value: item.discount_value || "0.00",
+        discount_type:
+          item.discount_type === "percent" ? item.discount_type : "fixed",
+        total: price ? Number(price) * item.qty! : "0.00",
+        new_price: item.new_price || "0.00",
+      };
+    })
     urlencoded.append(
       "services",
-      JSON.stringify(
-        selectedServices?.map((item) => {
-          const disc =
-            item.discount_type === "aed"
-              ? item.discount_value
-              : Number(item.price_without_vat) -
-                Math.round(
-                  Number(item.price_without_vat) -
-                    Number(item.price_without_vat) *
-                      (Number(item.discount_value) / 100)
-                );
-          return {
-            service_id: item.service_id,
-            qty: item.qty,
-            price: item.price_without_vat,
-            discount: disc || "0.00",
-            discount_value: item.discount_value || "0.00",
-            discount_type:
-              item.discount_type === "percent" ? item.discount_type : "fixed",
-            total: item.discount || "0.00",
-            new_price: item.new_price || "0.00",
-          };
-        })
-      )
+      JSON.stringify(services)
     );
     urlencoded.append("user_id", `${user!.id}`);
     try {
@@ -505,8 +552,8 @@ const NewBookingModal = ({
   const handleSelectProfession = (value: ListOptionProps) => {
     setProfession(value);
     if (value?.name) {
-      const filteredBookings = bookingsData?.filter((booking) =>
-        booking?.consultation_team?.some((cat) => cat.is_lead === "1")
+      const filteredBookings = bookingsData?.filter((booking: any) =>
+        booking?.consultation_team?.some((cat: any) => cat.is_lead === "1")
       );
       setBookingsData(filteredBookings);
     } else {
@@ -597,13 +644,14 @@ const NewBookingModal = ({
 
   useEffect(() => {
     if (bookingsData) {
-      const view = createTimelineView(bookingsData!);
+      const view = createTimelineView(bookingsData?.bookings || []);
       setTimeline(view);
     }
   }, [bookingsData]);
 
   useEffect(() => {
     if (data) {
+      console.log(data, "data");
       setBookingsData(data);
     }
   }, [data]);
@@ -690,6 +738,13 @@ const NewBookingModal = ({
       setPayment(bookingDetailData?.payment_method_code);
       setAddress(Number(bookingDetailData?.address_id));
       setAttachments(bookingDetailData?.attachments);
+      setPartner({id: bookingDetailData?.partner_id, name: bookingDetailData?.partner})
+      setBusiness({id: bookingDetailData?.business_id, name: bookingDetailData?.business})
+      setBranch({id: bookingDetailData?.branch_id, name: bookingDetailData?.branch})
+      setChannel({id: bookingDetailData?.booking_channel_id, name: bookingDetailData?.booking_channel})
+      setPlatform({id: bookingDetailData?.booking_platform_id, name: bookingDetailData?.booking_platform})
+      setSource({id: bookingDetailData?.booking_source_id, name: bookingDetailData?.booking_source})
+      setCompany({id: bookingDetailData?.company_id, name: bookingDetailData?.company})
     }
   }, [bookingDetailData]);
 
@@ -798,8 +853,8 @@ const NewBookingModal = ({
           </div>
           <div className="col-span-2 grid h-full w-full grid-cols-2 gap-x-2.5">
             <div className="col-span-2 flex h-[58px] w-full items-center justify-between bg-primary px-2.5 text-white">
-              <p className="w-full text-left text-lg font-semibold ml-5">
-                New Booking
+              <p className="ml-5 w-full text-left text-lg font-semibold">
+                {selectedBooking ? "Update" : "New"} Booking {selectedBooking && `Ref #: ${selectedBooking}`}
               </p>
               <button type="button" onClick={() => setOpen(false)}>
                 <IoClose className="size-8" />
@@ -885,7 +940,7 @@ const NewBookingModal = ({
                       />
                     </div>
                     <div className="mb-1.5 mt-4 grid w-full grid-cols-2 gap-2.5 text-gray-500">
-                      {addresses && addresses?.length !== 0 ?
+                      {addresses && addresses?.length !== 0 ? (
                         addresses?.map((address) => (
                           <div
                             key={address.address_id}
@@ -919,7 +974,12 @@ const NewBookingModal = ({
                               {address.street},&nbsp;{address.extra_direction}
                             </span>
                           </div>
-                        )): <p className="text-center text-xs text-gray-500">No Addresses Found!</p>}
+                        ))
+                      ) : (
+                        <p className="w-full text-center text-xs text-gray-500">
+                          No Addresses Found!
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
@@ -1170,7 +1230,7 @@ const NewBookingModal = ({
                           </p>
                         </div>
                         <div className="col-span-2 flex w-full items-center justify-start">
-                          AED&nbsp;
+                          {/* AED&nbsp; */}
                           {service.price_without_vat || service?.price}
                         </div>
                         <input
@@ -1185,18 +1245,23 @@ const NewBookingModal = ({
                           className="col-span-1 w-full bg-transparent text-center"
                         />
                         <div className="col-span-1 flex w-full items-center justify-end">
+                        {/* {service?.qty
+                            ? Math.round(parseFloat(service?.price || "0") * parseFloat(service?.qty))
+                            : Math.round(
+                              parseFloat(service?.price || "0")
+                              )} */}
                           {service?.qty
                             ? Math.round(
                                 parseFloat(
                                   service.total ||
-                                    service.price_without_vat ||
+                                    service.price ||
                                     "0"
-                                ) * service!.qty
+                                ) * parseFloat(String(service!.qty))
                               )
                             : Math.round(
                                 parseFloat(
                                   service.total ||
-                                    service.price_without_vat ||
+                                    service.price ||
                                     "0"
                                 )
                               )}
@@ -1213,9 +1278,9 @@ const NewBookingModal = ({
                       <div className="flex w-full items-center justify-end space-x-40 pr-5 text-xs text-gray-500">
                         <p>Subtotal</p>
                         <p>
-                          {Math.round(
-                            calculateBookingCost(selectedServices!).subtotal
-                          )}
+                          {calculateBookingCost(
+                            selectedServices!
+                          ).subtotal?.toFixed(2)}
                         </p>
                       </div>
                       <div className="flex w-full items-center justify-end space-x-[40px] text-xs text-gray-500">
@@ -1254,7 +1319,7 @@ const NewBookingModal = ({
                             onChange={(e) =>
                               setDiscount({
                                 ...discount,
-                                value: parseInt(e.target.value),
+                                value: parseInt(e.target.value || "0"),
                               })
                             }
                             className="w-10 border-l-2 pl-2.5"
@@ -1264,7 +1329,7 @@ const NewBookingModal = ({
                       <div className="flex w-full items-center justify-end space-x-[160px] pr-2.5 text-xs text-gray-500">
                         <p>VAT</p>
                         <p>
-                          {calculateBookingCost(selectedServices!).total_vat}
+                          {calculateVat()}
                         </p>
                       </div>
                       <div className="w-72 place-self-end border border-[#EFEFEF]" />
@@ -1272,7 +1337,8 @@ const NewBookingModal = ({
                         <p>Grand Total</p>
                         <p>
                           AED&nbsp;
-                          {Math.round(calculateDiscount())}
+                          {/* {calculateDiscount()?.toFixed(2)} */}
+                          {calculateGrandTotal()?.toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -1295,7 +1361,145 @@ const NewBookingModal = ({
                   </div>
                   <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
                     <h1 className="w-full text-left font-semibold text-primary">
-                      Select Time & Date
+                      Source Details
+                    </h1>
+                    <div className="grid w-full grid-cols-2 gap-2.5">
+                      <Combobox
+                        value={platform}
+                        options={bookingPlatformsData}
+                        handleSelect={(value) => setPlatform(value)}
+                        label="Select Platform"
+                        placeholder="Select Platform"
+                        mainClassName="w-full"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                        icon={
+                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                        }
+                        isSearch={false}
+                      />
+                      <Combobox
+                        value={source}
+                        options={bookingSourcesData}
+                        handleSelect={(value) => setSource(value)}
+                        label="Select Source"
+                        placeholder="Select Source"
+                        mainClassName="w-full"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                        icon={
+                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                        }
+                        isSearch={false}
+                      />
+                      <Combobox
+                        value={channel}
+                        options={bookingChannelsData}
+                        handleSelect={(value) => setChannel(value)}
+                        label="Select Channel"
+                        placeholder="Select Channel"
+                        mainClassName="w-full"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                        icon={
+                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                        }
+                        isSearch={false}
+                      />
+                      
+                    </div>
+                  </div>
+                  <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
+                    <h1 className="w-full text-left font-semibold text-primary">
+                      Company Details
+                    </h1>
+                    <div className="grid w-full grid-cols-2 gap-2.5">
+                      <Combobox
+                        value={business}
+                        options={businessData?.map((item) => ({
+                          id: item.id,
+                          name: item.name,
+                        }))}
+                        handleSelect={(value) => setBusiness(value)}
+                        label="Select Business"
+                        placeholder="Select Business"
+                        mainClassName="w-full"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                        icon={
+                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                        }
+                        isSearch={false}
+                      />
+                      <Combobox
+                        value={company}
+                        options={companiesDropdownData?.map((item) => ({
+                          id: item.id,
+                          name: item.name,
+                        }))}
+                        handleSelect={(value) => {
+                          setCompany(value)
+                          setPartner(null)
+                          setBranch(null)
+                        }}
+                        label="Select Company"
+                        placeholder="Select Company"
+                        mainClassName="w-full"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                        icon={
+                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                        }
+                        isSearch={false}
+                        disabled={!business?.id}
+                      />
+                    </div>
+                    <div className="grid w-full grid-cols-2 gap-2.5">
+                    <Combobox
+                      value={branch}
+                      options={branchesDropodwnData?.map((item) => ({
+                        id: item.branch_id,
+                        name: item.name,
+                      }))}
+                      handleSelect={(value) => setBranch(value)}
+                      label="Select Branch"
+                      placeholder="Select Branch"
+                      mainClassName="w-full"
+                      toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                      listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                      listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                      icon={
+                        <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                      }
+                      isSearch={false}
+                      disabled={!company?.id}
+                    />
+                    <Combobox
+                        value={partner}
+                        options={bookingPartnersData}
+                        handleSelect={(value) => setPartner(value)}
+                        label="Select Partner"
+                        placeholder="Select Partner"
+                        mainClassName="w-full"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                        icon={
+                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                        }
+                        isSearch={false}
+                        disabled={!company?.id}
+                      />
+                  </div>
+                  </div>
+                  <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
+                    <h1 className="w-full text-left font-semibold text-primary">
+                      Select Date & Time
                     </h1>
                     <div className="grid w-full grid-cols-2 gap-2.5">
                       <div className="-mt-1.5">
@@ -1330,77 +1534,6 @@ const NewBookingModal = ({
                           <RiArrowDownSLine className="h-5 w-5 text-grey100" />
                         }
                         isSearch={false}
-                      />
-                    </div>
-                    <div className="grid w-full grid-cols-2 gap-2.5">
-                      <Combobox
-                        value={source}
-                        options={bookingSourcesData}
-                        handleSelect={(value) => setSource(value)}
-                        label="Select Source"
-                        placeholder="Select Source"
-                        mainClassName="w-full"
-                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
-                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
-                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                        icon={
-                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
-                        }
-                        isSearch={false}
-                      />
-                      <Combobox
-                        value={channel}
-                        options={bookingChannelsData}
-                        handleSelect={(value) => setChannel(value)}
-                        label="Select Channel"
-                        placeholder="Select Channel"
-                        mainClassName="w-full"
-                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
-                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
-                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                        icon={
-                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
-                        }
-                        isSearch={false}
-                      />
-                    </div>
-                    <div className="grid w-full grid-cols-2 gap-2.5">
-                      <Combobox
-                        value={company}
-                        options={companiesDropdownData?.map((item) => ({
-                          id: item.id,
-                          name: item.name,
-                        }))}
-                        handleSelect={(value) => setCompany(value)}
-                        label="Select Company"
-                        placeholder="Select Company"
-                        mainClassName="w-full"
-                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
-                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
-                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                        icon={
-                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
-                        }
-                        isSearch={false}
-                      />
-                      <Combobox
-                        value={branch}
-                        options={branchesDropodwnData?.map((item) => ({
-                          id: item.branch_id,
-                          name: item.name,
-                        }))}
-                        handleSelect={(value) => setBranch(value)}
-                        label="Select Branch"
-                        placeholder="Select Branch"
-                        mainClassName="w-full"
-                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
-                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
-                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                        icon={
-                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
-                        }
-                        isSearch={false}
-                        disabled={!company?.id}
                       />
                     </div>
                   </div>
@@ -1440,7 +1573,7 @@ const NewBookingModal = ({
                   </div>
                   <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
                     <h1 className="w-full text-left font-semibold text-primary">
-                      Select Payment
+                      Select Payment Method
                     </h1>
                     <div className="mt-2.5 grid w-full grid-cols-2 gap-2.5 text-gray-500">
                       <div
@@ -1470,9 +1603,24 @@ const NewBookingModal = ({
                         </p>
                       </div>
                     </div>
+                    <div className="w-full flex justify-start">
+                    <div
+                        onClick={() => setPayment("online")}
+                        className={cn(
+                          "col-span-1 w-1/2 cursor-pointer rounded-md border bg-gray-100 p-2.5",
+                          {
+                            "border-primary text-primary": payment === "online",
+                          }
+                        )}
+                      >
+                        <p className="w-full text-center text-xs">
+                          Online Payment
+                        </p>
+                      </div>
+                  </div>
                   </div>
                   <CustomButton
-                    name="Confirm Booking"
+                    name={selectedBooking ? "Update Booking" : "Confirm Booking"}
                     handleClick={postBooking}
                     loading={creating}
                     disabled={creating || !address || !scheduleTime}

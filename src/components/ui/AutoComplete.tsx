@@ -59,9 +59,9 @@ const AutoComplete = ({ handleSelectUser, setSelectedUser }: AutoCompleteProps) 
             }
           )}
         >
-          {results?.length === 0 || isLoading ? (
-            <LuLoader2 className="h-10 w-10 animate-spin text-secondary" />
-          ) : (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-5 w-full"><LuLoader2 className="h-10 w-10 animate-spin text-secondary" /></div>
+          ) : !results?.length ? <p className="text-center text-gray-500 text-xs p-3 w-full">No Results Found!</p> : (
             results?.map((result, index) => (
               <div
                 key={result.customer_id}

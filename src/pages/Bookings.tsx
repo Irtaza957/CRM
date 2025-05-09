@@ -18,6 +18,7 @@ import {
   useFetchBookingChannelsQuery,
   useFetchBookingPlatformsQuery,
   useFetchBookingSourcesQuery,
+  useFetchBookingsQuery,
 } from "../store/services/booking";
 import { paymentStatuses } from "../utils/constants";
 import { setDate } from "../store/slices/app";
@@ -40,15 +41,40 @@ const Bookings = () => {
   const [profession, setProfession] = useState<ListOptionProps | null>(null);
   const [platform, setPlatform] = useState<ListOptionProps | null>(null);
   const { data: professions } = useFetchUsersByRolesQuery({});
-  const { data: bookingSourcesData } = useFetchBookingSourcesQuery({});
   const [bookingStatus, setBookingStatus] = useState<ListOptionProps | null>(
     null
   );
+  const [pageNum, setPageNum] = useState(1);
+
   const [paymentStatus, setPaymentStatus] = useState<ListOptionProps | null>(
     null
   );
   const { date } = useSelector((state: RootState) => state.app);
   const dispatch = useDispatch();
+
+  const { data: bookingData, isLoading: bookingLoading, refetch } =
+    useFetchBookingsQuery(
+      {
+        business_id: business?.id,
+        company_id: provider?.id,
+        branch_id: branch?.id,
+        category_id: category?.id,
+        platform_id: platform?.id,
+        channel_id: channel?.id,
+        source_id: source?.id,
+        agent_id: profession?.id,
+        booking_status: bookingStatus?.id,
+        payment_status: paymentStatus?.id,
+        date: dayjs(date || new Date()).format("YYYY-MM-DD"),
+        page: pageNum - 1,
+      },
+      {
+        refetchOnMountOrArgChange: true,
+      }
+    );
+  console.log(bookingData, "bookingDatabookingData");
+
+  const { data: bookingSourcesData } = useFetchBookingSourcesQuery({});
 
   const lastFilter = filterArray[filterArray.length - 1]?.name;
 
@@ -370,12 +396,12 @@ const Bookings = () => {
           searchInputClassName="p-1.5 text-xs"
           isRemoveAllow={true}
         />
-        <div className="flex items-center justify-center rounded-lg bg-white text-sm text-gray-500">
+        <div className="flex items-center justify-center rounded-lg bg-white text-xs text-gray-500 xl:text-sm">
           <CustomDatePicker
             date={date || new Date()}
             setDate={handleSetDate}
             toggleButton={
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center justify-center gap-2 xl:gap-4">
                 <FaChevronLeft
                   className="cursor-pointer"
                   onClick={decrementDate}
@@ -397,7 +423,13 @@ const Bookings = () => {
           New Booking
         </button>
       </div>
-      <Table />
+      <Table
+        data={bookingData || []}
+        isLoading={bookingLoading}
+        setPageNum={setPageNum}
+        page={pageNum}
+        refetch={refetch}
+      />
     </div>
   );
 };

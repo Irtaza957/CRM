@@ -4,16 +4,16 @@ export const addressSchema = z.object({
   address_type: z.string().min(1, "Address Type is required"),
   building_no: z.string().min(1, "Building Number is required"),
   apartment: z.string().min(1, "Apartment Number is required"),
-  street: z.string().min(1, "Street is required"),
-  map_link: z.string().min(1, "Map Link is required"),
-  extra_direction: z.string().min(1, "Extra Direction is required"),
+  street: z.string().optional(),
+  map_link: z.string().optional(),
+  extra_direction: z.string().optional(),
 });
 
 export const customerSchema = z.object({
   firstname: z.string().min(1, { message: "First name is required" }),
   lastname: z.string().min(1, { message: "Last name is required" }),
   phone: z.string().min(7, {message: 'Phone must contain at least 7 characters'}),
-  email: z.string().email().optional(),
+  email: z.string().optional(),
   is_allergy: z.string().default("no"),
   allergy_description: z.string().max(500).optional(),
   is_medication: z.string().default("no"),

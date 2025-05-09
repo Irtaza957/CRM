@@ -1,23 +1,21 @@
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
-import { useSelector } from "react-redux";
 import { FaCheckCircle } from "react-icons/fa";
 import { IoMdCloseCircle } from "react-icons/io";
 import { TiArrowSortedDown } from "react-icons/ti";
 import { RiErrorWarningFill } from "react-icons/ri";
 
 import Loader from "../ui/Loader";
-import { RootState } from "../../store";
 import Combobox from "../../components/ui/Combobox";
 import Edit from "../../assets/icons/colored/edit.svg";
 import { cn } from "../../utils/helpers";
 import ReAssign from "../../assets/icons/colored/re-assign.svg";
-import { useFetchBookingsQuery } from "../../store/services/booking";
 import SmallUpDownArrow from "../../assets/icons/updown-arrow.svg";
 import PhoneColored from "../../assets/icons/colored/colored-phone-square.svg";
 import ViewBookingModal from "../../components/booking/modals/ViewBookingModal";
 import WhatsappColored from "../../assets/icons/colored/colored-whatsapp-square.svg";
 import NewBookingModal from "./modals/NewBookingModal";
+import TeamMembersModal from "./modals/TeamMembersModal";
 
 const columns = [
   { id: 1, name: "Ref. #", key: "booking_id" },
@@ -33,13 +31,24 @@ const columns = [
   { id: 13, name: "Actions", key: "actions" },
 ];
 
-const Table = () => {
+const Table = ({
+  data,
+  isLoading,
+  page,
+  setPageNum,
+  refetch
+}: {
+  data: any;
+  isLoading: boolean;
+  page: number;
+  setPageNum: (num: number) => void;
+  refetch?: () => void;
+}) => {
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
   } | null>(null);
   const [id, setID] = useState("");
-  const [page, setPage] = useState(1);
   const [update, setUpdate] = useState(false);
   const [limit, setLimit] = useState<ListOptionProps | null>({
     id: 2,
@@ -47,11 +56,6 @@ const Table = () => {
   });
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-
-  const { date } = useSelector((state: RootState) => state.app);
-  const { data, isLoading } = useFetchBookingsQuery(
-    dayjs(date || new Date()).format("YYYY-MM-DD")
-  );
 
   const handleEditBooking = (id: string) => {
     setOpen(true);
@@ -68,12 +72,23 @@ const Table = () => {
     });
   };
 
-  const sortedData = useMemo(() => {
-    if (!data) return [];
-    console.log(sortConfig, data, "sortConfigsortConfig");
-    if (!sortConfig) return data;
+  const [isAssignModal, setIsAssignModal]=useState(false)
+  const [selectedUser, setSelectedUser]=useState<{id: string, team: Team[], status_id: string} | null>(null)
 
-    const sorted = [...data].sort((a: any, b: any) => {
+  const handleWhatsapp = (phone: string) => {
+    window.open(`https://wa.me/?text=${phone}`, "_blank");
+  };
+
+  const handleAssign = (booking: any) => {
+    setSelectedUser({id: booking.id, team: booking.team, status_id: booking.status_id})
+    setIsAssignModal(true)
+  };
+
+  const sortedData = useMemo(() => {
+    if (!data?.bookings) return [];
+    if (!sortConfig) return data?.bookings;
+
+    const sorted = data?.bookings?.sort((a: any, b: any) => {
       const aValue =
         sortConfig.key === "booking_status"
           ? a[sortConfig.key]?.name
@@ -82,7 +97,6 @@ const Table = () => {
         sortConfig.key === "booking_status"
           ? b[sortConfig.key]?.name
           : b[sortConfig.key];
-      console.log(aValue, bValue, "a, b");
 
       if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
       if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
@@ -95,6 +109,7 @@ const Table = () => {
   return (
     <>
       <ViewBookingModal id={id} open={update} setOpen={setUpdate} />
+      <TeamMembersModal refetch={refetch} members={selectedUser?.team} showMembers={["3","4","5","6",'7'].includes(selectedUser?.status_id || '')} bookingId={selectedUser?.id} open={isAssignModal} setOpen={setIsAssignModal} />
       <NewBookingModal
         selectedBooking={selectedBooking || ""}
         open={open}
@@ -116,10 +131,7 @@ const Table = () => {
                         <span className="flex-1 whitespace-nowrap text-left font-bold">
                           {column.name}
                         </span>
-                        {![
-                          "actions",
-                          "team",
-                        ].includes(column.key) && (
+                        {!["actions", "team"].includes(column.key) && (
                           <img
                             src={SmallUpDownArrow}
                             alt="small-updown-arrow"
@@ -142,7 +154,7 @@ const Table = () => {
                       page * parseInt(limit!.name) - parseInt(limit!.name),
                       page * parseInt(limit!.name)
                     )
-                    .map((booking, idx) => (
+                    .map((booking: any, idx: any) => (
                       <tr
                         key={idx}
                         title="Click to Edit"
@@ -193,7 +205,7 @@ const Table = () => {
                             setUpdate(true);
                           }}
                         >
-                          <div className="flex flex-col items-center justify-center min-w-[100px]">
+                          <div className="flex min-w-[100px] flex-col items-center justify-center">
                             <p className="w-full overflow-hidden truncate text-xs">
                               {booking.customer}
                             </p>
@@ -270,24 +282,26 @@ const Table = () => {
                         >
                           <div className="flex flex-col items-center justify-center gap-0.5">
                             {booking.consultation_team?.length ? (
-                              booking.consultation_team.map((team, idx) => (
-                                <div
-                                  key={idx}
-                                  className="flex w-full items-center gap-1 text-left text-xs"
-                                >
-                                  {team.is_accepted ? (
-                                    <FaCheckCircle className="text-green-500" />
-                                  ) : team.rejected_at ? (
-                                    <IoMdCloseCircle className="text-red-500" />
-                                  ) : (
-                                    <RiErrorWarningFill className="text-yellow-500" />
-                                  )}
-                                  &nbsp;
-                                  <span className="flex-1 overflow-hidden truncate">
-                                    {team.name}
-                                  </span>
-                                </div>
-                              ))
+                              booking.consultation_team.map(
+                                (team: any, idx: any) => (
+                                  <div
+                                    key={idx}
+                                    className="flex w-full items-center gap-1 text-left text-xs"
+                                  >
+                                    {team.is_accepted ? (
+                                      <FaCheckCircle className="text-green-500" />
+                                    ) : team.rejected_at ? (
+                                      <IoMdCloseCircle className="text-red-500" />
+                                    ) : (
+                                      <RiErrorWarningFill className="text-yellow-500" />
+                                    )}
+                                    &nbsp;
+                                    <span className="flex-1 overflow-hidden truncate">
+                                      {team.name}
+                                    </span>
+                                  </div>
+                                )
+                              )
                             ) : (
                               <p className="text-xs">N/A</p>
                             )}
@@ -363,12 +377,18 @@ const Table = () => {
                               src={WhatsappColored}
                               alt="icon"
                               className="size-[18px]"
+                              onClick={() => handleWhatsapp(booking?.phone)}
                             />
-                            <img
-                              src={ReAssign}
-                              alt="icon"
-                              className="size-[18px]"
-                            />
+                            {/* {booking.booking_status.name !== "Confirmed" && ( */}
+                              <img
+                                src={ReAssign}
+                                alt="icon"
+                                className="size-[18px]"
+                                onClick={() =>
+                                  handleAssign(booking)
+                                }
+                              />
+                            {/* )} */}
                             <img
                               src={Edit}
                               alt="icon"
@@ -387,126 +407,65 @@ const Table = () => {
           </div>
         </div>
       </div>
-      <div className="flex w-full items-center justify-between rounded-b-lg border-x border-b bg-white p-2.5">
-        {data && (
-          <>
-            <div className="flex w-full flex-1 items-center justify-start gap-3">
-              {(() => {
-                const totalPages = Math.ceil(
-                  data?.length / parseInt(limit!.name)
-                );
-                const maxVisibleButtons = 5;
-                const startPage = Math.max(
-                  1,
-                  page - Math.floor(maxVisibleButtons / 2)
-                );
-                const endPage = Math.min(
-                  totalPages,
-                  startPage + maxVisibleButtons - 1
-                );
-
-                const adjustedStartPage = Math.max(
-                  1,
-                  endPage - maxVisibleButtons + 1
-                );
-
-                const pageNumbers = [
-                  ...Array(endPage - adjustedStartPage + 1).keys(),
-                ].map((n) => adjustedStartPage + n);
-
-                return (
-                  <>
-                    {adjustedStartPage > 1 && (
-                      <>
-                        <div
-                          onClick={() => setPage(1)}
-                          className={cn(
-                            "flex size-[31px] cursor-pointer items-center justify-center rounded-md bg-gray-100 text-xs text-black",
-                            {
-                              "bg-primary text-white": page === 1,
-                            }
-                          )}
-                        >
-                          1
-                        </div>
-                        <div className="flex size-[31px] items-center justify-center text-xs">
-                          ...
-                        </div>
-                      </>
-                    )}
-                    {pageNumbers.map((pageNumber) => (
-                      <div
-                        key={pageNumber}
-                        onClick={() => setPage(pageNumber)}
-                        className={cn(
-                          "flex size-[31px] cursor-pointer items-center justify-center rounded-md bg-gray-100 text-xs text-black",
-                          {
-                            "bg-primary text-white": page === pageNumber,
-                          }
-                        )}
-                      >
-                        {pageNumber}
-                      </div>
-                    ))}
-                    {endPage < totalPages && (
-                      <>
-                        <div className="flex size-[31px] items-center justify-center text-xs">
-                          ...
-                        </div>
-                        <div
-                          onClick={() => setPage(totalPages)}
-                          className={cn(
-                            "flex size-[31px] cursor-pointer items-center justify-center rounded-md bg-gray-100 text-xs text-black",
-                            {
-                              "bg-primary text-white": page === totalPages,
-                            }
-                          )}
-                        >
-                          {totalPages}
-                        </div>
-                      </>
-                    )}
-                  </>
-                );
-              })()}
-            </div>
-            <p className="mr-2.5 text-xs font-semibold">
-              Showing {page} of&nbsp;
-              {Math.ceil(data?.length / parseInt(limit!.name))}
-              &nbsp;Pages
-            </p>
-          </>
+      <div
+        className={cn(
+          "flex w-full items-center justify-between rounded-b-lg border-x border-b bg-white p-2.5",
+          data?.total_pages > 1 ? "" : "h-12"
         )}
-        <Combobox
-          options={[
-            {
-              id: 1,
-              name: "5",
-            },
-            {
-              id: 2,
-              name: "10",
-            },
-            {
-              id: 3,
-              name: "15",
-            },
-            {
-              id: 4,
-              name: "20",
-            },
-          ]}
-          value={limit}
-          placeholder="Limit"
-          setValue={setLimit}
-          searchInputPlaceholder="Search..."
-          searchInputClassName="p-1.5 text-xs"
-          icon={<TiArrowSortedDown className="size-3" />}
-          defaultSelectedIconClassName="size-2.5 text-secondary"
-          toggleClassName="w-full border px-3 py-1.5 rounded-lg text-xs bg-white"
-          listClassName="w-full bottom-8 max-h-52 border rounded-lg z-10 bg-white"
-          listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-        />
+      >
+        {data?.total_pages > 1 && (
+          <div className="flex w-full flex-1 items-center justify-start gap-3">
+            {[...Array(4)].map((_, index) => {
+              const pagee = index + 1;
+              return (
+                <button
+                  key={pagee}
+                  onClick={() => setPageNum(pagee)}
+                  className={cn(
+                    "flex size-[31px] cursor-pointer items-center justify-center rounded-md bg-gray-100 text-xs text-black",
+                    {
+                      "bg-primary text-white": page === pagee,
+                    }
+                  )}
+                >
+                  {pagee}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {data?.total_pages > 1 && (
+          <Combobox
+            options={[
+              {
+                id: 1,
+                name: "5",
+              },
+              {
+                id: 2,
+                name: "10",
+              },
+              {
+                id: 3,
+                name: "15",
+              },
+              {
+                id: 4,
+                name: "20",
+              },
+            ]}
+            value={limit}
+            placeholder="Limit"
+            setValue={setLimit}
+            searchInputPlaceholder="Search..."
+            searchInputClassName="p-1.5 text-xs"
+            icon={<TiArrowSortedDown className="size-3" />}
+            defaultSelectedIconClassName="size-2.5 text-secondary"
+            toggleClassName="w-full border px-3 py-1.5 rounded-lg text-xs bg-white"
+            listClassName="w-full bottom-8 max-h-52 border rounded-lg z-10 bg-white"
+            listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+          />
+        )}
       </div>
     </>
   );

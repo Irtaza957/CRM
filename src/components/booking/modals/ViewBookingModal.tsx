@@ -324,7 +324,7 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                               Team Members
                             </h1>
                             <div className="flex items-center justify-end space-x-2.5">
-                              {!["8","9"].includes(data?.status_id || '') &&
+                              {data?.status_id==='2' &&
                               <button onClick={handleAssign} className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
                                 {["3","4","5","6",'7'].includes(data?.status_id || '') ? "Re-assign": 'Assign'}
                               </button>}
