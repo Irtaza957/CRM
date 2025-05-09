@@ -80,7 +80,7 @@ const Table = ({
   };
 
   const handleAssign = (booking: any) => {
-    setSelectedUser({id: booking.id, team: booking.team, status_id: booking.status_id})
+    setSelectedUser({id: booking.id, team: booking.team, status_id: booking.booking_status_id})
     setIsAssignModal(true)
   };
 
@@ -379,7 +379,7 @@ const Table = ({
                               className="size-[18px]"
                               onClick={() => handleWhatsapp(booking?.phone)}
                             />
-                            {/* {booking.booking_status.name !== "Confirmed" && ( */}
+                            {booking.booking_status_id !== '2' && (
                               <img
                                 src={ReAssign}
                                 alt="icon"
@@ -388,7 +388,7 @@ const Table = ({
                                   handleAssign(booking)
                                 }
                               />
-                            {/* )} */}
+                            )}
                             <img
                               src={Edit}
                               alt="icon"
