@@ -129,7 +129,7 @@ const CancelBookingModal = ({ id, open, setOpen, refetch }: CancelBookingModalPr
                 searchInputClassName="p-1.5 text-xs"
                 defaultSelectedIconClassName="size-4"
                 icon={<TiArrowSortedDown className="size-5" />}
-                toggleClassName="w-full shadow-md p-3 rounded-lg text-xs bg-white"
+                toggleClassName="w-full border p-3 rounded-lg text-xs bg-white"
                 listClassName="w-full top-[50px] max-h-52 border rounded-lg z-20 bg-white"
                 listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               />

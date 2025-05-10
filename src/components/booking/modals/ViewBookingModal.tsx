@@ -2,7 +2,7 @@ import Modal from "../../ui/Modal";
 import { cn } from "../../../utils/helpers";
 import BookingLogsModal from "./BookingLogsModal";
 import CancelBookingModal from "./CancelBookingModal";
-import BasicEdit from "../../../assets/icons/edit-basic.svg";
+// import BasicEdit from "../../../assets/icons/edit-basic.svg";
 import Attachments from "../../../assets/icons/attachments.svg";
 import LocationTwo from "../../../assets/icons/location-two.svg";
 import PhoneColored from "../../../assets/icons/phone-colored.svg";
@@ -22,54 +22,93 @@ import { FaRegClock } from "react-icons/fa6";
 import UploadDocumentsModal from "./UploadDocumentsModal";
 import BookingHistoryModal from "./BookingHistoryModal";
 import TeamMembersModal from "./TeamMembersModal";
+import CustomButton from "../../ui/CustomButton";
+import NewBookingModal from "./NewBookingModal";
 
 const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
   const [logs, setLogs] = useState(false);
   const [cancel, setCancel] = useState(false);
   const [upload, setUpload] = useState(false);
-  const [editing, setEditing] = useState(false);
+  // const [editing, setEditing] = useState(false);
   const [history, setHistory] = useState(false);
   const [deliveryNotes, setDeliveryNotes] = useState("");
-  const [isAssignModal, setIsAssignModal]=useState(false)
-  const [selectedUser, setSelectedUser]=useState<UserType | null>(null);
+  const [isAssignModal, setIsAssignModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
+  const [opeBooking, setOpenBooking] = useState(false);
 
   const { data, isLoading, refetch } = useFetchBookingDetailsQuery(id, {
     skip: !id,
     refetchOnMountOrArgChange: true,
   });
-  const handleAssign=()=>{
-    setIsAssignModal(true)
-  }
+  const handleAssign = () => {
+    setIsAssignModal(true);
+  };
 
-  const handleHistory=()=>{
+  const handleHistory = () => {
     setSelectedUser({
-      customer_id: data?.customer?.id || '',
-      firstname: data?.customer?.firstname || '',
-      lastname: data?.customer?.lastname || '',
-      phone: data?.customer?.phone || '',
-      email: data?.customer?.email || '',
-      medication_description: data?.customer?.medication_description || '',
-      medical_condition_description: data?.customer?.medical_condition_description || '',
-      allergy_description: data?.customer?.allergy_description || ''
-    })
-    setHistory(true)
-  }
+      customer_id: data?.customer?.id || "",
+      firstname: data?.customer?.firstname || "",
+      lastname: data?.customer?.lastname || "",
+      phone: data?.customer?.phone || "",
+      email: data?.customer?.email || "",
+      medication_description: data?.customer?.medication_description || "",
+      medical_condition_description:
+        data?.customer?.medical_condition_description || "",
+      allergy_description: data?.customer?.allergy_description || "",
+    });
+    setHistory(true);
+  };
 
-  const handleWhatsapp=(phone: string)=>{
-    window.open(`https://wa.me/?text=${phone}`, '_blank')
-  }
-  
+  const handleWhatsapp = (phone: string) => {
+    window.open(`https://wa.me/?text=${phone}`, "_blank");
+  };
+
+  const handleEdit = () => {
+    if(data?.status_id !== "1") {
+      // setOpenBooking(true);
+    } else {
+      setOpen(false)
+      setOpenBooking(true);
+    }
+  };
+
   return (
     <>
-      <TeamMembersModal members={data?.team} showMembers={["3","4","5","6",'7'].includes(data?.status_id || '')} bookingId={data?.booking_id} open={isAssignModal} setOpen={setIsAssignModal} />
+      <NewBookingModal
+        selectedBooking={data?.booking_id || ""}
+        open={opeBooking}
+        setOpen={setOpenBooking}
+      />
+      <TeamMembersModal
+        members={data?.team}
+        showMembers={["3", "4", "5", "6", "7"].includes(data?.status_id || "")}
+        bookingId={data?.booking_id}
+        open={isAssignModal}
+        setOpen={setIsAssignModal}
+      />
       <BookingLogsModal logsData={data?.logs} open={logs} setOpen={setLogs} />
       <UploadDocumentsModal open={upload} setOpen={setUpload} />
-      <BookingHistoryModal selectedUser={selectedUser} open={history} setOpen={setHistory} />
-      <CancelBookingModal id={id} open={cancel} setOpen={setCancel} refetch={refetch} />
-      <Modal open={open} setOpen={setOpen} className="max-h-[95%] w-full max-w-[95%] lg:max-w-[85%]">
+      <BookingHistoryModal
+        selectedUser={selectedUser}
+        open={history}
+        setOpen={setHistory}
+      />
+      <CancelBookingModal
+        id={id}
+        open={cancel}
+        setOpen={setCancel}
+        refetch={refetch}
+      />
+      <Modal
+        open={open}
+        setOpen={setOpen}
+        className="max-h-[95%] w-full max-w-[95%] lg:max-w-[85%]"
+      >
         <div className="w-full items-center justify-center overflow-hidden rounded-lg bg-gray-100">
           <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white">
-            <h1 className="text-xl font-medium">Booking Ref: {id} - {data?.status}</h1>
+            <h1 className="text-xl font-medium">
+              Booking Ref: {id} - {data?.status}
+            </h1>
             <IoClose
               onClick={() => setOpen(false)}
               className="h-8 w-8 cursor-pointer"
@@ -79,210 +118,841 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
             {isLoading ? (
               <LuLoader2 className="h-14 w-14 animate-spin text-secondary" />
             ) : (
-                <>
-                  <div className="flex gap-3 w-full h-full relative">
-                    <div className="w-full max-h-[calc(100vh-170px)] overflow-auto">
-                      <div className="flex w-full bg-white rounded-lg flex-col items-start justify-start space-y-2.5 ">
-                        {/* Client Details */}
-                        <div className="flex w-full flex-col items-center justify-center rounded-lg p-2.5">
-                          <div className="flex w-full items-center justify-between border-b pb-2.5">
-                            <h1 className="text-left font-semibold text-primary">
+              <>
+                <div className="relative flex h-full w-full gap-3">
+                  <div className="max-h-[calc(100vh-170px)] w-full overflow-auto">
+                    <div className="flex w-full flex-col items-start justify-start space-y-2.5 rounded-lg bg-white">
+                      {/* Client Details */}
+                      <div className="flex w-full flex-col items-center justify-center rounded-lg p-2.5">
+                        <div className="flex w-full items-center justify-between border-b pb-2.5">
+                          <h1 className="text-left font-semibold text-primary">
                             Customer Details
-                            </h1>
-                            <button
-                              type="button"
-                              onClick={handleHistory}
-                              className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
-                            >
-                              Booking History
-                            </button>
-                          </div>
-                          <div className="flex w-full items-center justify-between pt-2.5">
-                            <div className="grid flex-1 grid-cols-2 gap-7">
-                              <div className="flex w-full flex-1 items-center justify-start gap-3.5">
-                                <img
-                                  alt="profile"
-                                  className="size-14 rounded-full"
-                                  src="https://ui.shadcn.com/avatars/04.png"
-                                />
-                                <div className="flex flex-col items-center justify-center space-y-1">
-                                  <span className="w-full text-left text-xs text-[#656565]">
-                                    {data?.customer?.firstname}&nbsp;
-                                    {data?.customer?.lastname}
-                                  </span>
-                                  <span className="w-full text-left text-xs text-[#656565]">
-                                    {data?.customer.phone}
-                                  </span>
-                                  <span className="w-full text-left text-xs text-[#656565]">
-                                    {data?.customer.email}
-                                  </span>
-                                </div>
-                              </div>
-                              <div className="flex w-full flex-1 flex-col items-center justify-center space-y-1">
-                                <span className="w-full pr-5 text-right text-xs text-[#656565] lg:pr-0 lg:text-left">
-                                  {data?.customer.date_of_birth}
-                                </span>
-                                <span className="w-full pr-5 text-right text-xs text-[#656565] lg:pr-0 lg:text-left">
-                                  {data?.customer.gender}
-                                </span>
-                                <span className="w-full pr-5 text-right text-xs text-[#656565] lg:pr-0 lg:text-left">
-                                  {data?.customer.nationality}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex h-full flex-col items-center justify-between gap-1">
-                              <img
-                                src={PhoneColored}
-                                alt="phone"
-                                className="size-7"
-                              />
-                              <img
-                                src={WhatsAppColored}
-                                alt="whatsapp"
-                                className="size-7"
-                              />
-                            </div>
-                          </div>
-                        </div>
-                        {/* Family Member */}
-                        {data?.family_member_details &&
-                          Object.keys(data?.family_member_details).length !== 0 && (
-                            <div className="flex w-full flex-col items-center justify-center rounded-lg p-2.5">
-                              <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
-                                Family Member
-                              </h1>
-                              <div className="grid w-full grid-cols-2 gap-2.5 bg-white p-2.5 text-xs text-gray-500">
-                                <div className="col-span-1 w-full text-primary">
-                                  Name
-                                </div>
-                                <div className="col-span-1 w-full">
-                                  {data?.family_member_details.firstname}&nbsp;
-                                  {data?.family_member_details.lastname}
-                                </div>
-                              </div>
-                              <div className="grid w-full grid-cols-2 gap-2.5 bg-gray-100 p-2.5 text-xs text-gray-500">
-                                <div className="col-span-1 w-full text-primary">
-                                  Date of Birth
-                                </div>
-                                <div className="col-span-1 w-full">
-                                  {dayjs(
-                                    data?.family_member_details.date_of_birth
-                                  ).format("DD MMM YYYY")}
-                                </div>
-                              </div>
-                              <div className="grid w-full grid-cols-2 gap-2.5 bg-white p-2.5 text-xs text-gray-500">
-                                <div className="col-span-1 w-full text-primary">
-                                  Relationship
-                                </div>
-                                <div className="col-span-1 w-full">
-                                  {data?.family_member_details.relationship}
-                                </div>
-                              </div>
-                              <div className="grid w-full grid-cols-2 gap-2.5 bg-gray-100 p-2.5 text-xs text-gray-500">
-                                <div className="col-span-1 w-full text-primary">
-                                  Gender
-                                </div>
-                                <div className="col-span-1 w-full">
-                                  {data?.family_member_details.gender}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        {/* Medical Details */}
-                        <div className="flex w-full flex-col items-center justify-center rounded-lg p-2.5">
-                          <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
-                            Medical Details
                           </h1>
-                          {data?.customer.is_allergy !== "0" && (
-                            <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
-                              <span className="text-xs text-primary">
-                                Allergies:
-                              </span>
-                              {data?.customer.allergy_description
-                                .split(",")
-                                ?.map((allergy, idx) => (
-                                  <span
-                                    key={idx}
-                                    className="rounded-full bg-red-200 px-2 text-xs text-red-500"
-                                  >
-                                    {allergy}
-                                  </span>
-                                ))}
+                          <button
+                            type="button"
+                            onClick={handleHistory}
+                            className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
+                          >
+                            Booking History
+                          </button>
+                        </div>
+                        <div className="flex w-full items-center justify-between pt-2.5">
+                          <div className="grid flex-1 grid-cols-2 gap-7">
+                            <div className="flex w-full flex-1 items-center justify-start gap-3.5">
+                              <img
+                                alt="profile"
+                                className="size-14 rounded-full"
+                                src="https://ui.shadcn.com/avatars/04.png"
+                              />
+                              <div className="flex flex-col items-center justify-center space-y-1">
+                                <span className="w-full text-left text-xs text-[#656565]">
+                                  {data?.customer?.firstname}&nbsp;
+                                  {data?.customer?.lastname}
+                                </span>
+                                <span className="w-full text-left text-xs text-[#656565]">
+                                  {data?.customer.phone}
+                                </span>
+                                <span className="w-full text-left text-xs text-[#656565]">
+                                  {data?.customer.email}
+                                </span>
+                              </div>
                             </div>
-                          )}
-                          {data?.customer.is_medication !== "0" && (
-                            <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5 text-xs text-gray-500">
-                              <span className="text-primary">Medications:</span>
-                              <span>
-                                {data?.customer.medication_description
-                                  .split(",")
-                                  .join(", ")}
+                            <div className="flex w-full flex-1 flex-col items-center justify-center space-y-1">
+                              <span className="w-full pr-5 text-right text-xs text-[#656565] lg:pr-0 lg:text-left">
+                                {data?.customer.date_of_birth}
+                              </span>
+                              <span className="w-full pr-5 text-right text-xs text-[#656565] lg:pr-0 lg:text-left">
+                                {data?.customer.gender}
+                              </span>
+                              <span className="w-full pr-5 text-right text-xs text-[#656565] lg:pr-0 lg:text-left">
+                                {data?.customer.nationality}
                               </span>
                             </div>
-                          )}
-                          {data?.customer.is_medical_conition !== "0" && (
-                            <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5 text-xs text-gray-500">
-                              <span className="text-primary">
-                                Medical Conditions:
-                              </span>
-                              <span>
-                                {data?.customer.medical_condition_description
-                                  .split(",")
-                                  .join(", ")}
-                              </span>
-                            </div>
-                          )}
+                          </div>
+                          <div className="flex h-full flex-col items-center justify-between gap-1">
+                            <img
+                              src={PhoneColored}
+                              alt="phone"
+                              className="size-7"
+                            />
+                            <img
+                              src={WhatsAppColored}
+                              alt="whatsapp"
+                              className="size-7"
+                            />
+                          </div>
                         </div>
                       </div>
-                      <div className="flex w-full bg-white rounded-lg flex-col items-start justify-start space-y-2.5 p-2.5 mt-3">
-                        {/* Booking Details */}
-                        <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
-                          <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
-                            Services List
+                      {/* Family Member */}
+                      <div className="flex w-full flex-col rounded-lg p-2.5">
+                        <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
+                          Booking For
+                        </h1>
+                        <div className="ml-1 mt-5 flex w-full">
+                          <div className="w-[40%] space-y-3">
+                            <div className="space-y-1.5">
+                              <p className="text-xs text-primary">Name:</p>
+                              <p className="text-xs text-[#656565]">
+                                {data?.family_member_details.firstname
+                                  ? `${data?.family_member_details.firstname} ${data?.family_member_details.lastname}`
+                                  : "N/A"}
+                              </p>
+                            </div>
+                            <div className="space-y-1.5">
+                              <p className="text-xs text-primary">
+                                Relationship:
+                              </p>
+                              <p className="text-xs text-[#656565]">
+                                {data?.family_member_details.relationship ||
+                                  "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="space-y-3">
+                            <div className="space-y-1.5">
+                              <p className="text-xs text-primary">
+                                Date of Birth:
+                              </p>
+                              <p className="text-xs text-[#656565]">
+                                {data?.family_member_details.date_of_birth ||
+                                  "N/A"}
+                              </p>
+                            </div>
+                            <div className="space-y-1.5">
+                              <p className="text-xs text-primary">Gender:</p>
+                              <p className="text-xs text-[#656565]">
+                                {data?.family_member_details.gender || "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* {data?.family_member_details &&
+                        Object.keys(data?.family_member_details).length !==
+                          0 && (
+                          <div className="flex w-full flex-col items-center justify-center rounded-lg p-2.5">
+                            <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
+                              Family Member
+                            </h1>
+                            <div className="grid w-full grid-cols-2 gap-2.5 bg-white p-2.5 text-xs text-gray-500">
+                              <div className="col-span-1 w-full text-primary">
+                                Name
+                              </div>
+                              <div className="col-span-1 w-full">
+                                {data?.family_member_details.firstname}&nbsp;
+                                {data?.family_member_details.lastname}
+                              </div>
+                            </div>
+                            <div className="grid w-full grid-cols-2 gap-2.5 bg-gray-100 p-2.5 text-xs text-gray-500">
+                              <div className="col-span-1 w-full text-primary">
+                                Date of Birth
+                              </div>
+                              <div className="col-span-1 w-full">
+                                {dayjs(
+                                  data?.family_member_details.date_of_birth
+                                ).format("DD MMM YYYY")}
+                              </div>
+                            </div>
+                            <div className="grid w-full grid-cols-2 gap-2.5 bg-white p-2.5 text-xs text-gray-500">
+                              <div className="col-span-1 w-full text-primary">
+                                Relationship
+                              </div>
+                              <div className="col-span-1 w-full">
+                                {data?.family_member_details.relationship}
+                              </div>
+                            </div>
+                            <div className="grid w-full grid-cols-2 gap-2.5 bg-gray-100 p-2.5 text-xs text-gray-500">
+                              <div className="col-span-1 w-full text-primary">
+                                Gender
+                              </div>
+                              <div className="col-span-1 w-full">
+                                {data?.family_member_details.gender}
+                              </div>
+                            </div>
+                          </div>
+                        )} */}
+                      {/* Medical Details */}
+                      <div className="flex w-full flex-col items-center justify-center rounded-lg p-2.5">
+                        <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
+                          Medical Details
+                        </h1>
+                        {data?.customer.is_allergy !== "0" && (
+                          <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5">
+                            <span className="text-xs text-primary">
+                              Allergies:
+                            </span>
+                            {data?.customer.allergy_description
+                              .split(",")
+                              ?.map((allergy, idx) => (
+                                <span
+                                  key={idx}
+                                  className="rounded-full bg-red-200 px-2 text-xs text-red-500"
+                                >
+                                  {allergy}
+                                </span>
+                              ))}
+                          </div>
+                        )}
+                        {data?.customer.is_medication !== "0" && (
+                          <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5 text-xs text-gray-500">
+                            <span className="text-primary">Medications:</span>
+                            <span>
+                              {data?.customer.medication_description
+                                .split(",")
+                                .join(", ")}
+                            </span>
+                          </div>
+                        )}
+                        {data?.customer.is_medical_conition !== "0" && (
+                          <div className="flex w-full flex-wrap items-center justify-start gap-1.5 pt-2.5 text-xs text-gray-500">
+                            <span className="text-primary">
+                              Medical Conditions:
+                            </span>
+                            <span>
+                              {data?.customer.medical_condition_description
+                                .split(",")
+                                .join(", ")}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div className="mt-3 flex w-full flex-col items-start justify-start space-y-2.5 rounded-lg bg-white p-2.5">
+                      {/* Customer Attachments */}
+                      <div className="flex h-fit w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 py-3">
+                        <div className="flex w-full items-center justify-center border-b pb-2.5">
+                          <h1 className="flex-1 text-left font-semibold text-primary">
+                            Customer Attachments
                           </h1>
-                          <div className="grid w-full grid-cols-2">
-                            {data?.address.address_type && (
-                              <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5 text-gray-500">
-                                <h1 className="w-full text-left text-sm font-semibold text-primary">
-                                  Selected Address
-                                </h1>
-                                <div className="flex w-full items-start justify-start gap-2.5">
-                                  <img src={LocationTwo} alt="location-two-icon" />
-                                  <span className="flex-1 text-wrap text-xs">
-                                    {data?.address.apartment},&nbsp;
-                                    {data?.address.building}, {data?.address.street}
-                                    , {data?.address.area}, {data?.address.emirate}
+                          {/* {editing && (
+                            <button
+                              type="button"
+                              onClick={() => setUpload(true)}
+                            >
+                              <img src={BasicEdit} alt="icon" />
+                            </button>
+                          )} */}
+                        </div>
+                        {data?.customer.attachments?.map((attachment) => (
+                          <div
+                            key={attachment.attachment_id}
+                            className="flex w-full items-center justify-between pt-2.5"
+                          >
+                            <div className="flex items-center justify-center space-x-3">
+                              <img
+                                src={Attachments}
+                                alt="attachments"
+                                className="size-7"
+                              />
+                              <div className="flex w-full flex-col items-center justify-center">
+                                <span className="w-full text-left text-sm text-gray-500">
+                                  {attachment.file_type}
+                                </span>
+                                <span className="w-full text-left text-xs text-gray-400">
+                                  {attachment.user}
+                                </span>
+                              </div>
+                            </div>
+                            <span className="text-xs text-gray-400">
+                              {dayjs(attachment.created_at).format(
+                                "DD MMM YYYY"
+                              )}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="mt-3 flex w-full flex-col items-start justify-start space-y-2.5 rounded-lg bg-white p-2.5">
+                      {/* Booking Details */}
+                      <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
+                        <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
+                          Services List
+                        </h1>
+                        <div className="grid w-full grid-cols-2">
+                          {data?.address.address_type && (
+                            <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5 text-gray-500">
+                              <h1 className="w-full text-left text-sm font-semibold text-primary">
+                                Selected Address
+                              </h1>
+                              <div className="flex w-full items-start justify-start gap-2.5">
+                                <img
+                                  src={LocationTwo}
+                                  alt="location-two-icon"
+                                />
+                                <span className="flex-1 text-wrap text-xs">
+                                  {data?.address.apartment},&nbsp;
+                                  {data?.address.building},{" "}
+                                  {data?.address.street}, {data?.address.area},{" "}
+                                  {data?.address.emirate}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                          <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5 text-gray-500">
+                            <h1 className="w-full text-left text-sm font-semibold text-primary">
+                              Selected Time & Date
+                            </h1>
+                            <div className="flex w-full items-center justify-start gap-2.5">
+                              <FaRegClock className="size-4 text-[#858688]" />
+                              <span className="text-xs">
+                                Date:&nbsp;
+                                {dayjs(data?.schedule_date).format(
+                                  "DD MMM, YYYY"
+                                )}
+                              </span>
+                            </div>
+                            <div className="flex w-full items-center justify-start gap-2.5 pb-2.5">
+                              <img
+                                src={CalendarPlain}
+                                alt="plain-calendar-icon"
+                              />
+                              <span className="text-xs">
+                                Time:{" "}
+                                {data?.schedule_slot.split("-").join(" - ")}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Team Members */}
+                      {/* {data?.team.length !== 0 && ( */}
+                      <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
+                        <div className="flex w-full items-center justify-between border-b pb-2.5">
+                          <h1 className="text-left font-semibold text-primary">
+                            Team Members
+                          </h1>
+                          <div className="flex items-center justify-end space-x-2.5">
+                            {data?.status_id === "2" && (
+                              <button
+                                onClick={handleAssign}
+                                className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
+                              >
+                                {["3", "4", "5", "6", "7"].includes(
+                                  data?.status_id || ""
+                                )
+                                  ? "Re-assign"
+                                  : "Assign"}
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        {data?.team?.length ? (
+                          <>
+                            <div className="mt-2.5 grid w-full grid-cols-4 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
+                              <p className="col-span-1 w-full text-left">
+                                Team
+                              </p>
+                              <p className="col-span-1 w-full text-left">
+                                Title
+                              </p>
+                              <p className="col-span-1 w-full text-left">
+                                Status
+                              </p>
+                              <p className="col-span-1 w-full text-left">
+                                Action
+                              </p>
+                            </div>
+                            {data?.team.map((m, idx) => (
+                              <div
+                                key={m.user_id}
+                                className={cn(
+                                  "grid w-full grid-cols-4 gap-2.5 p-2.5 text-xs text-gray-500",
+                                  {
+                                    "bg-white": idx % 2 === 0,
+                                    "bg-gray-100": idx % 2 !== 0,
+                                  }
+                                )}
+                              >
+                                <p className="col-span-1 w-full text-left">
+                                  {m.name}
+                                </p>
+                                <p className="col-span-1 w-full text-left">
+                                  {m.position}
+                                </p>
+                                <div className="col-span-1 flex w-full items-center justify-start">
+                                  <p
+                                    style={{
+                                      backgroundColor:
+                                        m.is_accepted === "1"
+                                          ? "#7761A1"
+                                          : "#008146",
+                                    }}
+                                    className="rounded-full px-2 py-0.5 text-center text-white"
+                                  >
+                                    {m.is_accepted === "1"
+                                      ? "Accepted"
+                                      : "Pending"}
+                                  </p>
+                                </div>
+                                <div className="justify- flex w-full items-center gap-2">
+                                  <img
+                                    src={PhoneSquare}
+                                    alt="icon"
+                                    className="size-5 cursor-pointer"
+                                    onClick={() => handleWhatsapp(m?.phone)}
+                                  />
+                                  <img
+                                    src={WhatsappSquare}
+                                    alt="icon"
+                                    className="size-5 cursor-pointer"
+                                    onClick={() => handleWhatsapp(m?.phone)}
+                                  />
+                                  {["3", "4", "5", "6", "7"].includes(
+                                    data?.status_id || ""
+                                  ) && (
+                                    <img
+                                      onClick={handleAssign}
+                                      src={ReAssign}
+                                      alt="icon"
+                                      className="size-5 cursor-pointer"
+                                    />
+                                  )}
+                                  {/* <img
+                                  src={LocationSquare}
+                                  alt="icon"
+                                  className="size-5 cursor-pointer"
+                                /> */}
+                                </div>
+                              </div>
+                            ))}
+                          </>
+                        ) : (
+                          <p className="my-1.5 text-center text-xs text-gray-500">
+                            No Team Member Exist!
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="max-h-[calc(100vh-170px)] w-full overflow-auto">
+                    <div className="flex w-full flex-col items-start justify-start space-y-2.5 rounded-lg bg-white px-3">
+                      <div>
+                        <div className="mb-1 flex w-full items-center justify-between border-b-2 px-2.5 pb-2 pt-4">
+                          <h1 className="flex-1 text-left font-semibold text-primary">
+                            Service Details
+                          </h1>
+                          <div className="flex items-center gap-2">
+                            <CustomButton
+                              name="Invoice"
+                              handleClick={() => {}}
+                            />
+                            <CustomButton
+                              name={data?.payment_status}
+                              handleClick={() => {}}
+                              style={cn(
+                                "bg-grey border",
+                                data?.payment_status === "Pending"
+                                  ? "border-[#FB861F] text-[#FB861F]"
+                                  : data?.payment_status === "Cancelled"
+                                    ? "border-[#E62626] text-[#E62626]"
+                                    : "border-[#31B86A] text-[#31B86A]"
+                              )}
+                            />
+                            <CustomButton
+                              name={data?.status}
+                              handleClick={() => {}}
+                              style="bg-grey text-primary border border-primary"
+                            />
+                          </div>
+                        </div>
+                        <table className="relative w-full min-w-full border-b pb-3">
+                          <thead className="text-left text-primary">
+                            <tr className="h-12">
+                              <th className="px-5 text-xs font-medium">
+                                Category
+                              </th>
+                              <th className="px-5 text-xs font-medium">
+                                Service
+                              </th>
+                              <th className="px-5 text-xs font-medium">
+                                Amount
+                              </th>
+                              <th className="px-5 text-xs font-medium">
+                                Quantity
+                              </th>
+                              <th className="px-5 text-xs font-medium">
+                                Total
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {data?.services?.map((item, idx) => (
+                              <tr
+                                className={cn(
+                                  "h-12 cursor-pointer bg-white text-gray-500",
+                                  {
+                                    "bg-[#F3F5F9]": idx % 2 === 0,
+                                  }
+                                )}
+                              >
+                                <td className="px-5 text-xs">DOC</td>
+                                <td className="px-5 text-xs">
+                                  {item.service_name}
+                                </td>
+                                <td className="px-5 text-xs">{item.price}</td>
+                                <td className="px-5 text-xs">
+                                  {item.quantity}
+                                </td>
+                                <td className="px-5 text-xs">{item.total}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        <div className="flex w-full flex-col items-center justify-center space-y-2.5 py-2.5">
+                          <div className="flex w-full items-center justify-end space-x-10 pr-2.5 text-xs text-gray-500">
+                            <p>Subtotal</p>
+                            <p>{data?.sub_total}</p>
+                          </div>
+                          <div className="flex w-full items-center justify-end space-x-10 pr-2.5 text-xs text-gray-500">
+                            <p>Discount</p>
+                            <p>{data?.discount}</p>
+                          </div>
+                          <div className="flex w-full items-center justify-end space-x-[50px] pr-2.5 text-xs text-gray-500">
+                            <p>VAT</p>
+                            <p>{data?.vat_value}</p>
+                          </div>
+                          <div className="w-56 place-self-end border border-gray-300" />
+                          <div className="flex w-full items-center justify-end space-x-10 pr-2.5 font-bold text-gray-500">
+                            <p>Grand Total</p>
+                            <p>
+                              AED&nbsp;
+                              {data?.total}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Booking Attachments */}
+                      {data?.booking_attachments?.length ? (
+                        <div className="flex h-fit max-h-[200px] w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 pb-2.5">
+                          <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
+                            Booking Attachments
+                          </h1>
+                          {data?.booking_attachments?.map((attachment) => (
+                            <div
+                              key={attachment.attachment_id}
+                              className="flex w-full items-center justify-between pt-2.5"
+                            >
+                              <div className="flex items-center justify-center space-x-3">
+                                <img
+                                  src={Attachments}
+                                  alt="attachments"
+                                  className="size-7"
+                                />
+                                <div className="flex w-full flex-col items-center justify-center">
+                                  <span className="w-full text-left text-sm text-gray-500">
+                                    {attachment.file_type}
+                                  </span>
+                                  <span className="w-full text-left text-xs text-gray-400">
+                                    {attachment.user}
                                   </span>
                                 </div>
                               </div>
+                              <span className="text-xs text-gray-400">
+                                {dayjs(attachment.created_at).format(
+                                  "DD MMM YYYY"
+                                )}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                    <div className="mt-3 flex w-full flex-col items-start justify-start space-y-2.5 rounded-t-lg bg-white p-2.5">
+                      {/* Service Details */}
+                      {/* <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
+                        <div className="flex w-full items-center justify-center border-b pb-2.5">
+                          <h1 className="flex-1 text-left font-semibold text-primary">
+                            Service Details
+                          </h1>
+                          {editing && <img src={BasicEdit} alt="icon" />}
+                        </div>
+                        <div className="grid w-full grid-cols-5 gap-2.5 p-2.5 text-xs text-primary">
+                          <div className="col-span-1 w-full text-right">
+                            Category
+                          </div>
+                          <div className="col-span-1 w-full text-right">
+                            Service
+                          </div>
+                          <div className="col-span-1 w-full text-right">
+                            Amount
+                          </div>
+                          <div className="col-span-1 w-full text-right">
+                            Quantity
+                          </div>
+                          <div className="col-span-1 w-full text-right">
+                            Total
+                          </div>
+                        </div>
+                        {data?.services?.map((service, idx) => (
+                          <div
+                            key={service.service_id}
+                            className={cn(
+                              "grid w-full grid-cols-5 gap-2.5 p-2.5 text-xs text-gray-500",
+                              {
+                                "bg-white": idx % 2 !== 0,
+                                "bg-gray-100": idx % 2 === 0,
+                              }
                             )}
-                            <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5 text-gray-500">
+                          >
+                            <div className="col-span-1 w-full text-left lg:text-right">
+                              DOC
+                            </div>
+                            <div className="col-span-1 w-full overflow-hidden truncate text-right">
+                              {service.service_name
+                                ? service.service_name
+                                : "N/A"}
+                            </div>
+                            <div className="col-span-1 w-full text-right">
+                              {service.price}
+                            </div>
+                            <div className="col-span-1 w-full text-right">
+                              {service.quantity}
+                            </div>
+                            <div className="col-span-1 w-full text-right">
+                              {parseFloat(service.price) *
+                                parseInt(service.quantity)}
+                            </div>
+                          </div>
+                        ))}
+                        <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5">
+                          <div className="flex w-full items-center justify-end space-x-10 pr-2.5 text-xs text-gray-500">
+                            <p>Subtotal</p>
+                            <p>{data?.sub_total}</p>
+                          </div>
+                          <div className="flex w-full items-center justify-end space-x-10 pr-2.5 text-xs text-gray-500">
+                            <p>Discount</p>
+                            <p>{data?.discount}</p>
+                          </div>
+                          <div className="flex w-full items-center justify-end space-x-10 pr-2.5 text-xs text-gray-500">
+                            <p>VAT</p>
+                            <p>{data?.vat_value}</p>
+                          </div>
+                          <div className="w-56 place-self-end border border-gray-300" />
+                          <div className="flex w-full items-center justify-end space-x-10 pr-2.5 font-bold text-gray-500">
+                            <p>Grand Total</p>
+                            <p>
+                              AED&nbsp;
+                              {data?.total}
+                            </p>
+                          </div>
+                        </div>
+                      </div> */}
+                      {/* Other Details */}
+                      <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white pt-2.5">
+                        <div className="flex w-full items-center justify-between border-b pb-2.5">
+                          <h1 className="text-left font-semibold text-primary">
+                            Booking Details
+                          </h1>
+                          <div className="flex items-center space-x-2">
+                            <button className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
+                              Call Records
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setLogs(true)}
+                              className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
+                            >
+                              Booking Log
+                            </button>
+                          </div>
+                        </div>
+                        <div className="mt-2.5 grid w-full grid-cols-2">
+                          {data?.address.address_type && (
+                            <div className="mx-2 flex w-full flex-col items-center space-y-2.5 pt-2.5 text-gray-500">
                               <h1 className="w-full text-left text-sm font-semibold text-primary">
-                                Selected Time & Date
+                                Selected Address
                               </h1>
-                              <div className="flex w-full items-center justify-start gap-2.5">
-                                <FaRegClock className="size-4 text-[#858688]" />
-                                <span className="text-xs">
-                                  Date:&nbsp;
-                                  {dayjs(data?.schedule_date).format(
-                                    "DD MMM, YYYY"
-                                  )}
-                                </span>
-                              </div>
-                              <div className="flex w-full items-center justify-start gap-2.5 pb-2.5">
+                              <div className="flex w-full items-start justify-start gap-2.5">
                                 <img
-                                  src={CalendarPlain}
-                                  alt="plain-calendar-icon"
+                                  src={LocationTwo}
+                                  alt="location-two-icon"
                                 />
-                                <span className="text-xs">
-                                  Time: {data?.schedule_slot.split("-").join(" - ")}
+                                <span className="flex-1 text-wrap text-xs">
+                                  {data?.address.apartment},&nbsp;
+                                  {data?.address.building},{" "}
+                                  {data?.address.street}, {data?.address.area},{" "}
+                                  {data?.address.emirate}
                                 </span>
                               </div>
+                            </div>
+                          )}
+                          <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5 text-gray-500">
+                            <h1 className="w-full text-left text-sm font-semibold text-primary">
+                              Selected Time & Date
+                            </h1>
+                            <div className="flex w-full items-center justify-start gap-2.5">
+                              <FaRegClock className="size-4 text-[#858688]" />
+                              <span className="text-xs">
+                                Date:&nbsp;
+                                {dayjs(data?.schedule_date).format(
+                                  "DD MMM, YYYY"
+                                )}
+                              </span>
+                            </div>
+                            <div className="flex w-full items-center justify-start gap-2.5 pb-2.5">
+                              <img
+                                src={CalendarPlain}
+                                alt="plain-calendar-icon"
+                              />
+                              <span className="text-xs">
+                                Time:{" "}
+                                {data?.schedule_slot.split("-").join(" - ")}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        {/* Booking Instructions */}
+                        <div className="mt-2.5 flex w-full flex-col items-center justify-center rounded-lg bg-white">
+                          <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
+                            Booking Instructions
+                          </h1>
+                          <textarea
+                            value={deliveryNotes}
+                            onChange={(e) => setDeliveryNotes(e.target.value)}
+                            className="mt-3 w-full rounded-lg bg-gray-100 p-3 text-xs text-grey100"
+                            placeholder={
+                              data?.delivery_notes || "Further Instructions..."
+                            }
+                            // disabled={!editing}
+                          />
+                        </div>
+                        {/* <div className="grid w-full grid-cols-2 gap-2.5 pt-2.5">
+                          <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
+                            <label
+                              htmlFor="source"
+                              className="w-full text-left text-xs text-primary"
+                            >
+                              Source
+                            </label>
+                            <input
+                              type="text"
+                              placeholder={data?.booking_source}
+                              value={data?.booking_source}
+                              className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
+                              disabled={!editing}
+                            />
+                          </div>
+                          <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
+                            <label
+                              htmlFor="source"
+                              className="w-full text-left text-xs text-primary"
+                            >
+                              Channel
+                            </label>
+                            <input
+                              type="text"
+                              placeholder={data?.booking_source}
+                              className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
+                              disabled={!editing}
+                            />
+                          </div>
+                          <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
+                            <label
+                              htmlFor="source"
+                              className="w-full text-left text-xs text-primary"
+                            >
+                              Provider
+                            </label>
+                            <input
+                              type="text"
+                              placeholder={data?.partner}
+                              className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
+                              disabled={!editing}
+                            />
+                          </div>
+                          <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
+                            <label
+                              htmlFor="source"
+                              className="w-full text-left text-xs text-primary"
+                            >
+                              Branch
+                            </label>
+                            <input
+                              type="text"
+                              placeholder={data?.branch}
+                              value={data?.branch}
+                              className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
+                              disabled={!editing}
+                            />
+                          </div>
+                        </div> */}
+                        <div className="mt-4 flex w-full flex-col rounded-lg">
+                          <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
+                            Provider Details
+                          </h1>
+                          <div className="ml-1 mt-3.5 flex w-full">
+                            <div className="w-[40%] space-y-3">
+                              <div className="space-y-1.5">
+                                <p className="text-xs text-primary">
+                                  Selected Business:
+                                </p>
+                                <p className="text-xs text-[#656565]">
+                                  {data?.business || "N/A"}
+                                </p>
+                              </div>
+                              <div className="space-y-1.5">
+                                <p className="text-xs text-primary">
+                                  Selected Branch:
+                                </p>
+                                <p className="text-xs text-[#656565]">
+                                  {data?.branch || "N/A"}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="space-y-3">
+                              <div className="space-y-1.5">
+                                <p className="text-xs text-primary">
+                                  Selected Company:
+                                </p>
+                                <p className="text-xs text-[#656565]">
+                                  {data?.company || "N/A"}
+                                </p>
+                              </div>
+                              <div className="space-y-1.5">
+                                <p className="text-xs text-primary">
+                                  Selected Partner:
+                                </p>
+                                <p className="text-xs text-[#656565]">
+                                  {data?.partner || "N/A"}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-4 flex w-full flex-col rounded-lg">
+                          <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
+                            Source Details
+                          </h1>
+                          <div className="ml-1 mt-3.5 flex w-[90%] items-center justify-between">
+                            <div className="space-y-1.5">
+                              <p className="text-xs text-primary">
+                                Selected Platform:
+                              </p>
+                              <p className="text-xs text-[#656565]">
+                                {data?.booking_platform || "N/A"}
+                              </p>
+                            </div>
+                            <div className="space-y-1.5">
+                              <p className="text-xs text-primary">
+                                Selected Source:
+                              </p>
+                              <p className="text-xs text-[#656565]">
+                                {data?.booking_source || "N/A"}
+                              </p>
+                            </div>
+                            <div className="space-y-1.5">
+                              <p className="text-xs text-primary">
+                                Selected Channel:
+                              </p>
+                              <p className="text-xs text-[#656565]">
+                                {data?.booking_channel || "N/A"}
+                              </p>
                             </div>
                           </div>
                         </div>
                         {/* Selected Payment Method */}
-                        <div className="flex w-full flex-col items-center justify-center space-y-2.5 rounded-lg bg-white">
+                        <div className="mb-3 mt-5 flex w-full flex-col items-center justify-center space-y-2.5 rounded-lg bg-white">
                           <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
                             Selected Payment Method
                           </h1>
@@ -310,166 +980,22 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                                 &nbsp;AED 000
                               </p>
                               <p className="w-full text-left text-xs text-gray-500">
-                                <span className="text-primary">Deducted Time:</span>
+                                <span className="text-primary">
+                                  Deducted Time:
+                                </span>
                                 &nbsp;05/10/23 16:45
                               </p>
                             </>
                           )}
                         </div>
-                        {/* Team Members */}
-                        {/* {data?.team.length !== 0 && ( */}
-                        <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
-                          <div className="flex w-full items-center justify-between border-b pb-2.5">
-                            <h1 className="text-left font-semibold text-primary">
-                              Team Members
-                            </h1>
-                            <div className="flex items-center justify-end space-x-2.5">
-                              {data?.status_id==='2' &&
-                              <button onClick={handleAssign} className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
-                                {["3","4","5","6",'7'].includes(data?.status_id || '') ? "Re-assign": 'Assign'}
-                              </button>}
-                              <button
-                                type="button"
-                                onClick={() => setLogs(true)}
-                                className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
-                              >
-                                Booking Log
-                              </button>
-                            </div>
-                          </div>
-                          {data?.team?.length ?
-                          <>
-                          <div className="mt-2.5 grid w-full grid-cols-4 gap-2.5 bg-gray-100 p-2.5 text-xs text-primary">
-                            <p className="col-span-1 w-full text-left">Team</p>
-                            <p className="col-span-1 w-full text-left">Title</p>
-                            <p className="col-span-1 w-full text-left">Status</p>
-                            <p className="col-span-1 w-full text-left">Action</p>
-                          </div>
-                          {data?.team.map((m, idx) => (
-                            <div
-                              key={m.user_id}
-                              className={cn(
-                                "grid w-full grid-cols-4 gap-2.5 p-2.5 text-xs text-gray-500",
-                                {
-                                  "bg-white": idx % 2 === 0,
-                                  "bg-gray-100": idx % 2 !== 0,
-                                }
-                              )}
-                            >
-                              <p className="col-span-1 w-full text-left">
-                                {m.name}
-                              </p>
-                              <p className="col-span-1 w-full text-left">
-                                {m.position}
-                              </p>
-                              <div className="col-span-1 flex w-full items-center justify-start">
-                                <p
-                                  style={{
-                                    backgroundColor:
-                                      m.is_accepted === "1"
-                                        ? "#7761A1"
-                                        : "#008146",
-                                  }}
-                                  className="rounded-full px-2 py-0.5 text-center text-white"
-                                >
-                                  {m.is_accepted === "1" ? "Accepted" : "Pending"}
-                                </p>
-                              </div>
-                              <div className="flex w-full items-center justify- gap-2">
-                                <img
-                                  src={PhoneSquare}
-                                  alt="icon"
-                                  className="size-5 cursor-pointer"
-                                  onClick={()=>handleWhatsapp(m?.phone)}
-                                />
-                                <img
-                                  src={WhatsappSquare}
-                                  alt="icon"
-                                  className="size-5 cursor-pointer"
-                                  onClick={()=>handleWhatsapp(m?.phone)}
-                                />
-                                {["3","4","5","6",'7'].includes(data?.status_id || '') &&
-                                <img
-                                  onClick={handleAssign}
-                                  src={ReAssign}
-                                  alt="icon"
-                                  className="size-5 cursor-pointer"
-                                />}
-                                {/* <img
-                                  src={LocationSquare}
-                                  alt="icon"
-                                  className="size-5 cursor-pointer"
-                                /> */}
-                              </div>
-                            </div>
-                          ))}
-                          </>: null}
-                        </div>
-                        {/* )} */}
-                        {/* Booking Instructions */}
-                        <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
-                          <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
-                            Booking Instructions
-                          </h1>
-                          <textarea
-                            value={deliveryNotes}
-                            onChange={(e) => setDeliveryNotes(e.target.value)}
-                            className="mt-2.5 w-full rounded-lg bg-gray-100 p-3 text-xs text-grey100"
-                            placeholder={
-                              data?.delivery_notes || "Further Instructions..."
-                            }
-                            disabled={!editing}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="w-full max-h-[calc(100vh-170px)] overflow-auto">
-                      <div className="flex w-full flex-col rounded-lg bg-white items-start justify-start space-y-2.5 min-h-[455px]">
-                        {/* Customer Attachments */}
-                        <div className="flex h-fit w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 py-3">
+                        <div className="flex h-fit w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 py-4">
                           <div className="flex w-full items-center justify-center border-b pb-2.5">
                             <h1 className="flex-1 text-left font-semibold text-primary">
-                              Customer Attachments
-                            </h1>
-                            {editing && (
-                              <button type="button" onClick={() => setUpload(true)}>
-                                <img src={BasicEdit} alt="icon" />
-                              </button>
-                            )}
-                          </div>
-                          {data?.customer.attachments?.map((attachment) => (
-                            <div
-                              key={attachment.attachment_id}
-                              className="flex w-full items-center justify-between pt-2.5"
-                            >
-                              <div className="flex items-center justify-center space-x-3">
-                                <img
-                                  src={Attachments}
-                                  alt="attachments"
-                                  className="size-7"
-                                />
-                                <div className="flex w-full flex-col items-center justify-center">
-                                  <span className="w-full text-left text-sm text-gray-500">
-                                    {attachment.file_type}
-                                  </span>
-                                  <span className="w-full text-left text-xs text-gray-400">
-                                    {attachment.user}
-                                  </span>
-                                </div>
-                              </div>
-                              <span className="text-xs text-gray-400">
-                                {dayjs(attachment.created_at).format("DD MMM YYYY")}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                        {/* Booking Attachments */}
-                        {data?.booking_attachments?.length ?
-                          <div className="flex h-fit max-h-[200px] w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 pb-2.5">
-                            <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
                               Booking Attachments
                             </h1>
-                            {data?.booking_attachments?.map((attachment) => (
+                          </div>
+                          {data?.booking_attachments?.length ? (
+                            data?.booking_attachments?.map((attachment) => (
                               <div
                                 key={attachment.attachment_id}
                                 className="flex w-full items-center justify-between pt-2.5"
@@ -490,186 +1016,41 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                                   </div>
                                 </div>
                                 <span className="text-xs text-gray-400">
-                                  {dayjs(attachment.created_at).format("DD MMM YYYY")}
+                                  {dayjs(attachment.created_at).format(
+                                    "DD MMM YYYY"
+                                  )}
                                 </span>
                               </div>
-                            ))}
-                          </div> : null}
-                      </div>
-                      <div className="flex w-full flex-col rounded-lg bg-white items-start justify-start space-y-2.5 p-2.5 mt-3">
-                        {/* Service Details */}
-                        <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
-                          <div className="flex w-full items-center justify-center border-b pb-2.5">
-                            <h1 className="flex-1 text-left font-semibold text-primary">
-                              Service Details
-                            </h1>
-                            {editing && <img src={BasicEdit} alt="icon" />}
-                          </div>
-                          <div className="grid w-full grid-cols-5 gap-2.5 p-2.5 text-xs text-primary">
-                            <div className="col-span-1 w-full text-right">
-                              Category
-                            </div>
-                            <div className="col-span-1 w-full text-right">
-                              Service
-                            </div>
-                            <div className="col-span-1 w-full text-right">
-                              Amount
-                            </div>
-                            <div className="col-span-1 w-full text-right">
-                              Quantity
-                            </div>
-                            <div className="col-span-1 w-full text-right">
-                              Total
-                            </div>
-                          </div>
-                          {data?.services?.map((service, idx) => (
-                            <div
-                              key={service.service_id}
-                              className={cn(
-                                "grid w-full grid-cols-5 gap-2.5 p-2.5 text-xs text-gray-500",
-                                {
-                                  "bg-white": idx % 2 !== 0,
-                                  "bg-gray-100": idx % 2 === 0,
-                                }
-                              )}
-                            >
-                              <div className="col-span-1 w-full text-left lg:text-right">
-                                DOC
-                              </div>
-                              <div className="col-span-1 w-full overflow-hidden truncate text-right">
-                                {service.service_name
-                                  ? service.service_name
-                                  : "N/A"}
-                              </div>
-                              <div className="col-span-1 w-full text-right">
-                                {service.price}
-                              </div>
-                              <div className="col-span-1 w-full text-right">
-                                {service.quantity}
-                              </div>
-                              <div className="col-span-1 w-full text-right">
-                                {parseFloat(service.price) *
-                                  parseInt(service.quantity)}
-                              </div>
-                            </div>
-                          ))}
-                          <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5">
-                            <div className="flex w-full items-center justify-end space-x-10 pr-2.5 text-xs text-gray-500">
-                              <p>Subtotal</p>
-                              <p>
-                                {data?.sub_total}
-                              </p>
-                            </div>
-                            <div className="flex w-full items-center justify-end space-x-10 pr-2.5 text-xs text-gray-500">
-                              <p>Discount</p>
-                              <p>{data?.discount}</p>
-                            </div>
-                            <div className="flex w-full items-center justify-end space-x-10 pr-2.5 text-xs text-gray-500">
-                              <p>VAT</p>
-                              <p>{data?.vat_value}</p>
-                            </div>
-                            <div className="w-56 place-self-end border border-gray-300" />
-                            <div className="flex w-full items-center justify-end space-x-10 pr-2.5 font-bold text-gray-500">
-                              <p>Grand Total</p>
-                              <p>
-                                AED&nbsp;
-                                {data?.total}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                        {/* Other Details */}
-                        <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white pt-2.5">
-                          <div className="flex w-full items-center justify-between border-b pb-2.5">
-                            <h1 className="text-left font-semibold text-primary">
-                              Other Details
-                            </h1>
-                            <button className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
-                              Call Records
-                            </button>
-                          </div>
-                          <div className="grid w-full grid-cols-2 gap-2.5 pt-2.5">
-                            <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
-                              <label
-                                htmlFor="source"
-                                className="w-full text-left text-xs text-primary"
-                              >
-                                Source
-                              </label>
-                              <input
-                                type="text"
-                                placeholder={data?.booking_source}
-                                value={data?.booking_source}
-                                className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
-                                disabled={!editing}
-                              />
-                            </div>
-                            <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
-                              <label
-                                htmlFor="source"
-                                className="w-full text-left text-xs text-primary"
-                              >
-                                Channel
-                              </label>
-                              <input
-                                type="text"
-                                placeholder={data?.booking_source}
-                                className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
-                                disabled={!editing}
-                              />
-                            </div>
-                            <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
-                              <label
-                                htmlFor="source"
-                                className="w-full text-left text-xs text-primary"
-                              >
-                                Provider
-                              </label>
-                              <input
-                                type="text"
-                                placeholder={data?.partner}
-                                className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
-                                disabled={!editing}
-                              />
-                            </div>
-                            <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
-                              <label
-                                htmlFor="source"
-                                className="w-full text-left text-xs text-primary"
-                              >
-                                Branch
-                              </label>
-                              <input
-                                type="text"
-                                placeholder={data?.branch}
-                                value={data?.branch}
-                                className="w-full rounded-lg bg-gray-100 p-3 text-xs text-gray-500"
-                                disabled={!editing}
-                              />
-                            </div>
-                          </div>
+                            ))
+                          ) : (
+                            <p className="my-1.5 w-full text-center text-xs text-gray-500">
+                              No Attachments Found!
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
+                    {!["8", "9"].includes(data?.status_id || "") && (
+                      <div className="sticky bottom-0 flex w-full items-center gap-3 rounded-b-lg bg-white p-3">
+                        <button
+                          type="button"
+                          onClick={() => setCancel(true)}
+                          className="w-full rounded-lg bg-red-500 py-3 text-white"
+                        >
+                          Cancel Booking
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleEdit}
+                          className="w-full rounded-lg bg-secondary py-3 text-white"
+                        >
+                          {data?.status_id !== "1" ? "Confirm" : "Edit Booking"}
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  {!["8","9"].includes(data?.status_id || '') &&
-                  <div className="sticky bottom-0 bg-white p-3 w-full flex items-center gap-3 rounded-lg">
-                    <button
-                      type="button"
-                      onClick={() => setCancel(true)}
-                      className="w-full rounded-lg bg-red-500 py-3 text-white"
-                    >
-                      Cancel Booking
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setEditing(!editing)}
-                      className="w-full rounded-lg bg-secondary py-3 text-white"
-                    >
-                      {editing ? "Confirm" : "Edit Booking"}
-                    </button>
-                  </div>}
-                </>
+                </div>
+              </>
             )}
           </div>
         </div>
