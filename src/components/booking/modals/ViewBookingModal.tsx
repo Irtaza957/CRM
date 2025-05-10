@@ -9,7 +9,10 @@ import PhoneColored from "../../../assets/icons/phone-colored.svg";
 import ReAssign from "../../../assets/icons/colored/re-assign.svg";
 import CalendarPlain from "../../../assets/icons/calendar-plain.svg";
 import WhatsAppColored from "../../../assets/icons/whatsapp-colored.svg";
-import { useFetchBookingDetailsQuery } from "../../../store/services/booking";
+import {
+  useConfirmBookingMutation,
+  useFetchBookingDetailsQuery,
+} from "../../../store/services/booking";
 import PhoneSquare from "../../../assets/icons/colored/colored-phone-square.svg";
 import WhatsappSquare from "../../../assets/icons/colored/colored-whatsapp-square.svg";
 
@@ -24,8 +27,12 @@ import BookingHistoryModal from "./BookingHistoryModal";
 import TeamMembersModal from "./TeamMembersModal";
 import CustomButton from "../../ui/CustomButton";
 import NewBookingModal from "./NewBookingModal";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store";
+import CustomToast from "../../ui/CustomToast";
+import { toast } from "sonner";
 
-const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
+const ViewBookingModal = ({ id, open, setOpen, refetchBooking }: ModalProps) => {
   const [logs, setLogs] = useState(false);
   const [cancel, setCancel] = useState(false);
   const [upload, setUpload] = useState(false);
@@ -35,11 +42,15 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
   const [isAssignModal, setIsAssignModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [opeBooking, setOpenBooking] = useState(false);
+  const { user } = useSelector((state: RootState) => state.global);
 
-  const { data, isLoading, refetch } = useFetchBookingDetailsQuery(id, {
-    skip: !id,
+  const { data, isFetching, refetch } = useFetchBookingDetailsQuery(id, {
+    skip: !id || !open,
     refetchOnMountOrArgChange: true,
   });
+
+  const [confirmBooking, { isLoading: isConfirming }] =
+    useConfirmBookingMutation();
   const handleAssign = () => {
     setIsAssignModal(true);
   };
@@ -62,12 +73,39 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
   const handleWhatsapp = (phone: string) => {
     window.open(`https://wa.me/?text=${phone}`, "_blank");
   };
-
-  const handleEdit = () => {
-    if(data?.status_id !== "1") {
-      // setOpenBooking(true);
+  const handleEdit = async () => {
+    if (data?.status_id === "1") {
+      try {
+        const data = new URLSearchParams();
+        data.append("booking_id", String(id));
+        data.append("user_id", String(user?.id));
+        const response = await confirmBooking(data);
+        if (response?.error) {
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="error"
+              title="Error"
+              message={`Something Went Wrong!`}
+            />
+          ));
+        } else {
+          refetchBooking?.();
+          toast.custom((t) => (
+            <CustomToast
+              t={t}
+              type="success"
+              title="Success"
+              message={`Booking Confirmed Successfully!`}
+            />
+          ));
+          setOpen(false);
+        }
+      } catch (err) {
+        console.log(err);
+      }
     } else {
-      setOpen(false)
+      setOpen(false);
       setOpenBooking(true);
     }
   };
@@ -115,8 +153,8 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
             />
           </div>
           <div className="flex w-full flex-col items-center justify-center space-y-2.5 p-2.5">
-            {isLoading ? (
-              <LuLoader2 className="h-14 w-14 animate-spin text-secondary" />
+            {isFetching ? (
+              <LuLoader2 className="h-[calc(100vh-170px)] w-14 animate-spin text-secondary" />
             ) : (
               <>
                 <div className="relative flex h-full w-full gap-3">
@@ -1039,13 +1077,18 @@ const ViewBookingModal = ({ id, open, setOpen }: ModalProps) => {
                         >
                           Cancel Booking
                         </button>
-                        <button
-                          type="button"
-                          onClick={handleEdit}
-                          className="w-full rounded-lg bg-secondary py-3 text-white"
-                        >
-                          {data?.status_id !== "1" ? "Confirm" : "Edit Booking"}
-                        </button>
+                        <CustomButton
+                          name={
+                            data?.status_id === "1" ? "Confirm" : "Edit Booking"
+                          }
+                          handleClick={() => handleEdit()}
+                          icon={
+                            isConfirming ? (
+                              <LuLoader2 className="animate-spin" />
+                            ) : null
+                          }
+                          style="w-full rounded-lg bg-secondary py-3 text-white"
+                        />
                       </div>
                     )}
                   </div>

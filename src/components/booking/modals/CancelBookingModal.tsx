@@ -23,7 +23,7 @@ interface CancelBookingModalProps{
 }
 const CancelBookingModal = ({ id, open, setOpen, refetch }: CancelBookingModalProps) => {
   const [other, setOther] = useState<string | number | null>("");
-  const { data: reasons } = useFetchCancellationReasonsQuery({}, {
+  const { data: reasons } = useFetchCancellationReasonsQuery({id}, {
     skip: !id || !open,
     refetchOnMountOrArgChange: true,
   });

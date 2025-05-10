@@ -108,7 +108,7 @@ const Table = ({
 
   return (
     <>
-      <ViewBookingModal id={id} open={update} setOpen={setUpdate} />
+      <ViewBookingModal id={id} open={update} setOpen={setUpdate} refetchBooking={refetch} />
       <TeamMembersModal refetch={refetch} members={selectedUser?.team} showMembers={["3","4","5","6",'7'].includes(selectedUser?.status_id || '')} bookingId={selectedUser?.id} open={isAssignModal} setOpen={setIsAssignModal} />
       <NewBookingModal
         selectedBooking={selectedBooking || ""}

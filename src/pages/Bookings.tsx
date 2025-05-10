@@ -9,7 +9,7 @@ import CategoryDropdown from "../components/booking/dropdowns/Category";
 import {
   useFetchBookingStatusesQuery,
   useFetchBranchesQuery,
-  useFetchUsersByRolesQuery,
+  useFetchUsersQuery,
 } from "../store/services/filters";
 import { useFetchAllCategoriesQuery } from "../store/services/categories";
 import { useFetchCompaniesQuery } from "../store/services/company";
@@ -40,7 +40,7 @@ const Bookings = () => {
   const [channel, setChannel] = useState<ListOptionProps | null>(null);
   const [profession, setProfession] = useState<ListOptionProps | null>(null);
   const [platform, setPlatform] = useState<ListOptionProps | null>(null);
-  const { data: professions } = useFetchUsersByRolesQuery({});
+  const { data: professions } = useFetchUsersQuery({});
   const [bookingStatus, setBookingStatus] = useState<ListOptionProps | null>(
     null
   );
@@ -72,7 +72,6 @@ const Bookings = () => {
         refetchOnMountOrArgChange: true,
       }
     );
-  console.log(bookingData, "bookingDatabookingData");
 
   const { data: bookingSourcesData } = useFetchBookingSourcesQuery({});
 

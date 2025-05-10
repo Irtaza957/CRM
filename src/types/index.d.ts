@@ -25,6 +25,7 @@ declare type ModalProps = {
   width?: string;
   children?: React.ReactNode;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  refetchBooking?: () => void;
 };
 
 declare type NewServiceModalProps = {

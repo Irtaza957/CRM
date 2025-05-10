@@ -314,6 +314,16 @@ export const bookingApi = api.injectEndpoints({
         return formatted;
       },
     }),
+    confirmBooking: build.mutation({
+      query: (data) => ({
+        url: "/booking/confirm",
+        method: "POST",
+        body: data,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }),
+    }),
   }),
 });
 
@@ -341,4 +351,5 @@ export const {
   useFetchBookingChannelsQuery,
   useFetchBookingPlatformsQuery,
   useFetchBookingPartnersQuery,
+  useConfirmBookingMutation,
 } = bookingApi;

@@ -19,6 +19,12 @@ export const filtersApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
+    fetchUsers: build.query({
+      query: () => ({
+        url: "/account/users",
+        method: "GET",
+      }),
+    }),
     fetchAreas: build.query({
       query: (id) => ({
         url: `/areas?emirate_id=${id}`,
@@ -182,4 +188,5 @@ export const {
   useFetchUsersByRolesQuery,
   useFetchBusinessesListQuery,
   useFetchBookingStatusesQuery,
+  useFetchUsersQuery,
 } = filtersApi;

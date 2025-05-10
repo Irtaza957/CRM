@@ -86,8 +86,8 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
               </div>}
           </div>
         </div>
-        <div className="border-t border-[#E3E3E3] mt-6 w-[95%] mx-auto"/>
-        <div className="no-scrollbar flex justify-center h-full overflow-y-scroll pb-40 mt-2.5">
+        <div className="border-t border-[#E3E3E3] mt-6 max-w-[95%] mx-auto"/>
+        <div className="no-scrollbar flex justify-center overflow-scroll pb-40 mt-2.5">
           <table className="relative w-full lg:w-[95%]">
             <thead className="sticky top-0  text-left text-white bg-white">
               <tr className="h-12 text-primary">

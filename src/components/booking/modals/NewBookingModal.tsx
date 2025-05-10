@@ -49,7 +49,7 @@ import { useEffect, useState } from "react";
 import { GoShareAndroid } from "react-icons/go";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FiPlus, FiDownload } from "react-icons/fi";
-import { LuLoader2, LuUser2 } from "react-icons/lu";
+import { LuUser2 } from "react-icons/lu";
 import { TiArrowSortedDown, TiDocumentText } from "react-icons/ti";
 import AddAddressModal from "./AddAddressModal";
 import CustomButton from "../../ui/CustomButton";
@@ -217,7 +217,7 @@ const NewBookingModal = ({
   const { data: bookingDetailData } = useFetchBookingDetailsQuery(
     selectedBooking,
     {
-      skip: !selectedBooking,
+      skip: !selectedBooking || !open,
       refetchOnMountOrArgChange: true,
     }
   );
@@ -753,6 +753,7 @@ const NewBookingModal = ({
       setSelectedUser(null);
       setSelectedServices(null);
       setEditMode(false);
+      setTimeline(null);
     }
   }, [open]);
 
@@ -844,11 +845,7 @@ const NewBookingModal = ({
                 ))}
               </div>
             ) : (
-              <div className="flex h-[827px] w-full items-center justify-center">
-                {creating && (
-                  <LuLoader2 className="size-10 animate-spin text-secondary" />
-                )}
-              </div>
+              null
             )}
           </div>
           <div className="col-span-2 grid h-full w-full grid-cols-2 gap-x-2.5">
