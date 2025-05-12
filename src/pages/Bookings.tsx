@@ -30,6 +30,8 @@ import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const Bookings = () => {
   const [add, setAdd] = useState(false);
+  const [id, setID] = useState("");
+  const [update, setUpdate] = useState(false);
   const [business, setBusiness] = useState<ListOptionProps | null>(null);
   const [provider, setProvider] = useState<ListOptionProps | null>(null);
   const [branch, setBranch] = useState<ListOptionProps | null>(null);
@@ -52,7 +54,7 @@ const Bookings = () => {
   const { date } = useSelector((state: RootState) => state.app);
   const dispatch = useDispatch();
 
-  const { data: bookingData, isLoading: bookingLoading, refetch } =
+  const { data: bookingData, isFetching: bookingLoading, refetch } =
     useFetchBookingsQuery(
       {
         business_id: business?.id,
@@ -229,7 +231,7 @@ const Bookings = () => {
   }, []);
   return (
     <div className="flex h-full w-full flex-col items-start justify-start">
-      <NewBookingModal open={add} setOpen={setAdd} />
+      <NewBookingModal open={add} setOpen={setAdd} setUpdate={setUpdate} setID={setID} />
       <div className="mb-3 grid w-full grid-cols-6 gap-3">
         <BusinessDropdown
           business={business}
@@ -428,6 +430,10 @@ const Bookings = () => {
         setPageNum={setPageNum}
         page={pageNum}
         refetch={refetch}
+        id={id}
+        setID={setID}
+        update={update}
+        setUpdate={setUpdate}
       />
     </div>
   );

@@ -8,9 +8,10 @@ interface BookingHistoryModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   selectedUser?: CustomerProps | UserType | null
+  handleRowClick?: () => void
 }
 
-const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModalProps) => {
+const BookingHistoryModal = ({ selectedUser, open, setOpen, handleRowClick }: BookingHistoryModalProps) => {
   const [fetchBookingHistory, { data: historyData }] = useFetchBookingHistoryMutation();
 
   const getHistory = async () => {
@@ -27,7 +28,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="h-[90%] w-full max-w-[90%] lg:max-w-[80%] xl:max-w-[70%]"
+      className="h-[90%] w-full max-w-[90%] lg:max-w-[80%] xl:max-w-[80%]"
     >
       <div className="w-full h-full items-center justify-center overflow-hidden rounded-lg">
         <div className="flex w-full items-center justify-between overflow-hidden rounded-t-lg bg-primary px-5 py-2.5 text-white">
@@ -159,6 +160,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
                       "bg-[#F3F5F9]": idx % 2 === 0,
                     }
                   )}
+                  onClick={handleRowClick}
                 >
                   <td
                     className="px-5 pt-3 pb-1 text-center"
@@ -211,7 +213,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen }: BookingHistoryModa
                   <td
                     className="px-5 pt-3 pb-1"
                   >
-                    <span className={`rounded-full px-2 py-px text-white ${history?.status==='Pending' ? 'bg-orange-300' : history?.status==='Cancelled' ? 'bg-red-500' :'bg-[#31B86A]'}`}>
+                    <span className={`rounded-full px-2 py-px text-white whitespace-nowrap ${history?.status==='Pending' ? 'bg-orange-300' : history?.status==='Cancelled' ? 'bg-red-500' :'bg-[#31B86A]'}`}>
                     {history?.status}
                     </span>
 

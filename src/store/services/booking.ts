@@ -324,6 +324,15 @@ export const bookingApi = api.injectEndpoints({
         },
       }),
     }),
+    fetchBookingAttachments: build.query({
+      query: (booking_id: string) => ({
+        url: `/booking/attachments`,
+        method: "GET",
+        params: {
+          booking_id,
+        },
+      }),
+    }),
   }),
 });
 
@@ -351,5 +360,6 @@ export const {
   useFetchBookingChannelsQuery,
   useFetchBookingPlatformsQuery,
   useFetchBookingPartnersQuery,
+  useFetchBookingAttachmentsQuery,
   useConfirmBookingMutation,
 } = bookingApi;

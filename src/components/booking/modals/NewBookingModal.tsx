@@ -73,9 +73,11 @@ interface NewBookingModal {
   selectedBooking?: string | null;
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  setUpdate?: React.Dispatch<React.SetStateAction<boolean>>;
+  setID?: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
+const Bookings = ({ bookings, setUpdate, setID, setOpen }: { bookings: BookingProps[]; setUpdate?: React.Dispatch<React.SetStateAction<boolean>>; setID?: React.Dispatch<React.SetStateAction<string>>; setOpen?: React.Dispatch<React.SetStateAction<boolean>> }) => {
   return (
     <Swiper
       slidesPerView={2.15}
@@ -85,7 +87,11 @@ const Bookings = ({ bookings }: { bookings: BookingProps[] }) => {
     >
       {bookings.map((booking) => (
         <SwiperSlide key={booking.booking_id}>
-          <div className="grid grid-cols-12 overflow-hidden rounded-lg bg-white">
+          <div className="grid grid-cols-12 overflow-hidden rounded-lg bg-white" onClick={() => {
+            setID?.(booking.booking_id);
+            setOpen?.(false);
+            setUpdate?.(true);
+          }}>
             <div
               style={{
                 backgroundColor: booking.booking_status.color || "#FF2727",
@@ -135,6 +141,8 @@ const NewBookingModal = ({
   selectedBooking,
   open,
   setOpen,
+  setUpdate,
+  setID,
 }: NewBookingModal) => {
   const [address, setAddress] = useState<number | null>(null);
   const [timeline, setTimeline] = useState<Record<
@@ -208,7 +216,10 @@ const NewBookingModal = ({
     useState<AttachmentProps | null>(null);
 
   // const [fetchCategories] = useFetchCategoriesMutation();
-  const { data: professions } = useFetchUsersByRolesQuery({});
+  const { data: professions } = useFetchUsersByRolesQuery({}, {
+    skip: !open,
+    refetchOnMountOrArgChange: true,
+  });
   const { data: bookingPlatformsData } = useFetchBookingPlatformsQuery({});
   const { data: bookingPartnersData } = useFetchBookingPartnersQuery(String(company?.id || ""), {
     skip: !company?.id,
@@ -763,6 +774,12 @@ const NewBookingModal = ({
         selectedUser={selectedUser}
         open={history}
         setOpen={setHistory}
+        handleRowClick={()=>{
+          setHistory(false)
+          setID?.(selectedBooking || "")
+          setUpdate?.(true)
+          setOpen(false)
+        }}
       />
       <Modal
         open={open}
@@ -839,7 +856,7 @@ const NewBookingModal = ({
                       <p className="w-full text-center">{hour}</p>
                     </div>
                     <div className="col-span-10 w-full text-gray-500">
-                      <Bookings bookings={bookings} />
+                      <Bookings bookings={bookings} setUpdate={setUpdate} setID={setID} setOpen={setOpen} />
                     </div>
                   </div>
                 ))}

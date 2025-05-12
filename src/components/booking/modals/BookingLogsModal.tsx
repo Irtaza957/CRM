@@ -13,10 +13,10 @@ const BookingLogsModal = ({ logsData, open, setOpen }: BookingLogsModalProps) =>
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="w-full max-w-[50%]"
+      className="w-full max-w-[60%]"
       title="Booking Logs"
     >
-      <div className="w-full items-center justify-center rounded-lg bg-white max-h-[350px] overflow-auto">
+      <div className="w-full items-center justify-center rounded-lg bg-white max-h-[350px] my-2 overflow-auto">
         <div className="grid w-full grid-cols-5 px-2.5 pb-2.5">
           <p className="w-full text-left font-semibold text-primary">Agent</p>
           <p className="w-full text-left font-semibold text-primary">
@@ -39,10 +39,15 @@ const BookingLogsModal = ({ logsData, open, setOpen }: BookingLogsModalProps) =>
             <p className="w-full overflow-hidden truncate text-left text-sm font-semibold text-[#656565] pr-2">
               {log?.name}
             </p>
+            <div>
             <p className="w-full overflow-hidden truncate text-left text-sm font-semibold text-[#656565]">
               {dayjs(log.created_at).format("DD MMM YYYY")}
             </p>
-            <div className="flex w-full items-center justify-start">
+            <p className="w-full overflow-hidden truncate text-left text-sm font-semibold text-[#656565]">
+              {dayjs(log.created_at).format("HH:mm A")}
+            </p>
+            </div>
+            <div className="flex items-center justify-start mr-2 whitespace-nowrap">
               <span className="rounded-full bg-[#009AE2] px-2 py-px text-left text-sm font-semibold text-white">
                 {log?.status}
               </span>

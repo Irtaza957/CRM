@@ -12,6 +12,7 @@ import WhatsAppColored from "../../../assets/icons/whatsapp-colored.svg";
 import {
   useConfirmBookingMutation,
   useFetchBookingDetailsQuery,
+  useFetchBookingAttachmentsQuery,
 } from "../../../store/services/booking";
 import PhoneSquare from "../../../assets/icons/colored/colored-phone-square.svg";
 import WhatsappSquare from "../../../assets/icons/colored/colored-whatsapp-square.svg";
@@ -32,7 +33,12 @@ import { RootState } from "../../../store";
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
 
-const ViewBookingModal = ({ id, open, setOpen, refetchBooking }: ModalProps) => {
+const ViewBookingModal = ({
+  id,
+  open,
+  setOpen,
+  refetchBooking,
+}: ModalProps) => {
   const [logs, setLogs] = useState(false);
   const [cancel, setCancel] = useState(false);
   const [upload, setUpload] = useState(false);
@@ -45,6 +51,11 @@ const ViewBookingModal = ({ id, open, setOpen, refetchBooking }: ModalProps) => 
   const { user } = useSelector((state: RootState) => state.global);
 
   const { data, isFetching, refetch } = useFetchBookingDetailsQuery(id, {
+    skip: !id || !open,
+    refetchOnMountOrArgChange: true,
+  });
+
+  const { data: attachmentsData } = useFetchBookingAttachmentsQuery(id || "", {
     skip: !id || !open,
     refetchOnMountOrArgChange: true,
   });
@@ -216,7 +227,8 @@ const ViewBookingModal = ({ id, open, setOpen, refetchBooking }: ModalProps) => 
                             <img
                               src={WhatsAppColored}
                               alt="whatsapp"
-                              className="size-7"
+                              className="size-7 cursor-pointer"
+                              onClick={() => handleWhatsapp(data?.customer?.phone || "")}
                             />
                           </div>
                         </div>
@@ -512,15 +524,22 @@ const ViewBookingModal = ({ id, open, setOpen, refetchBooking }: ModalProps) => 
                                   <p
                                     style={{
                                       backgroundColor:
-                                        m.is_accepted === "1"
-                                          ? "#7761A1"
-                                          : "#008146",
+                                        m.status_id === "1"
+                                          ? "#FB861F"
+                                          : m.status_id === "5"
+                                            ? "#FF0000"
+                                            : "#31B86A",
                                     }}
                                     className="rounded-full px-2 py-0.5 text-center text-white"
                                   >
-                                    {m.is_accepted === "1"
-                                      ? "Accepted"
-                                      : "Pending"}
+                                    {m.status_id === "1"
+                                      ? "Pending"
+                                      : m.status_id === "2"
+                                        ? "Accepted"
+                                        : m.status_id === "3"
+                                          ? "Dispatched"
+                                          : m.status_id === "4"
+                                          ? "Arrived" : "Rejected"}
                                   </p>
                                 </div>
                                 <div className="justify- flex w-full items-center gap-2">
@@ -528,7 +547,7 @@ const ViewBookingModal = ({ id, open, setOpen, refetchBooking }: ModalProps) => 
                                     src={PhoneSquare}
                                     alt="icon"
                                     className="size-5 cursor-pointer"
-                                    onClick={() => handleWhatsapp(m?.phone)}
+                                    // onClick={() => handleWhatsapp(m?.phone)}
                                   />
                                   <img
                                     src={WhatsappSquare}
@@ -565,16 +584,16 @@ const ViewBookingModal = ({ id, open, setOpen, refetchBooking }: ModalProps) => 
                   </div>
                   <div className="max-h-[calc(100vh-170px)] w-full overflow-auto">
                     <div className="flex w-full flex-col items-start justify-start space-y-2.5 rounded-lg bg-white px-3">
-                      <div>
+                      <div className="w-full">
                         <div className="mb-1 flex w-full items-center justify-between border-b-2 px-2.5 pb-2 pt-4">
                           <h1 className="flex-1 text-left font-semibold text-primary">
                             Service Details
                           </h1>
                           <div className="flex items-center gap-2">
-                            <CustomButton
+                            {/* <CustomButton
                               name="Invoice"
                               handleClick={() => {}}
-                            />
+                            /> */}
                             <CustomButton
                               name={data?.payment_status}
                               handleClick={() => {}}
@@ -624,7 +643,9 @@ const ViewBookingModal = ({ id, open, setOpen, refetchBooking }: ModalProps) => 
                                   }
                                 )}
                               >
-                                <td className="px-5 text-xs">DOC</td>
+                                <td className="px-5 text-xs">
+                                  {item?.category_code}
+                                </td>
                                 <td className="px-5 text-xs">
                                   {item.service_name}
                                 </td>
@@ -783,15 +804,15 @@ const ViewBookingModal = ({ id, open, setOpen, refetchBooking }: ModalProps) => 
                             Booking Details
                           </h1>
                           <div className="flex items-center space-x-2">
-                            <button className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
+                            {/* <button className="rounded-md bg-primary px-5 py-1.5 text-xs text-white">
                               Call Records
-                            </button>
+                            </button> */}
                             <button
                               type="button"
                               onClick={() => setLogs(true)}
                               className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
                             >
-                              Booking Log
+                              Booking Logs
                             </button>
                           </div>
                         </div>
@@ -1032,8 +1053,8 @@ const ViewBookingModal = ({ id, open, setOpen, refetchBooking }: ModalProps) => 
                               Booking Attachments
                             </h1>
                           </div>
-                          {data?.booking_attachments?.length ? (
-                            data?.booking_attachments?.map((attachment) => (
+                          {attachmentsData?.length ? (
+                            attachmentsData?.map((attachment: any) => (
                               <div
                                 key={attachment.attachment_id}
                                 className="flex w-full items-center justify-between pt-2.5"

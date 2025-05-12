@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { FaCheckCircle } from "react-icons/fa";
 import { IoMdCloseCircle } from "react-icons/io";
 import { TiArrowSortedDown } from "react-icons/ti";
@@ -35,21 +35,27 @@ const Table = ({
   data,
   isLoading,
   page,
+  id,
   setPageNum,
-  refetch
+  refetch,
+  setID,
+  update,
+  setUpdate
 }: {
   data: any;
   isLoading: boolean;
   page: number;
+  id: string;
+  update: boolean;
   setPageNum: (num: number) => void;
   refetch?: () => void;
+  setID: React.Dispatch<React.SetStateAction<string>>;
+  setUpdate: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: "asc" | "desc";
   } | null>(null);
-  const [id, setID] = useState("");
-  const [update, setUpdate] = useState(false);
   const [limit, setLimit] = useState<ListOptionProps | null>({
     id: 2,
     name: "10",
@@ -114,6 +120,8 @@ const Table = ({
         selectedBooking={selectedBooking || ""}
         open={open}
         setOpen={setOpen}
+        setUpdate={setUpdate}
+        setID={setID}
       />
       <div className="mt-3 h-[calc(100vh-385px)] w-full lg:h-[calc(100vh-275px)] xl:h-[calc(100vh-245px)]">
         <div className="h-full w-full overflow-hidden rounded-t-lg border">
@@ -288,13 +296,15 @@ const Table = ({
                                     key={idx}
                                     className="flex w-full items-center gap-1 text-left text-xs"
                                   >
-                                    {team.is_accepted ? (
-                                      <FaCheckCircle className="text-green-500" />
-                                    ) : team.rejected_at ? (
+                                    <div>
+                                    {team.status_id==='1' ? (
+                                      <RiErrorWarningFill className="text-yellow-500" />
+                                    ) : team.status_id==='5' ? (
                                       <IoMdCloseCircle className="text-red-500" />
                                     ) : (
-                                      <RiErrorWarningFill className="text-yellow-500" />
+                                      <FaCheckCircle className="text-green-500" />
                                     )}
+                                    </div>
                                     &nbsp;
                                     <span className="flex-1 overflow-hidden truncate">
                                       {team.name}
@@ -318,7 +328,7 @@ const Table = ({
                             style={{
                               backgroundColor: booking.booking_status.color,
                             }}
-                            className="rounded-full px-2 py-0.5 text-xs text-white"
+                            className="rounded-full px-2 py-0.5 text-xs text-white whitespace-nowrap"
                           >
                             {booking.booking_status.name}
                           </span>

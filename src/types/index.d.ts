@@ -311,6 +311,7 @@ declare type BookingDetailProps = {
     discount_value: string;
     discount: string;
     total: string;
+    category_code: string;
   }[];
   team: Team[];
   logs: BookingLogs[];
