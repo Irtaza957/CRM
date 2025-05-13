@@ -11,7 +11,7 @@ import Edit from "../../assets/icons/colored/edit.svg";
 import { cn } from "../../utils/helpers";
 import ReAssign from "../../assets/icons/colored/re-assign.svg";
 import SmallUpDownArrow from "../../assets/icons/updown-arrow.svg";
-import PhoneColored from "../../assets/icons/colored/colored-phone-square.svg";
+// import PhoneColored from "../../assets/icons/colored/colored-phone-square.svg";
 import ViewBookingModal from "../../components/booking/modals/ViewBookingModal";
 import WhatsappColored from "../../assets/icons/colored/colored-whatsapp-square.svg";
 import NewBookingModal from "./modals/NewBookingModal";
