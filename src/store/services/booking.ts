@@ -35,6 +35,7 @@ export const bookingApi = api.injectEndpoints({
           page,
         },
       }),
+      providesTags: ['Bookings'],
       transformResponse: (response: {
         success: number;
         error: string;
@@ -50,6 +51,7 @@ export const bookingApi = api.injectEndpoints({
           "Content-Type": "application/x-www-form-urlencoded", // Set the Content-Type header
         },
       }),
+      invalidatesTags: ['Bookings'],
     }),
     cancelBooking: build.mutation({
       query: (data) => ({

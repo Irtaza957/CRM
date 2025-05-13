@@ -40,6 +40,7 @@ import {
   FaChevronLeft,
   FaRegTrashAlt,
   FaChevronRight,
+  FaSearch,
 } from "react-icons/fa";
 import dayjs from "dayjs";
 import { toast } from "sonner";
@@ -72,12 +73,23 @@ import { useFetchBusinessesQuery } from "../../../store/services/service";
 interface NewBookingModal {
   selectedBooking?: string | null;
   open: boolean;
+  isViewBooking?: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setUpdate?: React.Dispatch<React.SetStateAction<boolean>>;
   setID?: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const Bookings = ({ bookings, setUpdate, setID, setOpen }: { bookings: BookingProps[]; setUpdate?: React.Dispatch<React.SetStateAction<boolean>>; setID?: React.Dispatch<React.SetStateAction<string>>; setOpen?: React.Dispatch<React.SetStateAction<boolean>> }) => {
+const Bookings = ({
+  bookings,
+  setUpdate,
+  setID,
+  setOpen,
+}: {
+  bookings: BookingProps[];
+  setUpdate?: React.Dispatch<React.SetStateAction<boolean>>;
+  setID?: React.Dispatch<React.SetStateAction<string>>;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   return (
     <Swiper
       slidesPerView={2.15}
@@ -87,11 +99,14 @@ const Bookings = ({ bookings, setUpdate, setID, setOpen }: { bookings: BookingPr
     >
       {bookings.map((booking) => (
         <SwiperSlide key={booking.booking_id}>
-          <div className="grid grid-cols-12 overflow-hidden rounded-lg bg-white" onClick={() => {
-            setID?.(booking.booking_id);
-            setOpen?.(false);
-            setUpdate?.(true);
-          }}>
+          <div
+            className="grid cursor-pointer grid-cols-12 overflow-hidden rounded-lg bg-white"
+            onClick={() => {
+              setID?.(booking.booking_id);
+              setOpen?.(false);
+              setUpdate?.(true);
+            }}
+          >
             <div
               style={{
                 backgroundColor: booking.booking_status.color || "#FF2727",
@@ -185,7 +200,7 @@ const NewBookingModal = ({
   const [fetchAttachments] = useFetchCustomerAttachmentsMutation();
   const [addresses, setAddresses] = useState<AddressProps[] | null>([]);
   // const [category, setCategory] = useState<ListOptionProps | null>(null);
-  const { data, refetch } = useFetchBookingsQuery(
+  const { data } = useFetchBookingsQuery(
     { date: dayjs(date || new Date()).format("YYYY-MM-DD") },
     {
       skip: !open,
@@ -209,6 +224,7 @@ const NewBookingModal = ({
   // const [categories, setCategories] = useState<ListOptionProps[]>([]);
   const [profesionsData, setProfesionsData] = useState<ListOptionProps[]>([]);
   const [bookingsData, setBookingsData] = useState<any>([]);
+  const [toggleSearch, setToggleSearch] = useState(true);
   const [history, setHistory] = useState(false);
   const [openDeleteAttachmentModal, setOpenDeleteAttachmentModal] =
     useState(false);
@@ -216,15 +232,21 @@ const NewBookingModal = ({
     useState<AttachmentProps | null>(null);
 
   // const [fetchCategories] = useFetchCategoriesMutation();
-  const { data: professions } = useFetchUsersByRolesQuery({}, {
-    skip: !open,
-    refetchOnMountOrArgChange: true,
-  });
+  const { data: professions } = useFetchUsersByRolesQuery(
+    {},
+    {
+      skip: !open,
+      refetchOnMountOrArgChange: true,
+    }
+  );
   const { data: bookingPlatformsData } = useFetchBookingPlatformsQuery({});
-  const { data: bookingPartnersData } = useFetchBookingPartnersQuery(String(company?.id || ""), {
-    skip: !company?.id,
-    refetchOnMountOrArgChange: true,
-  });
+  const { data: bookingPartnersData } = useFetchBookingPartnersQuery(
+    String(company?.id || ""),
+    {
+      skip: !company?.id,
+      refetchOnMountOrArgChange: true,
+    }
+  );
   const { data: bookingDetailData } = useFetchBookingDetailsQuery(
     selectedBooking,
     {
@@ -234,11 +256,17 @@ const NewBookingModal = ({
   );
   const [deleteAttachment, { isLoading: deleteLoading }] =
     useDeleteAttachmentMutation();
-  const { data: companiesDropdownData } = useFetchCompaniesQuery([{name: 'business', id: business?.id || ""}], {
-    skip: !business?.id,
+  const { data: companiesDropdownData } = useFetchCompaniesQuery(
+    [{ name: "business", id: business?.id || "" }],
+    {
+      skip: !business?.id || !open,
+      refetchOnMountOrArgChange: true,
+    }
+  );
+  const { data: businessData } = useFetchBusinessesQuery([], {
+    skip: !open,
     refetchOnMountOrArgChange: true,
   });
-  const { data: businessData } = useFetchBusinessesQuery([]);
   const { data: branchesDropodwnData } = useFetchBranchesQuery(
     [{ name: "company", id: `${company?.id}-company` }],
     {
@@ -319,7 +347,7 @@ const NewBookingModal = ({
         //   service.qty!;
 
         acc.subtotal += priceWithoutVAT;
-        acc.total_vat = acc.subtotal * (5/100);
+        acc.total_vat = acc.subtotal * (5 / 100);
 
         return acc;
       },
@@ -352,21 +380,23 @@ const NewBookingModal = ({
   //   }
   // };
 
-  const calculateVat=()=>{
-    const sub=calculateBookingCost(selectedServices!).subtotal
-    if(discount.type === "percent"){
-      return ((sub - sub * (discount.value / 100)) * (5/100))?.toFixed(2)
+  const calculateVat = () => {
+    const sub = calculateBookingCost(selectedServices!).subtotal;
+    if (discount.type === "percent") {
+      return ((sub - sub * (discount.value / 100)) * (5 / 100))?.toFixed(2);
     }
-    return ((sub - discount.value) * (5/100))?.toFixed(2)
-  }
+    return ((sub - discount.value) * (5 / 100))?.toFixed(2);
+  };
 
-  const calculateGrandTotal=()=>{
-    const sub=calculateBookingCost(selectedServices!).subtotal
-    if(discount.type === "percent"){
-      return Number(sub - sub * (discount.value / 100)) + Number(calculateVat())
+  const calculateGrandTotal = () => {
+    const sub = calculateBookingCost(selectedServices!).subtotal;
+    if (discount.type === "percent") {
+      return (
+        Number(sub - sub * (discount.value / 100)) + Number(calculateVat())
+      );
     }
-    return Number(sub - discount.value) + Number(calculateVat())
-  }
+    return Number(sub - discount.value) + Number(calculateVat());
+  };
 
   const postBooking = async () => {
     const urlencoded = new URLSearchParams();
@@ -377,9 +407,9 @@ const NewBookingModal = ({
     urlencoded.append("booking_channel_id", String(channel?.id || ""));
     urlencoded.append("company_id", String(company?.id || ""));
     urlencoded.append("branch_id", String(branch?.id || ""));
-    urlencoded.append("partner_id", String(partner?.id || '0'));
-    urlencoded.append("business_id", String(business?.id || ''));
-    urlencoded.append("booking_platform_id", String(platform?.id || ''));
+    urlencoded.append("partner_id", String(partner?.id || "0"));
+    urlencoded.append("business_id", String(business?.id || ""));
+    urlencoded.append("booking_platform_id", String(platform?.id || ""));
     urlencoded.append("firstname", selectedUser!.firstname);
     urlencoded.append("lastname", selectedUser!.lastname);
     urlencoded.append("phone", selectedUser!.phone);
@@ -394,8 +424,8 @@ const NewBookingModal = ({
       payment === "cod"
         ? "Cash on Delivery"
         : payment === "online"
-        ? "Online Payment"
-        : "Card on Delivery"
+          ? "Online Payment"
+          : "Card on Delivery"
     );
     urlencoded.append("payment_method_code", payment);
     urlencoded.append("payment_status", "pending");
@@ -424,20 +454,16 @@ const NewBookingModal = ({
       calculateVat()
       // `${calculateBookingCost(selectedServices!).total_vat}`
     );
-    urlencoded.append(
-      "total",
-      calculateGrandTotal()?.toFixed(2)
-    );
-    const services=selectedServices?.map((item) => {
-      const price=item.price_without_vat || item.price
+    urlencoded.append("total", calculateGrandTotal()?.toFixed(2));
+    const services = selectedServices?.map((item) => {
+      const price = item.price_without_vat || item.price;
       const disc =
         item.discount_type === "aed"
           ? item.discount_value
           : Number(price) -
             Math.round(
               Number(price) -
-                Number(price) *
-                  (Number(item.discount_value) / 100)
+                Number(price) * (Number(item.discount_value) / 100)
             );
       return {
         service_id: item.service_id,
@@ -450,11 +476,8 @@ const NewBookingModal = ({
         total: price ? Number(price) * item.qty! : "0.00",
         new_price: item.new_price || "0.00",
       };
-    })
-    urlencoded.append(
-      "services",
-      JSON.stringify(services)
-    );
+    });
+    urlencoded.append("services", JSON.stringify(services));
     urlencoded.append("user_id", `${user!.id}`);
     try {
       const data = await createBooking(urlencoded);
@@ -476,7 +499,6 @@ const NewBookingModal = ({
             message="Successfully Created Booking!"
           />
         ));
-        refetch();
         setOpen(false);
         setDeliveryNotes("");
         setAddress(null);
@@ -654,11 +676,11 @@ const NewBookingModal = ({
   };
 
   useEffect(() => {
-    if (bookingsData) {
+    if (bookingsData && open) {
       const view = createTimelineView(bookingsData?.bookings || []);
       setTimeline(view);
     }
-  }, [bookingsData]);
+  }, [bookingsData, open]);
 
   useEffect(() => {
     if (data) {
@@ -668,12 +690,12 @@ const NewBookingModal = ({
   }, [data]);
 
   useEffect(() => {
-    if (selectedUser) {
+    if (selectedUser && open) {
       getFamily(selectedUser?.customer_id);
       getAddresses(selectedUser?.customer_id);
       getAttachments(selectedUser?.customer_id);
     }
-  }, [selectedUser]);
+  }, [selectedUser, open]);
 
   useEffect(() => {
     if (!selectedService?.length) {
@@ -697,7 +719,7 @@ const NewBookingModal = ({
   }, [professions]);
 
   useEffect(() => {
-    if (bookingDetailData?.booking_id) {
+    if (bookingDetailData?.booking_id && open) {
       setSelectedUser({
         customer_id: bookingDetailData?.customer?.id || "",
         branch_id: bookingDetailData?.branch_id || "",
@@ -749,15 +771,36 @@ const NewBookingModal = ({
       setPayment(bookingDetailData?.payment_method_code);
       setAddress(Number(bookingDetailData?.address_id));
       setAttachments(bookingDetailData?.attachments);
-      setPartner({id: bookingDetailData?.partner_id, name: bookingDetailData?.partner})
-      setBusiness({id: bookingDetailData?.business_id, name: bookingDetailData?.business})
-      setBranch({id: bookingDetailData?.branch_id, name: bookingDetailData?.branch})
-      setChannel({id: bookingDetailData?.booking_channel_id, name: bookingDetailData?.booking_channel})
-      setPlatform({id: bookingDetailData?.booking_platform_id, name: bookingDetailData?.booking_platform})
-      setSource({id: bookingDetailData?.booking_source_id, name: bookingDetailData?.booking_source})
-      setCompany({id: bookingDetailData?.company_id, name: bookingDetailData?.company})
+      setPartner({
+        id: bookingDetailData?.partner_id,
+        name: bookingDetailData?.partner,
+      });
+      setBusiness({
+        id: bookingDetailData?.business_id,
+        name: bookingDetailData?.business,
+      });
+      setBranch({
+        id: bookingDetailData?.branch_id,
+        name: bookingDetailData?.branch,
+      });
+      setChannel({
+        id: bookingDetailData?.booking_channel_id,
+        name: bookingDetailData?.booking_channel,
+      });
+      setPlatform({
+        id: bookingDetailData?.booking_platform_id,
+        name: bookingDetailData?.booking_platform,
+      });
+      setSource({
+        id: bookingDetailData?.booking_source_id,
+        name: bookingDetailData?.booking_source,
+      });
+      setCompany({
+        id: bookingDetailData?.company_id,
+        name: bookingDetailData?.company,
+      });
     }
-  }, [bookingDetailData]);
+  }, [bookingDetailData, open]);
 
   useEffect(() => {
     if (!open) {
@@ -768,17 +811,23 @@ const NewBookingModal = ({
     }
   }, [open]);
 
+  useEffect(() => {
+    if (selectedUser) {
+      setToggleSearch(false);
+    }
+  }, [selectedUser]);
+
   return (
     <>
       <BookingHistoryModal
         selectedUser={selectedUser}
         open={history}
         setOpen={setHistory}
-        handleRowClick={()=>{
-          setHistory(false)
-          setID?.(selectedBooking || "")
-          setUpdate?.(true)
-          setOpen(false)
+        handleRowClick={() => {
+          setHistory(false);
+          setID?.(selectedBooking || "");
+          setUpdate?.(true);
+          setOpen(false);
         }}
       />
       <Modal
@@ -856,62 +905,79 @@ const NewBookingModal = ({
                       <p className="w-full text-center">{hour}</p>
                     </div>
                     <div className="col-span-10 w-full text-gray-500">
-                      <Bookings bookings={bookings} setUpdate={setUpdate} setID={setID} setOpen={setOpen} />
+                      <Bookings
+                        bookings={bookings}
+                        setUpdate={setUpdate}
+                        setID={setID}
+                        setOpen={setOpen}
+                      />
                     </div>
                   </div>
                 ))}
               </div>
-            ) : (
-              null
-            )}
+            ) : null}
           </div>
           <div className="col-span-2 grid h-full w-full grid-cols-2 gap-x-2.5">
             <div className="col-span-2 flex h-[58px] w-full items-center justify-between bg-primary px-2.5 text-white">
               <p className="ml-5 w-full text-left text-lg font-semibold">
-                {selectedBooking ? "Update" : "New"} Booking {selectedBooking && `Ref #: ${selectedBooking}`}
+                {selectedBooking ? "Update" : "New"} Booking{" "}
+                {selectedBooking && `Ref #: ${selectedBooking}`}
               </p>
               <button type="button" onClick={() => setOpen(false)}>
                 <IoClose className="size-8" />
               </button>
             </div>
             <div
-              className={`no-scrollbar col-span-1 flex w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pl-2.5 ${selectedUser ? "max-h-[calc(100vh-100px)]" : "h-screen"}`}
+              className={`no-scrollbar col-span-1 flex h-screen w-full flex-col items-start justify-start gap-2.5 overflow-auto py-2.5 pb-32 pl-2.5`}
             >
               <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
-                <div className="mb-2.5 flex w-full items-center justify-between border-b pb-2.5">
+                <div
+                  className={cn(
+                    "flex w-full items-center justify-between border-b pb-2",
+                    toggleSearch && "mb-2.5"
+                  )}
+                >
                   <h1 className="text-left font-semibold text-primary">
                     Customer Details
                   </h1>
-                  {!selectedUser && !editMode ? (
-                    <CustomButton
-                      name="Add New"
-                      handleClick={() => setOpenCustomerModal(true)}
-                      style="px-4"
-                    />
-                  ) : (
-                    <div className="py-2">
-                      <FaRegEdit
-                        onClick={handleEditClientClick}
-                        className="h-5 w-5 cursor-pointer text-gray-500"
+                  <div className="flex items-center gap-2">
+                    {!selectedUser && !editMode && (
+                      <CustomButton
+                        name="Add New"
+                        handleClick={() => setOpenCustomerModal(true)}
+                        style="px-4"
                       />
-                    </div>
-                  )}
+                    )}
+                    {selectedUser && (
+                      <div className="py-2">
+                        <FaSearch
+                          onClick={() => setToggleSearch(!toggleSearch)}
+                          className="h-5 w-5 cursor-pointer text-gray-500"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <AutoComplete
-                  handleSelectUser={handleSelectUser}
-                  setSelectedUser={setSelectedUser}
-                />
-              </div>
-              {selectedUser && (
-                <>
-                  <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white p-2.5">
+                {toggleSearch && (
+                  <AutoComplete
+                    handleSelectUser={handleSelectUser}
+                    setSelectedUser={setSelectedUser}
+                  />
+                )}
+                {selectedUser && (
+                  <div
+                    className={cn(
+                      "mt-5 flex w-full items-start justify-betweeen rounded-lg bg-white",
+                      !toggleSearch && "mt-3"
+                    )}
+                  >
                     <div className="grid w-full grid-cols-12 xl:gap-8">
                       <div className="col-span-7 flex w-full items-center gap-3">
                         <img
                           alt="profile"
                           className="size-14 rounded-full"
                           src={
-                            selectedUser.image ||
+                            selectedUser?.image ||
                             "https://ui.shadcn.com/avatars/04.png"
                           }
                         />
@@ -944,7 +1010,17 @@ const NewBookingModal = ({
                         </span>
                       </div>
                     </div>
-                    <div className="mt-6 flex w-full items-center justify-between border-b py-2.5">
+                    <FaRegEdit
+                      onClick={handleEditClientClick}
+                      className="h-5 w-5 cursor-pointer text-gray-500"
+                    />
+                  </div>
+                )}
+              </div>
+              {selectedUser && (
+                <>
+                  <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white px-2.5 pb-2.5 pt-0.5">
+                    <div className="flex w-full items-center justify-between border-b py-2.5">
                       <h1 className="text-left font-semibold text-primary">
                         Address Details
                       </h1>
@@ -990,7 +1066,7 @@ const NewBookingModal = ({
                           </div>
                         ))
                       ) : (
-                        <p className="w-full text-center text-xs text-gray-500">
+                        <p className="col-span-2 w-full text-center text-xs text-gray-500">
                           No Addresses Found!
                         </p>
                       )}
@@ -1259,7 +1335,7 @@ const NewBookingModal = ({
                           className="col-span-1 w-full bg-transparent text-center"
                         />
                         <div className="col-span-1 flex w-full items-center justify-end">
-                        {/* {service?.qty
+                          {/* {service?.qty
                             ? Math.round(parseFloat(service?.price || "0") * parseFloat(service?.qty))
                             : Math.round(
                               parseFloat(service?.price || "0")
@@ -1267,16 +1343,12 @@ const NewBookingModal = ({
                           {service?.qty
                             ? Math.round(
                                 parseFloat(
-                                  service.total ||
-                                    service.price ||
-                                    "0"
+                                  service.total || service.price || "0"
                                 ) * parseFloat(String(service!.qty))
                               )
                             : Math.round(
                                 parseFloat(
-                                  service.total ||
-                                    service.price ||
-                                    "0"
+                                  service.total || service.price || "0"
                                 )
                               )}
                         </div>
@@ -1342,9 +1414,7 @@ const NewBookingModal = ({
                       </div>
                       <div className="flex w-full items-center justify-end space-x-[160px] pr-2.5 text-xs text-gray-500">
                         <p>VAT</p>
-                        <p>
-                          {calculateVat()}
-                        </p>
+                        <p>{calculateVat()}</p>
                       </div>
                       <div className="w-72 place-self-end border border-[#EFEFEF]" />
                       <div className="flex w-full items-center justify-end space-x-[105px] pr-2.5 font-bold text-gray-500">
@@ -1423,7 +1493,6 @@ const NewBookingModal = ({
                         }
                         isSearch={false}
                       />
-                      
                     </div>
                   </div>
                   <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
@@ -1456,9 +1525,9 @@ const NewBookingModal = ({
                           name: item.name,
                         }))}
                         handleSelect={(value) => {
-                          setCompany(value)
-                          setPartner(null)
-                          setBranch(null)
+                          setCompany(value);
+                          setPartner(null);
+                          setBranch(null);
                         }}
                         label="Select Company"
                         placeholder="Select Company"
@@ -1474,26 +1543,26 @@ const NewBookingModal = ({
                       />
                     </div>
                     <div className="grid w-full grid-cols-2 gap-2.5">
-                    <Combobox
-                      value={branch}
-                      options={branchesDropodwnData?.map((item) => ({
-                        id: item.branch_id,
-                        name: item.name,
-                      }))}
-                      handleSelect={(value) => setBranch(value)}
-                      label="Select Branch"
-                      placeholder="Select Branch"
-                      mainClassName="w-full"
-                      toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
-                      listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
-                      listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                      icon={
-                        <RiArrowDownSLine className="h-5 w-5 text-grey100" />
-                      }
-                      isSearch={false}
-                      disabled={!company?.id}
-                    />
-                    <Combobox
+                      <Combobox
+                        value={branch}
+                        options={branchesDropodwnData?.map((item) => ({
+                          id: item.branch_id,
+                          name: item.name,
+                        }))}
+                        handleSelect={(value) => setBranch(value)}
+                        label="Select Branch"
+                        placeholder="Select Branch"
+                        mainClassName="w-full"
+                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                        icon={
+                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
+                        }
+                        isSearch={false}
+                        disabled={!company?.id}
+                      />
+                      <Combobox
                         value={partner}
                         options={bookingPartnersData}
                         handleSelect={(value) => setPartner(value)}
@@ -1509,7 +1578,7 @@ const NewBookingModal = ({
                         isSearch={false}
                         disabled={!company?.id}
                       />
-                  </div>
+                    </div>
                   </div>
                   <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
                     <h1 className="w-full text-left font-semibold text-primary">
@@ -1617,8 +1686,8 @@ const NewBookingModal = ({
                         </p>
                       </div>
                     </div>
-                    <div className="w-full flex justify-start">
-                    <div
+                    <div className="flex w-full justify-start">
+                      <div
                         onClick={() => setPayment("online")}
                         className={cn(
                           "col-span-1 w-1/2 cursor-pointer rounded-md border bg-gray-100 p-2.5",
@@ -1631,10 +1700,12 @@ const NewBookingModal = ({
                           Online Payment
                         </p>
                       </div>
-                  </div>
+                    </div>
                   </div>
                   <CustomButton
-                    name={selectedBooking ? "Update Booking" : "Confirm Booking"}
+                    name={
+                      selectedBooking ? "Update Booking" : "Confirm Booking"
+                    }
                     handleClick={postBooking}
                     loading={creating}
                     disabled={creating || !address || !scheduleTime}

@@ -23,7 +23,7 @@ interface CancelBookingModalProps{
 }
 const CancelBookingModal = ({ id, open, setOpen, refetch }: CancelBookingModalProps) => {
   const [other, setOther] = useState<string | number | null>("");
-  const { data: reasons } = useFetchCancellationReasonsQuery({id}, {
+  const { data: reasons, isFetching } = useFetchCancellationReasonsQuery({id}, {
     skip: !id || !open,
     refetchOnMountOrArgChange: true,
   });
@@ -109,7 +109,7 @@ const CancelBookingModal = ({ id, open, setOpen, refetch }: CancelBookingModalPr
             e.preventDefault();
             handleCancel();
           }}
-          className="flex w-full flex-col items-center justify-center space-y-2.5 rounded-b-lg bg-white p-2.5"
+          className="flex w-full flex-col items-center justify-center space-y-2.5 rounded-b-lg bg-white p-4"
         >
           <div className="col-span-1 flex w-full flex-col items-center justify-center space-y-1">
             <label
@@ -118,7 +118,9 @@ const CancelBookingModal = ({ id, open, setOpen, refetch }: CancelBookingModalPr
             >
               Reason for Cancelling
             </label>
-            {reasons && (
+            {isFetching ? (
+              <div className="flex items-center justify-center py-4"><LuLoader2 className="h-5 w-5 animate-spin" /></div>
+            ) : (
               <Combobox
                 value={reason}
                 options={reasons!}
@@ -144,7 +146,7 @@ const CancelBookingModal = ({ id, open, setOpen, refetch }: CancelBookingModalPr
               label="Please Describe your Reason"
             />
           )}
-          <div className="grid w-full grid-cols-2 gap-2.5">
+          <div className="grid w-full grid-cols-2 gap-2.5 !mt-5">
             <button
               type="button"
               disabled={isLoading}

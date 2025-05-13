@@ -181,6 +181,7 @@ const AddCustomerModal = ({
           ));
           setSelectedUser && setSelectedUser({
             ...userData,
+            customer_id: response?.data?.data?.customer_id,
             customer_source_id: String(source?.id || ''),
             gender: String(gender?.id || ''),
             nationality: String(nationality?.name || ''), 

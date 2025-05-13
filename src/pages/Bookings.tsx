@@ -72,6 +72,7 @@ const Bookings = () => {
       },
       {
         refetchOnMountOrArgChange: true,
+        // pollingInterval: 30000, // refetch 30 seconds
       }
     );
 
@@ -229,6 +230,8 @@ const Bookings = () => {
       dispatch(setDate(null));
     };
   }, []);
+
+  console.log(bookingData, 'bookingDatabookingData')
   return (
     <div className="flex h-full w-full flex-col items-start justify-start">
       <NewBookingModal open={add} setOpen={setAdd} setUpdate={setUpdate} setID={setID} />

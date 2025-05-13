@@ -298,11 +298,11 @@ const Table = ({
                                   >
                                     <div>
                                     {team.status_id==='1' ? (
-                                      <RiErrorWarningFill className="text-yellow-500" />
+                                      <RiErrorWarningFill className="text-yellow-500 size-4" />
                                     ) : team.status_id==='5' ? (
-                                      <IoMdCloseCircle className="text-red-500" />
+                                      <IoMdCloseCircle className="text-red-500 size-4" />
                                     ) : (
-                                      <FaCheckCircle className="text-green-500" />
+                                      <FaCheckCircle className="text-green-500 size-3.5" />
                                     )}
                                     </div>
                                     &nbsp;
@@ -378,11 +378,11 @@ const Table = ({
                         </td>
                         <td className="px-3">
                           <div className="flex flex-wrap gap-1">
-                            <img
+                            {/* <img
                               src={PhoneColored}
                               alt="icon"
                               className="size-[18px]"
-                            />
+                            /> */}
                             <img
                               src={WhatsappColored}
                               alt="icon"

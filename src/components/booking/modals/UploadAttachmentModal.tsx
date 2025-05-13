@@ -23,6 +23,7 @@ interface AddAddressModalProps {
     open: boolean,
     customerId?: string,
     userId?: number,
+    isBooking?: string,
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
     getAttachments: (agr0: string)=>void
 }
@@ -46,7 +47,7 @@ const fileTypes = [
     }
 ];
 
-const UploadAttachmentModal = ({ open, customerId, userId, setOpen, getAttachments }: AddAddressModalProps) => {
+const UploadAttachmentModal = ({ open, customerId, userId, isBooking, setOpen, getAttachments }: AddAddressModalProps) => {
     const [files, setFiles] = useState<Attachment[]>([]);
     const [isDragOver, setIsDragOver] = useState<boolean>(false);
 
@@ -106,9 +107,12 @@ const UploadAttachmentModal = ({ open, customerId, userId, setOpen, getAttachmen
                     const formData = new FormData();
                     formData.append("user_id", String(userId));
                     formData.append("customer_id", String(customerId));
-                    formData.append("source", "customer");
+                    formData.append("source", isBooking ? "booking" : "customer");
                     formData.append("type", file.name);
                     formData.append("attachment", file.file);
+                    if(isBooking){
+                        formData.append("booking_id", String(isBooking));
+                    }
     
                     return uploadAttachment(formData).unwrap();
                 });

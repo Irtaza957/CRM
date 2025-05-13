@@ -2,7 +2,7 @@ import Modal from "../../ui/Modal";
 import { cn } from "../../../utils/helpers";
 import BookingLogsModal from "./BookingLogsModal";
 import CancelBookingModal from "./CancelBookingModal";
-// import BasicEdit from "../../../assets/icons/edit-basic.svg";
+import BasicEdit from "../../../assets/icons/edit-basic.svg";
 import Attachments from "../../../assets/icons/attachments.svg";
 import LocationTwo from "../../../assets/icons/location-two.svg";
 import PhoneColored from "../../../assets/icons/phone-colored.svg";
@@ -32,6 +32,9 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../store";
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
+import UploadAttachmentModal from "./UploadAttachmentModal";
+import { FiDownload, FiPlus } from "react-icons/fi";
+import AddCustomerModal from "./AddCustomerModal";
 
 const ViewBookingModal = ({
   id,
@@ -42,6 +45,7 @@ const ViewBookingModal = ({
   const [logs, setLogs] = useState(false);
   const [cancel, setCancel] = useState(false);
   const [upload, setUpload] = useState(false);
+  const [customerDetail, setCustomerDetail] = useState(false);
   // const [editing, setEditing] = useState(false);
   const [history, setHistory] = useState(false);
   const [deliveryNotes, setDeliveryNotes] = useState("");
@@ -49,16 +53,19 @@ const ViewBookingModal = ({
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [opeBooking, setOpenBooking] = useState(false);
   const { user } = useSelector((state: RootState) => state.global);
+  const [openUploadAttachment, setOpenUploadAttachment] = useState(false);
+  const [isCustomerAttachment, setIsCustomerAttachment] = useState(false);
 
   const { data, isFetching, refetch } = useFetchBookingDetailsQuery(id, {
     skip: !id || !open,
     refetchOnMountOrArgChange: true,
   });
 
-  const { data: attachmentsData } = useFetchBookingAttachmentsQuery(id || "", {
-    skip: !id || !open,
-    refetchOnMountOrArgChange: true,
-  });
+  const { data: attachmentsData, refetch: refetchBookingAttachments } =
+    useFetchBookingAttachmentsQuery(id || "", {
+      skip: !id || !open,
+      refetchOnMountOrArgChange: true,
+    });
 
   const [confirmBooking, { isLoading: isConfirming }] =
     useConfirmBookingMutation();
@@ -121,12 +128,26 @@ const ViewBookingModal = ({
     }
   };
 
+  const handleOpenAttachment = (url: string) => {
+    window.open(`https://crm.fandcproperties.ru${url}`, "_blank");
+  };
+
   return (
     <>
       <NewBookingModal
         selectedBooking={data?.booking_id || ""}
         open={opeBooking}
         setOpen={setOpenBooking}
+        isViewBooking={true}
+      />
+      <AddCustomerModal
+        customerId={data?.customer?.id}
+        userId={user!.id}
+        open={customerDetail}
+        setOpen={setCustomerDetail}
+        editMode={true}
+        userData={data?.customer}
+        fetchCustomers={refetch}
       />
       <TeamMembersModal
         members={data?.team}
@@ -177,13 +198,21 @@ const ViewBookingModal = ({
                           <h1 className="text-left font-semibold text-primary">
                             Customer Details
                           </h1>
-                          <button
-                            type="button"
-                            onClick={handleHistory}
-                            className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
-                          >
-                            Booking History
-                          </button>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={handleHistory}
+                              className="rounded-md bg-primary px-5 py-1.5 text-xs text-white"
+                            >
+                              Booking History
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setCustomerDetail(true)}
+                            >
+                              <img src={BasicEdit} alt="icon" />
+                            </button>
+                          </div>
                         </div>
                         <div className="flex w-full items-center justify-between pt-2.5">
                           <div className="grid flex-1 grid-cols-2 gap-7">
@@ -228,7 +257,9 @@ const ViewBookingModal = ({
                               src={WhatsAppColored}
                               alt="whatsapp"
                               className="size-7 cursor-pointer"
-                              onClick={() => handleWhatsapp(data?.customer?.phone || "")}
+                              onClick={() =>
+                                handleWhatsapp(data?.customer?.phone || "")
+                              }
                             />
                           </div>
                         </div>
@@ -371,18 +402,23 @@ const ViewBookingModal = ({
                     <div className="mt-3 flex w-full flex-col items-start justify-start space-y-2.5 rounded-lg bg-white p-2.5">
                       {/* Customer Attachments */}
                       <div className="flex h-fit w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 py-3">
-                        <div className="flex w-full items-center justify-center border-b pb-2.5">
+                        <div className="flex w-full items-center justify-between border-b pb-2.5">
                           <h1 className="flex-1 text-left font-semibold text-primary">
                             Customer Attachments
                           </h1>
-                          {/* {editing && (
-                            <button
+                          <FiPlus
+                            onClick={() => {
+                              setOpenUploadAttachment(true);
+                              setIsCustomerAttachment(true);
+                            }}
+                            className="h-5 w-5 cursor-pointer text-gray-500"
+                          />
+                          {/* <button
                               type="button"
                               onClick={() => setUpload(true)}
                             >
                               <img src={BasicEdit} alt="icon" />
-                            </button>
-                          )} */}
+                            </button> */}
                         </div>
                         {data?.customer.attachments?.map((attachment) => (
                           <div
@@ -404,67 +440,24 @@ const ViewBookingModal = ({
                                 </span>
                               </div>
                             </div>
-                            <span className="text-xs text-gray-400">
-                              {dayjs(attachment.created_at).format(
-                                "DD MMM YYYY"
-                              )}
-                            </span>
+                            <div className="flex items-center justify-end space-x-3 text-gray-500">
+                              <span className="text-xs text-gray-400">
+                                {dayjs(attachment.created_at).format(
+                                  "DD MMM YYYY"
+                                )}
+                              </span>
+                              <FiDownload
+                                onClick={() =>
+                                  handleOpenAttachment(attachment?.file_name)
+                                }
+                                className="h-6 w-6 cursor-pointer"
+                              />
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
                     <div className="mt-3 flex w-full flex-col items-start justify-start space-y-2.5 rounded-lg bg-white p-2.5">
-                      {/* Booking Details */}
-                      <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
-                        <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
-                          Services List
-                        </h1>
-                        <div className="grid w-full grid-cols-2">
-                          {data?.address.address_type && (
-                            <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5 text-gray-500">
-                              <h1 className="w-full text-left text-sm font-semibold text-primary">
-                                Selected Address
-                              </h1>
-                              <div className="flex w-full items-start justify-start gap-2.5">
-                                <img
-                                  src={LocationTwo}
-                                  alt="location-two-icon"
-                                />
-                                <span className="flex-1 text-wrap text-xs">
-                                  {data?.address.apartment},&nbsp;
-                                  {data?.address.building},{" "}
-                                  {data?.address.street}, {data?.address.area},{" "}
-                                  {data?.address.emirate}
-                                </span>
-                              </div>
-                            </div>
-                          )}
-                          <div className="flex w-full flex-col items-center justify-center space-y-2.5 pt-2.5 text-gray-500">
-                            <h1 className="w-full text-left text-sm font-semibold text-primary">
-                              Selected Time & Date
-                            </h1>
-                            <div className="flex w-full items-center justify-start gap-2.5">
-                              <FaRegClock className="size-4 text-[#858688]" />
-                              <span className="text-xs">
-                                Date:&nbsp;
-                                {dayjs(data?.schedule_date).format(
-                                  "DD MMM, YYYY"
-                                )}
-                              </span>
-                            </div>
-                            <div className="flex w-full items-center justify-start gap-2.5 pb-2.5">
-                              <img
-                                src={CalendarPlain}
-                                alt="plain-calendar-icon"
-                              />
-                              <span className="text-xs">
-                                Time:{" "}
-                                {data?.schedule_slot.split("-").join(" - ")}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
                       {/* Team Members */}
                       {/* {data?.team.length !== 0 && ( */}
                       <div className="flex w-full flex-col items-center justify-center rounded-lg bg-white">
@@ -539,7 +532,8 @@ const ViewBookingModal = ({
                                         : m.status_id === "3"
                                           ? "Dispatched"
                                           : m.status_id === "4"
-                                          ? "Arrived" : "Rejected"}
+                                            ? "Arrived"
+                                            : "Rejected"}
                                   </p>
                                 </div>
                                 <div className="justify- flex w-full items-center gap-2">
@@ -682,12 +676,18 @@ const ViewBookingModal = ({
                         </div>
                       </div>
                       {/* Booking Attachments */}
-                      {data?.booking_attachments?.length ? (
+                      {/* {data?.booking_attachments?.length ? (
                         <div className="flex h-fit max-h-[200px] w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 pb-2.5">
-                          <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
-                            Booking Attachments
-                          </h1>
-                          {data?.booking_attachments?.map((attachment) => (
+                          <div className="flex w-full items-center justify-between">
+                            <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
+                              Booking Attachments
+                            </h1>
+                            <FiPlus
+                              onClick={() => setOpenUploadAttachment(true)}
+                              className="h-5 w-5 cursor-pointer text-gray-500"
+                            />
+                          </div>
+                          {data?.booking_attachments?.length ?data?.booking_attachments?.map((attachment) => (
                             <div
                               key={attachment.attachment_id}
                               className="flex w-full items-center justify-between pt-2.5"
@@ -713,9 +713,9 @@ const ViewBookingModal = ({
                                 )}
                               </span>
                             </div>
-                          ))}
+                          )): <p>No Attachments</p>}
                         </div>
-                      ) : null}
+                      ) : null} */}
                     </div>
                     <div className="mt-3 flex w-full flex-col items-start justify-start space-y-2.5 rounded-t-lg bg-white p-2.5">
                       {/* Service Details */}
@@ -1048,13 +1048,17 @@ const ViewBookingModal = ({
                           )}
                         </div>
                         <div className="flex h-fit w-full flex-col items-start justify-start overflow-auto rounded-lg bg-white px-2.5 py-4">
-                          <div className="flex w-full items-center justify-center border-b pb-2.5">
+                          <div className="flex w-full items-center justify-between border-b pb-2.5">
                             <h1 className="flex-1 text-left font-semibold text-primary">
                               Booking Attachments
                             </h1>
+                            <FiPlus
+                              onClick={() => setOpenUploadAttachment(true)}
+                              className="h-5 w-5 cursor-pointer text-gray-500"
+                            />
                           </div>
-                          {attachmentsData?.length ? (
-                            attachmentsData?.map((attachment: any) => (
+                          {attachmentsData?.data?.length ? (
+                            attachmentsData?.data?.map((attachment: any) => (
                               <div
                                 key={attachment.attachment_id}
                                 className="flex w-full items-center justify-between pt-2.5"
@@ -1074,11 +1078,21 @@ const ViewBookingModal = ({
                                     </span>
                                   </div>
                                 </div>
-                                <span className="text-xs text-gray-400">
-                                  {dayjs(attachment.created_at).format(
-                                    "DD MMM YYYY"
-                                  )}
-                                </span>
+                                <div className="flex items-center justify-end space-x-3 text-gray-500">
+                                  <span className="text-xs text-gray-400">
+                                    {dayjs(attachment.created_at).format(
+                                      "DD MMM YYYY"
+                                    )}
+                                  </span>
+                                  <FiDownload
+                                    onClick={() =>
+                                      handleOpenAttachment(
+                                        attachment?.file_name
+                                      )
+                                    }
+                                    className="h-6 w-6 cursor-pointer"
+                                  />
+                                </div>
                               </div>
                             ))
                           ) : (
@@ -1087,6 +1101,20 @@ const ViewBookingModal = ({
                             </p>
                           )}
                         </div>
+                        <UploadAttachmentModal
+                          customerId={data?.customer?.id}
+                          userId={user!.id}
+                          open={openUploadAttachment}
+                          setOpen={setOpenUploadAttachment}
+                          getAttachments={
+                            isCustomerAttachment
+                              ? refetch
+                              : refetchBookingAttachments
+                          }
+                          isBooking={
+                            isCustomerAttachment ? "" : data?.booking_id
+                          }
+                        />
                       </div>
                     </div>
                     {!["8", "9"].includes(data?.status_id || "") && (

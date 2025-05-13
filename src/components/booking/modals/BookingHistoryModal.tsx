@@ -155,7 +155,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen, handleRowClick }: Bo
                 <tr
                   key={idx}
                   className={cn(
-                    "h-12 bg-white text-xs text-[#656565]",
+                    "h-12 bg-white text-xs text-[#656565] cursor-pointer",
                     {
                       "bg-[#F3F5F9]": idx % 2 === 0,
                     }

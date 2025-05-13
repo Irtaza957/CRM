@@ -18,5 +18,6 @@ const baseQuery = fetchBaseQuery({
 export const api = createApi({
   baseQuery,
   keepUnusedDataFor: 5,
+  tagTypes: ['Bookings'],
   endpoints: () => ({}),
 });
