@@ -8,7 +8,7 @@ interface BookingHistoryModalProps {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   selectedUser?: CustomerProps | UserType | null
-  handleRowClick?: () => void
+  handleRowClick?: (id: string) => void
 }
 
 const BookingHistoryModal = ({ selectedUser, open, setOpen, handleRowClick }: BookingHistoryModalProps) => {
@@ -160,7 +160,7 @@ const BookingHistoryModal = ({ selectedUser, open, setOpen, handleRowClick }: Bo
                       "bg-[#F3F5F9]": idx % 2 === 0,
                     }
                   )}
-                  onClick={handleRowClick}
+                  onClick={() => handleRowClick?.(history?.reference || "")}
                 >
                   <td
                     className="px-5 pt-3 pb-1 text-center"

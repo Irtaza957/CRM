@@ -823,9 +823,9 @@ const NewBookingModal = ({
         selectedUser={selectedUser}
         open={history}
         setOpen={setHistory}
-        handleRowClick={() => {
+        handleRowClick={(id) => {
           setHistory(false);
-          setID?.(selectedBooking || "");
+          setID?.(id || "");
           setUpdate?.(true);
           setOpen(false);
         }}

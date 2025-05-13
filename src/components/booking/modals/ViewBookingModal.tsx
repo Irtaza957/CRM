@@ -39,6 +39,7 @@ import AddCustomerModal from "./AddCustomerModal";
 const ViewBookingModal = ({
   id,
   open,
+  setID,
   setOpen,
   refetchBooking,
 }: ModalProps) => {
@@ -162,6 +163,10 @@ const ViewBookingModal = ({
         selectedUser={selectedUser}
         open={history}
         setOpen={setHistory}
+        handleRowClick={(id) => {
+          setID?.(id || "");
+          setHistory(false);
+        }}
       />
       <CancelBookingModal
         id={id}

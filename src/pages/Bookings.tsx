@@ -72,7 +72,7 @@ const Bookings = () => {
       },
       {
         refetchOnMountOrArgChange: true,
-        // pollingInterval: 30000, // refetch 30 seconds
+        pollingInterval: 30000, // refetch 30 seconds
       }
     );
 
