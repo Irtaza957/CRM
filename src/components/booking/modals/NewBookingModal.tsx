@@ -337,14 +337,6 @@ const NewBookingModal = ({
         const priceWithoutVAT =
           parseFloat(service.total || service?.price_without_vat || "0") *
           service.qty!;
-        console.log(
-          bookingDetailData?.vat_value,
-          service.vat_value,
-          "service.vat_value"
-        );
-        // const vatValue =
-        //   parseFloat(service.vat_value || bookingDetailData?.vat_value || "0") *
-        //   service.qty!;
 
         acc.subtotal += priceWithoutVAT;
         acc.total_vat = acc.subtotal * (5 / 100);
@@ -425,7 +417,9 @@ const NewBookingModal = ({
         ? "Cash on Delivery"
         : payment === "online"
           ? "Online Payment"
-          : "Card on Delivery"
+          : payment === "already_paid"
+            ? "Already Paid"
+            : "Card on Delivery"
     );
     urlencoded.append("payment_method_code", payment);
     urlencoded.append("payment_status", "pending");
@@ -817,6 +811,36 @@ const NewBookingModal = ({
     }
   }, [selectedUser]);
 
+  useEffect(() => {
+    if (!business) {
+      setCompany(null);
+    }
+  }, [business]);
+
+  const now = dayjs();
+  const selectedDay = dayjs(scheduleDate);
+  const isToday = selectedDay.isSame(now, "day");
+  
+  // Add 30-minute buffer
+  const bufferTime = now.add(30, "minute");
+  
+  const filteredTimeSlots = isToday
+    ? timeSlots.filter((slot) => {
+        const [start] = slot.id.split("-");
+        const slotTime = dayjs(`${selectedDay.format("YYYY-MM-DD")}T${start}`);
+        return slotTime.isAfter(bufferTime);
+      })
+    : timeSlots;
+
+  useEffect(() => {
+    const currentSlot = filteredTimeSlots.find(
+      (slot) => slot.id === scheduleTime?.id
+    );
+    if (!currentSlot) {
+      setScheduleTime(null); // or default to first available
+    }
+  }, [scheduleDate]);
+
   return (
     <>
       <BookingHistoryModal
@@ -967,7 +991,7 @@ const NewBookingModal = ({
                 {selectedUser && (
                   <div
                     className={cn(
-                      "mt-5 flex w-full items-start justify-betweeen rounded-lg bg-white",
+                      "justify-betweeen mt-5 flex w-full items-start rounded-lg bg-white",
                       !toggleSearch && "mt-3"
                     )}
                   >
@@ -1462,6 +1486,7 @@ const NewBookingModal = ({
                           <RiArrowDownSLine className="h-5 w-5 text-grey100" />
                         }
                         isSearch={false}
+                        isRemoveAllow={true}
                       />
                       <Combobox
                         value={source}
@@ -1477,6 +1502,7 @@ const NewBookingModal = ({
                           <RiArrowDownSLine className="h-5 w-5 text-grey100" />
                         }
                         isSearch={false}
+                        isRemoveAllow={true}
                       />
                       <Combobox
                         value={channel}
@@ -1492,6 +1518,7 @@ const NewBookingModal = ({
                           <RiArrowDownSLine className="h-5 w-5 text-grey100" />
                         }
                         isSearch={false}
+                        isRemoveAllow={true}
                       />
                     </div>
                   </div>
@@ -1517,6 +1544,7 @@ const NewBookingModal = ({
                           <RiArrowDownSLine className="h-5 w-5 text-grey100" />
                         }
                         isSearch={false}
+                        isRemoveAllow={true}
                       />
                       <Combobox
                         value={company}
@@ -1540,6 +1568,7 @@ const NewBookingModal = ({
                         }
                         isSearch={false}
                         disabled={!business?.id}
+                        isRemoveAllow={!!business?.id}
                       />
                     </div>
                     <div className="grid w-full grid-cols-2 gap-2.5">
@@ -1561,6 +1590,7 @@ const NewBookingModal = ({
                         }
                         isSearch={false}
                         disabled={!company?.id}
+                        isRemoveAllow={true}
                       />
                       <Combobox
                         value={partner}
@@ -1577,6 +1607,7 @@ const NewBookingModal = ({
                         }
                         isSearch={false}
                         disabled={!company?.id}
+                        isRemoveAllow={true}
                       />
                     </div>
                   </div>
@@ -1605,7 +1636,7 @@ const NewBookingModal = ({
                       </div>
                       <Combobox
                         value={scheduleTime}
-                        options={timeSlots}
+                        options={filteredTimeSlots}
                         handleSelect={(value) => setScheduleTime(value)}
                         label="Select Time"
                         placeholder="Select Time"
@@ -1686,7 +1717,7 @@ const NewBookingModal = ({
                         </p>
                       </div>
                     </div>
-                    <div className="flex w-full justify-start">
+                    <div className="flex w-full justify-start gap-2.5">
                       <div
                         onClick={() => setPayment("online")}
                         className={cn(
@@ -1698,6 +1729,20 @@ const NewBookingModal = ({
                       >
                         <p className="w-full text-center text-xs">
                           Online Payment
+                        </p>
+                      </div>
+                      <div
+                        onClick={() => setPayment("already_paid")}
+                        className={cn(
+                          "col-span-1 w-1/2 cursor-pointer rounded-md border bg-gray-100 p-2.5",
+                          {
+                            "border-primary text-primary":
+                              payment === "already_paid",
+                          }
+                        )}
+                      >
+                        <p className="w-full text-center text-xs">
+                          Already Paid
                         </p>
                       </div>
                     </div>

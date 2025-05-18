@@ -65,9 +65,6 @@ const AddCustomerModal = ({
     resolver: zodResolver(customerSchema),
     mode: "all",
   });
-
-  console.log(errors, 'errorserrorserrors')
-
   
   const isAllergy = watch("is_allergy");
   const isMedication = watch("is_medication");

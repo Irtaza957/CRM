@@ -54,7 +54,7 @@ const Bookings = () => {
   const { date } = useSelector((state: RootState) => state.app);
   const dispatch = useDispatch();
 
-  const { data: bookingData, isFetching: bookingLoading, refetch } =
+  const { data: bookingData, isLoading: bookingLoading, refetch } =
     useFetchBookingsQuery(
       {
         business_id: business?.id,
@@ -72,7 +72,7 @@ const Bookings = () => {
       },
       {
         refetchOnMountOrArgChange: true,
-        pollingInterval: 30000, // refetch 30 seconds
+        pollingInterval: 10000, // refetch 30 seconds
       }
     );
 
@@ -404,8 +404,11 @@ const Bookings = () => {
           <CustomDatePicker
             date={date || new Date()}
             setDate={handleSetDate}
+            isRemoveAllow={
+              new Date(date || new Date()).toDateString() !== new Date().toDateString()
+            }
             toggleButton={
-              <div className="flex items-center justify-center gap-2 xl:gap-4">
+              <div className="flex items-center justify-center gap-2 xl:gap-2">
                 <FaChevronLeft
                   className="cursor-pointer"
                   onClick={decrementDate}

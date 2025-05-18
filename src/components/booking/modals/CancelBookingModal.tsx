@@ -166,7 +166,7 @@ const CancelBookingModal = ({ id, open, setOpen, refetch }: CancelBookingModalPr
                   <span>Please Wait...</span>
                 </div>
               ) : (
-                "Cancel Order"
+                "Cancel Booking"
               )}
             </button>
           </div>

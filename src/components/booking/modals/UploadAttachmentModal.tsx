@@ -79,9 +79,9 @@ const UploadAttachmentModal = ({ open, customerId, userId, isBooking, setOpen, g
 
     const onDropAccepted = async (acceptedFiles: File[]) => {
         setIsDragOver(false);
-        const final = acceptedFiles.map((file) => {
+        const final = acceptedFiles.map((file, index) => {
             return {
-                id: Date.now(),
+                id: Date.now() + index,
                 file,
                 name: '',
             };

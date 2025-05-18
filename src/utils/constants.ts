@@ -16,6 +16,13 @@ import Leads from "../assets/icons/sidebar/leads.svg";
 // import CustomerRatings from "../assets/icons/sidebar/customer_ratings.svg";
 import SmallUpDownArrow from "../assets/icons/small-updown-arrow.svg";
 
+export const addressTypes=[
+  {id: 'Home', name: 'Home'},
+  {id: 'Work', name: 'Work'},
+  {id: 'Hotels', name: 'Hotels'},
+  {id: 'Events', name: 'Events'},
+]
+
 export const emirates = [
   {
     id: 1,
@@ -624,15 +631,32 @@ export const options = [
 ];
 
 export const timeSlots = [
+  { id: "00:00-00:30", name: "00:00 - 00:30" },
+  { id: "00:30-01:00", name: "00:30 - 01:00" },
+  { id: "01:00-01:30", name: "01:00 - 01:30" },
+  { id: "01:30-02:00", name: "01:30 - 02:00" },
+  { id: "02:00-02:30", name: "02:00 - 02:30" },
+  { id: "02:30-03:00", name: "02:30 - 03:00" },
+  { id: "03:00-03:30", name: "03:00 - 03:30" },
+  { id: "03:30-04:00", name: "03:30 - 04:00" },
+  { id: "04:00-04:30", name: "04:00 - 04:30" },
+  { id: "04:30-05:00", name: "04:30 - 05:00" },
+  { id: "05:00-05:30", name: "05:00 - 05:30" },
+  { id: "05:30-06:00", name: "05:30 - 06:00" },
+  { id: "06:00-06:30", name: "06:00 - 06:30" },
+  { id: "06:30-07:00", name: "06:30 - 07:00" },
+  { id: "07:00-07:30", name: "07:00 - 07:30" },
+  { id: "07:30-08:00", name: "07:30 - 08:00" },
   { id: "08:00-08:30", name: "08:00 - 08:30" },
+  { id: "08:30-09:00", name: "08:30 - 09:00" },
   { id: "09:00-09:30", name: "09:00 - 09:30" },
+  { id: "09:30-10:00", name: "09:30 - 10:00" },
   { id: "10:00-10:30", name: "10:00 - 10:30" },
+  { id: "10:30-11:00", name: "10:30 - 11:00" },
   { id: "11:00-11:30", name: "11:00 - 11:30" },
-  { id: "12:00-12:30", name: "12:00 - 12:30" },
-  { id: "13:00-13:30", name: "13:00 - 13:30" },
-  { id: "14:00-14:30", name: "14:00 - 14:30" },
-  { id: "15:00-15:30", name: "15:00 - 15:30" },
+  { id: "11:30-12:00", name: "11:30 - 12:00" },
 ];
+
 
 export const dayNames = ["Sun", "Mon", "Tues", "Wed", "Thur", "Fri", "Sat"];
 

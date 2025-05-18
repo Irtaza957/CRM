@@ -13,7 +13,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import CustomToast from "../../ui/CustomToast";
 import { toast } from "sonner";
-import { emirates } from "../../../utils/constants";
+import { addressTypes, emirates } from "../../../utils/constants";
 import { addressSchema } from "../../../utils/schemas";
 interface AddAddressModalProps {
   open: boolean;
@@ -33,6 +33,8 @@ const AddAddressModal = ({
   editableAddressId,
 }: AddAddressModalProps) => {
   const [emirate, setEmirate] = useState<ListOptionProps | null>(null);
+  const [addressType, setAddressType] = useState<ListOptionProps | null>(null);
+  const [addressTypeError, setAddressTypeError] = useState<string>();
   const [villa, setVilla] = useState<ListOptionProps | null>(null);
 
   const [addAddress, { isLoading }] = useAddAddressMutation();
@@ -43,7 +45,6 @@ const AddAddressModal = ({
   });
 
   const defaultValues = {
-    address_type: "",
     emirate_id: null,
     area_id: null,
     building_no: "",
@@ -70,6 +71,11 @@ const AddAddressModal = ({
     setValue("emirate_id", value.id);
   };
 
+  const handleSelectAddressType = (value: any) => {
+    setAddressType(value);
+    setAddressTypeError('')
+  };
+
   const handleSelectArea = (value: any) => {
     setVilla(value);
     setValue("area_id", value.id);
@@ -86,7 +92,7 @@ const AddAddressModal = ({
       if (customerId && userId) {
         const urlencoded = new URLSearchParams();
         urlencoded.append("user_id", String(userId));
-        urlencoded.append("address_type", data.address_type);
+        urlencoded.append("address_type", String(addressType?.id || ''));
         urlencoded.append("area_id", data.area_id);
         urlencoded.append("building_no", data.building_no);
         urlencoded.append("apartment", data.apartment);
@@ -145,8 +151,8 @@ const AddAddressModal = ({
 
   useEffect(() => {
     if (open) {
+      console.log(editableAddressId, 'editableAddressIdeditableAddressId')
       if (editableAddressId && editableAddressId?.address_id) {
-        setValue("address_type", editableAddressId.address_type);
         setValue("emirate_id", editableAddressId.emirate);
         setValue("area_id", editableAddressId.area_id);
         setValue("building_no", editableAddressId.building_no);
@@ -156,6 +162,12 @@ const AddAddressModal = ({
         setValue("extra_direction", editableAddressId.extra_direction);
 
         // Set Emirate and Area Combobox values
+        const selectedAddressType = addressTypes?.find(
+          (item) => item.id === editableAddressId.address_type
+        )
+        if(selectedAddressType){
+          setAddressType(selectedAddressType)
+        }
         const emirateId = emirates?.find(
           (item) => item.name === editableAddressId.emirate
         )?.id;
@@ -185,12 +197,19 @@ const AddAddressModal = ({
         </p>
         <div className="mt-4 w-full">
           <div className="flex w-full items-center justify-center gap-5">
-            <CustomInput
-              name="address_type"
-              placeholder="Address Type"
+            <Combobox
+              value={addressType}
+              options={addressTypes}
+              handleSelect={handleSelectAddressType}
               label="Address Type"
-              register={register}
-              errorMsg={errors.address_type?.message} // Display error message
+              placeholder="Address Type"
+              mainClassName="w-full"
+              toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+              listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
+              listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+              icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+              isSearch={false}
+              errorMsg={addressTypeError}
             />
             <Combobox
               value={emirate}
@@ -277,7 +296,16 @@ const AddAddressModal = ({
         />
         <CustomButton
           name={editableAddressId?.address_id ? "Update" : "Save"}
-          handleClick={handleSubmit(handleSave)}
+          handleClick={handleSubmit(
+            (data) => handleSave(data),
+            (errors) => {
+              console.log("Validation errors:", errors)
+              if(!addressType?.id){
+                setAddressTypeError('Address Type is required')
+                return
+              }
+            }
+          )}
           loading={isLoading || updateLoading}
           disabled={isLoading || updateLoading}
         />
