@@ -443,7 +443,7 @@ console.log(date, 'datedate')
                       className="cursor-pointer"
                       onClick={decrementDate}
                     />
-                    <span>
+                    <span className="whitespace-nowrap text-sm">
                       {dayjs(date || new Date()).format("DD MMM YYYY")}
                     </span>
                     <FaChevronRight
