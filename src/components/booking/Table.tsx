@@ -226,7 +226,10 @@ const Table = ({
         setUpdate={setUpdate}
         setID={setID}
       />
-      <div className="mt-3 h-[calc(100vh-385px)] w-full lg:h-[calc(100vh-275px)] xl:h-[calc(100vh-245px)]">
+      <div className={cn(
+        "mt-3 h-[calc(100vh-385px)] w-full lg:h-[calc(100vh-275px)] xl:h-[calc(100vh-245px)]",
+        isRequests && "mt-0"
+        )}>
         <div className="h-full w-full overflow-hidden rounded-t-lg border">
           <div className="no-scrollbar h-full overflow-y-scroll border-t-4 border-t-primary">
             <table className="relative w-full min-w-full">

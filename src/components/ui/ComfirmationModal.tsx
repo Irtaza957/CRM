@@ -25,7 +25,7 @@ const ConfirmationModal = ({
   };
 
   return (
-    <Modal open={open} setOpen={setOpen} className="w-[35%] flex justify-center items-center">
+    <Modal open={open} setOpen={setOpen} className="w-[30%] flex justify-center items-center">
       <div className="flex h-auto flex-col items-center justify-center overflow-hidden rounded-lg bg-white">
         <div className="flex flex-col items-center gap-6 text-center px-16 py-10">
           <div>

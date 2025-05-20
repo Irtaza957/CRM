@@ -7,7 +7,7 @@
 // import Requests from "../assets/icons/sidebar/requests.svg";
 import Bookings from "../assets/icons/sidebar/bookings.svg";
 import AppPanel from "../assets/icons/sidebar/app_panel.svg";
-// import Customers from "../assets/icons/sidebar/customers.svg";
+import Customers from "../assets/icons/sidebar/customers.svg";
 // import Dashboard from "../assets/icons/sidebar/dashboard.svg";
 // import Marketing from "../assets/icons/sidebar/marketing.svg";
 import ServiceList from "../assets/icons/sidebar/service_list.svg";
@@ -519,12 +519,12 @@ export const sidebarItems = [
     icon: Bookings,
     link: "/bookings",
   },
-  // {
-  //   id: 4,
-  //   name: "Customers",
-  //   icon: Customers,
-  //   link: "/customers",
-  // },
+  {
+    id: 4,
+    name: "Customers",
+    icon: Customers,
+    link: "/customers",
+  },
   {
     id: 5,
     name: "Service List",

@@ -71,7 +71,7 @@ console.log(date, 'datedate')
       agent_id: profession?.id,
       booking_status: bookingStatus?.id,
       payment_status: paymentStatus?.id,
-      ...(date ? { date: dayjs(date).format("YYYY-MM-DD") } : {}),
+      ...(date!==undefined ? { date: dayjs(date || new Date()).format("YYYY-MM-DD") } : {}),
       page: pageNum - 1,
     },
     {
@@ -410,40 +410,20 @@ console.log(date, 'datedate')
           isRemoveAllow={true}
         />
         <div className="flex items-center justify-center rounded-lg bg-white text-xs text-gray-500 xl:text-sm">
-          {/* <CustomDatePicker
-            date={date || new Date()}
-            setDate={handleSetDate}
-            isRemoveAllow={
-              new Date(date || new Date()).toDateString() !== new Date().toDateString()
-            }
-            toggleButton={
-              <div className="flex items-center justify-center gap-2 xl:gap-2">
-                <FaChevronLeft
-                  className="cursor-pointer"
-                  onClick={decrementDate}
-                />
-                <span>{dayjs(date || new Date()).format("DD MMM YYYY")}</span>
-                <FaChevronRight
-                  className="cursor-pointer"
-                  onClick={incrementDate}
-                />
-              </div>
-            }
-          /> */}
           <CustomDatePicker
             date={date || new Date()}
             setDate={handleSetDate}
             toggleButton={
-              <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center justify-center gap-2">
                 {!date &&
                 <FaCalendarAlt />}
-                {date ? (
-                  <div className="flex items-center justify-center gap-2 xl:gap-2">
+                {date !== undefined ? (
+                  <div className="flex items-center justify-center gap-1.5">
                     <FaChevronLeft
                       className="cursor-pointer"
                       onClick={decrementDate}
                     />
-                    <span className="whitespace-nowrap text-sm">
+                    <span className="whitespace-nowrap text-xs">
                       {dayjs(date || new Date()).format("DD MMM YYYY")}
                     </span>
                     <FaChevronRight
@@ -454,12 +434,12 @@ console.log(date, 'datedate')
                 ) : (
                   "Select Date"
                 )}
-                {date && (
+                {date !== undefined && (
                   <div className="w-full">
                   <IoClose
                     onClick={(e) => {
                       e.stopPropagation();
-                      dispatch(setDate(null))
+                      dispatch(setDate(undefined))
                     }}
                     className="h-4 w-4 cursor-pointer"
                   />

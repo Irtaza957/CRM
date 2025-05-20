@@ -14,6 +14,7 @@ const Sidebar = () => {
   const { pathname } = useLocation();
   const { sidebar } = useSelector((state: RootState) => state.global);
   const [selectedTab, setSelectedTab] = useState<number | null>(null);
+  const { user } = useSelector((state: RootState) => state.global);
 
   const handleToggle = () => {
     dispatch(toggleSidebar());
@@ -35,7 +36,7 @@ const Sidebar = () => {
     }
     return item.link !== "/" ? pathname.startsWith(item.link) : pathname === item.link;
   };
-
+console.log(user, 'useruser')
   return (
     <div
       className={cn(
@@ -54,7 +55,7 @@ const Sidebar = () => {
       <div className="relative z-30 hidden h-full bg-primary text-white transition-[width] md:block">
         <div className="relative z-20 h-full overflow-hidden">
           <ul className="flex w-full flex-col">
-            {sidebarItems.map((item: any) => (
+            {(user?.role === "super_admin" ? sidebarItems : sidebarItems.filter((item: any) => ["/requests", '/bookings'].includes(item.link))).map((item: any) => (
               <li key={item.id} className="w-full">
                 <Link
                   to={item.link}

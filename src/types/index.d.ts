@@ -137,6 +137,7 @@ declare type UserProps = {
   work_place: string;
   avatar: string | null;
   token: string;
+  role: string;
 };
 
 declare type GlobalStateProps = {

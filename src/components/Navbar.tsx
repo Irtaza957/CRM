@@ -1,8 +1,8 @@
 import { RootState } from "../store";
 import Logo from "../assets/img/logo.svg";
 import { useRef, useState } from "react";
-import { GoBell } from "react-icons/go";
-import { BsGear } from "react-icons/bs";
+// import { GoBell } from "react-icons/go";
+// import { BsGear } from "react-icons/bs";
 import { useSelector } from "react-redux";
 import { MdOutlineMessage } from "react-icons/md";
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
@@ -83,8 +83,8 @@ const Navbar = () => {
             />
             <HiMiniMagnifyingGlass className="h-7 w-7" />
           </div>
-          <BsGear className="h-7 w-7" />
-          <GoBell className="h-7 w-7" />
+          {/* <BsGear className="h-7 w-7" />
+          <GoBell className="h-7 w-7" /> */}
           <div className="relative">
             <MdOutlineMessage className="h-7 w-7" />
             <span className="absolute -right-2 -top-2 flex size-5 items-center justify-center rounded-full border border-white bg-secondary p-0.5 text-[10px] text-white">
@@ -95,7 +95,7 @@ const Navbar = () => {
             <img
               alt="user-dp"
               className="size-10 cursor-pointer rounded-full"
-              src={user?.avatar || "https://ui.shadcn.com/avatars/04.png"}
+              src={user?.avatar || "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg?semt=ais_hybrid&w=740"}
               onClick={() => setIsLogout(!isLogout)}
             />
             {isLogout && (

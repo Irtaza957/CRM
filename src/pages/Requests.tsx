@@ -41,7 +41,8 @@ const Requests = () => {
       platform_id: platform?.id,
       channel_id: channel?.id,
       source_id: source?.id,
-      ...(date ? { date: dayjs(date).format("YYYY-MM-DD") } : {}),
+      booking_status: "1",
+      ...(date!==undefined ? { date: dayjs(date || new Date()).format("YYYY-MM-DD") } : {}),
       page: pageNum - 1,
     },
     {
@@ -199,12 +200,12 @@ const Requests = () => {
         />
         <div className="flex items-center justify-center rounded-lg bg-white text-xs text-gray-500 xl:text-sm">
           <CustomDatePicker
-            date={date}
+            date={date || new Date()}
             setDate={handleSetDate}
             toggleButton={
               <div className="flex items-center justify-center gap-3">
                 <FaCalendarAlt />
-                {date ?
+                {date !== undefined ?
                 <div className="flex items-center justify-center gap-2 xl:gap-2">
                   <FaChevronLeft
                     className="cursor-pointer"
@@ -216,11 +217,11 @@ const Requests = () => {
                     onClick={incrementDate}
                   />
                 </div>: 'Select Date'}
-                {date &&(
+                {date !== undefined &&(
                   <IoClose
                     onClick={(e) => {
                       e.stopPropagation();
-                      dispatch(setDate(null));
+                      dispatch(setDate(undefined));
                     }}
                     className="h-4 w-4 cursor-pointer"
                   />
