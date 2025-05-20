@@ -3,7 +3,6 @@ import { useOnClickOutside } from "../../hooks/useOnClickOutside";
 
 import { useEffect, useRef, useState } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { IoClose } from "react-icons/io5";
 
 const CustomDatePicker = ({
   toggleButton,
@@ -11,7 +10,6 @@ const CustomDatePicker = ({
   toggleClassName,
   setDate,
   disabled,
-  isRemoveAllow,
 }: {
   toggleButton: React.ReactNode;
   date: string | Date | null;
@@ -79,22 +77,12 @@ const CustomDatePicker = ({
       <button
         type="button"
         className={cn(
-          "flex w-full items-center justify-between px-2",
-          !isRemoveAllow && "justify-center"
+          "flex w-full items-center justify-center px-2"
         )}
         disabled={disabled}
         onClick={() => setToggle(!toggle)}
       >
         {toggleButton}
-        {isRemoveAllow && (
-          <IoClose
-            onClick={(e) => {
-              e.stopPropagation();
-              setDate(new Date());
-            }}
-            className="h-4 w-4 cursor-pointer"
-          />
-        )}
       </button>
       {toggle && (
         <div

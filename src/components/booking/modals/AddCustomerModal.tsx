@@ -34,6 +34,7 @@ interface AddCustomerModalProps {
 const genderOptions = [
   { id: "Male", name: "Male" },
   { id: "Female", name: "Female" },
+  { id: "Other", name: "Prefer Not to Say" },
 ];
 
 const AddCustomerModal = ({

@@ -221,6 +221,7 @@ const NewBookingModal = ({
   const [selectedService, setSelectedServiceModal] = useState<string | null>(
     null
   );
+  const [orderId, setOrderId] = useState<string>("");
   // const [categories, setCategories] = useState<ListOptionProps[]>([]);
   const [profesionsData, setProfesionsData] = useState<ListOptionProps[]>([]);
   const [bookingsData, setBookingsData] = useState<any>([]);
@@ -820,10 +821,10 @@ const NewBookingModal = ({
   const now = dayjs();
   const selectedDay = dayjs(scheduleDate);
   const isToday = selectedDay.isSame(now, "day");
-  
+
   // Add 30-minute buffer
   const bufferTime = now.add(30, "minute");
-  
+
   const filteredTimeSlots = isToday
     ? timeSlots.filter((slot) => {
         const [start] = slot.id.split("-");
@@ -840,7 +841,7 @@ const NewBookingModal = ({
       setScheduleTime(null); // or default to first available
     }
   }, [scheduleDate]);
-
+console.log(partner?.id, orderId, 'orderIdorderId')
   return (
     <>
       <BookingHistoryModal
@@ -1610,6 +1611,21 @@ const NewBookingModal = ({
                         isRemoveAllow={true}
                       />
                     </div>
+                    {partner?.id && (
+                      <div className="flex w-full justify-end">
+                        <div className="flex w-1/2 flex-col items-center justify-center space-y-1">
+                          <label className="w-full text-left text-xs font-medium text-grey100">
+                            Order ID
+                          </label>
+                          <input
+                            value={orderId}
+                            onChange={(e: any) => setOrderId(e.target.value)}
+                            placeholder="Enter Order ID"
+                            className="flex w-full items-center justify-between rounded-lg bg-grey px-3.5 py-3 text-xs text-gray-500 placeholder:capitalize"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
                     <h1 className="w-full text-left font-semibold text-primary">
@@ -1753,7 +1769,12 @@ const NewBookingModal = ({
                     }
                     handleClick={postBooking}
                     loading={creating}
-                    disabled={creating || !address || !scheduleTime}
+                    disabled={
+                      creating ||
+                      !address ||
+                      !scheduleTime ||
+                      !!(partner?.id && !orderId)
+                    }
                     style="w-full py-3 mt-2"
                   />
                 </div>

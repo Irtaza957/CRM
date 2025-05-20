@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import React, { useMemo, useState } from "react";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheck, FaCheckCircle } from "react-icons/fa";
 import { IoMdCloseCircle } from "react-icons/io";
 import { TiArrowSortedDown } from "react-icons/ti";
 import { RiErrorWarningFill } from "react-icons/ri";
@@ -16,6 +16,14 @@ import ViewBookingModal from "../../components/booking/modals/ViewBookingModal";
 import WhatsappColored from "../../assets/icons/colored/colored-whatsapp-square.svg";
 import NewBookingModal from "./modals/NewBookingModal";
 import TeamMembersModal from "./modals/TeamMembersModal";
+import { MdCancel } from "react-icons/md";
+import CustomToast from "../ui/CustomToast";
+import { toast } from "sonner";
+import { useConfirmBookingMutation } from "../../store/services/booking";
+import ConfirmationModal from "../ui/ComfirmationModal";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+import CancelBookingModal from "./modals/CancelBookingModal";
 
 const columns = [
   { id: 1, name: "Ref. #", key: "booking_id" },
@@ -31,6 +39,19 @@ const columns = [
   { id: 13, name: "Actions", key: "actions" },
 ];
 
+const requestsColumns = [
+  { id: 1, name: "Ref. #", key: "booking_id" },
+  { id: 2, name: "Company", key: "company" },
+  { id: 3, name: "Customer", key: "customer" },
+  { id: 5, name: "Source", key: "source" },
+  { id: 7, name: "Schedule", key: "schedule_date" },
+  { id: 6, name: "Location", key: "location" },
+  { id: 8, name: "Amount", key: "total" },
+  { id: 11, name: "Payment Status", key: "payment_status" },
+  { id: 12, name: "Created At", key: "created_at" },
+  { id: 13, name: "Actions", key: "actions" },
+];
+
 const Table = ({
   data,
   isLoading,
@@ -40,13 +61,15 @@ const Table = ({
   refetch,
   setID,
   update,
-  setUpdate
+  setUpdate,
+  isRequests,
 }: {
   data: any;
   isLoading: boolean;
   page: number;
   id: string;
   update: boolean;
+  isRequests?: boolean;
   setPageNum: (num: number) => void;
   refetch?: () => void;
   setID: React.Dispatch<React.SetStateAction<string>>;
@@ -62,6 +85,13 @@ const Table = ({
   });
   const [selectedBooking, setSelectedBooking] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
+  const [openCancel, setOpenCancel] = useState(false);
+
+  const { user } = useSelector((state: RootState) => state.global);
+
+  const [confirmBooking, { isLoading: isConfirming }] =
+    useConfirmBookingMutation();
 
   const handleEditBooking = (id: string) => {
     setOpen(true);
@@ -78,16 +108,24 @@ const Table = ({
     });
   };
 
-  const [isAssignModal, setIsAssignModal]=useState(false)
-  const [selectedUser, setSelectedUser]=useState<{id: string, team: Team[], status_id: string} | null>(null)
+  const [isAssignModal, setIsAssignModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{
+    id: string;
+    team: Team[];
+    status_id: string;
+  } | null>(null);
 
   const handleWhatsapp = (phone: string) => {
     window.open(`https://wa.me/?text=${phone}`, "_blank");
   };
 
   const handleAssign = (booking: any) => {
-    setSelectedUser({id: booking.id, team: booking.team, status_id: booking.booking_status_id})
-    setIsAssignModal(true)
+    setSelectedUser({
+      id: booking.id,
+      team: booking.team,
+      status_id: booking.booking_status_id,
+    });
+    setIsAssignModal(true);
   };
 
   const sortedData = useMemo(() => {
@@ -112,10 +150,75 @@ const Table = ({
     return sorted;
   }, [data, sortConfig]);
 
+  const handleEdit = async () => {
+    try {
+      const data = new URLSearchParams();
+      data.append("booking_id", String(selectedBooking));
+      data.append("user_id", String(user?.id));
+      const response = await confirmBooking(data);
+      if (response?.error) {
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="error"
+            title="Error"
+            message={`Something Went Wrong!`}
+          />
+        ));
+      } else {
+        refetch?.();
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="success"
+            title="Success"
+            message={`Booking Confirmed Successfully!`}
+          />
+        ));
+        setOpenConfirm(false);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <>
-      <ViewBookingModal id={id} setID={setID} open={update} setOpen={setUpdate} refetchBooking={refetch} />
-      <TeamMembersModal refetch={refetch} members={selectedUser?.team} showMembers={["3","4","5","6",'7'].includes(selectedUser?.status_id || '')} bookingId={selectedUser?.id} open={isAssignModal} setOpen={setIsAssignModal} />
+      <ConfirmationModal
+        text="Are you sure want to confirm this booking?"
+        open={openConfirm}
+        setOpen={setOpenConfirm}
+        loadingButton={isConfirming}
+        handleConfirm={handleEdit}
+        theme="success"
+        confirmBtnText="Confirm"
+      />
+
+      <CancelBookingModal
+        id={selectedBooking || ""}
+        open={openCancel}
+        setOpen={setOpenCancel}
+        refetch={() => refetch?.()}
+      />
+
+      <ViewBookingModal
+        id={id}
+        setID={setID}
+        open={update}
+        setOpen={setUpdate}
+        refetchBooking={refetch}
+        isRequests={isRequests}
+      />
+      <TeamMembersModal
+        refetch={refetch}
+        members={selectedUser?.team}
+        showMembers={["3", "4", "5", "6", "7"].includes(
+          selectedUser?.status_id || ""
+        )}
+        bookingId={selectedUser?.id}
+        open={isAssignModal}
+        setOpen={setIsAssignModal}
+      />
       <NewBookingModal
         selectedBooking={selectedBooking || ""}
         open={open}
@@ -129,25 +232,27 @@ const Table = ({
             <table className="relative w-full min-w-full">
               <thead className="sticky top-0 border border-b-[#D9D9D9] bg-grey text-left text-primary">
                 <tr className="h-12">
-                  {columns.map((column, idx) => (
-                    <th
-                      key={idx}
-                      className="cursor-pointer border-x px-3 text-xs font-medium"
-                      onClick={() => handleSort(column.key)}
-                    >
-                      <div className="flex w-full items-center justify-center gap-2.5">
-                        <span className="flex-1 whitespace-nowrap text-left font-bold">
-                          {column.name}
-                        </span>
-                        {!["actions", "team"].includes(column.key) && (
-                          <img
-                            src={SmallUpDownArrow}
-                            alt="small-updown-arrow"
-                          />
-                        )}
-                      </div>
-                    </th>
-                  ))}
+                  {(isRequests ? requestsColumns : columns).map(
+                    (column, idx) => (
+                      <th
+                        key={idx}
+                        className="cursor-pointer border-x px-3 text-xs font-medium"
+                        onClick={() => handleSort(column.key)}
+                      >
+                        <div className="flex w-full items-center justify-center gap-2.5">
+                          <span className="flex-1 whitespace-nowrap text-left font-bold">
+                            {column.name}
+                          </span>
+                          {!["actions", "team"].includes(column.key) && (
+                            <img
+                              src={SmallUpDownArrow}
+                              alt="small-updown-arrow"
+                            />
+                          )}
+                        </div>
+                      </th>
+                    )
+                  )}
                 </tr>
               </thead>
               {/* <Loader /> */}
@@ -206,6 +311,19 @@ const Table = ({
                             ))}
                           </div>
                         </td> */}
+                        {isRequests && (
+                          <td
+                            className="px-3"
+                            onClick={() => {
+                              setID(booking.booking_id);
+                              setUpdate(true);
+                            }}
+                          >
+                            <p className="w-full overflow-hidden truncate text-xs">
+                              {booking.company || "-"}
+                            </p>
+                          </td>
+                        )}
                         <td
                           className="px-3"
                           onClick={() => {
@@ -281,58 +399,62 @@ const Table = ({
                             AED {booking.total}
                           </span>
                         </td>
-                        <td
-                          className="px-3"
-                          onClick={() => {
-                            setID(booking.booking_id);
-                            setUpdate(true);
-                          }}
-                        >
-                          <div className="flex flex-col items-center justify-center gap-0.5">
-                            {booking.consultation_team?.length ? (
-                              booking.consultation_team.map(
-                                (team: any, idx: any) => (
-                                  <div
-                                    key={idx}
-                                    className="flex w-full items-center gap-1 text-left text-xs"
-                                  >
-                                    <div>
-                                    {team.status_id==='1' ? (
-                                      <RiErrorWarningFill className="text-yellow-500 size-4" />
-                                    ) : team.status_id==='5' ? (
-                                      <IoMdCloseCircle className="text-red-500 size-4" />
-                                    ) : (
-                                      <FaCheckCircle className="text-green-500 size-3.5" />
-                                    )}
-                                    </div>
-                                    &nbsp;
-                                    <span className="flex-1 overflow-hidden truncate">
-                                      {team.name}
-                                    </span>
-                                  </div>
-                                )
-                              )
-                            ) : (
-                              <p className="text-xs">N/A</p>
-                            )}
-                          </div>
-                        </td>
-                        <td
-                          className="px-3"
-                          onClick={() => {
-                            setID(booking.booking_id);
-                            setUpdate(true);
-                          }}
-                        >
-                          <span
-                            style={{
-                              backgroundColor: booking.booking_status.color,
+                        {!isRequests && (
+                          <td
+                            className="px-3"
+                            onClick={() => {
+                              setID(booking.booking_id);
+                              setUpdate(true);
                             }}
-                            className="rounded-full px-2 py-0.5 text-xs text-white whitespace-nowrap"
                           >
-                            {booking.booking_status.name}
-                          </span>
-                        </td>
+                            <div className="flex flex-col items-center justify-center gap-0.5">
+                              {booking.consultation_team?.length ? (
+                                booking.consultation_team.map(
+                                  (team: any, idx: any) => (
+                                    <div
+                                      key={idx}
+                                      className="flex w-full items-center gap-1 text-left text-xs"
+                                    >
+                                      <div>
+                                        {team.status_id === "1" ? (
+                                          <RiErrorWarningFill className="size-4 text-yellow-500" />
+                                        ) : team.status_id === "5" ? (
+                                          <IoMdCloseCircle className="size-4 text-red-500" />
+                                        ) : (
+                                          <FaCheckCircle className="size-3.5 text-green-500" />
+                                        )}
+                                      </div>
+                                      &nbsp;
+                                      <span className="flex-1 overflow-hidden truncate">
+                                        {team.name}
+                                      </span>
+                                    </div>
+                                  )
+                                )
+                              ) : (
+                                <p className="text-xs">N/A</p>
+                              )}
+                            </div>
+                          </td>
+                        )}
+                        {!isRequests && (
+                          <td
+                            className="px-3"
+                            onClick={() => {
+                              setID(booking.booking_id);
+                              setUpdate(true);
+                            }}
+                          >
+                            <span
+                              style={{
+                                backgroundColor: booking.booking_status.color,
+                              }}
+                              className="whitespace-nowrap rounded-full px-2 py-0.5 text-xs text-white"
+                            >
+                              {booking.booking_status.name}
+                            </span>
+                          </td>
+                        )}
                         <td
                           className="px-3"
                           onClick={() => {
@@ -365,9 +487,11 @@ const Table = ({
                           }}
                         >
                           <div className="flex flex-col items-center justify-center">
-                            <p className="w-full overflow-hidden truncate text-xs">
-                              {booking.created_by}
-                            </p>
+                            {!isRequests && (
+                              <p className="w-full overflow-hidden truncate text-xs">
+                                {booking.created_by}
+                              </p>
+                            )}
                             <p className="w-full overflow-hidden truncate text-xs">
                               {dayjs(booking.created_at).format("DD/MM/YY")}
                             </p>
@@ -377,37 +501,56 @@ const Table = ({
                           </div>
                         </td>
                         <td className="px-3">
-                          <div className="flex flex-wrap gap-1">
-                            {/* <img
+                          {isRequests ? (
+                            <div className="flex flex-wrap gap-2.5">
+                              <FaCheck
+                                onClick={() => {
+                                  setOpenConfirm(true);
+                                  setSelectedBooking(booking.booking_id);
+                                }}
+                                fill="green"
+                                className="size-[18px]"
+                              />
+                              <MdCancel
+                                onClick={() => {
+                                  setOpenCancel(true);
+                                  setSelectedBooking(booking.booking_id);
+                                }}
+                                fill="red"
+                                className="size-[18px]"
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-1">
+                              {/* <img
                               src={PhoneColored}
                               alt="icon"
                               className="size-[18px]"
                             /> */}
-                            <img
-                              src={WhatsappColored}
-                              alt="icon"
-                              className="size-[18px]"
-                              onClick={() => handleWhatsapp(booking?.phone)}
-                            />
-                            {booking.booking_status_id !== '2' && (
                               <img
-                                src={ReAssign}
+                                src={WhatsappColored}
+                                alt="icon"
+                                className="size-[18px]"
+                                onClick={() => handleWhatsapp(booking?.phone)}
+                              />
+                              {booking.booking_status_id !== "2" && (
+                                <img
+                                  src={ReAssign}
+                                  alt="icon"
+                                  className="size-[18px]"
+                                  onClick={() => handleAssign(booking)}
+                                />
+                              )}
+                              <img
+                                src={Edit}
                                 alt="icon"
                                 className="size-[18px]"
                                 onClick={() =>
-                                  handleAssign(booking)
+                                  handleEditBooking(booking?.booking_id)
                                 }
                               />
-                            )}
-                            <img
-                              src={Edit}
-                              alt="icon"
-                              className="size-[18px]"
-                              onClick={() =>
-                                handleEditBooking(booking?.booking_id)
-                              }
-                            />
-                          </div>
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}

@@ -9,6 +9,7 @@ const appSlice = createSlice({
   initialState,
   reducers: {
     setDate: (state, action) => {
+      console.log(action.payload, "action.payload");
       state.date = action.payload;
     },
   },

@@ -13,6 +13,7 @@ import AppPanelServices from "./pages/AppPanelServices";
 import NewLeadDetail from "./pages/NewLeadDetail";
 import LeadsList from "./pages/Leads";
 import LeadDetails from "./pages/LeadDetails";
+import Requests from "./pages/Requests";
 
 const App = () => {
   return (
@@ -25,6 +26,14 @@ const App = () => {
           element={
             <RouteGuard>
               <LeadsNew />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="requests"
+          element={
+            <RouteGuard>
+              <Requests />
             </RouteGuard>
           }
         />

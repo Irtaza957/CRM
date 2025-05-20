@@ -39,10 +39,11 @@ import AddCustomerModal from "./AddCustomerModal";
 const ViewBookingModal = ({
   id,
   open,
+  isRequests,
   setID,
   setOpen,
   refetchBooking,
-}: ModalProps) => {
+}: ModalProps & { isRequests?: boolean }) => {
   const [logs, setLogs] = useState(false);
   const [cancel, setCancel] = useState(false);
   const [upload, setUpload] = useState(false);
@@ -211,12 +212,13 @@ const ViewBookingModal = ({
                             >
                               Booking History
                             </button>
+                            {!isRequests &&
                             <button
                               type="button"
                               onClick={() => setCustomerDetail(true)}
                             >
                               <img src={BasicEdit} alt="icon" />
-                            </button>
+                            </button>}
                           </div>
                         </div>
                         <div className="flex w-full items-center justify-between pt-2.5">
@@ -1131,18 +1133,20 @@ const ViewBookingModal = ({
                         >
                           Cancel Booking
                         </button>
-                        <CustomButton
-                          name={
-                            data?.status_id === "1" ? "Confirm" : "Edit Booking"
-                          }
-                          handleClick={() => handleEdit()}
-                          icon={
-                            isConfirming ? (
-                              <LuLoader2 className="animate-spin" />
-                            ) : null
-                          }
-                          style="w-full rounded-lg bg-secondary py-3 text-white"
-                        />
+                        {!(data?.status_id !== "1" && isRequests) && (
+                          <CustomButton
+                            name={
+                              data?.status_id === "1" ? "Confirm" : "Edit Booking"
+                            }
+                            handleClick={() => handleEdit()}
+                            icon={
+                              isConfirming ? (
+                                <LuLoader2 className="animate-spin" />
+                              ) : null
+                            }
+                            style="w-full rounded-lg bg-secondary py-3 text-white"
+                          />
+                        )}
                       </div>
                     )}
                   </div>

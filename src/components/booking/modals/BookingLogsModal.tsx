@@ -13,7 +13,7 @@ const BookingLogsModal = ({ logsData, open, setOpen }: BookingLogsModalProps) =>
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
-      className="w-full max-w-[60%]"
+      className="w-full max-w-[70%]"
       title="Booking Logs"
     >
       <div className="w-full items-center justify-center rounded-lg bg-white max-h-[350px] my-2 overflow-auto">

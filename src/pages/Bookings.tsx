@@ -26,7 +26,8 @@ import { useDispatch, useSelector } from "react-redux";
 import CustomDatePicker from "../components/ui/CustomDatePicker";
 import dayjs from "dayjs";
 import { RootState } from "../store";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaCalendarAlt, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { IoClose } from "react-icons/io5";
 
 const Bookings = () => {
   const [add, setAdd] = useState(false);
@@ -53,28 +54,31 @@ const Bookings = () => {
   );
   const { date } = useSelector((state: RootState) => state.app);
   const dispatch = useDispatch();
-
-  const { data: bookingData, isLoading: bookingLoading, refetch } =
-    useFetchBookingsQuery(
-      {
-        business_id: business?.id,
-        company_id: provider?.id,
-        branch_id: branch?.id,
-        category_id: category?.id,
-        platform_id: platform?.id,
-        channel_id: channel?.id,
-        source_id: source?.id,
-        agent_id: profession?.id,
-        booking_status: bookingStatus?.id,
-        payment_status: paymentStatus?.id,
-        date: dayjs(date || new Date()).format("YYYY-MM-DD"),
-        page: pageNum - 1,
-      },
-      {
-        refetchOnMountOrArgChange: true,
-        pollingInterval: 10000, // refetch 30 seconds
-      }
-    );
+console.log(date, 'datedate')
+  const {
+    data: bookingData,
+    isLoading: bookingLoading,
+    refetch,
+  } = useFetchBookingsQuery(
+    {
+      business_id: business?.id,
+      company_id: provider?.id,
+      branch_id: branch?.id,
+      category_id: category?.id,
+      platform_id: platform?.id,
+      channel_id: channel?.id,
+      source_id: source?.id,
+      agent_id: profession?.id,
+      booking_status: bookingStatus?.id,
+      payment_status: paymentStatus?.id,
+      ...(date ? { date: dayjs(date).format("YYYY-MM-DD") } : {}),
+      page: pageNum - 1,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+      pollingInterval: 10000, // refetch 30 seconds
+    }
+  );
 
   const { data: bookingSourcesData } = useFetchBookingSourcesQuery({});
 
@@ -231,10 +235,15 @@ const Bookings = () => {
     };
   }, []);
 
-  console.log(bookingData, 'bookingDatabookingData')
+  console.log(bookingData, "bookingDatabookingData");
   return (
     <div className="flex h-full w-full flex-col items-start justify-start">
-      <NewBookingModal open={add} setOpen={setAdd} setUpdate={setUpdate} setID={setID} />
+      <NewBookingModal
+        open={add}
+        setOpen={setAdd}
+        setUpdate={setUpdate}
+        setID={setID}
+      />
       <div className="mb-3 grid w-full grid-cols-6 gap-3">
         <BusinessDropdown
           business={business}
@@ -401,7 +410,7 @@ const Bookings = () => {
           isRemoveAllow={true}
         />
         <div className="flex items-center justify-center rounded-lg bg-white text-xs text-gray-500 xl:text-sm">
-          <CustomDatePicker
+          {/* <CustomDatePicker
             date={date || new Date()}
             setDate={handleSetDate}
             isRemoveAllow={
@@ -418,6 +427,44 @@ const Bookings = () => {
                   className="cursor-pointer"
                   onClick={incrementDate}
                 />
+              </div>
+            }
+          /> */}
+          <CustomDatePicker
+            date={date || new Date()}
+            setDate={handleSetDate}
+            toggleButton={
+              <div className="flex items-center justify-center gap-3">
+                {!date &&
+                <FaCalendarAlt />}
+                {date ? (
+                  <div className="flex items-center justify-center gap-2 xl:gap-2">
+                    <FaChevronLeft
+                      className="cursor-pointer"
+                      onClick={decrementDate}
+                    />
+                    <span>
+                      {dayjs(date || new Date()).format("DD MMM YYYY")}
+                    </span>
+                    <FaChevronRight
+                      className="cursor-pointer"
+                      onClick={incrementDate}
+                    />
+                  </div>
+                ) : (
+                  "Select Date"
+                )}
+                {date && (
+                  <div className="w-full">
+                  <IoClose
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      dispatch(setDate(null))
+                    }}
+                    className="h-4 w-4 cursor-pointer"
+                  />
+                  </div>
+                )}
               </div>
             }
           />
