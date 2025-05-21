@@ -964,7 +964,7 @@ const NewBookingModal = ({
                   )}
                 >
                   <h1 className="text-left font-semibold text-primary">
-                    Customer Details <span className="text-xs">(MRN: {selectedUser?.mrn || "-"})</span>
+                    Customer Details {selectedUser && <span className="text-xs">(MRN: {selectedUser?.mrn || "-"})</span>}
                   </h1>
                   <div className="flex items-center gap-2">
                     {!editMode && (
