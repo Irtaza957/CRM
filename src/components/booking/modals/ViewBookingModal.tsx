@@ -202,7 +202,7 @@ const ViewBookingModal = ({
                       <div className="flex w-full flex-col items-center justify-center rounded-lg p-2.5">
                         <div className="flex w-full items-center justify-between border-b pb-2.5">
                           <h1 className="text-left font-semibold text-primary">
-                            Customer Details
+                            Customer Details <span className="text-xs">(mrn: {data?.customer?.mrn})</span>
                           </h1>
                           <div className="flex items-center gap-2">
                             <button
@@ -274,7 +274,7 @@ const ViewBookingModal = ({
                       {/* Family Member */}
                       <div className="flex w-full flex-col rounded-lg p-2.5">
                         <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
-                          Booking For
+                          Booking For <span className="text-xs">(mrn: {data?.family_member_details.mrn})</span>
                         </h1>
                         <div className="ml-1 mt-5 flex w-full">
                           <div className="w-[40%] space-y-3">
@@ -599,7 +599,7 @@ const ViewBookingModal = ({
                               name={data?.payment_status}
                               handleClick={() => {}}
                               style={cn(
-                                "bg-grey border",
+                                "bg-white border",
                                 data?.payment_status === "Pending"
                                   ? "border-[#FB861F] text-[#FB861F]"
                                   : data?.payment_status === "Cancelled"
@@ -610,7 +610,7 @@ const ViewBookingModal = ({
                             <CustomButton
                               name={data?.status}
                               handleClick={() => {}}
-                              style="bg-grey text-primary border border-primary"
+                              style="bg-white text-primary border border-primary"
                             />
                           </div>
                         </div>
@@ -1144,7 +1144,7 @@ const ViewBookingModal = ({
                                 <LuLoader2 className="animate-spin" />
                               ) : null
                             }
-                            style="w-full rounded-lg bg-secondary py-3 text-white"
+                            style="w-full h-full rounded-lg bg-secondary py-4 text-white"
                           />
                         )}
                       </div>

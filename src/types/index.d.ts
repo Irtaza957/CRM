@@ -228,6 +228,7 @@ declare type BookingDetailProps = {
     user_id: string;
     created_at: string;
     last_updated: string;
+    mrn: string;
   };
   booking_source_id: string;
   booking_channel_id: string;
@@ -274,6 +275,7 @@ declare type BookingDetailProps = {
     medical_condition_description: string;
     customer_source_id: string;
     special_notes: string;
+    mrn: string;
     attachments: {
       attachment_id: string;
       customer_id: string;
