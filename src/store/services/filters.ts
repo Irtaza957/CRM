@@ -66,18 +66,18 @@ export const filtersApi = api.injectEndpoints({
     }),
     fetchSources: build.query({
       query: () => ({
-        url: "/booking/sources",
+        url: "/customer/sources",
         method: "GET",
       }),
       transformResponse: (response: {
         success: number;
         error: string;
-        data: SourceProps[];
+        data: {customer_source_id: string; source_name: string}[];
       }) => {
         const formatted = response.data.map((item) => {
           return {
-            id: parseInt(item.source_id),
-            name: item.source,
+            id: parseInt(item.customer_source_id),
+            name: item.source_name,
           };
         });
 

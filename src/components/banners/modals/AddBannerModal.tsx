@@ -309,7 +309,7 @@ const AddBannerModal = ({
             </label>
             <ImageUploader
               setImage={setBannerImage}
-              link={selectedBanner?.image ? `https://crm.fandcproperties.ru${selectedBanner.image}` : ""}
+              link={selectedBanner?.image ? `${import.meta.env.VITE_BASE_URL}${selectedBanner.image}` : ""}
               disabled={isView}
             />
           </div>

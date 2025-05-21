@@ -39,8 +39,7 @@ import {
   FaRegEdit,
   FaChevronLeft,
   FaRegTrashAlt,
-  FaChevronRight,
-  FaSearch,
+  FaChevronRight
 } from "react-icons/fa";
 import dayjs from "dayjs";
 import { toast } from "sonner";
@@ -69,6 +68,7 @@ import { RiArrowDownSLine } from "react-icons/ri";
 import { useFetchCompaniesQuery } from "../../../store/services/company";
 import { useFetchBookingPlatformsQuery } from "../../../store/services/booking";
 import { useFetchBusinessesQuery } from "../../../store/services/service";
+import { HiMagnifyingGlass } from "react-icons/hi2";
 
 interface NewBookingModal {
   selectedBooking?: string | null;
@@ -117,10 +117,10 @@ const Bookings = ({
               <div className="flex w-full items-center justify-start space-x-1.5">
                 <TiDocumentText className="h-4 w-4" />
                 <p className="w-full overflow-hidden truncate text-left">
-                  {booking.consultation_team.length !== 0
-                    ? booking.consultation_team
-                        .map((member) => {
-                          return member.name;
+                  {booking.categories.length !== 0
+                    ? booking.categories
+                        .map((category) => {
+                          return category.code;
                         })
                         .join(" - ")
                     : "N/A"}
@@ -609,7 +609,7 @@ const NewBookingModal = ({
   };
 
   const handleOpenAttachment = (url: string) => {
-    window.open(`https://crm.fandcproperties.ru${url}`, "_blank");
+    window.open(`${import.meta.env.VITE_BASE_URL}${url}`, "_blank");
   };
 
   const handleSelectUser = () => {
@@ -721,6 +721,7 @@ const NewBookingModal = ({
         partner_id: bookingDetailData?.partner_id || "",
         firstname: bookingDetailData?.customer?.firstname || "",
         lastname: bookingDetailData?.customer?.lastname || "",
+        mrn: bookingDetailData?.customer?.mrn || "",
         phone: bookingDetailData?.customer?.phone || "",
         email: bookingDetailData?.customer?.email || "",
         date_of_birth: bookingDetailData?.customer?.date_of_birth || "",
@@ -841,7 +842,7 @@ const NewBookingModal = ({
       setScheduleTime(null); // or default to first available
     }
   }, [scheduleDate]);
-console.log(partner?.id, orderId, 'orderIdorderId')
+
   return (
     <>
       <BookingHistoryModal
@@ -963,10 +964,10 @@ console.log(partner?.id, orderId, 'orderIdorderId')
                   )}
                 >
                   <h1 className="text-left font-semibold text-primary">
-                    Customer Details
+                    Customer Details <span className="text-xs">(MRN: {selectedUser?.mrn || "-"})</span>
                   </h1>
                   <div className="flex items-center gap-2">
-                    {!selectedUser && !editMode && (
+                    {!editMode && (
                       <CustomButton
                         name="Add New"
                         handleClick={() => setOpenCustomerModal(true)}
@@ -975,7 +976,7 @@ console.log(partner?.id, orderId, 'orderIdorderId')
                     )}
                     {selectedUser && (
                       <div className="py-2">
-                        <FaSearch
+                        <HiMagnifyingGlass
                           onClick={() => setToggleSearch(!toggleSearch)}
                           className="h-5 w-5 cursor-pointer text-gray-500"
                         />

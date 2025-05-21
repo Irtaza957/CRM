@@ -235,7 +235,9 @@ const AddAddressModal = ({
               listClassName="w-full top-[64px] max-h-52 border rounded-lg z-20 bg-white"
               listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
               icon={<RiArrowDownSLine className="size-5 text-grey100" />}
-              isSearch={false}
+              isSearch={true}
+              searchInputPlaceholder="Search..."
+              searchInputClassName="p-1.5 text-xs"
               disabled={!emirate?.id}
             />
           </div>
@@ -249,8 +251,8 @@ const AddAddressModal = ({
             />
             <CustomInput
               name="building_no"
-              label="Building No"
-              placeholder="Building No"
+              label="Building / Villa"
+              placeholder="Building / Villa"
               register={register}
               errorMsg={errors.building_no?.message} // Display error message
             />

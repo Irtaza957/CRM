@@ -36,7 +36,7 @@ const Sidebar = () => {
     }
     return item.link !== "/" ? pathname.startsWith(item.link) : pathname === item.link;
   };
-console.log(user, 'useruser')
+  
   return (
     <div
       className={cn(

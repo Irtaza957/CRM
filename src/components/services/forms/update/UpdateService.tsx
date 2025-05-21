@@ -293,14 +293,14 @@ const UpdateService = ({ id, open, isView, setOpen, refetch, setIsView }: Update
             </h1>
             <div className="grid w-full grid-cols-6 gap-6">
               <ImageUploader
-                link={serviceDetails?.thumbnail ? `https://crm.fandcproperties.ru${serviceDetails?.thumbnail}` : ''}
+                link={serviceDetails?.thumbnail ? `${import.meta.env.VITE_BASE_URL}${serviceDetails?.thumbnail}` : ''}
                 label="Thumbnail"
                 setImage={setThumbnail}
                 disabled={isView}
               />
               <ImageUploader
                 link={
-                  serviceDetails?.cover_image ? `https://crm.fandcproperties.ru${serviceDetails?.cover_image}` : ""
+                  serviceDetails?.cover_image ? `${import.meta.env.VITE_BASE_URL}${serviceDetails?.cover_image}` : ""
                 }
                 label="Cover Image"
                 setImage={setCoverImage}

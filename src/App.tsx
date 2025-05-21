@@ -6,7 +6,6 @@ import Companies from "./pages/Companies";
 import Categories from "./pages/Categories";
 import Businesses from "./pages/Businesses";
 import ServiceList from "./pages/ServiceList";
-import LeadsNew from "./pages/LeadsNew";
 import RouteGuard from "./components/RouteGuard";
 import { Route, Routes } from "react-router-dom";
 import AppPanelServices from "./pages/AppPanelServices";
@@ -14,8 +13,11 @@ import NewLeadDetail from "./pages/NewLeadDetail";
 import LeadsList from "./pages/Leads";
 import LeadDetails from "./pages/LeadDetails";
 import Requests from "./pages/Requests";
+import { useSelector } from "react-redux";
+import { RootState } from "./store";
 
 const App = () => {
+  const { user } = useSelector((state: RootState) => state.global);
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
@@ -25,7 +27,7 @@ const App = () => {
           index
           element={
             <RouteGuard>
-              <LeadsNew />
+              {user?.role === "super_admin" ? <LeadsList /> : <Requests />}
             </RouteGuard>
           }
         />

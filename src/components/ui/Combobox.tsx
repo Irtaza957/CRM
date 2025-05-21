@@ -133,9 +133,9 @@ const Combobox = ({
             ? (value as ListOptionProps[])
                 ?.map((item: ListOptionProps) => item.name)
                 .join(", ") ||
-              (typeof errorMsg === "string" ? errorMsg : placeholder)
+              ((typeof errorMsg === "string" && errorMsg) ? errorMsg : placeholder)
             : (value as ListOptionProps)?.name ||
-              (typeof errorMsg === "string" ? errorMsg : placeholder)}
+              ((typeof errorMsg === "string" && errorMsg) ? errorMsg : placeholder)}
         </span>
         <div className="flex items-center">
           {isRemoveAllow &&

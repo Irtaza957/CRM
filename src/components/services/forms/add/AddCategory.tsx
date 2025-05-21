@@ -271,7 +271,7 @@ const AddCategory = ({
           <ImageUploader
             link={
               selectedCategory?.icon
-                ? `https://crm.fandcproperties.ru${selectedCategory?.icon}`
+                ? `${import.meta.env.VITE_BASE_URL}${selectedCategory?.icon}`
                 : ""
             }
             label="Icon"
@@ -283,7 +283,7 @@ const AddCategory = ({
 
             link={
               selectedCategory?.thumbnail
-                ? `https://crm.fandcproperties.ru${selectedCategory?.thumbnail}`
+                ? `${import.meta.env.VITE_BASE_URL}${selectedCategory?.thumbnail}`
                 : ""
             }
             label="Thumbnail"
@@ -294,7 +294,7 @@ const AddCategory = ({
           <ImageUploader
             link={
               selectedCategory?.cover_image
-                ? `https://crm.fandcproperties.ru${selectedCategory?.cover_image}`
+                ? `${import.meta.env.VITE_BASE_URL}${selectedCategory?.cover_image}`
                 : ""
             }
             label="Cover Image"

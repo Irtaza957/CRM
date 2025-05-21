@@ -203,19 +203,19 @@ const NewBusinessModal = ({
               <ImageUploader
                 label="Icon"
                 setImage={setIcon}
-                link={selectedBusiness?.icon ? `https://crm.fandcproperties.ru${selectedBusiness?.icon}` : ''}
+                link={selectedBusiness?.icon ? `${import.meta.env.VITE_BASE_URL}${selectedBusiness?.icon}` : ''}
                 disabled={isView}
               />
               <ImageUploader
                 label="Thumbnail"
                 setImage={setThumbnail}
-                link={selectedBusiness?.thumbnail ? `https://crm.fandcproperties.ru${selectedBusiness?.thumbnail}` : ''}
+                link={selectedBusiness?.thumbnail ? `${import.meta.env.VITE_BASE_URL}${selectedBusiness?.thumbnail}` : ''}
                 disabled={isView}
               />
               <ImageUploader
                 label="Cover Image"
                 setImage={setCover}
-                link={selectedBusiness?.cover_image ? `https://crm.fandcproperties.ru${selectedBusiness?.cover_image}` : ''}
+                link={selectedBusiness?.cover_image ? `${import.meta.env.VITE_BASE_URL}${selectedBusiness?.cover_image}` : ''}
                 disabled={isView}
               />
             </div>

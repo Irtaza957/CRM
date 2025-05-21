@@ -287,7 +287,7 @@ const AddFamilyMemberModal = ({
                   date={date}
                   setDate={(newDate) => handleDate(newDate)}
                   toggleButton={
-                    <div className="flex h-10 w-full items-center justify-between gap-4 text-gray-500">
+                    <div className="flex h-10 w-full text-xs items-center justify-between gap-4 text-gray-500">
                       {dayjs(date).format("DD MMM YYYY")}
                       <IoCalendarOutline />
                     </div>

@@ -609,7 +609,7 @@ const AddService = ({
               serviceDetails?.thumbnail
                 ? serviceDetails?.thumbnail.startsWith("http")
                   ? serviceDetails?.thumbnail
-                  : `https://crm.fandcproperties.ru${serviceDetails?.thumbnail}`
+                  : `${import.meta.env.VITE_BASE_URL}${serviceDetails?.thumbnail}`
                 : ""
             }
             disabled={isApp}
@@ -622,7 +622,7 @@ const AddService = ({
               serviceDetails?.cover_image
                 ? serviceDetails?.cover_image.startsWith("http")
                   ? serviceDetails?.cover_image
-                  : `https://crm.fandcproperties.ru${serviceDetails?.cover_image}`
+                  : `${import.meta.env.VITE_BASE_URL}${serviceDetails?.cover_image}`
                 : ""
             }
             disabled={isApp}

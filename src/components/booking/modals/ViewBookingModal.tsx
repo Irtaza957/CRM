@@ -131,7 +131,7 @@ const ViewBookingModal = ({
   };
 
   const handleOpenAttachment = (url: string) => {
-    window.open(`https://crm.fandcproperties.ru${url}`, "_blank");
+    window.open(`${import.meta.env.VITE_BASE_URL}${url}`, "_blank");
   };
 
   return (

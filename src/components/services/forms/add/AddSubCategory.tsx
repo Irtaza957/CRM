@@ -311,14 +311,14 @@ const AddSubCategory = ({provider, business, selectedSubCategory, isView, setOpe
         </h1>
         <div className="grid w-full grid-cols-6 gap-6">
           <ImageUploader
-            link={selectedSubCategory?.icon ? `https://crm.fandcproperties.ru${selectedSubCategory?.icon}` : ''}
+            link={selectedSubCategory?.icon ? `${import.meta.env.VITE_BASE_URL}${selectedSubCategory?.icon}` : ''}
            label="Icon" setImage={setIcon} disabled={isView} openModal={open} />
           <ImageUploader 
-            link={selectedSubCategory?.thumbnail ? `https://crm.fandcproperties.ru${selectedSubCategory?.thumbnail}` : ''}
+            link={selectedSubCategory?.thumbnail ? `${import.meta.env.VITE_BASE_URL}${selectedSubCategory?.thumbnail}` : ''}
             label="Thumbnail" setImage={setThumbnail} disabled={isView} openModal={open} />
 
           <ImageUploader 
-            link={selectedSubCategory?.cover_image ? `https://crm.fandcproperties.ru${selectedSubCategory?.cover_image}` : ''}
+            link={selectedSubCategory?.cover_image ? `${import.meta.env.VITE_BASE_URL}${selectedSubCategory?.cover_image}` : ''}
             label="Cover Image" setImage={setCoverImage} disabled={isView} openModal={open} />
         </div>
       </div>
