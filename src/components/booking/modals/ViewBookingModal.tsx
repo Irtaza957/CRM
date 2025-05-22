@@ -35,6 +35,7 @@ import { toast } from "sonner";
 import UploadAttachmentModal from "./UploadAttachmentModal";
 import { FiDownload, FiPlus } from "react-icons/fi";
 import AddCustomerModal from "./AddCustomerModal";
+import InvoicePdf from "../InvoicePdf";
 
 const ViewBookingModal = ({
   id,
@@ -202,7 +203,7 @@ const ViewBookingModal = ({
                       <div className="flex w-full flex-col items-center justify-center rounded-lg p-2.5">
                         <div className="flex w-full items-center justify-between border-b pb-2.5">
                           <h1 className="text-left font-semibold text-primary">
-                            Customer Details <span className="text-xs">(MRN: {data?.customer?.mrn})</span>
+                            Customer Details <span className="text-xs">(MRN: {data?.customer?.mrn || '-'})</span>
                           </h1>
                           <div className="flex items-center gap-2">
                             <button
@@ -274,7 +275,7 @@ const ViewBookingModal = ({
                       {/* Family Member */}
                       <div className="flex w-full flex-col rounded-lg p-2.5">
                         <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
-                          Booking For <span className="text-xs">(MRN: {data?.family_member_details.mrn})</span>
+                          Booking For <span className="text-xs">(MRN: {data?.family_member_details.mrn || "-"})</span>
                         </h1>
                         <div className="ml-1 mt-5 flex w-full">
                           <div className="w-[40%] space-y-3">
@@ -591,10 +592,7 @@ const ViewBookingModal = ({
                             Service Details
                           </h1>
                           <div className="flex items-center gap-2">
-                            {/* <CustomButton
-                              name="Invoice"
-                              handleClick={() => {}}
-                            /> */}
+                            <InvoicePdf />
                             <CustomButton
                               name={data?.payment_status}
                               handleClick={() => {}}

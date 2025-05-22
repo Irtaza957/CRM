@@ -7,7 +7,7 @@
 // import Requests from "../assets/icons/sidebar/requests.svg";
 import Bookings from "../assets/icons/sidebar/bookings.svg";
 import AppPanel from "../assets/icons/sidebar/app_panel.svg";
-// import Customers from "../assets/icons/sidebar/customers.svg";
+import Customers from "../assets/icons/sidebar/customers.svg";
 // import Dashboard from "../assets/icons/sidebar/dashboard.svg";
 // import Marketing from "../assets/icons/sidebar/marketing.svg";
 import ServiceList from "../assets/icons/sidebar/service_list.svg";
@@ -519,12 +519,12 @@ export const sidebarItems = [
     icon: Bookings,
     link: "/bookings",
   },
-  // {
-  //   id: 4,
-  //   name: "Customers",
-  //   icon: Customers,
-  //   link: "/customers",
-  // },
+  {
+    id: 4,
+    name: "Customers",
+    icon: Customers,
+    link: "/customers",
+  },
   {
     id: 5,
     name: "Service List",
@@ -1133,4 +1133,57 @@ export const formats = [
   "script", "list", "indent",
   "blockquote", "code-block",
   "link", "image", "video"
+];
+
+export const customersHeaders = [
+  { label: "MRN", key: "mrn", sortable: true, sortIcon: SmallUpDownArrow },
+  {
+    label: "Full Name",
+    key: "full_name",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Phone",
+    key: "phone",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Email",
+    key: "email",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Nationality",
+    key: "nationality",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Source",
+    key: "source_name",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Company",
+    key: "company",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Total Orders",
+    key: "total",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Total Values",
+    key: "value",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  // { label: "Quick Actions", key: "actions", sortable: false },
 ];

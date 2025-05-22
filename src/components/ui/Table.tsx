@@ -77,7 +77,7 @@ const Table: React.FC<TableProps> = ({ headers, rows, renderActions, className =
                         header.key==='image' ? (
                           <img src={row[header.key]?.includes('http') ? row[header.key] : `${import.meta.env.VITE_BASE_URL}/${row[header.key]}`} alt={row.title} className="w-8 h-8 object-cover rounded-full" />
                         ) : (
-                          <span className="text-xs whitespace-nowrap" dangerouslySetInnerHTML={{ __html: row[header.key] }}></span>
+                          <span className="text-xs whitespace-nowrap" dangerouslySetInnerHTML={{ __html: row[header.key] || '-' }}></span>
                         )
                       )}
                     </td>

@@ -60,5 +60,5 @@ export const {
   useFetchCustomerFamilyMutation,
   useFetchCustomerAddressesMutation,
   useFetchCustomerAttachmentsMutation,
-  useFetchCustomersMutation,
+  useFetchCustomersMutation
 } = customerApi;

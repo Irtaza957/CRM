@@ -15,6 +15,7 @@ import LeadDetails from "./pages/LeadDetails";
 import Requests from "./pages/Requests";
 import { useSelector } from "react-redux";
 import { RootState } from "./store";
+import Customers from "./pages/Customers";
 
 const App = () => {
   const { user } = useSelector((state: RootState) => state.global);
@@ -108,6 +109,14 @@ const App = () => {
           element={
             <RouteGuard>
               <AppPanelServices />
+            </RouteGuard>
+          }
+        />
+        <Route
+          path="customers"
+          element={
+            <RouteGuard>
+              <Customers />
             </RouteGuard>
           }
         />
