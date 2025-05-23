@@ -5,7 +5,7 @@ import Combobox from "../../ui/Combobox";
 import { RiArrowDownSLine } from "react-icons/ri";
 import CustomButton from "../../ui/CustomButton";
 import CustomDatePicker from "../../ui/CustomDatePicker";
-import { IoCalendarOutline } from "react-icons/io5";
+import { IoCalendarOutline, IoClose } from "react-icons/io5";
 import dayjs from "dayjs";
 import {
   useAddCustomerMutation,
@@ -18,6 +18,7 @@ import { useFetchSourcesQuery } from "../../../store/services/filters";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { customerSchema } from "../../../utils/schemas";
+import { FiEdit } from "react-icons/fi";
 
 interface AddCustomerModalProps {
   open: boolean;
@@ -26,9 +27,11 @@ interface AddCustomerModalProps {
   editMode?: boolean;
   isService?: boolean;
   userData?: any;
+  viewMode?: boolean;
+  setIsView?: React.Dispatch<React.SetStateAction<boolean>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectedUser?: React.Dispatch<React.SetStateAction<CustomerProps | null>>;
-  fetchCustomers?: ()=>void
+  fetchCustomers?: () => void;
 }
 
 const genderOptions = [
@@ -44,15 +47,16 @@ const AddCustomerModal = ({
   editMode,
   userData,
   isService,
+  viewMode,
+  setIsView,
   setOpen,
   setSelectedUser,
-  fetchCustomers
+  fetchCustomers,
 }: AddCustomerModalProps) => {
   const [gender, setGender] = useState<ListOptionProps | null>(null);
   const [source, setSource] = useState<ListOptionProps | null>(null);
   const [nationality, setNationality] = useState<ListOptionProps | null>(null);
   const [dateOfBirth, setDateOfBirth] = useState<Date | string>(new Date());
-
 
   const {
     register,
@@ -66,13 +70,14 @@ const AddCustomerModal = ({
     resolver: zodResolver(customerSchema),
     mode: "all",
   });
-  
+
   const isAllergy = watch("is_allergy");
   const isMedication = watch("is_medication");
   const isMedicalCondition = watch("is_medical_condition");
 
   const [addCustomer, { isLoading }] = useAddCustomerMutation();
-  const [updateCustomer, { isLoading: updateLoading }] = useUpdateCustomerMutation();
+  const [updateCustomer, { isLoading: updateLoading }] =
+    useUpdateCustomerMutation();
   const { data: sources } = useFetchSourcesQuery(
     {},
     {
@@ -91,27 +96,27 @@ const AddCustomerModal = ({
   const handleSelectGender = (value: ListOptionProps) => {
     setGender(value);
     setValue("gender", String(value.id));
-    clearErrors('gender')
+    clearErrors("gender");
   };
 
   const handleSelectSource = (value: ListOptionProps) => {
     setSource(value);
     setValue("customer_source_id", String(value.id));
-    clearErrors('customer_source_id')
+    clearErrors("customer_source_id");
   };
 
   const handleSelectNationality = (value: ListOptionProps) => {
     setNationality(value);
     setValue("nationality", String(value.id));
-    clearErrors('nationality')
+    clearErrors("nationality");
   };
-  
+
   const handleSave: SubmitHandler<any> = async (data) => {
     try {
       if (userId) {
         const urlencoded = new URLSearchParams();
         urlencoded.append("user_id", String(userId));
-        urlencoded.append("customer_source_id", String(source?.id || ''));
+        urlencoded.append("customer_source_id", String(source?.id || ""));
         urlencoded.append("firstname", data?.firstname);
         urlencoded.append("lastname", data?.lastname);
         urlencoded.append("phone", data?.phone);
@@ -120,8 +125,8 @@ const AddCustomerModal = ({
           "date_of_birth",
           dayjs(dateOfBirth).format("YYYY-MM-DD")
         );
-        urlencoded.append("gender", String(gender?.id || ''));
-        urlencoded.append("nationality", String(nationality?.id || ''));
+        urlencoded.append("gender", String(gender?.id || ""));
+        urlencoded.append("nationality", String(nationality?.id || ""));
         urlencoded.append("is_allergy", data?.is_allergy === "yes" ? "1" : "0");
         urlencoded.append(
           "allergy_description",
@@ -168,7 +173,7 @@ const AddCustomerModal = ({
           setDateOfBirth(new Date());
           setSource(null);
           setGender(null);
-          resetState()
+          resetState();
           toast.custom((t) => (
             <CustomToast
               t={t}
@@ -177,26 +182,29 @@ const AddCustomerModal = ({
               message={`Successfully ${editMode ? "Updated" : "Added"} Customer!`}
             />
           ));
-          setSelectedUser && setSelectedUser({
-            ...userData,
-            customer_id: response?.data?.data?.customer_id,
-            customer_source_id: String(source?.id || ''),
-            gender: String(gender?.id || ''),
-            nationality: String(nationality?.name || ''), 
-            nationality_id: nationality?.id,
-            date_of_birth: dayjs(dateOfBirth).format("YYYY-MM-DD"),
-            firstname: data?.firstname,
-            lastname: data?.lastname,
-            phone: data?.phone,
-            email: data?.email,
-            is_allergy: data?.is_allergy === "yes" ? "1" : "0",
-            allergy_description: data?.allergy_description,
-            is_medication: data?.is_medication === "yes" ? "1" : "0",
-            medication_description: data?.medication_description,
-            is_medical_conition: data?.is_medical_condition === "yes" ? "1" : "0",
-            medical_condition_description: data?.medical_condition_description,
-          });
-          fetchCustomers && fetchCustomers()
+          setSelectedUser &&
+            setSelectedUser({
+              ...userData,
+              customer_id: response?.data?.data?.customer_id,
+              customer_source_id: String(source?.id || ""),
+              gender: String(gender?.id || ""),
+              nationality: String(nationality?.name || ""),
+              nationality_id: nationality?.id,
+              date_of_birth: dayjs(dateOfBirth).format("YYYY-MM-DD"),
+              firstname: data?.firstname,
+              lastname: data?.lastname,
+              phone: data?.phone,
+              email: data?.email,
+              is_allergy: data?.is_allergy === "yes" ? "1" : "0",
+              allergy_description: data?.allergy_description,
+              is_medication: data?.is_medication === "yes" ? "1" : "0",
+              medication_description: data?.medication_description,
+              is_medical_conition:
+                data?.is_medical_condition === "yes" ? "1" : "0",
+              medical_condition_description:
+                data?.medical_condition_description,
+            });
+          fetchCustomers && fetchCustomers();
           closeModal();
         }
       }
@@ -205,7 +213,7 @@ const AddCustomerModal = ({
     }
   };
 
-  const resetState=()=>{
+  const resetState = () => {
     reset({
       firstname: "",
       lastname: "",
@@ -225,7 +233,7 @@ const AddCustomerModal = ({
     setNationality(null);
     setSource(null);
     setGender(null);
-  }
+  };
 
   const closeModal = () => {
     setOpen(false);
@@ -237,44 +245,49 @@ const AddCustomerModal = ({
     }
   }, [open]);
 
-  useEffect(()=>{
-    if(isMedication === "no"){
-      setValue("medication_description", "")
-    }else {
-      if(userData?.medication_description){
+  useEffect(() => {
+    if (isMedication === "no") {
+      setValue("medication_description", "");
+    } else {
+      if (userData?.medication_description) {
         setValue("medication_description", userData?.medication_description);
       }
     }
-    if(isAllergy === "no"){
-      setValue("allergy_description", "")
-    }else {
-      if(userData?.allergy_description){  
+    if (isAllergy === "no") {
+      setValue("allergy_description", "");
+    } else {
+      if (userData?.allergy_description) {
         setValue("allergy_description", userData?.allergy_description);
       }
     }
-    if(isMedicalCondition === "no"){
-      setValue("medical_condition_description", "")
-    }else {
-      if(userData?.medical_condition_description){
-        setValue("medical_condition_description", userData?.medical_condition_description);
+    if (isMedicalCondition === "no") {
+      setValue("medical_condition_description", "");
+    } else {
+      if (userData?.medical_condition_description) {
+        setValue(
+          "medical_condition_description",
+          userData?.medical_condition_description
+        );
       }
     }
-  },[isMedication, isAllergy, isMedicalCondition])
-  
+  }, [isMedication, isAllergy, isMedicalCondition]);
+
   useEffect(() => {
-    if(isService && userData?.customer_id){
+    if (isService && userData?.customer_id) {
       setValue("firstname", userData.full_name.split(" ")[0]);
       setValue("lastname", userData.full_name.split(" ")[1]);
       setValue("phone", userData.phone);
       setValue("email", userData.email);
       setValue("date_of_birth", dayjs(userData.date_of_birth).toDate());
-      const gender = genderOptions.find(opt => opt.id === userData.gender);
+      const gender = genderOptions.find((opt) => opt.id === userData.gender);
       setGender(gender || null);
       setValue("gender", gender ? gender.id : "");
-      const nationality = nationalities?.find(opt => opt.name === userData.nationality);
+      const nationality = nationalities?.find(
+        (opt) => opt.name === userData.nationality
+      );
       setNationality(nationality || null);
       setValue("nationality", nationality ? String(nationality.id) : "");
-      const source = sources?.find(opt => opt.name === userData.source_name);
+      const source = sources?.find((opt) => opt.name === userData.source_name);
       setSource(source || null);
       setValue("customer_source_id", source ? String(source.id) : "");
     }
@@ -303,7 +316,10 @@ const AddCustomerModal = ({
         (opt) => opt.id === parseInt(userData.customer_source_id)
       );
       setSource(matchedSource || null);
-      setValue("customer_source_id", matchedSource ? String(matchedSource.id) : "");
+      setValue(
+        "customer_source_id",
+        matchedSource ? String(matchedSource.id) : ""
+      );
 
       const matchedGender = genderOptions.find(
         (opt) => opt.id === userData.gender
@@ -316,22 +332,36 @@ const AddCustomerModal = ({
         id: userData.nationality_id,
         name: userData.nationality,
       });
-    }else{
-      setValue('is_allergy', 'no')
-      setValue('is_medication', 'no')
-      setValue('is_medical_condition', 'no')
+    } else {
+      setValue("is_allergy", "no");
+      setValue("is_medication", "no");
+      setValue("is_medical_condition", "no");
     }
   }, [editMode, userData, open]);
-
+console.log(customerId, 'customerIdcustomerId')
   return (
     <Modal
       open={open}
       setOpen={setOpen}
       mainClassName="!z-[99999]"
       className="w-full max-w-[70%]"
-      title={editMode ? "Edit Customer" : "New Customer"}
     >
-      <div className="h-auto max-h-[calc(100vh-150px)] w-full overflow-y-scroll px-6 pt-2 pb-1">
+      <div className="h-auto max-h-[calc(100vh-50px)] w-full overflow-y-scroll">
+        <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white rounded-t-lg">
+          <h1 className="text-xl font-medium">
+            {customerId ? `${viewMode ? "View" : "Edit"} Customer` : "New Customer"}
+          </h1>
+          <div className="flex items-center justify-center gap-2">
+            {viewMode && (
+              <FiEdit
+                onClick={() => setIsView?.(false)}
+                className="h-6 w-6 cursor-pointer text-white"
+              />
+            )}
+            <IoClose onClick={() => setOpen(false)} className="h-8 w-8 cursor-pointer" />
+          </div>
+        </div>
+        <div className="px-8 py-5 w-full">
         <p className="text-left text-[18px] font-bold text-primary">
           Personal Details
         </p>
@@ -343,6 +373,7 @@ const AddCustomerModal = ({
               label="First Name"
               register={register}
               errorMsg={errors?.firstname?.message}
+              disabled={viewMode}
             />
             <CustomInput
               name="lastname"
@@ -350,6 +381,7 @@ const AddCustomerModal = ({
               label="Last Name"
               register={register}
               errorMsg={errors?.lastname?.message}
+              disabled={viewMode}
             />
             <div className="flex w-full items-center justify-center gap-2">
               <div className="w-full">
@@ -361,6 +393,7 @@ const AddCustomerModal = ({
                   setDate={setDateOfBirth}
                   toggleClassName="-right-20"
                   // errorMsg={errors?.date_of_birth?.message}
+                  disabled={viewMode}
                   toggleButton={
                     <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-3 text-xs font-medium">
                       <p className="whitespace-nowrap">
@@ -386,6 +419,7 @@ const AddCustomerModal = ({
                 icon={<RiArrowDownSLine className="size-5 text-grey100" />}
                 isSearch={false}
                 errorMsg={errors?.customer_source_id?.message}
+                disabled={viewMode}
               />
             </div>
           </div>
@@ -396,7 +430,8 @@ const AddCustomerModal = ({
               placeholder="Mobile No."
               register={register}
               errorMsg={errors?.phone?.message}
-            />
+              disabled={viewMode}
+              />
             <div className="flex w-full flex-col">
               <CustomInput
                 name="email"
@@ -405,6 +440,7 @@ const AddCustomerModal = ({
                 type="text"
                 register={register}
                 errorMsg={errors?.email?.message}
+                disabled={viewMode}
               />
             </div>
             <div className="flex w-full items-center justify-center gap-2">
@@ -421,6 +457,7 @@ const AddCustomerModal = ({
                 icon={<RiArrowDownSLine className="size-5 text-grey100" />}
                 isSearch={false}
                 errorMsg={errors?.gender?.message}
+                disabled={viewMode}
               />
               <Combobox
                 value={nationality}
@@ -437,6 +474,7 @@ const AddCustomerModal = ({
                 searchInputPlaceholder="Search..."
                 searchInputClassName="p-1.5 text-xs"
                 errorMsg={errors?.nationality?.message}
+                disabled={viewMode}
               />
             </div>
           </div>
@@ -457,6 +495,7 @@ const AddCustomerModal = ({
                 value="yes"
                 {...register("is_allergy")}
                 className="custom-radio"
+                disabled={viewMode}
               />
               <span>Yes</span>
             </label>
@@ -467,6 +506,7 @@ const AddCustomerModal = ({
                 value="no"
                 {...register("is_allergy")}
                 className="custom-radio"
+                disabled={viewMode}
               />
               <span>No</span>
             </label>
@@ -475,7 +515,7 @@ const AddCustomerModal = ({
               label=""
               placeholder="Please Specify"
               register={register}
-              disabled={!isAllergy || isAllergy === "no"}
+              disabled={!isAllergy || isAllergy === "no" || viewMode}
               errorMsg={errors?.allergy_description?.message}
             />
           </div>
@@ -490,6 +530,7 @@ const AddCustomerModal = ({
                 value="yes"
                 {...register("is_medication")}
                 className="custom-radio"
+                disabled={viewMode}
               />
               <span>Yes</span>
             </label>
@@ -500,6 +541,7 @@ const AddCustomerModal = ({
                 value="no"
                 {...register("is_medication")}
                 className="custom-radio"
+                disabled={viewMode}
               />
               <span>No</span>
             </label>
@@ -509,7 +551,7 @@ const AddCustomerModal = ({
               label=""
               placeholder="Please Specify"
               register={register}
-              disabled={!isMedication || isMedication === "no"}
+              disabled={!isMedication || isMedication === "no" || viewMode}
               errorMsg={errors?.medication_description?.message}
             />
           </div>
@@ -524,6 +566,7 @@ const AddCustomerModal = ({
                 value="yes"
                 {...register("is_medical_condition")}
                 className="custom-radio"
+                disabled={viewMode}
               />
               <span>Yes</span>
             </label>
@@ -534,6 +577,7 @@ const AddCustomerModal = ({
                 value="no"
                 {...register("is_medical_condition")}
                 className="custom-radio"
+                disabled={viewMode}
               />
               <span>No</span>
             </label>
@@ -542,7 +586,7 @@ const AddCustomerModal = ({
               label=""
               placeholder="Please Specify"
               register={register}
-              disabled={!isMedicalCondition || isMedicalCondition === "no"}
+              disabled={!isMedicalCondition || isMedicalCondition === "no" || viewMode}
               errorMsg={errors?.medical_condition_description?.message}
             />
           </div>
@@ -557,9 +601,10 @@ const AddCustomerModal = ({
               name={editMode ? "Update" : "Save"}
               handleClick={handleSubmit(handleSave)}
               loading={isLoading || updateLoading}
-              disabled={isLoading || updateLoading}
+              disabled={isLoading || updateLoading || viewMode}
             />
           </div>
+        </div>
         </div>
       </div>
     </Modal>

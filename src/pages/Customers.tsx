@@ -16,20 +16,23 @@ import AddCustomerModal from "../components/booking/modals/AddCustomerModal";
 import { useFetchCustomersMutation } from "../store/services/customer";
 import { customersHeaders } from "../utils/constants";
 import Table from "../components/ui/Table";
+import { FaRegTrashAlt } from "react-icons/fa";
+import { FiEdit } from "react-icons/fi";
+import DeleteModal from "../components/booking/modals/DeleteModal";
 
 const Customers = () => {
   const [add, setAdd] = useState(false);
-//   const [id, setID] = useState("");
-//   const [update, setUpdate] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const [business, setBusiness] = useState<ListOptionProps | null>(null);
   const [provider, setProvider] = useState<ListOptionProps | null>(null);
   const [branch, setBranch] = useState<ListOptionProps | null>(null);
   const [category, setCategory] = useState<ListOptionProps | null>(null);
   const [filterArray, setFilterArray] = useState<FilterType[]>([]);
-//   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
+  const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [customers, setCustomers] = useState<CustomerProps[] | []>([]);
   const [platform, setPlatform] = useState<ListOptionProps | null>(null);
-//   const [pageNum, setPageNum] = useState(1);
+  //   const [pageNum, setPageNum] = useState(1);
   const { user } = useSelector((state: RootState) => state.global);
   const dispatch = useDispatch();
   const [fetchCustomers] = useFetchCustomersMutation();
@@ -160,6 +163,32 @@ const Customers = () => {
     }
   };
 
+  const handleEdit = (row: any, editMode?: boolean) => {
+    setSelectedCustomer(row.customer_id);
+    setAdd(true);
+    setEditMode(editMode || false);
+  };
+
+  const renderActions = (row: any) => (
+    <div className="mr-2 flex justify-end gap-3">
+      <FiEdit
+        onClick={(e) => {
+          e.stopPropagation();
+          handleEdit(row);
+        }}
+        className="col-span-1 h-5 w-5 cursor-pointer rounded-md bg-red-500 p-1 text-white"
+      />
+      <FaRegTrashAlt
+        onClick={(e) => {
+          e.stopPropagation();
+          setSelectedCustomer(row.id);
+          setOpenDeleteModal(true);
+        }}
+        className="h-5 w-5 cursor-pointer"
+      />
+    </div>
+  );
+
   useEffect(() => {
     getCustomers();
     return () => {
@@ -170,11 +199,20 @@ const Customers = () => {
   return (
     <div className="flex h-full w-full flex-col items-start justify-start">
       <AddCustomerModal
-        // customerId={selectedCustomer || ""}
+        customerId={selectedCustomer || ""}
         userId={user!.id}
         open={add}
         setOpen={setAdd}
         fetchCustomers={getCustomers}
+        viewMode={editMode}
+        setIsView={setEditMode}
+      />
+      <DeleteModal
+        title={`Delete Customer`}
+        open={openDeleteModal}
+        setOpen={setOpenDeleteModal}
+        // deleteLoading={deleteFAQLoading}
+        handleDelete={() => {}}
       />
       <div className="mb-3 grid w-full grid-cols-6 gap-3">
         <BusinessDropdown
@@ -247,7 +285,11 @@ const Customers = () => {
 
         <button
           type="button"
-          onClick={() => setAdd(true)}
+          onClick={() => {
+            setSelectedCustomer(null)
+            setEditMode(false)
+            setAdd(true)
+          }}
           className="flex w-full cursor-pointer items-center justify-center rounded-lg bg-primary text-center text-sm font-semibold text-white shadow-md"
         >
           New Customer
@@ -256,8 +298,8 @@ const Customers = () => {
       <Table
         headers={customersHeaders}
         rows={customers || []}
-        // renderActions={renderActions}
-        // handleRowClick={(row) => handleEdit(row, true)}
+        renderActions={renderActions}
+        handleRowClick={(row) => handleEdit(row, true)}
       />
     </div>
   );

@@ -1185,5 +1185,5 @@ export const customersHeaders = [
     sortable: true,
     sortIcon: SmallUpDownArrow,
   },
-  // { label: "Quick Actions", key: "actions", sortable: false },
+  { label: "Quick Actions", key: "actions", sortable: false },
 ];

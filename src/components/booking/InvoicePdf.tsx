@@ -20,21 +20,24 @@ const styles = StyleSheet.create({
     width: "25%",
     backgroundColor: "#116FAC",
     color: "white",
-    padding: 15,
+    padding: 10,
+    fontSize: 12,
   },
-  tableCol: { width: "25%", padding: 15 },
+  tableCol: { width: "25%", padding: 10 },
   footer: { marginTop: 30, textAlign: "center" },
   footerContainer: {
-    marginTop: 50,
-    borderTop: "1 solid #116FAC",
+    marginTop: 75,
+    borderTop: "1.5 solid #116FAC",
     paddingTop: 10,
     paddingHorizontal: 10,
+    color: "#6b7280",
   },
 
   footerHeader: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 5,
+    marginTop: 5
   },
 
   footerHeaderTab: {
@@ -72,202 +75,300 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   logo: { width: 150, height: 36 },
-  headerText: { color: "#116FAC", fontSize: 18, fontWeight: "bold" },
-  textColor: { color: "#858688 " },
+  headerText: { color: "#116FAC", fontSize: 21, fontWeight: "550" },
+  textColor: { color: "#6b7280" },
 });
-
+interface PageProps {
+  title: string;
+  invoiceNum: { name: string; value: string };
+}
 // PDF Content Component
-const InvoiceDocument = () => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      {/* Header */}
-      <View style={styles.headerSection}>
-        <Image src={"/logo.png"} style={styles.logo} />
-        <Text style={styles.headerText}>TAX INVOICE</Text>
-      </View>
+const PageComponent = ({ title, invoiceNum }: PageProps) => (
+  <Page size="A4" style={styles.page}>
+    {/* Header */}
+    <View style={styles.headerSection}>
+      <Image src={"/logo.png"} style={styles.logo} />
+      <Text style={styles.headerText}>{title}</Text>
+    </View>
 
-      {/* Sender & Receiver */}
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          borderTop: "1 solid #E5E7EB",
-          paddingTop: 20,
-          paddingBottom: 10,
-          marginTop: 10,
-        }}
-      >
-        <View>
-          <View
-            style={{
-              ...styles.section,
-            }}
-          >
-            <Text style={{ color: "#116FAC", fontSize: 16, fontWeight: "600" }}>
-              City Doctor LLC
-            </Text>
-            <Text style={{ marginVertical: 5, ...styles.textColor }}>
-              Grosvenor Business Tower, Office 1507
-            </Text>
-            <Text style={styles.textColor}>Al Barsha Heights - Dubai</Text>
-            <Text style={{ marginVertical: 5, ...styles.textColor }}>
-              Phone: +971 55 755 9446
-            </Text>
-          </View>
-
-          <View style={styles.section}>
-            <Text style={{ color: "#116FAC", fontSize: 16, fontWeight: "600" }}>
-              Invoice To
-            </Text>
-            <Text style={{ marginVertical: 5, ...styles.textColor }}>
-              Sanddep Dev
-            </Text>
-            <Text style={styles.textColor}>+971 55 755 9446</Text>
-            <Text style={{ ...styles.textColor, marginVertical: 5 }}>
-              Green View Building 5, Sharjah, UAE
-            </Text>
-            <Text style={styles.textColor}>Industal area 1, Sharjah, UAE</Text>
-          </View>
-        </View>
-        <View>
-          <View>
-            <Text style={{ width: "100px", textAlign: "right" }}>
-              Tax Invoice No.
-            </Text>
-            <Text
-              style={{
-                fontWeight: "600",
-                textAlign: "right",
-                marginTop: 2,
-                width: "100px",
-              }}
-            >
-              56466HGD
-            </Text>
-          </View>
-          <View style={{ marginTop: 10 }}>
-            <Text style={{ textAlign: "right", width: "100px" }}>Date</Text>
-            <Text
-              style={{
-                fontWeight: "600",
-                textAlign: "right",
-                marginTop: 2,
-                width: "100px",
-              }}
-            >
-              01 Jan, 2024
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Table */}
-      <View style={styles.table}>
-        <View style={styles.tableRow}>
-          <Text style={styles.tableColHeader}>Item Description</Text>
-          <Text style={styles.tableColHeader}>Unit Price</Text>
-          <Text style={styles.tableColHeader}>Qty</Text>
-          <Text style={styles.tableColHeader}>Total</Text>
-        </View>
-
-        {[...Array(4)].map((_, i) => (
-          <View
-            style={{
-              ...styles.tableRow,
-              backgroundColor: i % 2 === 0 ? "#f3f5f9" : "white",
-            }}
-            key={i}
-          >
-            <Text style={styles.tableCol}>Service #{i + 1}</Text>
-            <Text style={styles.tableCol}>000.00</Text>
-            <Text style={styles.tableCol}>1</Text>
-            <Text style={styles.tableCol}>000.00</Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Totals */}
-      <View style={{ marginTop: 20, alignItems: "flex-end" }}>
-        <View style={{ flexDirection: "row", fontSize: 12, fontWeight: "600" }}>
-          <Text> Sub Total:</Text>
-          <Text style={{ width: "80px", textAlign: "right" }}>000.00</Text>
-        </View>
+    {/* Sender & Receiver */}
+    <View
+      style={{
+        flexDirection: "row",
+        justifyContent: "space-between",
+        borderTop: "2 solid #E5E7EB",
+        paddingTop: 20,
+        paddingBottom: 10,
+        marginTop: 20,
+      }}
+    >
+      <View>
         <View
           style={{
-            flexDirection: "row",
-            fontSize: 12,
-            fontWeight: "600",
-            marginVertical: 5,
+            ...styles.section,
           }}
         >
-          <Text>Discount (2%):</Text>
-          <Text style={{ width: "80px", textAlign: "right" }}>000.00</Text>
+          <Text style={{ color: "#116FAC", fontSize: 16, fontWeight: "500" }}>
+            City Doctor LLC
+          </Text>
+          <Text style={{ marginVertical: 5, ...styles.textColor }}>
+            Grosvenor Business Tower, Office 1507
+          </Text>
+          <Text style={styles.textColor}>Al Barsha Heights - Dubai</Text>
+          <Text style={{ marginVertical: 5, ...styles.textColor }}>
+            Phone: +971 55 755 9446
+          </Text>
         </View>
-        <View style={{ flexDirection: "row", fontSize: 12, fontWeight: "600" }}>
-          <Text>Tax (5%):</Text>
-          <Text style={{ width: "80px", textAlign: "right" }}>000.00</Text>
+
+        <View style={styles.section}>
+          <Text style={{ color: "#116FAC", fontSize: 16, fontWeight: "500" }}>
+            Invoice To
+          </Text>
+          <Text style={{ marginVertical: 5, ...styles.textColor }}>
+            Sanddep Dev
+          </Text>
+          <Text style={styles.textColor}>+971 55 755 9446</Text>
+          <Text style={{ ...styles.textColor, marginVertical: 5 }}>
+            Green View Building 5, Sharjah, UAE
+          </Text>
+          <Text style={styles.textColor}>Industal area 1, Sharjah, UAE</Text>
         </View>
-        <View
-          style={{
-            flexDirection: "row",
-            fontSize: 12,
-            fontWeight: "600",
-            color: "white",
-            marginTop: 15,
-            backgroundColor: "#116FAC",
-            paddingHorizontal: 20,
-            paddingVertical: 6,
-          }}
-        >
-          <Text>Grand Total:</Text>
-          <Text style={{ width: "80px", textAlign: "right" }}>
-            AED 0,000.00
+      </View>
+      <View style={{ color: "#6b7280" }}>
+        <View>
+          <Text style={{ width: "100px", textAlign: "right" }}>
+            {invoiceNum.name}
+          </Text>
+          <Text
+            style={{
+              fontWeight: "600",
+              textAlign: "right",
+              marginTop: 2,
+              width: "100px",
+            }}
+          >
+            {invoiceNum.value}
+          </Text>
+        </View>
+        <View style={{ marginTop: 10 }}>
+          <Text style={{ textAlign: "right", width: "100px" }}>Date</Text>
+          <Text
+            style={{
+              fontWeight: "600",
+              textAlign: "right",
+              marginTop: 2,
+              width: "100px",
+            }}
+          >
+            01 Jan, 2024
           </Text>
         </View>
       </View>
+    </View>
 
-      <View style={{ marginTop: 40 }}>
-        <Text>Stamp & Sign</Text>
+    {/* Table */}
+    <View style={styles.table}>
+      <View style={styles.tableRow}>
+        <Text style={styles.tableColHeader}>Item Description</Text>
+        <Text style={styles.tableColHeader}>Unit Price</Text>
+        <Text style={styles.tableColHeader}>Qty</Text>
+        <Text style={styles.tableColHeader}>Total</Text>
       </View>
 
-      {/* Footer */}
-      <View style={styles.footerContainer}>
-        {/* Contact Header */}
-        <View style={styles.footerHeader}>
-          <Text style={styles.footerHeaderText}>Contact</Text>
+      {[...Array(4)].map((_, i) => (
+        <View
+          style={{
+            ...styles.tableRow,
+            backgroundColor: i % 2 === 0 ? "#f3f5f9" : "white",
+            color: "#6b7280",
+          }}
+          key={i}
+        >
+          <Text style={styles.tableCol}>Service #{i + 1}</Text>
+          <Text style={styles.tableCol}>000.00</Text>
+          <Text style={styles.tableCol}>1</Text>
+          <Text style={styles.tableCol}>000.00</Text>
         </View>
+      ))}
+    </View>
 
-        {/* Contact Details Row */}
-        <View style={styles.footerContent}>
-          {/* Phone */}
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-            <Image src={"/phone.png"} style={{ width: 20, height: 20 }} />
-            <View style={styles.footerColumn}>
-              <Text style={{ marginBottom: 3 }}>+971 55 755 9446</Text>
-              <Text>+971 4 32 00 000</Text>
-            </View>
+    {/* Totals */}
+
+    <View style={{ marginTop: 20, alignItems: "flex-end" }}>
+      {(title === "TAX INVOICE" || title === "PROFORMA INVOICE") && (
+        <>
+          <View
+            style={{
+              flexDirection: "row",
+              fontSize: 12,
+              fontWeight: "600",
+              color: "#6b7280",
+            }}
+          >
+            <Text> Sub Total:</Text>
+            <Text style={{ width: "80px", textAlign: "right" }}>000.00</Text>
           </View>
-
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-            <Image src={"/globe.png"} style={{ width: 20, height: 20 }} />
-            <View style={styles.footerColumn}>
-              <Text style={{ marginBottom: 3 }}>info@citydoctor.ae</Text>
-              <Text>www.citydoctor.ae</Text>
-            </View>
+          <View
+            style={{
+              flexDirection: "row",
+              fontSize: 12,
+              fontWeight: "600",
+              marginVertical: 5,
+              color: "#6b7280",
+            }}
+          >
+            <Text>Discount (2%):</Text>
+            <Text style={{ width: "80px", textAlign: "right" }}>000.00</Text>
           </View>
-
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
-            <Image src={"/location.png"} style={{ width: 20, height: 20 }} />
-            <View style={styles.footerColumn}>
-              <Text style={{ marginBottom: 3 }}>
-                Grosvenor Business Tower Office 1507
+          <View
+            style={{
+              flexDirection: "row",
+              fontSize: 12,
+              fontWeight: "600",
+              color: "#6b7280",
+            }}
+          >
+            <Text>Tax (5%):</Text>
+            <Text style={{ width: "80px", textAlign: "right" }}>000.00</Text>
+          </View>
+        </>
+      )}
+      <View
+        style={{
+          flexDirection: "row",
+          fontSize: 13,
+          fontWeight: "600",
+          color: "white",
+          marginTop: 15,
+          backgroundColor: "#116FAC",
+          paddingHorizontal: 22,
+          paddingVertical: 8,
+        }}
+      >
+        <Text>
+          {title === "QUOTATION"
+            ? "Total Quote"
+            : title === "ESTIMATE"
+              ? "Estimated Total"
+              : "Grand Total"}
+          :
+        </Text>
+        <Text style={{ textAlign: "right", marginLeft: 10 }}>AED 0,000.00</Text>
+      </View>
+      {title !== "TAX INVOICE" && (
+        <View style={{ marginTop: 10, color: "#6b7280" }}>
+          <Text style={{ fontSize: 9, textAlign: "right", width: "400px" }}>
+            {title === "QUOTATION"
+              ? "Terms: Valid for 7 days. Subject to availability."
+              : title === "PROFORMA INVOICE"
+                ? "This is a proforma invoice and not a tax invoice."
+                : "This is an estimate only. Final amount may vary based on"}
+          </Text>
+          {title === "ESTIMATE" && (
+            <Text
+              style={{
+                fontSize: 9,
+                textAlign: "right",
+                width: "400px",
+                marginTop: 3,
+              }}
+            >
+              actual services rendered.
+            </Text>
+          )}
+          {title === "ESTIMATE" && (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 6,
+                textAlign: "right",
+                justifyContent: "flex-end",
+                marginTop: 5,
+              }}
+            >
+              <Text style={{ fontSize: 9 }}>Valid Until:</Text>
+              <Text style={{ fontSize: 11, fontWeight: "600", marginTop: 2 }}>
+                01 Jan, 2024
               </Text>
-              <Text>Al Barsha Heights</Text>
             </View>
+          )}
+        </View>
+      )}
+    </View>
+
+    <View style={{ marginTop: 40, color: "#6b7280" }}>
+      <Text>Stamp & Sign</Text>
+    </View>
+
+    {/* Footer */}
+    <View style={styles.footerContainer}>
+      {/* Contact Header */}
+      <View style={styles.footerHeader}>
+        <Text style={styles.footerHeaderText}>Contact</Text>
+      </View>
+
+      {/* Contact Details Row */}
+      <View style={styles.footerContent}>
+        {/* Phone */}
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <Image src={"/phone.png"} style={{ width: 20, height: 20 }} />
+          <View style={styles.footerColumn}>
+            <Text style={{ marginBottom: 3 }}>+971 55 755 9446</Text>
+            <Text>+971 4 32 00 000</Text>
           </View>
         </View>
+
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <Image src={"/globe.png"} style={{ width: 20, height: 20 }} />
+          <View style={styles.footerColumn}>
+            <Text style={{ marginBottom: 3 }}>info@citydoctor.ae</Text>
+            <Text>www.citydoctor.ae</Text>
+          </View>
+        </View>
+
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+          <Image src={"/location.png"} style={{ width: 20, height: 20 }} />
+          <View style={styles.footerColumn}>
+            <Text style={{ marginBottom: 3 }}>Grosvenor Business Tower</Text>
+            <Text>Al Barsha Heights</Text>
+          </View>
+        </View>
+
+        <View>
+          <Image
+            src={"/QR_code.PNG"}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              width: 40,
+              height: 40,
+              marginLeft: "20px",
+            }}
+          />
+        </View>
       </View>
-    </Page>
+    </View>
+  </Page>
+);
+const InvoiceDocument = () => (
+  <Document>
+    <PageComponent
+      title={"TAX INVOICE"}
+      invoiceNum={{ name: "Tax Invoice No.", value: "56466HGD" }}
+    />
+    <PageComponent
+      title={"ESTIMATE"}
+      invoiceNum={{ name: "Estimate No.", value: "EST-0001" }}
+    />
+    <PageComponent
+      title={"PROFORMA INVOICE"}
+      invoiceNum={{ name: "Invoice No.", value: "PI-0001" }}
+    />
+    <PageComponent
+      title={"QUOTATION"}
+      invoiceNum={{ name: "Quote Ref.", value: "QT-0001" }}
+    />
   </Document>
 );
 

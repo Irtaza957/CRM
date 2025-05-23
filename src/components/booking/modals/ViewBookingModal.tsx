@@ -1142,7 +1142,7 @@ const ViewBookingModal = ({
                                 <LuLoader2 className="animate-spin" />
                               ) : null
                             }
-                            style="w-full h-full rounded-lg bg-secondary py-4 text-white"
+                            style="w-full h-full rounded-lg bg-secondary py-3 text-base text-white"
                           />
                         )}
                       </div>
