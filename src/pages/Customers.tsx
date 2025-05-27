@@ -205,7 +205,9 @@ const Customers = () => {
         setOpen={setAdd}
         fetchCustomers={getCustomers}
         viewMode={editMode}
+        editMode={!editMode}
         setIsView={setEditMode}
+        isCustomersPage={true}
       />
       <DeleteModal
         title={`Delete Customer`}

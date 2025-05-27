@@ -19,6 +19,7 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { customerSchema } from "../../../utils/schemas";
 import { FiEdit } from "react-icons/fi";
+import { useFetchCustomerDetailQuery } from "../../../store/services/customer";
 
 interface AddCustomerModalProps {
   open: boolean;
@@ -28,6 +29,7 @@ interface AddCustomerModalProps {
   isService?: boolean;
   userData?: any;
   viewMode?: boolean;
+  isCustomersPage?: boolean;
   setIsView?: React.Dispatch<React.SetStateAction<boolean>>;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setSelectedUser?: React.Dispatch<React.SetStateAction<CustomerProps | null>>;
@@ -48,6 +50,7 @@ const AddCustomerModal = ({
   userData,
   isService,
   viewMode,
+  isCustomersPage,
   setIsView,
   setOpen,
   setSelectedUser,
@@ -76,6 +79,11 @@ const AddCustomerModal = ({
   const isMedicalCondition = watch("is_medical_condition");
 
   const [addCustomer, { isLoading }] = useAddCustomerMutation();
+  const { data } =useFetchCustomerDetailQuery(customerId, {
+    skip: !open || !isCustomersPage,
+    refetchOnMountOrArgChange: true,
+  });
+  
   const [updateCustomer, { isLoading: updateLoading }] =
     useUpdateCustomerMutation();
   const { data: sources } = useFetchSourcesQuery(
@@ -312,6 +320,7 @@ const AddCustomerModal = ({
       setDateOfBirth(dayjs(userData.date_of_birth).toDate());
 
       // Setting source and gender based on userData values
+      console.log(userData, sources, 'sourcessources')
       const matchedSource = sources?.find(
         (opt) => opt.id === parseInt(userData.customer_source_id)
       );
@@ -333,12 +342,65 @@ const AddCustomerModal = ({
         name: userData.nationality,
       });
     } else {
-      setValue("is_allergy", "no");
-      setValue("is_medication", "no");
-      setValue("is_medical_condition", "no");
+      if(!isCustomersPage){
+        setValue("is_allergy", "no");
+        setValue("is_medication", "no");
+        setValue("is_medical_condition", "no");
+      }
     }
-  }, [editMode, userData, open]);
-console.log(customerId, 'customerIdcustomerId')
+  }, [editMode, userData, open, sources]);
+
+  useEffect(() => {
+    if (data?.data && !isService && isCustomersPage) {
+      const userData = data?.data;
+      setValue("firstname", userData.firstname);
+      setValue("lastname", userData.lastname);
+      setValue("phone", userData.phone);
+      setValue("email", userData.email);
+      setValue("date_of_birth", dayjs(userData.date_of_birth).toDate());
+      setValue("is_allergy", userData.is_allergy === "1" ? "yes" : "no");
+      setValue("allergy_description", userData.allergy_description);
+      setValue("is_medication", userData.is_medication === "1" ? "yes" : "no");
+      setValue("medication_description", userData.medication_description);
+      setValue(
+        "is_medical_condition",
+        userData.is_medical_conition === "1" ? "yes" : "no"
+      );
+      setValue(
+        "medical_condition_description",
+        userData.medical_condition_description
+      );
+      setDateOfBirth(dayjs(userData.date_of_birth).toDate());
+
+      // Setting source and gender based on userData values
+      const matchedSource = sources?.find(
+        (opt) => opt.id === parseInt(userData.customer_source_id)
+      );
+      setSource(matchedSource || null);
+      setValue(
+        "customer_source_id",
+        matchedSource ? String(matchedSource.id) : ""
+      );
+
+      const matchedGender = genderOptions.find(
+        (opt) => opt.id === userData.gender
+      );
+      setGender(matchedGender || null);
+      setValue("gender", matchedGender ? matchedGender.id : "");
+      setValue("nationality", userData?.nationality || "");
+
+      setNationality({
+        id: userData.nationality_id,
+        name: userData.nationality,
+      });
+    } else {
+      if(isCustomersPage){
+        setValue("is_allergy", "no");
+        setValue("is_medication", "no");
+        setValue("is_medical_condition", "no");
+      }
+    }
+  }, [editMode, data, open]);
   return (
     <Modal
       open={open}

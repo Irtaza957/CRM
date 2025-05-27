@@ -727,6 +727,7 @@ const NewBookingModal = ({
         date_of_birth: bookingDetailData?.customer?.date_of_birth || "",
         gender: bookingDetailData?.customer?.gender || "",
         nationality: bookingDetailData?.customer?.nationality || "",
+        customer_source_id: bookingDetailData?.customer?.customer_source_id || "",
         is_allergy: bookingDetailData?.customer?.is_allergy || "",
         allergy_description:
           bookingDetailData?.customer?.allergy_description || "",

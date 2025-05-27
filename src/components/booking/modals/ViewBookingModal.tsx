@@ -2,7 +2,7 @@ import Modal from "../../ui/Modal";
 import { cn } from "../../../utils/helpers";
 import BookingLogsModal from "./BookingLogsModal";
 import CancelBookingModal from "./CancelBookingModal";
-import BasicEdit from "../../../assets/icons/edit-basic.svg";
+// import BasicEdit from "../../../assets/icons/edit-basic.svg";
 import Attachments from "../../../assets/icons/attachments.svg";
 import LocationTwo from "../../../assets/icons/location-two.svg";
 import PhoneColored from "../../../assets/icons/phone-colored.svg";
@@ -57,7 +57,7 @@ const ViewBookingModal = ({
   const [opeBooking, setOpenBooking] = useState(false);
   const { user } = useSelector((state: RootState) => state.global);
   const [openUploadAttachment, setOpenUploadAttachment] = useState(false);
-  const [isCustomerAttachment, setIsCustomerAttachment] = useState(false);
+  // const [isCustomerAttachment, setIsCustomerAttachment] = useState(false);
 
   const { data, isFetching, refetch } = useFetchBookingDetailsQuery(id, {
     skip: !id || !open,
@@ -213,13 +213,13 @@ const ViewBookingModal = ({
                             >
                               Booking History
                             </button>
-                            {!isRequests &&
+                            {/* {!isRequests &&
                             <button
                               type="button"
                               onClick={() => setCustomerDetail(true)}
                             >
                               <img src={BasicEdit} alt="icon" />
-                            </button>}
+                            </button>} */}
                           </div>
                         </div>
                         <div className="flex w-full items-center justify-between pt-2.5">
@@ -414,19 +414,13 @@ const ViewBookingModal = ({
                           <h1 className="flex-1 text-left font-semibold text-primary">
                             Customer Attachments
                           </h1>
-                          <FiPlus
+                          {/* <FiPlus
                             onClick={() => {
                               setOpenUploadAttachment(true);
                               setIsCustomerAttachment(true);
                             }}
                             className="h-5 w-5 cursor-pointer text-gray-500"
-                          />
-                          {/* <button
-                              type="button"
-                              onClick={() => setUpload(true)}
-                            >
-                              <img src={BasicEdit} alt="icon" />
-                            </button> */}
+                          /> */}
                         </div>
                         {data?.customer.attachments?.map((attachment) => (
                           <div
@@ -592,7 +586,7 @@ const ViewBookingModal = ({
                             Service Details
                           </h1>
                           <div className="flex items-center gap-2">
-                            <InvoicePdf />
+                            <InvoicePdf data={data} />
                             <CustomButton
                               name={data?.payment_status}
                               handleClick={() => {}}
@@ -1112,12 +1106,14 @@ const ViewBookingModal = ({
                           open={openUploadAttachment}
                           setOpen={setOpenUploadAttachment}
                           getAttachments={
-                            isCustomerAttachment
-                              ? refetch
-                              : refetchBookingAttachments
+                            // isCustomerAttachment
+                            //   ? refetch
+                            //   : refetchBookingAttachments
+                            refetchBookingAttachments
                           }
                           isBooking={
-                            isCustomerAttachment ? "" : data?.booking_id
+                            // isCustomerAttachment ? "" : data?.booking_id
+                            data?.booking_id
                           }
                         />
                       </div>

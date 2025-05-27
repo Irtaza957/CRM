@@ -81,9 +81,10 @@ const styles = StyleSheet.create({
 interface PageProps {
   title: string;
   invoiceNum: { name: string; value: string };
+  data: any;
 }
 // PDF Content Component
-const PageComponent = ({ title, invoiceNum }: PageProps) => (
+const PageComponent = ({ title, invoiceNum, data }: PageProps) => (
   <Page size="A4" style={styles.page}>
     {/* Header */}
     <View style={styles.headerSection}>
@@ -175,7 +176,7 @@ const PageComponent = ({ title, invoiceNum }: PageProps) => (
         <Text style={styles.tableColHeader}>Total</Text>
       </View>
 
-      {[...Array(4)].map((_, i) => (
+      {data?.services?.map((service: any, i: number) => (
         <View
           style={{
             ...styles.tableRow,
@@ -184,10 +185,10 @@ const PageComponent = ({ title, invoiceNum }: PageProps) => (
           }}
           key={i}
         >
-          <Text style={styles.tableCol}>Service #{i + 1}</Text>
-          <Text style={styles.tableCol}>000.00</Text>
-          <Text style={styles.tableCol}>1</Text>
-          <Text style={styles.tableCol}>000.00</Text>
+          <Text style={styles.tableCol}>{service.service_name}</Text>
+          <Text style={styles.tableCol}>{service.price}</Text>
+          <Text style={styles.tableCol}>{service.quantity}</Text>
+          <Text style={styles.tableCol}>{service.total}</Text>
         </View>
       ))}
     </View>
@@ -206,7 +207,7 @@ const PageComponent = ({ title, invoiceNum }: PageProps) => (
             }}
           >
             <Text> Sub Total:</Text>
-            <Text style={{ width: "80px", textAlign: "right" }}>000.00</Text>
+            <Text style={{ width: "80px", textAlign: "right" }}>{data?.sub_total}</Text>
           </View>
           <View
             style={{
@@ -217,8 +218,8 @@ const PageComponent = ({ title, invoiceNum }: PageProps) => (
               color: "#6b7280",
             }}
           >
-            <Text>Discount (2%):</Text>
-            <Text style={{ width: "80px", textAlign: "right" }}>000.00</Text>
+            <Text>Discount ({data?.discount_value}{data?.discount_type==='fixed'?' AED':'%'}):</Text>
+            <Text style={{ width: "80px", textAlign: "right" }}>{data?.discount}</Text>
           </View>
           <View
             style={{
@@ -229,7 +230,7 @@ const PageComponent = ({ title, invoiceNum }: PageProps) => (
             }}
           >
             <Text>Tax (5%):</Text>
-            <Text style={{ width: "80px", textAlign: "right" }}>000.00</Text>
+            <Text style={{ width: "80px", textAlign: "right" }}>{data?.vat_value}</Text>
           </View>
         </>
       )}
@@ -253,7 +254,7 @@ const PageComponent = ({ title, invoiceNum }: PageProps) => (
               : "Grand Total"}
           :
         </Text>
-        <Text style={{ textAlign: "right", marginLeft: 10 }}>AED 0,000.00</Text>
+        <Text style={{ textAlign: "right", marginLeft: 10 }}>AED {data?.total}</Text>
       </View>
       {title !== "TAX INVOICE" && (
         <View style={{ marginTop: 10, color: "#6b7280" }}>
@@ -351,30 +352,34 @@ const PageComponent = ({ title, invoiceNum }: PageProps) => (
     </View>
   </Page>
 );
-const InvoiceDocument = () => (
+const InvoiceDocument = ({data}: any) => (
   <Document>
     <PageComponent
       title={"TAX INVOICE"}
       invoiceNum={{ name: "Tax Invoice No.", value: "56466HGD" }}
+      data={data}
     />
-    <PageComponent
+    {/* <PageComponent
       title={"ESTIMATE"}
       invoiceNum={{ name: "Estimate No.", value: "EST-0001" }}
+      data={data}
     />
     <PageComponent
       title={"PROFORMA INVOICE"}
       invoiceNum={{ name: "Invoice No.", value: "PI-0001" }}
+      data={data}
     />
     <PageComponent
       title={"QUOTATION"}
       invoiceNum={{ name: "Quote Ref.", value: "QT-0001" }}
-    />
+      data={data}
+    /> */}
   </Document>
 );
 
-const InvoicePdf = () => {
+const InvoicePdf = ({data}: any) => {
   return (
-    <PDFDownloadLink document={<InvoiceDocument />} fileName="invoice.pdf">
+    <PDFDownloadLink document={<InvoiceDocument data={data} />} fileName="invoice.pdf">
       <CustomButton name="Invoice" handleClick={() => {}} />
     </PDFDownloadLink>
   );

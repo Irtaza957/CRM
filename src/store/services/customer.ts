@@ -52,6 +52,12 @@ export const customerApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
+    fetchCustomerDetail: build.query({
+      query: (id) => ({
+        url: `/customer?id=${id}`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -60,5 +66,6 @@ export const {
   useFetchCustomerFamilyMutation,
   useFetchCustomerAddressesMutation,
   useFetchCustomerAttachmentsMutation,
-  useFetchCustomersMutation
+  useFetchCustomersMutation,
+  useFetchCustomerDetailQuery,
 } = customerApi;
