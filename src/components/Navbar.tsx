@@ -8,10 +8,12 @@ import { MdOutlineMessage } from "react-icons/md";
 import { HiMiniMagnifyingGlass } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useOnClickOutside } from "../hooks/useOnClickOutside";
+import ChangePassword from "./ChangePassword";
 
 const Navbar = () => {
   const [search, setSearch] = useState("");
   const [isLogout, setIsLogout] = useState(false);
+  const [open, setOpen]=useState(false)
 
   const { user } = useSelector((state: RootState) => state.global);
   // const { date } = useSelector((state: RootState) => state.app);
@@ -50,6 +52,7 @@ const Navbar = () => {
 
   return (
     <nav className="relative z-30 h-16 min-h-16 w-full px-5 text-gray-500 shadow-md">
+      <ChangePassword setOpen={setOpen} open={open} handleLogout={handleLogout} />
       <div className="flex h-full flex-1 items-center justify-between">
         <div className="flex items-center justify-center gap-7">
           <img src={Logo} alt="logo" className="w-36" />
@@ -92,18 +95,36 @@ const Navbar = () => {
             </span>
           </div>
           <div className="relative" ref={userRef}>
-            <img
-              alt="user-dp"
-              className="size-10 cursor-pointer rounded-full"
-              src={user?.avatar || "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg?semt=ais_hybrid&w=740"}
+            <div
+              className="flex cursor-pointer items-center gap-2"
               onClick={() => setIsLogout(!isLogout)}
-            />
+            >
+              <span className="font- text-sm">
+                {user?.firstname} {user?.lastname}
+              </span>
+              <img
+                alt="user-dp"
+                className="size-10 rounded-full"
+                src={
+                  user?.avatar ||
+                  "https://img.freepik.com/premium-vector/default-avatar-profile-icon-social-media-user-image-gray-avatar-icon-blank-profile-silhouette-vector-illustration_561158-3383.jpg?semt=ais_hybrid&w=740"
+                }
+              />
+            </div>
             {isLogout && (
-              <div
-                onClick={handleLogout}
-                className="absolute -left-10 mt-1 cursor-pointer rounded-md bg-white px-4 py-2 font-medium shadow-[rgba(0,0,0,0.24)_0px_3px_8px] hover:bg-gray-100"
-              >
-                Logout
+              <div className="absolute right-0 z-10 mt-1 origin-top-right rounded-md bg-white shadow-[rgba(0,0,0,0.24)_0px_3px_8px]">
+                <div
+                  onClick={()=>setOpen(true)}
+                  className="cursor-pointer px-4 pb-2 pt-3 text-sm font-medium hover:bg-gray-100"
+                >
+                  Change Password
+                </div>
+                <div
+                  onClick={handleLogout}
+                  className="cursor-pointer px-4 pb-3 pt-1 text-sm font-medium hover:bg-gray-100"
+                >
+                  Logout
+                </div>
               </div>
             )}
           </div>

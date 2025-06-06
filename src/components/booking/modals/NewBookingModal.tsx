@@ -16,6 +16,7 @@ import {
   useFetchBookingSourcesQuery,
   useFetchBookingChannelsQuery,
   useFetchBookingPartnersQuery,
+  useConfirmBookingMutation,
 } from "../../../store/services/booking";
 import {
   useFetchCustomerFamilyMutation,
@@ -39,7 +40,7 @@ import {
   FaRegEdit,
   FaChevronLeft,
   FaRegTrashAlt,
-  FaChevronRight
+  FaChevronRight,
 } from "react-icons/fa";
 import dayjs from "dayjs";
 import { toast } from "sonner";
@@ -65,9 +66,7 @@ import {
 } from "../../../store/services/filters";
 import DeleteModal from "./DeleteModal";
 import { RiArrowDownSLine } from "react-icons/ri";
-import { useFetchCompaniesQuery } from "../../../store/services/company";
 import { useFetchBookingPlatformsQuery } from "../../../store/services/booking";
-import { useFetchBusinessesQuery } from "../../../store/services/service";
 import { HiMagnifyingGlass } from "react-icons/hi2";
 
 interface NewBookingModal {
@@ -184,11 +183,11 @@ const NewBookingModal = ({
   const [platform, setPlatform] = useState<ListOptionProps | null>(null);
   const [channel, setChannel] = useState<ListOptionProps | null>(null);
   const [partner, setPartner] = useState<ListOptionProps | null>(null);
-  const [business, setBusiness] = useState<ListOptionProps | null>(null);
-  const [company, setCompany] = useState<ListOptionProps | null>(null);
+
   const [branch, setBranch] = useState<ListOptionProps | null>(null);
   const [scheduleDate, setScheduleDate] = useState<Date | string>(new Date());
   const [deliveryNotes, setDeliveryNotes] = useState("");
+  const [followUpInstructions, setFollowUpInstructions] = useState("");
   const [fetchFamily] = useFetchCustomerFamilyMutation();
   const [selectedServices, setSelectedServices] = useState<
     ServiceProps[] | null
@@ -241,10 +240,11 @@ const NewBookingModal = ({
     }
   );
   const { data: bookingPlatformsData } = useFetchBookingPlatformsQuery({});
+  const [confirmBooking] = useConfirmBookingMutation();
   const { data: bookingPartnersData } = useFetchBookingPartnersQuery(
-    String(company?.id || ""),
+    String(selectedUser?.customer_id || ""),
     {
-      skip: !company?.id,
+      skip: !selectedUser?.customer_id,
       refetchOnMountOrArgChange: true,
     }
   );
@@ -257,21 +257,11 @@ const NewBookingModal = ({
   );
   const [deleteAttachment, { isLoading: deleteLoading }] =
     useDeleteAttachmentMutation();
-  const { data: companiesDropdownData } = useFetchCompaniesQuery(
-    [{ name: "business", id: business?.id || "" }],
-    {
-      skip: !business?.id || !open,
-      refetchOnMountOrArgChange: true,
-    }
-  );
-  const { data: businessData } = useFetchBusinessesQuery([], {
-    skip: !open,
-    refetchOnMountOrArgChange: true,
-  });
+
   const { data: branchesDropodwnData } = useFetchBranchesQuery(
-    [{ name: "company", id: `${company?.id}-company` }],
+    [{ name: "company", id: `${selectedUser?.customer_id}-company` }],
     {
-      skip: !company?.id,
+      skip: !selectedUser?.customer_id,
       refetchOnMountOrArgChange: true,
     }
   );
@@ -398,14 +388,15 @@ const NewBookingModal = ({
     urlencoded.append("address_id", String(address));
     urlencoded.append("booking_source_id", String(source?.id || ""));
     urlencoded.append("booking_channel_id", String(channel?.id || ""));
-    urlencoded.append("company_id", String(company?.id || ""));
+    urlencoded.append("company_id", String(selectedUser?.company_id || ""));
     urlencoded.append("branch_id", String(branch?.id || ""));
     urlencoded.append("partner_id", String(partner?.id || "0"));
-    urlencoded.append("business_id", String(business?.id || ""));
+    urlencoded.append("business_id", String(selectedUser?.business_id || ""));
     urlencoded.append("booking_platform_id", String(platform?.id || ""));
     urlencoded.append("firstname", selectedUser!.firstname);
     urlencoded.append("lastname", selectedUser!.lastname);
     urlencoded.append("phone", selectedUser!.phone);
+    urlencoded.append("follow_up_instructions", followUpInstructions);
     urlencoded.append(
       "schedule_date",
       dayjs(scheduleDate).format("YYYY-MM-DD")
@@ -476,6 +467,7 @@ const NewBookingModal = ({
     urlencoded.append("user_id", `${user!.id}`);
     try {
       const data = await createBooking(urlencoded);
+
       if (data.error) {
         toast.custom((t) => (
           <CustomToast
@@ -486,6 +478,11 @@ const NewBookingModal = ({
           />
         ));
       } else {
+        console.log(data?.data?.data, "datadata");
+        const confirmBookingData = new URLSearchParams();
+        confirmBookingData.append("booking_id", String(data?.data?.data?.id));
+        confirmBookingData.append("user_id", String(user?.id));
+        await confirmBooking(confirmBookingData);
         toast.custom((t) => (
           <CustomToast
             t={t}
@@ -496,6 +493,7 @@ const NewBookingModal = ({
         ));
         setOpen(false);
         setDeliveryNotes("");
+        setFollowUpInstructions("");
         setAddress(null);
         setScheduleTime(null);
         setScheduleDate(new Date());
@@ -700,9 +698,6 @@ const NewBookingModal = ({
       });
     }
   }, [selectedService]);
-  // useEffect(() => {
-  //   getCategories();
-  // }, []);
 
   useEffect(() => {
     if (professions?.data?.doctors?.length) {
@@ -714,9 +709,12 @@ const NewBookingModal = ({
   }, [professions]);
 
   useEffect(() => {
+    console.log(bookingDetailData, 'bookingDetailDatabookingDetailData')
     if (bookingDetailData?.booking_id && open) {
       setSelectedUser({
         customer_id: bookingDetailData?.customer?.id || "",
+        company_id: bookingDetailData?.company_id || "",
+        business_id: bookingDetailData?.business_id || "",
         branch_id: bookingDetailData?.branch_id || "",
         partner_id: bookingDetailData?.partner_id || "",
         firstname: bookingDetailData?.customer?.firstname || "",
@@ -727,7 +725,8 @@ const NewBookingModal = ({
         date_of_birth: bookingDetailData?.customer?.date_of_birth || "",
         gender: bookingDetailData?.customer?.gender || "",
         nationality: bookingDetailData?.customer?.nationality || "",
-        customer_source_id: bookingDetailData?.customer?.customer_source_id || "",
+        customer_source_id:
+          bookingDetailData?.customer?.customer_source_id || "",
         is_allergy: bookingDetailData?.customer?.is_allergy || "",
         allergy_description:
           bookingDetailData?.customer?.allergy_description || "",
@@ -760,6 +759,7 @@ const NewBookingModal = ({
         value: Number(bookingDetailData?.discount_value),
       });
       setDeliveryNotes(bookingDetailData?.delivery_notes);
+      setFollowUpInstructions(bookingDetailData?.follow_up_instructions);
       setScheduleDate(bookingDetailData?.schedule_date);
       setScheduleTime({
         id: bookingDetailData?.schedule_slot,
@@ -771,10 +771,6 @@ const NewBookingModal = ({
       setPartner({
         id: bookingDetailData?.partner_id,
         name: bookingDetailData?.partner,
-      });
-      setBusiness({
-        id: bookingDetailData?.business_id,
-        name: bookingDetailData?.business,
       });
       setBranch({
         id: bookingDetailData?.branch_id,
@@ -792,10 +788,6 @@ const NewBookingModal = ({
         id: bookingDetailData?.booking_source_id,
         name: bookingDetailData?.booking_source,
       });
-      setCompany({
-        id: bookingDetailData?.company_id,
-        name: bookingDetailData?.company,
-      });
     }
   }, [bookingDetailData, open]);
 
@@ -805,6 +797,7 @@ const NewBookingModal = ({
       setSelectedServices(null);
       setEditMode(false);
       setTimeline(null);
+      setToggleSearch(true);
     }
   }, [open]);
 
@@ -813,12 +806,6 @@ const NewBookingModal = ({
       setToggleSearch(false);
     }
   }, [selectedUser]);
-
-  useEffect(() => {
-    if (!business) {
-      setCompany(null);
-    }
-  }, [business]);
 
   const now = dayjs();
   const selectedDay = dayjs(scheduleDate);
@@ -843,7 +830,7 @@ const NewBookingModal = ({
       setScheduleTime(null); // or default to first available
     }
   }, [scheduleDate]);
-
+  
   return (
     <>
       <BookingHistoryModal
@@ -965,7 +952,12 @@ const NewBookingModal = ({
                   )}
                 >
                   <h1 className="text-left font-semibold text-primary">
-                    Customer Details {selectedUser && <span className="text-xs">(MRN: {selectedUser?.mrn || "-"})</span>}
+                    Customer Details{" "}
+                    {selectedUser && (
+                      <span className="text-xs">
+                        (MRN: {selectedUser?.mrn || "-"})
+                      </span>
+                    )}
                   </h1>
                   <div className="flex items-center gap-2">
                     {!editMode && (
@@ -1265,14 +1257,14 @@ const NewBookingModal = ({
                               onClick={() =>
                                 handleOpenAttachment(attachment?.file_name)
                               }
-                              className="h-6 w-6 cursor-pointer"
+                              className="h-5 w-5 cursor-pointer"
                             />
                             <FaRegTrashAlt
                               onClick={() => {
                                 setOpenDeleteAttachmentModal(true);
                                 setDeleteAttachment(attachment);
                               }}
-                              className="h-6 w-6 cursor-pointer"
+                              className="h-5 w-5 cursor-pointer"
                             />
                           </div>
                         </div>
@@ -1527,53 +1519,9 @@ const NewBookingModal = ({
                   </div>
                   <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
                     <h1 className="w-full text-left font-semibold text-primary">
-                      Company Details
+                      Branch Details
                     </h1>
-                    <div className="grid w-full grid-cols-2 gap-2.5">
-                      <Combobox
-                        value={business}
-                        options={businessData?.map((item) => ({
-                          id: item.id,
-                          name: item.name,
-                        }))}
-                        handleSelect={(value) => setBusiness(value)}
-                        label="Select Business"
-                        placeholder="Select Business"
-                        mainClassName="w-full"
-                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
-                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
-                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                        icon={
-                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
-                        }
-                        isSearch={false}
-                        isRemoveAllow={true}
-                      />
-                      <Combobox
-                        value={company}
-                        options={companiesDropdownData?.map((item) => ({
-                          id: item.id,
-                          name: item.name,
-                        }))}
-                        handleSelect={(value) => {
-                          setCompany(value);
-                          setPartner(null);
-                          setBranch(null);
-                        }}
-                        label="Select Company"
-                        placeholder="Select Company"
-                        mainClassName="w-full"
-                        toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
-                        listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
-                        listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                        icon={
-                          <RiArrowDownSLine className="h-5 w-5 text-grey100" />
-                        }
-                        isSearch={false}
-                        disabled={!business?.id}
-                        isRemoveAllow={!!business?.id}
-                      />
-                    </div>
+
                     <div className="grid w-full grid-cols-2 gap-2.5">
                       <Combobox
                         value={branch}
@@ -1592,7 +1540,6 @@ const NewBookingModal = ({
                           <RiArrowDownSLine className="h-5 w-5 text-grey100" />
                         }
                         isSearch={false}
-                        disabled={!company?.id}
                         isRemoveAllow={true}
                       />
                       <Combobox
@@ -1609,11 +1556,11 @@ const NewBookingModal = ({
                           <RiArrowDownSLine className="h-5 w-5 text-grey100" />
                         }
                         isSearch={false}
-                        disabled={!company?.id}
+                        // disabled={!company?.id}
                         isRemoveAllow={true}
                       />
                     </div>
-                    {partner?.id && (
+                    {Number(partner?.id || 0) > 0 && (
                       <div className="flex w-full justify-end">
                         <div className="flex w-1/2 flex-col items-center justify-center space-y-1">
                           <label className="w-full text-left text-xs font-medium text-grey100">
@@ -1765,6 +1712,18 @@ const NewBookingModal = ({
                       </div>
                     </div>
                   </div>
+                  <div className="flex w-full flex-col items-center justify-center space-y-2.5 border-b pb-2.5 pt-2.5 text-gray-500">
+                    <h1 className="w-full text-left font-semibold text-primary">
+                      Followup Instructions
+                    </h1>
+                    <textarea
+                      rows={3}
+                      value={followUpInstructions}
+                      placeholder="Notes..."
+                      onChange={(e) => setFollowUpInstructions(e.target.value)}
+                      className="w-full rounded-lg bg-gray-100 p-3 text-xs text-grey100 placeholder:italic"
+                    />
+                  </div>
                   <CustomButton
                     name={
                       selectedBooking ? "Update Booking" : "Confirm Booking"
@@ -1775,7 +1734,8 @@ const NewBookingModal = ({
                       creating ||
                       !address ||
                       !scheduleTime ||
-                      !!(partner?.id && !orderId)
+                      (Number(partner?.id || '0') > 0 && !orderId) ||
+                      !followUpInstructions
                     }
                     style="w-full py-3 mt-2"
                   />

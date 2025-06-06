@@ -20,6 +20,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { customerSchema } from "../../../utils/schemas";
 import { FiEdit } from "react-icons/fi";
 import { useFetchCustomerDetailQuery } from "../../../store/services/customer";
+import { useFetchCompaniesQuery } from "../../../store/services/company";
+import { useFetchBusinessesQuery } from "../../../store/services/service";
 
 interface AddCustomerModalProps {
   open: boolean;
@@ -60,6 +62,20 @@ const AddCustomerModal = ({
   const [source, setSource] = useState<ListOptionProps | null>(null);
   const [nationality, setNationality] = useState<ListOptionProps | null>(null);
   const [dateOfBirth, setDateOfBirth] = useState<Date | string>(new Date());
+  const [business, setBusiness] = useState<ListOptionProps | null>(null);
+  const [company, setCompany] = useState<ListOptionProps | null>(null);
+
+  const { data: companiesDropdownData } = useFetchCompaniesQuery(
+    [{ name: "business", id: business?.id || "" }],
+    {
+      skip: !business?.id || !open,
+      refetchOnMountOrArgChange: true,
+    }
+  );
+  const { data: businessData } = useFetchBusinessesQuery([], {
+    skip: !open,
+    refetchOnMountOrArgChange: true,
+  });
 
   const {
     register,
@@ -79,11 +95,11 @@ const AddCustomerModal = ({
   const isMedicalCondition = watch("is_medical_condition");
 
   const [addCustomer, { isLoading }] = useAddCustomerMutation();
-  const { data } =useFetchCustomerDetailQuery(customerId, {
+  const { data } = useFetchCustomerDetailQuery(customerId, {
     skip: !open || !isCustomersPage,
     refetchOnMountOrArgChange: true,
   });
-  
+
   const [updateCustomer, { isLoading: updateLoading }] =
     useUpdateCustomerMutation();
   const { data: sources } = useFetchSourcesQuery(
@@ -125,6 +141,8 @@ const AddCustomerModal = ({
         const urlencoded = new URLSearchParams();
         urlencoded.append("user_id", String(userId));
         urlencoded.append("customer_source_id", String(source?.id || ""));
+        urlencoded.append("company_id", String(company?.id || ""));
+        urlencoded.append("business_id", String(business?.id || ""));
         urlencoded.append("firstname", data?.firstname);
         urlencoded.append("lastname", data?.lastname);
         urlencoded.append("phone", data?.phone);
@@ -195,6 +213,8 @@ const AddCustomerModal = ({
               ...userData,
               customer_id: response?.data?.data?.customer_id,
               customer_source_id: String(source?.id || ""),
+              company_id: String(company?.id || ""),
+              business_id: String(business?.id || ""),
               gender: String(gender?.id || ""),
               nationality: String(nationality?.name || ""),
               nationality_id: nationality?.id,
@@ -241,6 +261,8 @@ const AddCustomerModal = ({
     setNationality(null);
     setSource(null);
     setGender(null);
+    setCompany(null);
+    setBusiness(null);
   };
 
   const closeModal = () => {
@@ -300,6 +322,7 @@ const AddCustomerModal = ({
       setValue("customer_source_id", source ? String(source.id) : "");
     }
     if (editMode && userData && !isService) {
+      console.log(userData, 'userDatauserData')
       setValue("firstname", userData.firstname);
       setValue("lastname", userData.lastname);
       setValue("phone", userData.phone);
@@ -320,7 +343,7 @@ const AddCustomerModal = ({
       setDateOfBirth(dayjs(userData.date_of_birth).toDate());
 
       // Setting source and gender based on userData values
-      console.log(userData, sources, 'sourcessources')
+      console.log(userData, sources, "sourcessources");
       const matchedSource = sources?.find(
         (opt) => opt.id === parseInt(userData.customer_source_id)
       );
@@ -334,6 +357,15 @@ const AddCustomerModal = ({
         (opt) => opt.id === userData.gender
       );
       setGender(matchedGender || null);
+      const selectedBusiness = businessData?.find(
+        (opt: any) => opt.id === userData.business_id
+      );
+      const selectedCompany = companiesDropdownData?.find(
+        (opt: any) => opt.id === userData.company_id
+      );
+      console.log(selectedCompany, 'selectedCompanyselectedCompany')
+      setCompany(selectedCompany || null)
+      setBusiness(selectedBusiness || null)
       setValue("gender", matchedGender ? matchedGender.id : "");
       setValue("nationality", userData?.nationality || "");
 
@@ -342,17 +374,22 @@ const AddCustomerModal = ({
         name: userData.nationality,
       });
     } else {
-      if(!isCustomersPage){
+      if (!isCustomersPage) {
         setValue("is_allergy", "no");
         setValue("is_medication", "no");
         setValue("is_medical_condition", "no");
       }
     }
-  }, [editMode, userData, open, sources]);
+  }, [editMode, userData, open, sources, businessData, companiesDropdownData]);
 
   useEffect(() => {
     if (data?.data && !isService && isCustomersPage) {
       const userData = data?.data;
+      console.log(userData, 'datadatadata')
+      const selectedBusiness=businessData?.find((opt:any)=>opt.id===userData.business_id)
+      const selectedCompany=companiesDropdownData?.find((opt:any)=>opt.id===userData.company_id)
+      setCompany(selectedCompany||null)
+      setBusiness(selectedBusiness||null)
       setValue("firstname", userData.firstname);
       setValue("lastname", userData.lastname);
       setValue("phone", userData.phone);
@@ -394,13 +431,13 @@ const AddCustomerModal = ({
         name: userData.nationality,
       });
     } else {
-      if(isCustomersPage){
+      if (isCustomersPage) {
         setValue("is_allergy", "no");
         setValue("is_medication", "no");
         setValue("is_medical_condition", "no");
       }
     }
-  }, [editMode, data, open]);
+  }, [editMode, data, open, businessData, companiesDropdownData]);
   return (
     <Modal
       open={open}
@@ -409,9 +446,11 @@ const AddCustomerModal = ({
       className="w-full max-w-[70%]"
     >
       <div className="h-auto max-h-[calc(100vh-50px)] w-full overflow-y-scroll">
-        <div className="flex w-full items-center justify-between bg-primary px-5 py-2.5 text-white rounded-t-lg">
+        <div className="flex w-full items-center justify-between rounded-t-lg bg-primary px-5 py-2.5 text-white">
           <h1 className="text-xl font-medium">
-            {customerId ? `${viewMode ? "View" : "Edit"} Customer` : "New Customer"}
+            {customerId
+              ? `${viewMode ? "View" : "Edit"} Customer`
+              : "New Customer"}
           </h1>
           <div className="flex items-center justify-center gap-2">
             {viewMode && (
@@ -420,253 +459,299 @@ const AddCustomerModal = ({
                 className="h-6 w-6 cursor-pointer text-white"
               />
             )}
-            <IoClose onClick={() => setOpen(false)} className="h-8 w-8 cursor-pointer" />
+            <IoClose
+              onClick={() => setOpen(false)}
+              className="h-8 w-8 cursor-pointer"
+            />
           </div>
         </div>
-        <div className="px-8 py-5 w-full">
-        <p className="text-left text-[18px] font-bold text-primary">
-          Personal Details
-        </p>
-        <div className="mt-2 w-full">
-          <div className="flex w-full items-center justify-center gap-5">
-            <CustomInput
-              name="firstname"
-              placeholder="First Name"
-              label="First Name"
-              register={register}
-              errorMsg={errors?.firstname?.message}
-              disabled={viewMode}
-            />
-            <CustomInput
-              name="lastname"
-              placeholder="Last Name"
-              label="Last Name"
-              register={register}
-              errorMsg={errors?.lastname?.message}
-              disabled={viewMode}
-            />
-            <div className="flex w-full items-center justify-center gap-2">
-              <div className="w-full">
-                <label className="mb-0.5 w-full text-left text-xs font-medium text-grey100">
-                  DOB
-                </label>
-                <CustomDatePicker
-                  date={dateOfBirth}
-                  setDate={setDateOfBirth}
-                  toggleClassName="-right-20"
-                  // errorMsg={errors?.date_of_birth?.message}
-                  disabled={viewMode}
-                  toggleButton={
-                    <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-3 text-xs font-medium">
-                      <p className="whitespace-nowrap">
-                        {dayjs(dateOfBirth).format("DD MMM YYYY")}
-                      </p>
-                      <div>
-                        <IoCalendarOutline className="h-5 w-5 text-grey100" />
+        <div className="w-full px-8 py-5">
+          <p className="text-left text-[18px] font-bold text-primary">
+            Personal Details
+          </p>
+          <div className="mt-2 w-full">
+            <div className="flex w-full items-center justify-center gap-5">
+              {/* <div className="grid w-full grid-cols-2 gap-2.5"> */}
+                <Combobox
+                  value={business}
+                  options={businessData?.map((item) => ({
+                    id: item.id,
+                    name: item.name,
+                  }))}
+                  handleSelect={(value) => setBusiness(value)}
+                  label="Select Business"
+                  placeholder="Select Business"
+                  mainClassName="w-full"
+                  toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                  listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="h-5 w-5 text-grey100" />}
+                  isSearch={false}
+                  isRemoveAllow={true}
+                />
+                <Combobox
+                  value={company}
+                  options={companiesDropdownData?.map((item) => ({
+                    id: item.id,
+                    name: item.name,
+                  }))}
+                  handleSelect={(value) => {
+                    setCompany(value);
+                  }}
+                  label="Select Company"
+                  placeholder="Select Company"
+                  mainClassName="w-full"
+                  toggleClassName="w-full py-2 px-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                  listClassName="w-full top-[56px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="h-5 w-5 text-grey100" />}
+                  isSearch={false}
+                  disabled={!business?.id}
+                  isRemoveAllow={!!business?.id}
+                />
+              {/* </div> */}
+              <CustomInput
+                name="firstname"
+                placeholder="First Name"
+                label="First Name"
+                register={register}
+                errorMsg={errors?.firstname?.message}
+                disabled={viewMode}
+              />
+            </div>
+            <div className="flex w-full items-center justify-center gap-5">
+              <CustomInput
+                name="lastname"
+                placeholder="Last Name"
+                label="Last Name"
+                register={register}
+                errorMsg={errors?.lastname?.message}
+                disabled={viewMode}
+              />
+              {/* <div className="flex w-full items-center justify-center gap-2"> */}
+                <div className="w-full">
+                  <label className="mb-0.5 w-full text-left text-xs font-medium text-grey100">
+                    DOB
+                  </label>
+                  <CustomDatePicker
+                    date={dateOfBirth}
+                    setDate={setDateOfBirth}
+                    toggleClassName="-right-20"
+                    // errorMsg={errors?.date_of_birth?.message}
+                    disabled={viewMode}
+                    toggleButton={
+                      <div className="flex w-full items-center justify-between rounded-lg bg-gray-100 p-3 text-xs font-medium">
+                        <p className="whitespace-nowrap">
+                          {dayjs(dateOfBirth).format("DD MMM YYYY")}
+                        </p>
+                        <div>
+                          <IoCalendarOutline className="h-5 w-5 text-grey100" />
+                        </div>
                       </div>
-                    </div>
-                  }
+                    }
+                  />
+                </div>
+                <Combobox
+                  value={source}
+                  options={sources}
+                  handleSelect={handleSelectSource}
+                  label="Source"
+                  placeholder="Select Source"
+                  mainClassName="w-full mt-1"
+                  toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
+                  listClassName="w-full top-[72px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+                  isSearch={false}
+                  errorMsg={errors?.customer_source_id?.message}
+                  disabled={viewMode}
                 />
               </div>
-              <Combobox
-                value={source}
-                options={sources}
-                handleSelect={handleSelectSource}
-                label="Source"
-                placeholder="Select Source"
-                mainClassName="w-full mt-1"
-                toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey whitespace-nowrap"
-                listClassName="w-full top-[72px] max-h-52 border rounded-lg z-20 bg-white"
-                listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                icon={<RiArrowDownSLine className="size-5 text-grey100" />}
-                isSearch={false}
-                errorMsg={errors?.customer_source_id?.message}
-                disabled={viewMode}
-              />
-            </div>
-          </div>
-          <div className="my-4 flex w-full items-baseline justify-center gap-5">
-            <CustomInput
-              name="phone"
-              label="Mobile No."
-              placeholder="Mobile No."
-              register={register}
-              errorMsg={errors?.phone?.message}
-              disabled={viewMode}
-              />
-            <div className="flex w-full flex-col">
+            {/* </div> */}
+            <div className="my-4 flex w-full items-baseline justify-center gap-5">
               <CustomInput
-                name="email"
-                label="Email"
-                placeholder="Email"
-                type="text"
+                name="phone"
+                label="Mobile No."
+                placeholder="Mobile No."
                 register={register}
-                errorMsg={errors?.email?.message}
+                errorMsg={errors?.phone?.message}
                 disabled={viewMode}
+              />
+              <div className="flex w-full flex-col">
+                <CustomInput
+                  name="email"
+                  label="Email"
+                  placeholder="Email"
+                  type="text"
+                  register={register}
+                  errorMsg={errors?.email?.message}
+                  disabled={viewMode}
+                />
+              </div>
+              <div className="flex w-full items-center justify-center gap-2">
+                <Combobox
+                  value={gender}
+                  options={genderOptions}
+                  handleSelect={handleSelectGender}
+                  label="Gender"
+                  placeholder="Gender"
+                  mainClassName="w-full"
+                  toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+                  listClassName="w-full top-[72px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+                  isSearch={false}
+                  errorMsg={errors?.gender?.message}
+                  disabled={viewMode}
+                />
+                <Combobox
+                  value={nationality}
+                  options={nationalities}
+                  handleSelect={handleSelectNationality}
+                  label="Nationality"
+                  placeholder="Nationality"
+                  mainClassName="w-full"
+                  toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
+                  listClassName="w-full top-[72px] max-h-52 border rounded-lg z-20 bg-white"
+                  listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
+                  icon={<RiArrowDownSLine className="size-5 text-grey100" />}
+                  isSearch={true}
+                  searchInputPlaceholder="Search..."
+                  searchInputClassName="p-1.5 text-xs"
+                  errorMsg={errors?.nationality?.message}
+                  disabled={viewMode}
+                />
+              </div>
+            </div>
+          </div>
+
+          <p className="text-left text-[18px] font-bold text-primary">
+            Medical Details
+          </p>
+
+          <div className="w-full py-1">
+            <div className="my-1 flex w-full flex-row items-center justify-start gap-5">
+              <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
+                Allergies:
+              </p>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="yes"
+                  {...register("is_allergy")}
+                  className="custom-radio"
+                  disabled={viewMode}
+                />
+                <span>Yes</span>
+              </label>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="no"
+                  {...register("is_allergy")}
+                  className="custom-radio"
+                  disabled={viewMode}
+                />
+                <span>No</span>
+              </label>
+              <CustomInput
+                name="allergy_description"
+                label=""
+                placeholder="Please Specify"
+                register={register}
+                disabled={!isAllergy || isAllergy === "no" || viewMode}
+                errorMsg={errors?.allergy_description?.message}
               />
             </div>
-            <div className="flex w-full items-center justify-center gap-2">
-              <Combobox
-                value={gender}
-                options={genderOptions}
-                handleSelect={handleSelectGender}
-                label="Gender"
-                placeholder="Gender"
-                mainClassName="w-full"
-                toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
-                listClassName="w-full top-[72px] max-h-52 border rounded-lg z-20 bg-white"
-                listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                icon={<RiArrowDownSLine className="size-5 text-grey100" />}
-                isSearch={false}
-                errorMsg={errors?.gender?.message}
-                disabled={viewMode}
+            <div className="my-3 flex w-full flex-row items-center justify-start gap-5">
+              <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
+                Medications:
+              </p>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="yes"
+                  {...register("is_medication")}
+                  className="custom-radio"
+                  disabled={viewMode}
+                />
+                <span>Yes</span>
+              </label>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="no"
+                  {...register("is_medication")}
+                  className="custom-radio"
+                  disabled={viewMode}
+                />
+                <span>No</span>
+              </label>
+
+              <CustomInput
+                name="medication_description"
+                label=""
+                placeholder="Please Specify"
+                register={register}
+                disabled={!isMedication || isMedication === "no" || viewMode}
+                errorMsg={errors?.medication_description?.message}
               />
-              <Combobox
-                value={nationality}
-                options={nationalities}
-                handleSelect={handleSelectNationality}
-                label="Nationality"
-                placeholder="Nationality"
-                mainClassName="w-full"
-                toggleClassName="w-full p-3 rounded-lg text-xs text-grey100 bg-grey"
-                listClassName="w-full top-[72px] max-h-52 border rounded-lg z-20 bg-white"
-                listItemClassName="w-full text-left px-3 py-1.5 hover:bg-primary/20 text-xs space-x-1.5"
-                icon={<RiArrowDownSLine className="size-5 text-grey100" />}
-                isSearch={true}
-                searchInputPlaceholder="Search..."
-                searchInputClassName="p-1.5 text-xs"
-                errorMsg={errors?.nationality?.message}
-                disabled={viewMode}
+            </div>
+            <div className="my-3 flex w-full flex-row items-center justify-start gap-5">
+              <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
+                Medical Conditions:
+              </p>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="yes"
+                  {...register("is_medical_condition")}
+                  className="custom-radio"
+                  disabled={viewMode}
+                />
+                <span>Yes</span>
+              </label>
+
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  value="no"
+                  {...register("is_medical_condition")}
+                  className="custom-radio"
+                  disabled={viewMode}
+                />
+                <span>No</span>
+              </label>
+              <CustomInput
+                name="medical_condition_description"
+                label=""
+                placeholder="Please Specify"
+                register={register}
+                disabled={
+                  !isMedicalCondition || isMedicalCondition === "no" || viewMode
+                }
+                errorMsg={errors?.medical_condition_description?.message}
+              />
+            </div>
+
+            <div className="mt-5 flex w-full justify-end gap-3">
+              <CustomButton
+                name="Cancel"
+                handleClick={closeModal}
+                style="bg-danger"
+              />
+              <CustomButton
+                name={editMode ? "Update" : "Save"}
+                handleClick={handleSubmit(handleSave)}
+                loading={isLoading || updateLoading}
+                disabled={isLoading || updateLoading || viewMode}
               />
             </div>
           </div>
-        </div>
-
-        <p className="text-left text-[18px] font-bold text-primary">
-          Medical Details
-        </p>
-
-        <div className="w-full py-1">
-          <div className="my-1 flex w-full flex-row items-center justify-start gap-5">
-            <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
-              Allergies:
-            </p>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="yes"
-                {...register("is_allergy")}
-                className="custom-radio"
-                disabled={viewMode}
-              />
-              <span>Yes</span>
-            </label>
-
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="no"
-                {...register("is_allergy")}
-                className="custom-radio"
-                disabled={viewMode}
-              />
-              <span>No</span>
-            </label>
-            <CustomInput
-              name="allergy_description"
-              label=""
-              placeholder="Please Specify"
-              register={register}
-              disabled={!isAllergy || isAllergy === "no" || viewMode}
-              errorMsg={errors?.allergy_description?.message}
-            />
-          </div>
-          <div className="my-3 flex w-full flex-row items-center justify-start gap-5">
-            <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
-              Medications:
-            </p>
-
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="yes"
-                {...register("is_medication")}
-                className="custom-radio"
-                disabled={viewMode}
-              />
-              <span>Yes</span>
-            </label>
-
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="no"
-                {...register("is_medication")}
-                className="custom-radio"
-                disabled={viewMode}
-              />
-              <span>No</span>
-            </label>
-
-            <CustomInput
-              name="medication_description"
-              label=""
-              placeholder="Please Specify"
-              register={register}
-              disabled={!isMedication || isMedication === "no" || viewMode}
-              errorMsg={errors?.medication_description?.message}
-            />
-          </div>
-          <div className="my-3 flex w-full flex-row items-center justify-start gap-5">
-            <p className="w-[40%] text-left text-[14px] font-semibold text-[#656565]">
-              Medical Conditions:
-            </p>
-
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="yes"
-                {...register("is_medical_condition")}
-                className="custom-radio"
-                disabled={viewMode}
-              />
-              <span>Yes</span>
-            </label>
-
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                value="no"
-                {...register("is_medical_condition")}
-                className="custom-radio"
-                disabled={viewMode}
-              />
-              <span>No</span>
-            </label>
-            <CustomInput
-              name="medical_condition_description"
-              label=""
-              placeholder="Please Specify"
-              register={register}
-              disabled={!isMedicalCondition || isMedicalCondition === "no" || viewMode}
-              errorMsg={errors?.medical_condition_description?.message}
-            />
-          </div>
-
-          <div className="mt-5 flex w-full justify-end gap-3">
-            <CustomButton
-              name="Cancel"
-              handleClick={closeModal}
-              style="bg-danger"
-            />
-            <CustomButton
-              name={editMode ? "Update" : "Save"}
-              handleClick={handleSubmit(handleSave)}
-              loading={isLoading || updateLoading}
-              disabled={isLoading || updateLoading || viewMode}
-            />
-          </div>
-        </div>
         </div>
       </div>
     </Modal>

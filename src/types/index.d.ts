@@ -209,6 +209,7 @@ declare type BookingDetailProps = {
   invoice_no: string;
   address_id: string;
   family_member_id: string;
+  follow_up_instructions: string;
   family_member_details: {
     family_member_id: string;
     customer_id: string;
@@ -373,6 +374,8 @@ declare type CustomerProps = {
   created_at?: string;
   last_updated?: string;
   nationality: string;
+  company_id?: string;
+  business_id?: string;
 };
 
 declare type AddressProps = {

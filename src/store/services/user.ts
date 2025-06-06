@@ -18,7 +18,14 @@ export const userApi = api.injectEndpoints({
         }
       },
     }),
+    changePassword: build.mutation({
+      query: (data) => ({
+        url: "/account/change_password",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation } = userApi;
+export const { useLoginMutation, useChangePasswordMutation } = userApi;

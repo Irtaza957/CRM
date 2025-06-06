@@ -25,7 +25,7 @@ const DeleteModal = ({
       className="w-[30%] max-w-[80%]"
       title={title}
     >
-      <div className="w-full p-5">
+      <div className="w-full px-5 py-3">
         <p className="text-left text-[18px] font-bold text-primary">
           Are you sure you want to delete?
         </p>

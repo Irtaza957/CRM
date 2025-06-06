@@ -27,8 +27,8 @@ const DateRangePickerComponent = ({ range, setRange }: DateRangePickerComponentP
         onClick={() => setToggle(!toggle)}
       >
         <span className="whitespace-nowrap">
-          {dayjs(range[0].startDate).format("DD-MM-YYYY")} -{" "}
-          {dayjs(range[0].endDate).format("DD-MM-YYYY")}
+          {dayjs(range[0].startDate).format("DD-MM")} -{" "}
+          {dayjs(range[0].endDate).format("DD-MM")}
         </span>
         <MdOutlineCalendarMonth className="w-6 h-6 text-grey250 font-bold" />
       </button>

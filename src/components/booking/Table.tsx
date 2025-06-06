@@ -536,7 +536,7 @@ const Table = ({
                                 className="size-[18px]"
                                 onClick={() => handleWhatsapp(booking?.phone)}
                               />
-                              {booking.booking_status_id !== "2" && (
+                              {booking.booking_status_id !== "1" && (
                                 <img
                                   src={ReAssign}
                                   alt="icon"

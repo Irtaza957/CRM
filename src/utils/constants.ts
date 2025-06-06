@@ -8,6 +8,7 @@
 import Bookings from "../assets/icons/sidebar/bookings.svg";
 import AppPanel from "../assets/icons/sidebar/app_panel.svg";
 import Customers from "../assets/icons/sidebar/customers.svg";
+import Users from "../assets/icons/sidebar/users.svg";
 // import Dashboard from "../assets/icons/sidebar/dashboard.svg";
 // import Marketing from "../assets/icons/sidebar/marketing.svg";
 import ServiceList from "../assets/icons/sidebar/service_list.svg";
@@ -16,12 +17,12 @@ import Leads from "../assets/icons/sidebar/leads.svg";
 // import CustomerRatings from "../assets/icons/sidebar/customer_ratings.svg";
 import SmallUpDownArrow from "../assets/icons/small-updown-arrow.svg";
 
-export const addressTypes=[
-  {id: 'Home', name: 'Home'},
-  {id: 'Work', name: 'Work'},
-  {id: 'Hotels', name: 'Hotels'},
-  {id: 'Events', name: 'Events'},
-]
+export const addressTypes = [
+  { id: "Home", name: "Home" },
+  { id: "Work", name: "Work" },
+  { id: "Hotels", name: "Hotels" },
+  { id: "Events", name: "Events" },
+];
 
 export const emirates = [
   {
@@ -520,13 +521,19 @@ export const sidebarItems = [
     link: "/bookings",
   },
   {
-    id: 4,
+    id: 5,
     name: "Customers",
     icon: Customers,
     link: "/customers",
   },
   {
-    id: 5,
+    id: 6,
+    name: "Users",
+    icon: Users,
+    link: "/users",
+  },
+  {
+    id: 6,
     name: "Service List",
     icon: ServiceList,
     link: "/services",
@@ -686,7 +693,6 @@ export const timeSlots = [
   { id: "23:00-23:30", name: "23:00 - 23:30" },
   { id: "23:30-00:00", name: "23:30 - 00:00" },
 ];
-
 
 export const dayNames = ["Sun", "Mon", "Tues", "Wed", "Thur", "Fri", "Sat"];
 
@@ -1013,8 +1019,18 @@ export const couponsHeaders = [
 ];
 
 export const leadsHeaders = [
-  { label: "Ref No.#", key: "reference_no", sortable: true, sortIcon: SmallUpDownArrow },
-  { label: "Client Name", key: "client_name", sortable: true, sortIcon: SmallUpDownArrow },
+  {
+    label: "Ref No.#",
+    key: "reference_no",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Client Name",
+    key: "client_name",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
   { label: "Email", key: "email", sortable: true, sortIcon: SmallUpDownArrow },
   {
     label: "Country",
@@ -1079,60 +1095,72 @@ export const placeOptions = [
 ];
 
 export const contactVia = [
-  { id: 'WHATSAPP', name: 'Whatsapp' },
-  { id: 'CALL', name: 'Call' },
-  { id: 'EMAIL', name: 'Email' },
-]
+  { id: "WHATSAPP", name: "Whatsapp" },
+  { id: "CALL", name: "Call" },
+  { id: "EMAIL", name: "Email" },
+];
 
 export const priorities = [
-  { id: 'High', name: 'High' },
-  { id: 'Medium', name: 'Medium' },
-  { id: 'Low', name: 'Low' }
-]
+  { id: "High", name: "High" },
+  { id: "Medium", name: "Medium" },
+  { id: "Low", name: "Low" },
+];
 
 export const languages = [
-  { id: 'English', name: 'English' },
-  { id: 'Russian', name: 'Russian' },
-  { id: 'Arabic', name: 'Arabic' },
-  { id: 'Turkish', name: 'Turkish' },
-  { id: 'French', name: 'French' },
-  { id: 'Hindi', name: 'Hindi' },
-  { id: 'Chinese', name: 'Chinese' },
-  { id: 'German', name: 'German' },
-]
+  { id: "English", name: "English" },
+  { id: "Russian", name: "Russian" },
+  { id: "Arabic", name: "Arabic" },
+  { id: "Turkish", name: "Turkish" },
+  { id: "French", name: "French" },
+  { id: "Hindi", name: "Hindi" },
+  { id: "Chinese", name: "Chinese" },
+  { id: "German", name: "German" },
+];
 
-export const leadChannels=[
-  {id: 'CALL', name: 'Call'},
-  {id: 'WHATSAPP', name: 'Whatsapp'},
-  {id: 'EMAIL', name: 'Email'},
-  {id: 'MESSENGER', name: 'Messenger'},
-  {id: 'OTHER', name: 'Other'},
-]
+export const leadChannels = [
+  { id: "CALL", name: "Call" },
+  { id: "WHATSAPP", name: "Whatsapp" },
+  { id: "EMAIL", name: "Email" },
+  { id: "MESSENGER", name: "Messenger" },
+  { id: "OTHER", name: "Other" },
+];
 
 export const modules = {
   toolbar: [
-      [{ font: [] }], // Font selector
-      [{ header: [1, 2, 3, 4, 5, 6, false] }], // Header options
-      [{ size: ["small", false, "large", "huge"] }], // Font sizes
-      [{ align: [] }], // Align text
-      ["bold", "italic", "underline", "strike"], // Text styles
-      [{ color: [] }, { background: [] }], // Text color and background
-      [{ script: "sub" }, { script: "super" }], // Subscript/Superscript
-      [{ list: "ordered" }, { list: "bullet" }], // Lists
-      [{ indent: "-1" }, { indent: "+1" }], // Indentation
-      ["blockquote", "code-block"], // Quote and code block
-      ["link", "image", "video"], // Media attachments
-      ["clean"], // Remove formatting
+    [{ font: [] }], // Font selector
+    [{ header: [1, 2, 3, 4, 5, 6, false] }], // Header options
+    [{ size: ["small", false, "large", "huge"] }], // Font sizes
+    [{ align: [] }], // Align text
+    ["bold", "italic", "underline", "strike"], // Text styles
+    [{ color: [] }, { background: [] }], // Text color and background
+    [{ script: "sub" }, { script: "super" }], // Subscript/Superscript
+    [{ list: "ordered" }, { list: "bullet" }], // Lists
+    [{ indent: "-1" }, { indent: "+1" }], // Indentation
+    ["blockquote", "code-block"], // Quote and code block
+    ["link", "image", "video"], // Media attachments
+    ["clean"], // Remove formatting
   ],
 };
 
 export const formats = [
-  "font", "header", "size", "align",
-  "bold", "italic", "underline", "strike",
-  "color", "background",
-  "script", "list", "indent",
-  "blockquote", "code-block",
-  "link", "image", "video"
+  "font",
+  "header",
+  "size",
+  "align",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "color",
+  "background",
+  "script",
+  "list",
+  "indent",
+  "blockquote",
+  "code-block",
+  "link",
+  "image",
+  "video",
 ];
 
 export const customersHeaders = [
@@ -1182,6 +1210,41 @@ export const customersHeaders = [
   {
     label: "Total Values",
     key: "value",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  { label: "Quick Actions", key: "actions", sortable: false },
+];
+
+export const usersHeaders = [
+  { label: "Sr #", key: "user_id", sortable: true, sortIcon: SmallUpDownArrow },
+  {
+    label: "Full Name",
+    key: "full_name",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Username",
+    key: "username",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Phone",
+    key: "phone",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Role",
+    key: "position",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Created At",
+    key: "created_at",
     sortable: true,
     sortIcon: SmallUpDownArrow,
   },
