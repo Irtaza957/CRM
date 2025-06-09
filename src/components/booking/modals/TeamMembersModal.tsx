@@ -167,6 +167,29 @@ const TeamMembersModal = ({
   }, [professions]);
 
   useEffect(() => {
+    if (members?.length) {
+      const doctors = members?.filter((item: Team) => item?.position === "Doctor")?.map((item: Team) => {
+        return { id: item?.user_id, name: item?.name };
+      });
+      const nurses = members?.filter((item: Team) => item?.position === "Staff Nurse")?.map((item: Team) => {
+        return { id: item?.user_id, name: item?.name };
+      });
+      const drivers = members?.filter((item: Team) => item?.position === "Driver")?.map((item: Team) => {
+        return { id: item?.user_id, name: item?.name };
+      });
+      const physiotherapists = members?.filter((item: Team) => item?.position === "Physiotherapist")?.map((item: Team) => {
+        return { id: item?.user_id, name: item?.name };
+      });
+      setDropdownValues({
+        doctor: doctors?.[0],
+        driver: drivers?.[0],
+        nurse: nurses?.[0],
+        physiotherapist: physiotherapists?.[0],
+      });
+    }
+  }, [members, open]);
+
+  useEffect(() => {
     if (!open) {
       setDropdownValues({
         doctor: null,

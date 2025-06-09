@@ -38,7 +38,8 @@ const AddAddressModal = ({
   const [villa, setVilla] = useState<ListOptionProps | null>(null);
 
   const [addAddress, { isLoading }] = useAddAddressMutation();
-  const [updateAddress, {isLoading: updateLoading}] = useUpdateAddressMutation();
+  const [updateAddress, { isLoading: updateLoading }] =
+    useUpdateAddressMutation();
   const { data: areasDate } = useFetchAreasQuery(emirate?.id as string, {
     skip: !emirate?.id,
     refetchOnMountOrArgChange: true,
@@ -52,6 +53,8 @@ const AddAddressModal = ({
     street: "",
     map_link: "",
     extra_direction: "",
+    longitude: "",
+    latitude: "",
   };
 
   const {
@@ -73,7 +76,7 @@ const AddAddressModal = ({
 
   const handleSelectAddressType = (value: any) => {
     setAddressType(value);
-    setAddressTypeError('')
+    setAddressTypeError("");
   };
 
   const handleSelectArea = (value: any) => {
@@ -92,15 +95,15 @@ const AddAddressModal = ({
       if (customerId && userId) {
         const urlencoded = new URLSearchParams();
         urlencoded.append("user_id", String(userId));
-        urlencoded.append("address_type", String(addressType?.id || ''));
+        urlencoded.append("address_type", String(addressType?.id || ""));
         urlencoded.append("area_id", data.area_id);
         urlencoded.append("building_no", data.building_no);
         urlencoded.append("apartment", data.apartment);
         urlencoded.append("street", data.street);
         urlencoded.append("map_link", data.map_link);
         urlencoded.append("extra_direction", data.extra_direction);
-        urlencoded.append("lat", "0");
-        urlencoded.append("lng", "0");
+        urlencoded.append("lat", data.latitude);
+        urlencoded.append("lng", data.longitude);
         urlencoded.append("is_default", "0");
 
         let response;
@@ -151,7 +154,7 @@ const AddAddressModal = ({
 
   useEffect(() => {
     if (open) {
-      console.log(editableAddressId, 'editableAddressIdeditableAddressId')
+      console.log(editableAddressId, "editableAddressIdeditableAddressId");
       if (editableAddressId && editableAddressId?.address_id) {
         setValue("emirate_id", editableAddressId.emirate);
         setValue("area_id", editableAddressId.area_id);
@@ -160,13 +163,15 @@ const AddAddressModal = ({
         setValue("street", editableAddressId.street);
         setValue("map_link", editableAddressId.map_link);
         setValue("extra_direction", editableAddressId.extra_direction);
+        setValue("latitude", editableAddressId.lat);
+        setValue("longitude", editableAddressId.lng);
 
         // Set Emirate and Area Combobox values
         const selectedAddressType = addressTypes?.find(
           (item) => item.id === editableAddressId.address_type
-        )
-        if(selectedAddressType){
-          setAddressType(selectedAddressType)
+        );
+        if (selectedAddressType) {
+          setAddressType(selectedAddressType);
         }
         const emirateId = emirates?.find(
           (item) => item.name === editableAddressId.emirate
@@ -265,28 +270,42 @@ const AddAddressModal = ({
             />
           </div>
           <div className="flex w-full items-start justify-start gap-5">
-            <div className="w-[50%]">
-              <CustomInput
-                label="Extra Direction"
-                placeholder="Extra Direction"
-                name="extra_direction"
-                register={register}
-                errorMsg={errors.extra_direction?.message}
-              />
-            </div>
-            <div className="flex w-full items-start justify-start gap-2">
-              <CustomInput
-                label="Map Link"
-                placeholder="Map Link"
-                name="map_link"
-                register={register}
-                errorMsg={errors.map_link?.message}
-              />
-              {/* <div className="mt-5 flex cursor-pointer items-center gap-3 rounded-md bg-primary px-6 py-2 text-white">
+            {/* <div className="w-[50%]"> */}
+            <CustomInput
+              label="Extra Direction"
+              placeholder="Extra Direction"
+              name="extra_direction"
+              register={register}
+              errorMsg={errors.extra_direction?.message}
+            />
+            {/* </div> */}
+            <CustomInput
+              label="Longirude"
+              placeholder="Longirude"
+              name="longitude"
+              register={register}
+              errorMsg={errors.longitude?.message}
+            />
+            <CustomInput
+              label="Latitude"
+              placeholder="Latitude"
+              name="latitude"
+              register={register}
+              errorMsg={errors.latitude?.message}
+            />
+          </div>
+          <div className="flex w-full items-start justify-start gap-2">
+            <CustomInput
+              label="Map Link"
+              placeholder="Map Link"
+              name="map_link"
+              register={register}
+              errorMsg={errors.map_link?.message}
+            />
+            {/* <div className="mt-5 flex cursor-pointer items-center gap-3 rounded-md bg-primary px-6 py-2 text-white">
                 <p>Map</p>
                 <img src={Map} alt="" />
               </div> */}
-            </div>
           </div>
         </div>
       </div>
@@ -301,10 +320,10 @@ const AddAddressModal = ({
           handleClick={handleSubmit(
             (data) => handleSave(data),
             (errors) => {
-              console.log("Validation errors:", errors)
-              if(!addressType?.id){
-                setAddressTypeError('Address Type is required')
-                return
+              console.log("Validation errors:", errors);
+              if (!addressType?.id) {
+                setAddressTypeError("Address Type is required");
+                return;
               }
             }
           )}

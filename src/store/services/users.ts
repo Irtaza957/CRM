@@ -2,7 +2,7 @@ import { api } from "./api";
 
 export const userApi = api.injectEndpoints({
   endpoints: (build) => ({
-    fetchUsers: build.query({
+    fetchAllUsers: build.query({
       query: () => {
         return {
           url: `/user`,
@@ -10,10 +10,26 @@ export const userApi = api.injectEndpoints({
         };
       },
     }),
+    fetchUserRoles: build.query({
+      query: () => {
+        return {
+          url: `/user/roles`,
+          method: "GET",
+        };
+      },
+    }),
+    fetchUserDesignations: build.query({
+      query: () => {
+        return {
+          url: `/user/designations`,
+          method: "GET",
+        };
+      },
+    }),
     fetchUserById: build.query({
       query: (id) => {
         return {
-          url: `/user?user_id=${id}`,
+          url: `/user?id=${id}`,
           method: "GET",
         };
       },
@@ -42,9 +58,11 @@ export const userApi = api.injectEndpoints({
 });
 
 export const {
-  useFetchUsersQuery,
+  useFetchAllUsersQuery,
   usePostUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,
   useFetchUserByIdQuery,
+  useFetchUserRolesQuery,
+  useFetchUserDesignationsQuery
 } = userApi;

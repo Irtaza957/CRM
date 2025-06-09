@@ -3,20 +3,17 @@ import { usersHeaders } from "../utils/constants";
 import Table from "../components/ui/Table";
 import { FiEdit } from "react-icons/fi";
 import DeleteModal from "../components/booking/modals/DeleteModal";
-import {
-  useDeleteUserMutation,
-  useFetchUsersQuery,
-} from "../store/services/users";
 import { toast } from "sonner";
 import CustomToast from "../components/ui/CustomToast";
 import AddUserModal from "../components/users/AddUserModal";
+import { useDeleteUserMutation, useFetchAllUsersQuery } from "../store/services/users";
 
 const Users = () => {
   const [add, setAdd] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
-  const { data: users, refetch } = useFetchUsersQuery({});
+  const { data: users, refetch } = useFetchAllUsersQuery({});
   const [deleteUserMutation, {isLoading}] = useDeleteUserMutation();
   console.log(selectedCustomer, "selectedCustomerselectedCustomer");
 

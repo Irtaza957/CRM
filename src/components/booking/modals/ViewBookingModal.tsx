@@ -586,7 +586,7 @@ const ViewBookingModal = ({
                             Service Details
                           </h1>
                           <div className="flex items-center gap-2">
-                            <InvoicePdf data={data} />
+                            {data?.status === "Confirmed" && <InvoicePdf data={data} />}
                             <CustomButton
                               name={data?.payment_status}
                               handleClick={() => {}}
@@ -937,18 +937,10 @@ const ViewBookingModal = ({
                         </div> */}
                         <div className="mt-4 flex w-full flex-col rounded-lg">
                           <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
-                            Provider Details
+                            Branch Details
                           </h1>
                           <div className="ml-1 mt-3.5 flex w-full">
                             <div className="w-[40%] space-y-3">
-                              <div className="space-y-1.5">
-                                <p className="text-xs text-primary">
-                                  Selected Business:
-                                </p>
-                                <p className="text-xs text-[#656565]">
-                                  {data?.business || "N/A"}
-                                </p>
-                              </div>
                               <div className="space-y-1.5">
                                 <p className="text-xs text-primary">
                                   Selected Branch:
@@ -959,14 +951,6 @@ const ViewBookingModal = ({
                               </div>
                             </div>
                             <div className="space-y-3">
-                              <div className="space-y-1.5">
-                                <p className="text-xs text-primary">
-                                  Selected Company:
-                                </p>
-                                <p className="text-xs text-[#656565]">
-                                  {data?.company || "N/A"}
-                                </p>
-                              </div>
                               <div className="space-y-1.5">
                                 <p className="text-xs text-primary">
                                   Selected Partner:

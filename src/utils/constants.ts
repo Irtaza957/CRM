@@ -1219,8 +1219,14 @@ export const customersHeaders = [
 export const usersHeaders = [
   { label: "Sr #", key: "user_id", sortable: true, sortIcon: SmallUpDownArrow },
   {
-    label: "Full Name",
-    key: "full_name",
+    label: "First Name",
+    key: "firstname",
+    sortable: true,
+    sortIcon: SmallUpDownArrow,
+  },
+  {
+    label: "Last Name",
+    key: "lastname",
     sortable: true,
     sortIcon: SmallUpDownArrow,
   },
@@ -1238,7 +1244,7 @@ export const usersHeaders = [
   },
   {
     label: "Role",
-    key: "position",
+    key: "role",
     sortable: true,
     sortIcon: SmallUpDownArrow,
   },

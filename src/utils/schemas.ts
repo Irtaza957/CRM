@@ -3,6 +3,8 @@ import { z } from "zod";
 export const addressSchema = z.object({
   address_type: z.string().optional(),
   building_no: z.string().min(1, "Building Number is required"),
+  longitude: z.string().min(1, "Longitude is required"),
+  latitude: z.string().min(1, "Latitude is required"),
   apartment: z.string().min(1, "Apartment Number is required"),
   street: z.string().optional(),
   map_link: z.string().optional(),
