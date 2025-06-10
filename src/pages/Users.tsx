@@ -6,7 +6,12 @@ import DeleteModal from "../components/booking/modals/DeleteModal";
 import { toast } from "sonner";
 import CustomToast from "../components/ui/CustomToast";
 import AddUserModal from "../components/users/AddUserModal";
-import { useDeleteUserMutation, useFetchAllUsersQuery } from "../store/services/users";
+import {
+  useActivateUserMutation,
+  useDeleteUserMutation,
+  useFetchAllUsersQuery,
+} from "../store/services/users";
+import Switch from "../components/ui/Switch";
 
 const Users = () => {
   const [add, setAdd] = useState(false);
@@ -14,8 +19,8 @@ const Users = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const { data: users, refetch } = useFetchAllUsersQuery({});
-  const [deleteUserMutation, {isLoading}] = useDeleteUserMutation();
-  console.log(selectedCustomer, "selectedCustomerselectedCustomer");
+  const [deleteUserMutation, { isLoading }] = useDeleteUserMutation();
+  const [activateUserMutation] = useActivateUserMutation();
 
   const handleEdit = (row: any, editMode?: boolean) => {
     setSelectedCustomer(row.user_id);
@@ -40,8 +45,53 @@ const Users = () => {
         }}
         className="h-5 w-5 cursor-pointer"
       /> */}
+      <Switch
+        checked={row.active === "1"}
+        onChange={() => {
+          handleStatusToggle(row);
+        }}
+      />
     </div>
   );
+
+  const handleStatusToggle = async (row: any) => {
+    try {
+      const urlencoded = new URLSearchParams();
+      urlencoded.append("user_id", String(row.user_id));
+      urlencoded.append("active", row.active === "1" ? "0" : "1");
+
+      const response = await activateUserMutation(urlencoded);
+
+      if ("error" in response) {
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="error"
+            title="Error"
+            message="Couldn't update status. Please try again!"
+          />
+        ));
+      } else {
+        toast.custom((t) => (
+          <CustomToast
+            t={t}
+            type="success"
+            title="Success"
+            message={`User ${row.active === "1" ? "deactivated" : "activated"} successfully!`}
+          />
+        ));
+      }
+    } catch (error) {
+      toast.custom((t) => (
+        <CustomToast
+          t={t}
+          type="error"
+          title="Error"
+          message="Error Occured. Please try again!"
+        />
+      ));
+    }
+  };
 
   const handledeleteConfirm = async () => {
     try {
@@ -84,7 +134,7 @@ const Users = () => {
         open={add}
         setOpen={setAdd}
         setIsView={setEditMode}
-        selectedHomeSection={selectedCustomer || ''}
+        selectedHomeSection={selectedCustomer || ""}
         refetch={refetch}
         isView={editMode}
       />

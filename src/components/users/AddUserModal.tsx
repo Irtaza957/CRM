@@ -36,7 +36,10 @@ const companySchema = z.object({
   phone: z.string().min(1, "Phone is required"),
   username: z.string().min(1, "Username is required"),
   password: z.string().min(1, "Password is required"),
-  email: z.string().min(1, "Email is required"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Invalid email address"),
 });
 
 const AddUserSection = ({
@@ -292,7 +295,7 @@ const AddUserSection = ({
               name="email"
               label="Email"
               register={register}
-              errorMsg={errors?.username?.message}
+              errorMsg={errors?.email?.message}
               placeholder="Enter email..."
               disabled={isView}
               type="email"

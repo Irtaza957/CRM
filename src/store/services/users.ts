@@ -34,6 +34,13 @@ export const userApi = api.injectEndpoints({
         };
       },
     }),
+    activateUser: build.mutation({
+      query: (data) => ({
+        url: "/user/active",
+        method: "POST",
+        body: data,
+      }),
+    }),
     postUser: build.mutation({
       query: (data) => ({
         url: "/user",
@@ -64,5 +71,6 @@ export const {
   useDeleteUserMutation,
   useFetchUserByIdQuery,
   useFetchUserRolesQuery,
-  useFetchUserDesignationsQuery
+  useFetchUserDesignationsQuery,
+  useActivateUserMutation
 } = userApi;
