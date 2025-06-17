@@ -16,9 +16,15 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../../store";
 import { FiEdit } from "react-icons/fi";
 import ImageUploader from "../../ui/ImageUploader";
-import { linkToOptions, pageOptions, placeOptions } from "../../../utils/constants";
+import {
+  linkToOptions,
+  pageOptions,
+  placeOptions,
+} from "../../../utils/constants";
 import { useFetchAllCategoriesQuery } from "../../../store/services/categories";
 import { useFetchServicesQuery } from "../../../store/services/service";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 interface AddBannerModalProps {
   open: boolean;
@@ -31,6 +37,10 @@ interface AddBannerModalProps {
   companyId: string | number | null;
 }
 
+const schema = z.object({
+  title: z.string().min(1, "Title is required"),
+});
+
 const AddBannerModal = ({
   open,
   setOpen,
@@ -39,31 +49,43 @@ const AddBannerModal = ({
   isView,
   setIsView,
   businessId,
-  companyId
+  companyId,
 }: AddBannerModalProps) => {
   const [linkTo, setLinkTo] = useState<ListOptionProps | null>(null);
-  const [linkData, setLinkData] = useState<ListOptionProps | ListOptionProps[] | null>(null)
-  const [linkDataOptions, setLinkDataOptions] = useState<ListOptionProps[]>()
+  const [linkData, setLinkData] = useState<
+    ListOptionProps | ListOptionProps[] | null
+  >(null);
+  const [linkDataOptions, setLinkDataOptions] = useState<ListOptionProps[]>();
   const [bannerImage, setBannerImage] = useState<File | string | null>(null);
-  const [page, setPage] = useState<ListOptionProps | null>(null)
-  const [place, setPlace] = useState<ListOptionProps | null>(null)
+  const [page, setPage] = useState<ListOptionProps | null>(null);
+  const [selectErrors, setSelectErrors] = useState<Record<string, string>>({});
+  const [place, setPlace] = useState<ListOptionProps | null>(null);
   const { user } = useSelector((state: RootState) => state.global);
   const [createBanner, { isLoading }] = usePostBannerMutation();
   const [updateBanner, { isLoading: updateLoading }] =
     useUpdateBannerMutation();
-  const {
-    data: categoriesData,
-  } = useFetchAllCategoriesQuery([{ name: 'business', id: '1-business' }, { name: 'company', id: '1-company' }], {
-    skip: linkTo?.id !== 'categories_page',
-    refetchOnMountOrArgChange: true
-  });
+  const { data: categoriesData } = useFetchAllCategoriesQuery(
+    [
+      { name: "business", id: "1-business" },
+      { name: "company", id: "1-company" },
+    ],
+    {
+      skip: linkTo?.id !== "categories_page",
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
-  const {
-    data: servicesData,
-  } = useFetchServicesQuery([{ name: 'business', id: '1-business' }, { name: 'company', id: '1-company' }], {
-    skip: (linkTo?.id !== 'services_page' && linkTo?.id !== 'service_detail_page'),
-    refetchOnMountOrArgChange: true
-  });
+  const { data: servicesData } = useFetchServicesQuery(
+    [
+      { name: "business", id: "1-business" },
+      { name: "company", id: "1-company" },
+    ],
+    {
+      skip:
+        linkTo?.id !== "services_page" && linkTo?.id !== "service_detail_page",
+      refetchOnMountOrArgChange: true,
+    }
+  );
 
   const {
     register,
@@ -71,23 +93,28 @@ const AddBannerModal = ({
     reset,
     setValue,
     formState: { errors },
-  } = useForm();
+  } = useForm<{ title: string; description: string }>({
+    resolver: zodResolver(schema),
+  });
 
   const resetState = () => {
     reset({
-      title: '',
-      link_data: '',
-      description: ''
+      title: "",
+      description: "",
     });
     setLinkTo(null);
     setBannerImage(null);
-  }
+  };
   const handleClose = () => {
     setOpen(false);
-    resetState()
+    resetState();
   };
 
   const onSubmit = async (data: any) => {
+    const isValid = validateFields();
+    if (!isValid) return;
+    setSelectErrors({});
+
     try {
       const formData = new FormData();
       formData.append("title", data.title);
@@ -97,13 +124,13 @@ const AddBannerModal = ({
       formData.append("page", String(page?.id || ""));
       formData.append("place", String(place?.id || ""));
       formData.append("user_id", String(user?.id));
-      let link=''
-      if(Array.isArray(linkData)){
-        link=linkData?.map((item) => item.id).join(", ")
-      }else{
-        link=String(linkData?.id || '')
+      let link = "";
+      if (Array.isArray(linkData)) {
+        link = linkData?.map((item) => item.id).join(", ");
+      } else {
+        link = String(linkData?.id || "");
       }
-      formData.append("link_data", link || '');
+      formData.append("link_data", link || "");
 
       if (bannerImage) {
         formData.append("image", bannerImage);
@@ -150,26 +177,57 @@ const AddBannerModal = ({
     }
   };
 
-  const handleSelectLinkTo=(value: ListOptionProps)=>{
-    setLinkData(null)
-    setLinkTo(value)
-  }
+  const handleSelectLinkTo = (value: ListOptionProps) => {
+    setLinkData(null);
+    setLinkTo(value);
+    setSelectErrors({
+      ...selectErrors,
+      linkTo: "",
+    })
+  };
 
-  const handleSelectPage=(value: ListOptionProps)=>{
-    setPage(value)
-  }
+  const handleSelectPage = (value: ListOptionProps) => {
+    setPage(value);
+    setSelectErrors({
+      ...selectErrors,
+      page: "",
+    })
+  };
 
-  const handleSelectPlace=(value: ListOptionProps)=>{
-    setPlace(value)
+  const handleSelectPlace = (value: ListOptionProps) => {
+    setPlace(value);
+    setSelectErrors({
+      ...selectErrors,
+      place: "",
+    })
+  };
+
+  const validateFields=()=>{
+    const newErrors: Record<string, string> = {};
+
+    if (!page) newErrors.page = "Page is required";
+    if (!place) newErrors.place = "Place is required";
+    if (!linkTo) newErrors.linkTo = "Link To is required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setSelectErrors(newErrors);
+      return false;
+    }
+    return true;
   }
 
   useEffect(() => {
     if (selectedBanner?.banner_id) {
       setValue("title", selectedBanner.title);
       setValue("description", selectedBanner.description);
-      setBannerImage(selectedBanner?.image || '')
-      setPage(pageOptions.find(option => option.id === selectedBanner.page) || null)
-      setPlace(placeOptions.find(option => option.id === selectedBanner.place) || null)
+      setBannerImage(selectedBanner?.image || "");
+      setPage(
+        pageOptions.find((option) => option.id === selectedBanner.page) || null
+      );
+      setPlace(
+        placeOptions.find((option) => option.id === selectedBanner.place) ||
+          null
+      );
 
       const selectedLinkTo = linkToOptions.find(
         (option) => option.id === selectedBanner.link_to
@@ -179,42 +237,50 @@ const AddBannerModal = ({
       }
     }
   }, [selectedBanner]);
-  
-  useEffect(()=>{
+
+  useEffect(() => {
     if (linkDataOptions) {
-      const selectedLinkData = selectedBanner?.link_data?.split(', ')
+      const selectedLinkData = selectedBanner?.link_data?.split(", ");
       if (selectedLinkData?.length) {
-        const data = linkDataOptions.filter(item => selectedLinkData.includes(String(item.id)))
+        const data = linkDataOptions.filter((item) =>
+          selectedLinkData.includes(String(item.id))
+        );
         if (data) {
-          setLinkData(data)
+          setLinkData(data);
         }
       }
     }
-  }, [linkDataOptions])
-  
+  }, [linkDataOptions]);
+
   useEffect(() => {
     if (!open) {
-      resetState()
+      resetState();
     }
-  }, [open])
+  }, [open]);
 
   useEffect(() => {
     if (categoriesData) {
-      const data = categoriesData?.map(item => ({ id: item.category_id, name: item.category_name }))
+      const data = categoriesData?.map((item) => ({
+        id: item.category_id,
+        name: item.category_name,
+      }));
       if (data?.length) {
-        setLinkDataOptions(data)
+        setLinkDataOptions(data);
       }
     }
-  }, [categoriesData])
+  }, [categoriesData]);
 
   useEffect(() => {
     if (servicesData) {
-      const data = servicesData?.map(item => ({ id: item.service_id, name: item.service_name }))
+      const data = servicesData?.map((item) => ({
+        id: item.service_id,
+        name: item.service_name,
+      }));
       if (data) {
-        setLinkDataOptions(data)
+        setLinkDataOptions(data);
       }
     }
-  }, [servicesData])
+  }, [servicesData]);
 
   return (
     <Modal open={open} setOpen={setOpen} className="w-[95%] lg:max-w-2xl">
@@ -239,10 +305,10 @@ const AddBannerModal = ({
             <CustomInput
               name="title"
               label="Title"
-              register={register}
-              errorMsg={errors?.title?.message}
               placeholder="Enter title"
               disabled={isView}
+              register={register}
+              errorMsg={errors?.title?.message}
             />
             <Combobox
               options={pageOptions}
@@ -257,6 +323,7 @@ const AddBannerModal = ({
               icon={<RiArrowDownSLine className="size-5 text-grey100" />}
               isSearch={false}
               disabled={isView}
+              errorMsg={selectErrors?.page}
             />
             <Combobox
               options={placeOptions}
@@ -271,6 +338,7 @@ const AddBannerModal = ({
               icon={<RiArrowDownSLine className="size-5 text-grey100" />}
               isSearch={false}
               disabled={isView}
+              errorMsg={selectErrors?.place}
             />
             <Combobox
               options={linkToOptions}
@@ -285,6 +353,7 @@ const AddBannerModal = ({
               icon={<RiArrowDownSLine className="size-5 text-grey100" />}
               isSearch={false}
               disabled={isView}
+              errorMsg={selectErrors?.linkTo}
             />
             <Combobox
               options={linkDataOptions}
@@ -299,17 +368,21 @@ const AddBannerModal = ({
               icon={<RiArrowDownSLine className="size-5 text-grey100" />}
               isSearch={false}
               disabled={isView || !linkTo?.id}
-              isMultiSelect={linkTo?.id!=='service_detail_page'}
+              isMultiSelect={linkTo?.id !== "service_detail_page"}
             />
           </div>
 
-          <div className="grid w-full flex-col items-start justify-start gap-2.5 mt-5">
+          <div className="mt-5 grid w-full flex-col items-start justify-start gap-2.5">
             <label className="w-full text-left text-xs font-medium text-grey100">
               Banner Image
             </label>
             <ImageUploader
               setImage={setBannerImage}
-              link={selectedBanner?.image ? `${import.meta.env.VITE_BASE_URL}${selectedBanner.image}` : ""}
+              link={
+                selectedBanner?.image
+                  ? `${import.meta.env.VITE_BASE_URL}${selectedBanner.image}`
+                  : ""
+              }
               disabled={isView}
             />
           </div>
@@ -323,7 +396,13 @@ const AddBannerModal = ({
             {!isView && (
               <CustomButton
                 name={selectedBanner?.banner_id ? "Update" : "Save"}
-                handleClick={handleSubmit(onSubmit)}
+                handleClick={handleSubmit(
+                  (data) => onSubmit(data),
+                  (error) => {
+                    console.log(error)
+                    validateFields()
+                  }
+                )}
                 loading={isLoading || updateLoading}
                 disabled={isLoading || updateLoading}
               />

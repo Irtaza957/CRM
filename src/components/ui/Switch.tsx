@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "../../utils/helpers";
 
 interface SwitchProps {
@@ -16,6 +16,9 @@ const Switch: React.FC<SwitchProps> = ({ checked = false, onChange }) => {
     onChange?.(newValue); // Call the onChange prop if provided
   };
 
+  useEffect(() => {
+    setToggle(checked);
+  }, [checked]);
   return (
     <div
       onClick={handleToggle}

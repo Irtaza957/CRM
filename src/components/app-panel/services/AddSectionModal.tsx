@@ -13,6 +13,12 @@ import { FiEdit } from "react-icons/fi";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import he from "he";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const schema = z.object({
+  name: z.string().min(1, "Name is required"),
+});
 
 interface AddSectionModalProps {
   isOpen: boolean;
@@ -43,7 +49,9 @@ const AddSectionModal = ({
     setValue,
     formState: { errors },
     watch
-  } = useForm();
+  } = useForm({
+    resolver: zodResolver(schema),
+  });
   const description = watch("description");
 
   const handleClose = () => {

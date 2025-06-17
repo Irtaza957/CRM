@@ -25,6 +25,7 @@ const AddRelatedService = ({
     refetch
 }: AddSectionModalProps) => {
     const [selectedService, setSelectedService] = useState<ListOptionProps | null>(null)
+    const [error, setError] = useState<string | null>(null)
     const [createRelatedSection, {isLoading: isLoadingAdd}] = useCreateRelatedSectionMutation();
     const { user } = useSelector((state: RootState) => state.global);
     const {
@@ -41,6 +42,10 @@ const AddRelatedService = ({
     }
 
     const handleFormSubmit = async () => {
+        if(!selectedService){
+            setError("Please select a service")
+            return
+        }
         try {
             if (!selectedServiceId) {
                 toast.custom((t) => (
@@ -88,6 +93,7 @@ const AddRelatedService = ({
 
     const handleSelectService = (value: ListOptionProps) => {
         setSelectedService(value)
+        setError(null)
     }
 
     return (
@@ -113,6 +119,7 @@ const AddRelatedService = ({
                         icon={<div><TiArrowSortedDown className="size-5" /></div>}
                         searchInputPlaceholder="Search..."
                         searchInputClassName="p-1.5 text-xs"
+                        errorMsg={error || ''}
                     />
                     <div className="space-y-4">
                         <div className="flex justify-end space-x-3 pt-9">

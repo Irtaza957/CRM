@@ -18,6 +18,15 @@ import { FiEdit } from "react-icons/fi";
 import dayjs from "dayjs";
 import CustomDatePicker from "../../ui/CustomDatePicker";
 import { discountTypes } from "../../../utils/constants";
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const schema = z.object({
+  name: z.string().nonempty("Name is required"),
+  code: z.string().nonempty("Code is required"),
+  total_redeems: z.string().nonempty("Total redeems is required"),
+  discount_value: z.string().nonempty("Discount value is required"),
+});
 
 interface AddCouponModalProps {
   open: boolean;
@@ -38,12 +47,16 @@ const AddCouponModal = ({
   isView,
   setIsView,
   businessId,
-  companyId
+  companyId,
 }: AddCouponModalProps) => {
   const [discountType, setDiscountType] = useState<ListOptionProps | null>(
     null
   );
   const [expiryDate, setExpiryDate] = useState<string | Date>(new Date());
+  const [selectErrors, setSelectErrors] = useState<{
+    discountType?: string;
+    expiryDate?: string;
+  }>({});
 
   const { user } = useSelector((state: RootState) => state.global);
   const [createCoupon, { isLoading }] = usePostCouponMutation();
@@ -56,24 +69,45 @@ const AddCouponModal = ({
     reset,
     setValue,
     formState: { errors },
-  } = useForm();
+  } = useForm<{
+    name: string;
+    code: string;
+    total_redeems: string;
+    discount_value: string;
+  }>({
+    resolver: zodResolver(schema),
+  });
 
-  const resetState=()=>{
+  const validateFields = () => {
+    const newErrors: Record<string, string> = {};
+
+    if (!discountType) newErrors.discountType = "Discount Type is required";
+
+    if (Object.keys(newErrors).length > 0) {
+      setSelectErrors(newErrors);
+      return false;
+    }
+    return true;
+  };
+  const resetState = () => {
     reset({
-      total_redeems: '',
-      name: '',
-      code: ''
+      total_redeems: "",
+      name: "",
+      code: "",
     });
     setDiscountType(null);
     setExpiryDate(new Date());
-  }
+  };
 
   const handleClose = () => {
     setOpen(false);
-    resetState()
+    resetState();
   };
 
   const onSubmit = async (data: any) => {
+    const isValid = validateFields();
+    if (!isValid) return;
+    setSelectErrors({});
     try {
       const formData = new URLSearchParams();
       formData.append("name", data.name);
@@ -144,11 +178,11 @@ const AddCouponModal = ({
     }
   }, [selectedCoupon]);
 
-  useEffect(()=>{
-    if(!open){
-      resetState()
+  useEffect(() => {
+    if (!open) {
+      resetState();
     }
-  },[open])
+  }, [open]);
 
   return (
     <Modal open={open} setOpen={setOpen} className="w-[95%] lg:max-w-2xl">
@@ -218,7 +252,10 @@ const AddCouponModal = ({
             <Combobox
               options={discountTypes}
               value={discountType}
-              handleSelect={(value: ListOptionProps) => setDiscountType(value)}
+              handleSelect={(value: ListOptionProps) => {
+                setDiscountType(value);
+                setSelectErrors({...selectErrors, discountType: ""});
+              }}
               label="Discount Type"
               placeholder="Select Discount Type"
               mainClassName="w-full"
@@ -228,6 +265,7 @@ const AddCouponModal = ({
               icon={<RiArrowDownSLine className="size-5 text-grey100" />}
               isSearch={false}
               disabled={isView}
+              errorMsg={selectErrors?.discountType}
             />
             <CustomInput
               name="discount_value"
@@ -249,7 +287,13 @@ const AddCouponModal = ({
             {!isView && (
               <CustomButton
                 name={selectedCoupon?.coupon_id ? "Update" : "Save"}
-                handleClick={handleSubmit(onSubmit)}
+                handleClick={handleSubmit(
+                  (data) => onSubmit(data),
+                  (error) => {
+                    console.log(error)
+                    validateFields()
+                  }
+                )}
                 loading={isLoading || updateLoading}
                 disabled={isLoading || updateLoading}
               />

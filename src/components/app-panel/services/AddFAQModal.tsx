@@ -13,6 +13,13 @@ import {
 import { toast } from "sonner";
 import CustomToast from "../../ui/CustomToast";
 import { FiEdit } from "react-icons/fi";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const schema = z.object({
+  question: z.string().min(1, "Question is required"),
+  answer: z.string().min(1, "Answer is required"),
+});
 
 interface AddFAQModalProps {
   isOpen: boolean;
@@ -50,7 +57,9 @@ const AddFAQModal = ({
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FAQPayload>();
+  } = useForm<FAQPayload>({
+    resolver: zodResolver(schema),
+  });
 
   const handleClose = () => {
     setOpen(false);

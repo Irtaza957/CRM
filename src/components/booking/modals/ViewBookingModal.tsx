@@ -49,15 +49,12 @@ const ViewBookingModal = ({
   const [cancel, setCancel] = useState(false);
   const [upload, setUpload] = useState(false);
   const [customerDetail, setCustomerDetail] = useState(false);
-  // const [editing, setEditing] = useState(false);
   const [history, setHistory] = useState(false);
-  const [deliveryNotes, setDeliveryNotes] = useState("");
   const [isAssignModal, setIsAssignModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserType | null>(null);
   const [opeBooking, setOpenBooking] = useState(false);
   const { user } = useSelector((state: RootState) => state.global);
   const [openUploadAttachment, setOpenUploadAttachment] = useState(false);
-  // const [isCustomerAttachment, setIsCustomerAttachment] = useState(false);
 
   const { data, isFetching, refetch } = useFetchBookingDetailsQuery(id, {
     skip: !id || !open,
@@ -866,13 +863,19 @@ const ViewBookingModal = ({
                             Booking Instructions
                           </h1>
                           <textarea
-                            value={deliveryNotes}
-                            onChange={(e) => setDeliveryNotes(e.target.value)}
+                            value={data?.delivery_notes}
                             className="mt-3 w-full rounded-lg bg-gray-100 p-3 text-xs text-grey100"
-                            placeholder={
-                              data?.delivery_notes || "Further Instructions..."
-                            }
-                            // disabled={!editing}
+                            disabled={true}
+                          />
+                        </div>
+                        <div className="mt-2.5 flex w-full flex-col items-center justify-center rounded-lg bg-white">
+                          <h1 className="w-full border-b pb-2.5 text-left font-semibold text-primary">
+                            Followup Instructions
+                          </h1>
+                          <textarea
+                            value={data?.follow_up_instructions}
+                            className="mt-3 w-full rounded-lg bg-gray-100 p-3 text-xs text-grey100"
+                            disabled={true}
                           />
                         </div>
                         {/* <div className="grid w-full grid-cols-2 gap-2.5 pt-2.5">

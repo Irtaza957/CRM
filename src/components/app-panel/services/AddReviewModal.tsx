@@ -18,6 +18,13 @@ import CustomToast from "../../ui/CustomToast";
 // import { useFetchCustomersMutation } from "../../../store/services/customer";
 import { FiEdit } from "react-icons/fi";
 import CommonTextarea from "../../ui/CommonTextarea";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const schema = z.object({
+  review: z.string().min(1, "Review is required"),  
+  customer_name: z.string().min(1, "Customer name is required"),
+});
 
 interface AddReviewModalProps {
   open: boolean;
@@ -46,7 +53,9 @@ const AddReviewModal = ({
     reset,
     setValue,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    resolver: zodResolver(schema),
+  });
 
   const [addReview, {isLoading: isLoadingAdd}] = useAddReviewMutation();
   const [updateReview, {isLoading: isLoadingUpdate}] = useUpdateReviewMutation();

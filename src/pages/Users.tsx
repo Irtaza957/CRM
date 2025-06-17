@@ -28,8 +28,8 @@ const Users = () => {
     setEditMode(editMode || false);
   };
 
-  const renderActions = (row: any) => (
-    <div className="mr-2 flex justify-end gap-3">
+  const renderActions = (row: any) => {
+    return <div className="mr-2 flex justify-end gap-3">
       <FiEdit
         onClick={(e) => {
           e.stopPropagation();
@@ -37,14 +37,6 @@ const Users = () => {
         }}
         className="col-span-1 h-5 w-5 cursor-pointer rounded-md bg-red-500 p-1 text-white"
       />
-      {/* <FaRegTrashAlt
-        onClick={(e) => {
-          e.stopPropagation();
-          setSelectedCustomer(row.user_id);
-          setOpenDeleteModal(true);
-        }}
-        className="h-5 w-5 cursor-pointer"
-      /> */}
       <Switch
         checked={row.active === "1"}
         onChange={() => {
@@ -52,7 +44,7 @@ const Users = () => {
         }}
       />
     </div>
-  );
+  };
 
   const handleStatusToggle = async (row: any) => {
     try {
